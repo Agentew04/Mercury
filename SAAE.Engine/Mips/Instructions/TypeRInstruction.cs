@@ -9,7 +9,7 @@ namespace SAAE.Engine.Mips.Instructions;
 
 public abstract class TypeRInstruction : Instruction {
 
-    public byte OpCode { get; } = 0;
+    public byte OpCode { get; private set; } = 0;
 
     public byte Rd { get; set; }
 
@@ -23,5 +23,9 @@ public abstract class TypeRInstruction : Instruction {
 
     public override int ConvertToInt() {
         return ((OpCode & 0x3F) << 26) | ((Rs & 0x1F) << 21) | ((Rt & 0x1F) << 16) | ((Rd & 0x1F) << 11) | ((ShiftAmount & 0x1F) << 6) | (Function & 0x3F);
+    }
+
+    protected void OverrideOpCode(byte newOpCode) {
+        OpCode = newOpCode;
     }
 }

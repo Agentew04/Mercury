@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SAAE.Engine.Mips.Instructions; 
+
 public partial class Add : TypeRInstruction {
 
     public Add() {

@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Instructions.Logical;
+namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Nor : TypeRInstruction {
+public partial class Nor : TypeRInstruction {
 
     public Nor() {
         Function = 0b100111;

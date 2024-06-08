@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Instructions.Logical;
+namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class And : TypeRInstruction {
+public partial class And : TypeRInstruction {
 
     public And() {
         Function = 0b100100;

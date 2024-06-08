@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Instructions.Logical;
+namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Sllv : TypeRInstruction {
+public partial class Sllv : TypeRInstruction {
 
     public Sllv() {
         Function = 0b000100;

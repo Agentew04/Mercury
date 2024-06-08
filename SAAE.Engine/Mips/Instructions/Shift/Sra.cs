@@ -1,14 +1,14 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Instructions.Logical;
+namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Sra : TypeRInstruction {
+public partial class Sra : TypeRInstruction {
 
     public Sra() {
         Function = 0b000011;
         Rs = 0;
     }
 
-    [GeneratedRegex(@"sra\s+\$(?<rd>\S+)\s*,\s*\$(?<rt>\S+)\s*,\s*\$(?<shamt>\S+)\s*$")]
+    [GeneratedRegex(@"sra\s+\$(?<rd>\S+)\s*,\s*\$(?<rt>\S+)\s*,\s*(?<shamt>\d+)\s*$")]
     public override partial Regex GetRegularExpression();
 }

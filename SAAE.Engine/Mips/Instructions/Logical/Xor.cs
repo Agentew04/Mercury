@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Instructions.Logical;
+namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Xor : TypeRInstruction {
+public partial class Xor : TypeRInstruction {
 
     public Xor() {
         Function = 0b100110;

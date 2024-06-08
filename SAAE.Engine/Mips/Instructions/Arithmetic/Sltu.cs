@@ -2,7 +2,7 @@
 
 namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Sltu : TypeRInstruction {
+public partial class Sltu : TypeRInstruction {
 
     public Sltu() {
         Function = 0b101011;

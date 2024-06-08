@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Instructions.Logical;
+namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Rotrv : TypeRInstruction {
+public partial class Rotrv : TypeRInstruction {
 
     public Rotrv() {
         Function = 0b000110;

@@ -2,13 +2,14 @@
 
 namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Mul : TypeRInstruction {
+public partial class Mul : TypeRInstruction {
 
     public Mul() {
+        OverrideOpCode(0b011100);
         Function = 0x2;
         ShiftAmount = 0;
     }
 
-    [GeneratedRegex(@"subu\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*,\s*\$(?<rt>\S+)\s*$")]
+    [GeneratedRegex(@"mul\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*,\s*\$(?<rt>\S+)\s*$")]
     public override partial Regex GetRegularExpression();
 }

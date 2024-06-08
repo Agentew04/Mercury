@@ -2,7 +2,7 @@
 
 namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Subu : TypeRInstruction {
+public partial class Subu : TypeRInstruction {
 
     public Subu() {
         Function = 0x23;

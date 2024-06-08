@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Instructions.Logical;
+namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Or : TypeRInstruction {
+public partial class Or : TypeRInstruction {
 
     public Or() {
         Function = 0b100101;

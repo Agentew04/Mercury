@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Instructions.Logical;
+namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Srav : TypeRInstruction {
+public partial class Srav : TypeRInstruction {
 
     public Srav() {
         Function = 0b000111;

@@ -2,7 +2,7 @@
 
 namespace SAAE.Engine.Mips.Instructions; 
 
-internal partial class Addu : TypeRInstruction {
+public partial class Addu : TypeRInstruction {
     public Addu() {
         Function = 0x21;
         ShiftAmount = 0;

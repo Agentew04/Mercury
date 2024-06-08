@@ -2,7 +2,7 @@
 
 namespace SAAE.Engine.Mips.Instructions;
 
-internal partial class Slt : TypeRInstruction {
+public partial class Slt : TypeRInstruction {
 
     public Slt() {
         Function = 0b101010;
