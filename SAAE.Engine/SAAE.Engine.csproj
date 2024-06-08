@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Mips\Instructions\Memory\" />
+    <Folder Include="Mips\Runtime\" />
+    <Folder Include="RiscV\RV128I\" />
+    <Folder Include="RiscV\RV64I\" />
+    <Folder Include="RiscV\RV32E\" />
+    <Folder Include="RiscV\RV32I\" />
+  </ItemGroup>
+
+</Project>
