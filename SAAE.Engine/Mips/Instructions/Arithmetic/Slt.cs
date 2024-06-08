@@ -9,6 +9,13 @@ public partial class Slt : TypeRInstruction {
         ShiftAmount = 0;
     }
 
-    [GeneratedRegex(@"slt\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*,\s*\$(?<rt>\S+)\s*$")]
+    [GeneratedRegex(@"^\s*slt\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*,\s*\$(?<rt>\S+)\s*$")]
     public override partial Regex GetRegularExpression();
+
+    public override void PopulateFromLine(string line) {
+        Match m = GetRegularExpression().Match(line);
+        Rd = byte.Parse(m.Groups["rd"].Value);
+        Rs = byte.Parse(m.Groups["rs"].Value);
+        Rt = byte.Parse(m.Groups["rt"].Value);
+    }
 }

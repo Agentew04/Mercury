@@ -252,6 +252,7 @@ public class InstructionsTestTypeR
     [DataRow(8, 9, 10, 0x012A4025)]
     [DataRow(0, 9, 31, 0x013F0025)]
     [DataRow(23, 29, 26, 0x03BAB825)]
+    [DataRow(23, 26, 1, 0x0341B825)]
     [DataTestMethod("Test assembling")]
     public void OrAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Engine.Mips.Instructions.Or {

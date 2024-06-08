@@ -12,5 +12,13 @@ public abstract class Instruction {
 
     public abstract Regex GetRegularExpression();
 
+    public bool IsMatch(string line) {
+        return GetRegularExpression().IsMatch(line);
+    }
+
+    public abstract void PopulateFromLine(string line);
+
+    public abstract void FromInt(int instruction);
+
     public abstract int ConvertToInt();
 }

@@ -28,4 +28,13 @@ public abstract class TypeRInstruction : Instruction {
     protected void OverrideOpCode(byte newOpCode) {
         OpCode = newOpCode;
     }
+
+    public override void FromInt(int instruction) {
+        OpCode = (byte)((instruction >> 26) & 0x3F);
+        Rs = (byte)((instruction >> 21) & 0x1F);
+        Rt = (byte)((instruction >> 16) & 0x1F);
+        Rd = (byte)((instruction >> 11) & 0x1F);
+        ShiftAmount = (byte)((instruction >> 6) & 0x1F);
+        Function = (byte)(instruction & 0x3F);
+    }
 }

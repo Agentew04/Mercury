@@ -9,6 +9,13 @@ public partial class Sra : TypeRInstruction {
         Rs = 0;
     }
 
-    [GeneratedRegex(@"sra\s+\$(?<rd>\S+)\s*,\s*\$(?<rt>\S+)\s*,\s*(?<shamt>\d+)\s*$")]
+    [GeneratedRegex(@"^\s*sra\s+\$(?<rd>\S+)\s*,\s*\$(?<rt>\S+)\s*,\s*(?<shamt>\d+)\s*$")]
     public override partial Regex GetRegularExpression();
+
+    public override void PopulateFromLine(string line) {
+        Match m = GetRegularExpression().Match(line);
+        Rd = byte.Parse(m.Groups["rd"].Value);
+        Rt = byte.Parse(m.Groups["rt"].Value);
+        ShiftAmount = byte.Parse(m.Groups["shamt"].Value);
+    }
 }

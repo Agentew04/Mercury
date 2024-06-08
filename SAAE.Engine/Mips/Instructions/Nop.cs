@@ -11,6 +11,14 @@ internal partial class Nop : Instruction {
         return 0;
     }
 
+    public override void FromInt(int instruction) {
+        // do nothing
+    }
+
     [GeneratedRegex(@"nop\s*$")]
     public override partial Regex GetRegularExpression();
+
+    public override void PopulateFromLine(string line) {
+        // do nothing
+    }
 }
