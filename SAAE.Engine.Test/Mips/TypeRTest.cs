@@ -1,3 +1,5 @@
+using SAAE.Engine.Mips.Instructions;
+
 namespace SAAE.Engine.Test.Mips;
 
 [TestClass]
@@ -7,7 +9,7 @@ public class InstructionsTestTypeR
     [TestMethod("Test Add Regex")]
     public void AddRegex()
     {
-        var instruction = new Engine.Mips.Instructions.Add();
+        var instruction = new Add();
         var regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("add $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("add $t0, $t1, $t2, $t3"));
@@ -22,7 +24,7 @@ public class InstructionsTestTypeR
     [DataRow(23, 29, 26, 0x03BAB820)]
     [DataTestMethod("Test assembling")]
     public void AddAssembly(int rd, int rs, int rt, int result) {
-        var instruction = new Engine.Mips.Instructions.Add {
+        var instruction = new Add {
             Rd = (byte)rd,
             Rs = (byte)rs,
             Rt = (byte)rt,
@@ -33,7 +35,7 @@ public class InstructionsTestTypeR
     [TestCategory("Addu")]
     [TestMethod("Test Addu Regex")]
     public void AdduRegex() {
-        var instruction = new Engine.Mips.Instructions.Addu();
+        var instruction = new Addu();
         var regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("addu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("addu $t0, $t1, $t2, $t3"));
@@ -48,7 +50,7 @@ public class InstructionsTestTypeR
     [DataRow(23, 29, 26, 0x03BAB821)]
     [DataTestMethod("Test assembling")]
     public void AdduAssembly(int rd, int rs, int rt, int result) {
-        var instruction = new Engine.Mips.Instructions.Addu {
+        var instruction = new Addu {
             Rd = (byte)rd,
             Rs = (byte)rs,
             Rt = (byte)rt,
@@ -59,7 +61,7 @@ public class InstructionsTestTypeR
     [TestCategory("Mul")]
     [TestMethod("Test Mul Regex")]
     public void MulRegex() {
-        var instruction = new Engine.Mips.Instructions.Mul();
+        var instruction = new Mul();
         var regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("mul $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("mul $t0, $t1, $t2, $t3"));
@@ -74,7 +76,7 @@ public class InstructionsTestTypeR
     [DataRow(23, 29, 26, 0x73BAB802)]
     [DataTestMethod("Test assembling")]
     public void MulAssembly(int rd, int rs, int rt, int result) {
-        var instruction = new Engine.Mips.Instructions.Mul {
+        var instruction = new Mul {
             Rd = (byte)rd,
             Rs = (byte)rs,
             Rt = (byte)rt,
@@ -85,7 +87,7 @@ public class InstructionsTestTypeR
     [TestCategory("Slt")]
     [TestMethod("Test Slt Regex")]
     public void SltRegex() {
-        var instruction = new Engine.Mips.Instructions.Slt();
+        var instruction = new Slt();
         var regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("slt $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("slt $t0, $t1, $t2, $t3"));
@@ -99,7 +101,7 @@ public class InstructionsTestTypeR
     [DataRow(23, 29, 26, 0x03BAB82A)]
     [DataTestMethod("Test assembling")]
     public void SltAssembly(int rd, int rs, int rt, int result) {
-        var instruction = new Engine.Mips.Instructions.Slt {
+        var instruction = new Slt {
             Rd = (byte)rd,
             Rs = (byte)rs,
             Rt = (byte)rt,
@@ -110,7 +112,7 @@ public class InstructionsTestTypeR
     [TestCategory("Sltu")]
     [TestMethod("Test Sltu Regex")]
     public void SltuRegex() {
-        var instruction = new Engine.Mips.Instructions.Sltu();
+        var instruction = new Sltu();
         var regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sltu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("sltu $t0, $t1, $t2, $t3"));
@@ -125,7 +127,7 @@ public class InstructionsTestTypeR
     [DataRow(23, 29, 26, 0x03BAB82B)]
     [DataTestMethod("Test assembling")]
     public void SltuAssembly(int rd, int rs, int rt, int result) {
-        var instruction = new Engine.Mips.Instructions.Sltu {
+        var instruction = new Sltu {
             Rd = (byte)rd,
             Rs = (byte)rs,
             Rt = (byte)rt,
@@ -136,7 +138,7 @@ public class InstructionsTestTypeR
     [TestCategory("Sub")]
     [TestMethod("Test Sub Regex")]
     public void SubRegex() {
-        var instruction = new Engine.Mips.Instructions.Sub();
+        var instruction = new Sub();
         var regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sub $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("sub $t0, $t1, $t2, $t3"));
@@ -151,7 +153,7 @@ public class InstructionsTestTypeR
     [DataRow(23, 29, 26, 0x03BAB822)]
     [DataTestMethod("Test assembling")]
     public void SubAssembly(int rd, int rs, int rt, int result) {
-        var instruction = new Engine.Mips.Instructions.Sub {
+        var instruction = new Sub {
             Rd = (byte)rd,
             Rs = (byte)rs,
             Rt = (byte)rt,
@@ -162,7 +164,7 @@ public class InstructionsTestTypeR
     [TestCategory("Subu")]
     [TestMethod("Test Subu Regex")]
     public void SubuRegex() {
-        var instruction = new Engine.Mips.Instructions.Subu();
+        var instruction = new Subu();
         var regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("subu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("subu $t0, $t1, $t2, $t3"));
@@ -177,7 +179,7 @@ public class InstructionsTestTypeR
     [DataRow(23, 29, 26, 0x03BAB823)]
     [DataTestMethod("Test assembling")]
     public void SubuAssembly(int rd, int rs, int rt, int result) {
-        var instruction = new Engine.Mips.Instructions.Subu {
+        var instruction = new Subu {
             Rd = (byte)rd,
             Rs = (byte)rs,
             Rt = (byte)rt,
@@ -188,7 +190,7 @@ public class InstructionsTestTypeR
     [TestCategory("And")]
     [TestMethod("Test And Regex")]
     public void AndRegex() {
-        var instruction = new Engine.Mips.Instructions.And();
+        var instruction = new And();
         var regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("and $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("and $t0, $t1, $t2, $t3"));
@@ -203,7 +205,7 @@ public class InstructionsTestTypeR
     [DataRow(23, 29, 26, 0x03BAB824)]
     [DataTestMethod("Test assembling")]
     public void AndAssembly(int rd, int rs, int rt, int result) {
-        var instruction = new Engine.Mips.Instructions.And {
+        var instruction = new And {
             Rd = (byte)rd,
             Rs = (byte)rs,
             Rt = (byte)rt,
@@ -214,7 +216,7 @@ public class InstructionsTestTypeR
     [TestCategory("Nor")]
     [TestMethod("Test Nor Regex")]
     public void NorRegex() {
-        var instruction = new Engine.Mips.Instructions.Nor();
+        var instruction = new Nor();
         var regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("nor $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("nor $t0, $t1, $t2, $t3"));
@@ -463,7 +465,7 @@ public class InstructionsTestTypeR
         Assert.IsTrue(regex.IsMatch("div $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("div $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("div $t0, $t1, $t2, $t3"));
-        Assert.IsTrue(regex.IsMatch("div $t0"));
+        Assert.IsFalse(regex.IsMatch("div $t0"));
         Assert.IsFalse(regex.IsMatch("divu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("div $t0, $t1, $t2, $t3, $t4"));
     }
@@ -471,7 +473,7 @@ public class InstructionsTestTypeR
     [TestCategory("Div")]
     [DataRow(8, 9, 0x0109001A)]
     [DataRow(0, 10, 0x000A001A)]
-    [DataRow(23, 26, 0x022FD001A)]
+    [DataRow(23, 26, 0x02FA001A)]
     [DataTestMethod("Test assembling")]
     public void DivAssembly(int rs, int rt, int result) {
         var instruction = new Engine.Mips.Instructions.Div {
@@ -489,7 +491,7 @@ public class InstructionsTestTypeR
         Assert.IsTrue(regex.IsMatch("divu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("divu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("divu $t0, $t1, $t2, $t3"));
-        Assert.IsTrue(regex.IsMatch("divu $t0"));
+        Assert.IsFalse(regex.IsMatch("divu $t0"));
         Assert.IsFalse(regex.IsMatch("div $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("divu $t0, $t1, $t2, $t3, $t4"));
     }
@@ -497,7 +499,7 @@ public class InstructionsTestTypeR
     [TestCategory("Divu")]
     [DataRow(8, 9, 0x0109001B)]
     [DataRow(0, 10, 0x000A001B)]
-    [DataRow(23, 26, 0x02FD001B)]
+    [DataRow(23, 26, 0x02FA001B)]
     [DataTestMethod("Test assembling")]
     public void DivuAssembly(int rs, int rt, int result) {
         var instruction = new Engine.Mips.Instructions.Divu {
@@ -515,7 +517,7 @@ public class InstructionsTestTypeR
         Assert.IsTrue(regex.IsMatch("madd $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("madd $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("madd $t0, $t1, $t2, $t3"));
-        Assert.IsTrue(regex.IsMatch("madd $t0"));
+        Assert.IsFalse(regex.IsMatch("madd $t0"));
         Assert.IsFalse(regex.IsMatch("maddu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("madd $t0, $t1, $t2, $t3, $t4"));
     }
@@ -523,7 +525,7 @@ public class InstructionsTestTypeR
     [TestCategory("Madd")]
     [DataRow(8, 9, 0x71090000)]
     [DataRow(0, 10, 0x700A0000)]
-    [DataRow(23, 26, 0x72FD0000)]
+    [DataRow(23, 26, 0x72FA0000)]
     [DataTestMethod("Test assembling")]
     public void MaddAssembly(int rs, int rt, int result) {
         var instruction = new Engine.Mips.Instructions.Madd {
@@ -541,7 +543,7 @@ public class InstructionsTestTypeR
         Assert.IsTrue(regex.IsMatch("maddu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("maddu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("maddu $t0, $t1, $t2, $t3"));
-        Assert.IsTrue(regex.IsMatch("maddu $t0"));
+        Assert.IsFalse(regex.IsMatch("maddu $t0"));
         Assert.IsFalse(regex.IsMatch("madd $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("maddu $t0, $t1, $t2, $t3, $t4"));
     }
@@ -549,7 +551,7 @@ public class InstructionsTestTypeR
     [TestCategory("Maddu")]
     [DataRow(8, 9, 0x71090001)]
     [DataRow(0, 10, 0x700A0001)]
-    [DataRow(23, 26, 0x72FD0001)]
+    [DataRow(23, 26, 0x72FA0001)]
     [DataTestMethod("Test assembling")]
     public void MadduAssembly(int rs, int rt, int result) {
         var instruction = new Engine.Mips.Instructions.Maddu {
@@ -567,7 +569,7 @@ public class InstructionsTestTypeR
         Assert.IsTrue(regex.IsMatch("msub $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("msub $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("msub $t0, $t1, $t2, $t3"));
-        Assert.IsTrue(regex.IsMatch("msub $t0"));
+        Assert.IsFalse(regex.IsMatch("msub $t0"));
         Assert.IsFalse(regex.IsMatch("msubu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("msub $t0, $t1, $t2, $t3, $t4"));
     }
@@ -575,7 +577,7 @@ public class InstructionsTestTypeR
     [TestCategory("Msub")]
     [DataRow(8, 9, 0x71090004)]
     [DataRow(0, 10, 0x700A0004)]
-    [DataRow(23, 26, 0x72FD0004)]
+    [DataRow(23, 26, 0x72FA0004)]
     [DataTestMethod("Test assembling")]
     public void MsubAssembly(int rs, int rt, int result) {
         var instruction = new Engine.Mips.Instructions.Msub {
@@ -593,7 +595,7 @@ public class InstructionsTestTypeR
         Assert.IsTrue(regex.IsMatch("msubu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("msubu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("msubu $t0, $t1, $t2, $t3"));
-        Assert.IsTrue(regex.IsMatch("msubu $t0"));
+        Assert.IsFalse(regex.IsMatch("msubu $t0"));
         Assert.IsFalse(regex.IsMatch("msub $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("msubu $t0, $t1, $t2, $t3, $t4"));
     }
@@ -601,7 +603,7 @@ public class InstructionsTestTypeR
     [TestCategory("Msubu")]
     [DataRow(8, 9, 0x71090005)]
     [DataRow(0, 10, 0x700A0005)]
-    [DataRow(23, 26, 0x72FD0005)]
+    [DataRow(23, 26, 0x72FA0005)]
     [DataTestMethod("Test assembling")]
     public void MsubuAssembly(int rs, int rt, int result) {
         var instruction = new Engine.Mips.Instructions.Msubu {
@@ -619,7 +621,7 @@ public class InstructionsTestTypeR
         Assert.IsTrue(regex.IsMatch("mult $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("mult $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("mult $t0, $t1, $t2, $t3"));
-        Assert.IsTrue(regex.IsMatch("mult $t0"));
+        Assert.IsFalse(regex.IsMatch("mult $t0"));
         Assert.IsFalse(regex.IsMatch("multu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("mult $t0, $t1, $t2, $t3, $t4"));
     }
@@ -627,7 +629,7 @@ public class InstructionsTestTypeR
     [TestCategory("Mult")]
     [DataRow(8, 9, 0x01090018)]
     [DataRow(0, 10, 0x000A0018)]
-    [DataRow(23, 26, 0x02FD0018)]
+    [DataRow(23, 26, 0x02FA0018)]
     [DataTestMethod("Test assembling")]
     public void MultAssembly(int rs, int rt, int result) {
         var instruction = new Engine.Mips.Instructions.Mult {
@@ -645,7 +647,7 @@ public class InstructionsTestTypeR
         Assert.IsTrue(regex.IsMatch("multu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("multu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("multu $t0, $t1, $t2, $t3"));
-        Assert.IsTrue(regex.IsMatch("multu $t0"));
+        Assert.IsFalse(regex.IsMatch("multu $t0"));
         Assert.IsFalse(regex.IsMatch("mult $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("multu $t0, $t1, $t2, $t3, $t4"));
     }
@@ -653,7 +655,7 @@ public class InstructionsTestTypeR
     [TestCategory("Multu")]
     [DataRow(8, 9, 0x01090019)]
     [DataRow(0, 10, 0x000A0019)]
-    [DataRow(23, 26, 0x02FD0019)]
+    [DataRow(23, 26, 0x02FA0019)]
     [DataTestMethod("Test assembling")]
     public void MultuAssembly(int rs, int rt, int result) {
         var instruction = new Engine.Mips.Instructions.Multu {

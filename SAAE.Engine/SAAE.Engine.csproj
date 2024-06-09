@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Mips\Instructions\Memory\" />
     <Folder Include="Mips\Runtime\" />
     <Folder Include="RiscV\RV128I\" />
     <Folder Include="RiscV\RV64I\" />

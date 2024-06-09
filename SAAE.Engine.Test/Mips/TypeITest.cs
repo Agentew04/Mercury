@@ -1,0 +1,367 @@
+﻿using SAAE.Engine.Mips.Instructions;
+
+namespace SAAE.Engine.Test.Mips;
+
+[TestClass]
+public class TypeITest {
+
+    [TestCategory("Addi")]
+    [TestMethod]
+    public void AddiRegex() {
+        var instruction = new Addi();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("addi $t0, $t1, 5"));
+        Assert.IsTrue(regex.IsMatch("addi $t0, $t1, -5"));
+        Assert.IsTrue(regex.IsMatch("addi $t0, $t1, 0xA"));
+        Assert.IsFalse(regex.IsMatch("addi $t0, $t1, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("addi $t0, $t1, 0x"));
+        Assert.IsFalse(regex.IsMatch("addi $t0, $t1, 0xG"));
+        Assert.IsFalse(regex.IsMatch("addi $t0, $t1, -"));
+        Assert.IsFalse(regex.IsMatch("addiu $t0, $t1, 5"));
+    }
+
+    [TestCategory("Addi")]
+    [DataRow(8, 0, 0xF, 0x2008000F)]
+    [DataRow(0, 10, 0x8F, 0x2140008F)]
+    [DataRow(23,29, 0xFFE4, 0x23B7FFE4)]
+    [DataTestMethod]
+    public void AddiAssembly(int rt, int rs, int immediate, int expected) {
+        var instruction = new Addi() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory(("Addiu"))]
+    [TestMethod]
+    public void AddiuRegex() {
+        var instruction = new Addiu();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("addiu $t0, $t1, 5"));
+        Assert.IsTrue(regex.IsMatch("addiu $t0, $t1, -5"));
+        Assert.IsTrue(regex.IsMatch("addiu $t0, $t1, 0xA"));
+        Assert.IsFalse(regex.IsMatch("addiu $t0, $t1, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("addiu $t0, $t1, 0x"));
+        Assert.IsFalse(regex.IsMatch("addiu $t0, $t1, 0xG"));
+        Assert.IsFalse(regex.IsMatch("addiu $t0, $t1, -"));
+        Assert.IsFalse(regex.IsMatch("addi $t0, $t1, 5"));
+    }
+
+    [TestCategory("Addiu")]
+    [DataRow(8, 0, 0xF, 0x2408000F)]
+    [DataRow(0, 10, 0x8F, 0x2540008F)]
+    [DataRow(23,29, 0x7FE4, 0x27B77FE4)]
+    [DataTestMethod]
+    public void AddiuAssembly(int rt, int rs, int immediate, int expected) {
+        var instruction = new Addiu() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Slti")]
+    [TestMethod]
+    public void SltiRegex() { 
+        var instruction = new Slti();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("slti $t0, $t1, 5"));
+        Assert.IsTrue(regex.IsMatch("slti $t0, $t1, -5"));
+        Assert.IsTrue(regex.IsMatch("slti $t0, $t1, 0xA"));
+        Assert.IsFalse(regex.IsMatch("slti $t0, $t1, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("slti $t0, $t1, 0x"));
+        Assert.IsFalse(regex.IsMatch("slti $t0, $t1, 0xG"));
+        Assert.IsFalse(regex.IsMatch("slti $t0, $t1, -"));
+        Assert.IsFalse(regex.IsMatch("sltiu $t0, $t1, 5"));
+    }
+
+    [TestCategory("Slti")]
+    [DataRow(8, 0, 0xF, 0x2808000F)]
+    [DataRow(0, 10, 0x8F, 0x2940008F)]
+    [DataRow(23,29, 0xFFE4, 0x2BB7FFE4)]
+    [DataTestMethod]
+    public void SltiAssembly(int rt, int rs, int immediate, int expected) {
+        var instruction = new Slti() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Sltiu")]
+    [TestMethod]
+    public void SltiuRegex() {
+        var instruction = new Sltiu();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("sltiu $t0, $t1, 5"));
+        Assert.IsTrue(regex.IsMatch("sltiu $t0, $t1, -5"));
+        Assert.IsTrue(regex.IsMatch("sltiu $t0, $t1, 0xA"));
+        Assert.IsFalse(regex.IsMatch("sltiu $t0, $t1, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("sltiu $t0, $t1, 0x"));
+        Assert.IsFalse(regex.IsMatch("sltiu $t0, $t1, 0xG"));
+        Assert.IsFalse(regex.IsMatch("sltiu $t0, $t1, -"));
+        Assert.IsFalse(regex.IsMatch("slti $t0, $t1, 5"));
+    }
+
+    [TestCategory("Sltiu")]
+    [DataRow(8, 0, 0xF, 0x2C08000F)]
+    [DataRow(0, 10, 0x8F, 0x2D40008F)]
+    [DataRow(23,29, 0xFFE4, 0x2FB7FFE4)]
+    [DataTestMethod]
+    public void SltiuAssembly(int rt, int rs, int immediate, int expected) {
+        var instruction = new Sltiu() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Andi")]
+    [TestMethod]
+    public void AndiRegex() {
+        var instruction = new Andi();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("andi $t0, $t1, 5"));
+        Assert.IsTrue(regex.IsMatch("andi $t0, $t1, -5"));
+        Assert.IsTrue(regex.IsMatch("andi $t0, $t1, 0xA"));
+        Assert.IsFalse(regex.IsMatch("andi $t0, $t1, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("andi $t0, $t1, 0x"));
+        Assert.IsFalse(regex.IsMatch("andi $t0, $t1, 0xG"));
+        Assert.IsFalse(regex.IsMatch("andi $t0, $t1, -"));
+        Assert.IsFalse(regex.IsMatch("addi $t0, $t1, 5"));
+        Assert.IsFalse(regex.IsMatch("and $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("and $t0, $t1, 5"));
+    }
+
+    [TestCategory("Andi")]
+    [DataRow(8, 0, 0xF, 0x3008000F)]
+    [DataRow(0, 10, 0x8F, 0x3140008F)]
+    /*[DataRow(23,29, 0xFFE4, 0x3C01FFFF)]*/ // andi with negative immediate is pseudo instruction of lui and ori
+    [DataTestMethod]
+    public void AndiAssembly(int rt, int rs, int immediate, int expected) {
+        var instruction = new Andi() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Ori")]
+    [TestMethod]
+    public void OriRegex() {
+        var instruction = new Ori();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("ori $t0, $t1, 5"));
+        Assert.IsTrue(regex.IsMatch("ori $t0, $t1, -5"));
+        Assert.IsTrue(regex.IsMatch("ori $t0, $t1, 0xA"));
+        Assert.IsFalse(regex.IsMatch("ori $t0, $t1, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("ori $t0, $t1, 0x"));
+        Assert.IsFalse(regex.IsMatch("ori $t0, $t1, 0xG"));
+        Assert.IsFalse(regex.IsMatch("ori $t0, $t1, -"));
+        Assert.IsFalse(regex.IsMatch("or $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("or $t0, $t1, 5"));
+    }
+
+    [TestCategory("Ori")]
+    [DataRow(8, 0, 0xF, 0x3408000F)]
+    [DataRow(0, 10, 0x8F, 0x3540008F)]
+    [DataTestMethod]
+    public void OriAssembly(int rt, int rs, int immediate, int expected) {
+        var instruction = new Ori() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Xori")]
+    [TestMethod]
+    public void XoriRegex() {
+        var instruction = new Xori();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("xori $t0, $t1, 5"));
+        Assert.IsTrue(regex.IsMatch("xori $t0, $t1, -5"));
+        Assert.IsTrue(regex.IsMatch("xori $t0, $t1, 0xA"));
+        Assert.IsFalse(regex.IsMatch("xori $t0, $t1, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("xori $t0, $t1, 0x"));
+        Assert.IsFalse(regex.IsMatch("xori $t0, $t1, 0xG"));
+        Assert.IsFalse(regex.IsMatch("xori $t0, $t1, -"));
+        Assert.IsFalse(regex.IsMatch("xor $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("xor $t0, $t1, 5"));
+    }
+
+    [TestCategory("Xori")]
+    [DataRow(8, 0, 0xF, 0x3808000F)]
+    [DataRow(0, 10, 0x8F, 0x3940008F)]
+    [DataTestMethod]
+    public void XoriAssembly(int rt, int rs, int immediate, int expected) {
+        var instruction = new Xori() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Lb")]
+    [TestMethod]
+    public void LbRegex() {
+        var instruction = new Lb();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("lb $s2, 5($k1)"));
+        Assert.IsTrue(regex.IsMatch("lb $v1, -5($at)"));
+        Assert.IsTrue(regex.IsMatch("lb $a2, 0xA($sp)"));
+        Assert.IsFalse(regex.IsMatch("lb $t0, -0Xa($t1)"));
+        Assert.IsFalse(regex.IsMatch("lb $t0, 0x($t1)"));
+        Assert.IsFalse(regex.IsMatch("lb $t0, 0xG($t1)"));
+        Assert.IsFalse(regex.IsMatch("lb $t0, -($t1)"));
+        Assert.IsFalse(regex.IsMatch("lb $t0, $t1"));
+    }
+
+    [TestCategory("Lb")]
+    [DataRow(1, 0xF, 11, 0x8161000F)]
+    [DataRow(27, 0xFFF1, 28, 0x839BFFF1)]
+    [DataRow(31, 0x1, 23, 0x82FF0001)]
+    [DataTestMethod]
+    public void LbAssembly(int rt, int immediate, int rs, uint expected) {
+        var instruction = new Lb() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Lbu")]
+    [TestMethod]
+    public void LbuRegex() {
+        var instruction = new Lbu();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("lbu $s2, 5($k1)"));
+        Assert.IsTrue(regex.IsMatch("lbu $v1, -5($at)"));
+        Assert.IsTrue(regex.IsMatch("lbu $a2, 0xA($sp)"));
+        Assert.IsFalse(regex.IsMatch("lbu $t0, -0Xa($t1)"));
+        Assert.IsFalse(regex.IsMatch("lbu $t0, 0x($t1)"));
+        Assert.IsFalse(regex.IsMatch("lbu $t0, 0xG($t1)"));
+        Assert.IsFalse(regex.IsMatch("lbu $t0, -($t1)"));
+        Assert.IsFalse(regex.IsMatch("lbu $t0, $t1"));
+    }
+
+    [TestCategory("Lbu")]
+    [DataRow(1, 0xF, 11, 0x9161000F)]
+    [DataRow(27, 0xFFF1, 28, 0x939BFFF1)]
+    [DataRow(31, 0x1, 23, 0x92FF0001)]
+    [DataTestMethod]
+    public void LbuAssembly(int rt, int immediate, int rs, uint expected) {
+        var instruction = new Lbu() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Lh")]
+    [TestMethod]
+    public void LhRegex() {
+        var instruction = new Lh();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("lh $s2, 5($k1)"));
+        Assert.IsTrue(regex.IsMatch("lh $v1, -5($at)"));
+        Assert.IsTrue(regex.IsMatch("lh $a2, 0xA($sp)"));
+        Assert.IsFalse(regex.IsMatch("lh $t0, -0Xa($t1)"));
+        Assert.IsFalse(regex.IsMatch("lh $t0, 0x($t1)"));
+        Assert.IsFalse(regex.IsMatch("lh $t0, 0xG($t1)"));
+        Assert.IsFalse(regex.IsMatch("lh $t0, -($t1)"));
+        Assert.IsFalse(regex.IsMatch("lh $t0, $t1"));
+    }
+
+    [TestCategory("Lh")]
+    [DataRow(1, 0xF, 11, 0x8561000F)]
+    [DataRow(27, 0xFFF1, 28, 0x879BFFF1)]
+    [DataRow(31, 0x1, 23, 0x86FF0001)]
+    [DataTestMethod]
+    public void LhAssembly(int rt, int immediate, int rs, uint expected) {
+        var instruction = new Lh() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Lhu")]
+    [TestMethod]
+    public void LhuRegex() {
+        var instruction = new Lhu();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("lhu $s2, 5($k1)"));
+        Assert.IsTrue(regex.IsMatch("lhu $v1, -5($at)"));
+        Assert.IsTrue(regex.IsMatch("lhu $a2, 0xA($sp)"));
+        Assert.IsFalse(regex.IsMatch("lhu $t0, -0Xa($t1)"));
+        Assert.IsFalse(regex.IsMatch("lhu $t0, 0x($t1)"));
+        Assert.IsFalse(regex.IsMatch("lhu $t0, 0xG($t1)"));
+        Assert.IsFalse(regex.IsMatch("lhu $t0, -($t1)"));
+        Assert.IsFalse(regex.IsMatch("lhu $t0, $t1"));
+    }
+
+    [TestCategory("Lhu")]
+    [DataRow(1, 0xF, 11, 0x9561000F)]
+    [DataRow(27, 0xFFF1, 28, 0x979BFFF1)]
+    [DataRow(31, 0x1, 23, 0x96FF0001)]
+    [DataTestMethod]
+    public void LhuAssembly(int rt, int immediate, int rs, uint expected) {
+        var instruction = new Lhu() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Lui")]
+    [TestMethod]
+    public void LuiRegex() {
+        var instruction = new Lui();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("lui $s2, 5"));
+        Assert.IsTrue(regex.IsMatch("lui $s2, 0"));
+        Assert.IsTrue(regex.IsMatch("lui $v1, -5"));
+        Assert.IsTrue(regex.IsMatch("lui $a2, 0xA"));
+        Assert.IsFalse(regex.IsMatch("lui $t0, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("lui $t0, 0x"));
+        Assert.IsFalse(regex.IsMatch("lui $t0, 0xG"));
+        Assert.IsFalse(regex.IsMatch("lui $t0, -"));
+        Assert.IsFalse(regex.IsMatch("lui $t0, $t1"));
+    }
+
+    [TestCategory("Lui")]
+    [DataRow(1, 0xF, 0x3C01000F)]
+    [DataRow(27, 0, 0x3C1B0000)]
+    [DataRow(31, 0xFA, 0x3C1F00FA)]
+    [DataTestMethod]
+    public void LuiAssembly(int rt, int immediate, int expected) {
+        var instruction = new Lui() {
+            Rt = (byte)rt,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+
+
+
+
+
+
+
+
+
+}
