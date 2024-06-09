@@ -455,5 +455,212 @@ public class InstructionsTestTypeR
         Assert.AreEqual(result, instruction.ConvertToInt());
     }
 
+    [TestCategory("Div")]
+    [TestMethod("Test Div Regex")]
+    public void DivRegex() {
+        var instruction = new Engine.Mips.Instructions.Div();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("div $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("div $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("div $t0, $t1, $t2, $t3"));
+        Assert.IsTrue(regex.IsMatch("div $t0"));
+        Assert.IsFalse(regex.IsMatch("divu $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("div $t0, $t1, $t2, $t3, $t4"));
+    }
+
+    [TestCategory("Div")]
+    [DataRow(8, 9, 0x0109001A)]
+    [DataRow(0, 10, 0x000A001A)]
+    [DataRow(23, 26, 0x022FD001A)]
+    [DataTestMethod("Test assembling")]
+    public void DivAssembly(int rs, int rt, int result) {
+        var instruction = new Engine.Mips.Instructions.Div {
+            Rs = (byte)rs,
+            Rt = (byte)rt,
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Divu")]
+    [TestMethod("Test Divu Regex")]
+    public void DivuRegex() {
+        var instruction = new Engine.Mips.Instructions.Divu();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("divu $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("divu $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("divu $t0, $t1, $t2, $t3"));
+        Assert.IsTrue(regex.IsMatch("divu $t0"));
+        Assert.IsFalse(regex.IsMatch("div $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("divu $t0, $t1, $t2, $t3, $t4"));
+    }
+
+    [TestCategory("Divu")]
+    [DataRow(8, 9, 0x0109001B)]
+    [DataRow(0, 10, 0x000A001B)]
+    [DataRow(23, 26, 0x02FD001B)]
+    [DataTestMethod("Test assembling")]
+    public void DivuAssembly(int rs, int rt, int result) {
+        var instruction = new Engine.Mips.Instructions.Divu {
+            Rs = (byte)rs,
+            Rt = (byte)rt,
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Madd")]
+    [TestMethod("Test Madd Regex")]
+    public void MaddRegex() {
+        var instruction = new Engine.Mips.Instructions.Madd();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("madd $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("madd $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("madd $t0, $t1, $t2, $t3"));
+        Assert.IsTrue(regex.IsMatch("madd $t0"));
+        Assert.IsFalse(regex.IsMatch("maddu $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("madd $t0, $t1, $t2, $t3, $t4"));
+    }
+
+    [TestCategory("Madd")]
+    [DataRow(8, 9, 0x71090000)]
+    [DataRow(0, 10, 0x700A0000)]
+    [DataRow(23, 26, 0x72FD0000)]
+    [DataTestMethod("Test assembling")]
+    public void MaddAssembly(int rs, int rt, int result) {
+        var instruction = new Engine.Mips.Instructions.Madd {
+            Rs = (byte)rs,
+            Rt = (byte)rt,
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Maddu")]
+    [TestMethod("Test Maddu Regex")]
+    public void MadduRegex() {
+        var instruction = new Engine.Mips.Instructions.Maddu();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("maddu $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("maddu $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("maddu $t0, $t1, $t2, $t3"));
+        Assert.IsTrue(regex.IsMatch("maddu $t0"));
+        Assert.IsFalse(regex.IsMatch("madd $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("maddu $t0, $t1, $t2, $t3, $t4"));
+    }
+
+    [TestCategory("Maddu")]
+    [DataRow(8, 9, 0x71090001)]
+    [DataRow(0, 10, 0x700A0001)]
+    [DataRow(23, 26, 0x72FD0001)]
+    [DataTestMethod("Test assembling")]
+    public void MadduAssembly(int rs, int rt, int result) {
+        var instruction = new Engine.Mips.Instructions.Maddu {
+            Rs = (byte)rs,
+            Rt = (byte)rt,
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Msub")]
+    [TestMethod("Test Msub Regex")]
+    public void MsubRegex() {
+        var instruction = new Engine.Mips.Instructions.Msub();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("msub $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("msub $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("msub $t0, $t1, $t2, $t3"));
+        Assert.IsTrue(regex.IsMatch("msub $t0"));
+        Assert.IsFalse(regex.IsMatch("msubu $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("msub $t0, $t1, $t2, $t3, $t4"));
+    }
+
+    [TestCategory("Msub")]
+    [DataRow(8, 9, 0x71090004)]
+    [DataRow(0, 10, 0x700A0004)]
+    [DataRow(23, 26, 0x72FD0004)]
+    [DataTestMethod("Test assembling")]
+    public void MsubAssembly(int rs, int rt, int result) {
+        var instruction = new Engine.Mips.Instructions.Msub {
+            Rs = (byte)rs,
+            Rt = (byte)rt,
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Msubu")]
+    [TestMethod("Test Msubu Regex")]
+    public void MsubuRegex() {
+        var instruction = new Engine.Mips.Instructions.Msubu();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("msubu $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("msubu $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("msubu $t0, $t1, $t2, $t3"));
+        Assert.IsTrue(regex.IsMatch("msubu $t0"));
+        Assert.IsFalse(regex.IsMatch("msub $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("msubu $t0, $t1, $t2, $t3, $t4"));
+    }
+
+    [TestCategory("Msubu")]
+    [DataRow(8, 9, 0x71090005)]
+    [DataRow(0, 10, 0x700A0005)]
+    [DataRow(23, 26, 0x72FD0005)]
+    [DataTestMethod("Test assembling")]
+    public void MsubuAssembly(int rs, int rt, int result) {
+        var instruction = new Engine.Mips.Instructions.Msubu {
+            Rs = (byte)rs,
+            Rt = (byte)rt,
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Mult")]
+    [TestMethod("Test Mult Regex")]
+    public void MultRegex() {
+        var instruction = new Engine.Mips.Instructions.Mult();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("mult $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("mult $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("mult $t0, $t1, $t2, $t3"));
+        Assert.IsTrue(regex.IsMatch("mult $t0"));
+        Assert.IsFalse(regex.IsMatch("multu $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("mult $t0, $t1, $t2, $t3, $t4"));
+    }
+
+    [TestCategory("Mult")]
+    [DataRow(8, 9, 0x01090018)]
+    [DataRow(0, 10, 0x000A0018)]
+    [DataRow(23, 26, 0x02FD0018)]
+    [DataTestMethod("Test assembling")]
+    public void MultAssembly(int rs, int rt, int result) {
+        var instruction = new Engine.Mips.Instructions.Mult {
+            Rs = (byte)rs,
+            Rt = (byte)rt,
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Multu")]
+    [TestMethod("Test Multu Regex")]
+    public void MultuRegex() {
+        var instruction = new Engine.Mips.Instructions.Multu();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("multu $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("multu $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("multu $t0, $t1, $t2, $t3"));
+        Assert.IsTrue(regex.IsMatch("multu $t0"));
+        Assert.IsFalse(regex.IsMatch("mult $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("multu $t0, $t1, $t2, $t3, $t4"));
+    }
+
+    [TestCategory("Multu")]
+    [DataRow(8, 9, 0x01090019)]
+    [DataRow(0, 10, 0x000A0019)]
+    [DataRow(23, 26, 0x02FD0019)]
+    [DataTestMethod("Test assembling")]
+    public void MultuAssembly(int rs, int rt, int result) {
+        var instruction = new Engine.Mips.Instructions.Multu {
+            Rs = (byte)rs,
+            Rt = (byte)rt,
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
 
 }

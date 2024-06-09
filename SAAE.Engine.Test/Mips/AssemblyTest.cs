@@ -7,7 +7,7 @@ namespace SAAE.Engine.Test.Mips;
 public class AssemblyTest {
 
     [TestMethod]
-    public void TestAssembly1() {
+    public void TestTypeR() {
         string code = """
             add $t1, $zero, $s0
             sub $t1, $0, $s1

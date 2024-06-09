@@ -23,6 +23,7 @@ public partial class MipsAssembler {
     }
 
     public byte[] Assemble(string code) {
+        ulong codeStart = 0x00400000;
         var lines = code.Split('\n');
 
         // remove comments
@@ -54,6 +55,7 @@ public partial class MipsAssembler {
             var line = lines[i];
             var instruction = supportedInstructions.Find(x => x.IsMatch(line)) ?? throw new Exception($"Instruction not supported: {line}");
             instruction.PopulateFromLine(line);
+            instruction.Address = (int)(codeStart + (ulong)(i * 4));
             instructions.Add(instruction);
         }
 
