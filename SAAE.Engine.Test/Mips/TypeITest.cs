@@ -355,13 +355,195 @@ public class TypeITest {
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
 
+    // LW
+    // SB
+    // SH
+    // SW
+
+    [TestCategory("Beq")]
+    [TestMethod]
+    public void BeqRegex() {
+        var instruction = new Beq();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("beq $s2, $k1, 5"));
+        Assert.IsTrue(regex.IsMatch("beq $v1, $at, -5"));
+        Assert.IsTrue(regex.IsMatch("beq $a2, $sp, 0xA"));
+        Assert.IsFalse(regex.IsMatch("beq $t0, $t1, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("beq $t0, $t1, 0x"));
+        Assert.IsFalse(regex.IsMatch("beq $t0, $t1, 0xG"));
+        Assert.IsFalse(regex.IsMatch("beq $t0, $t1, -"));
+        Assert.IsFalse(regex.IsMatch("beq $t0, $t1"));
+    }
+
+    [TestCategory("Beq")]
+    [DataRow(7, 28, 0x03F03FFF, 0x10FC3FFF)]
+    [DataRow(22, 12, 0x18, 0x12CC0018)]
+    [DataRow(0, 3, 0x03F03FFD, 0x10033FFD)]
+    [DataRow(10, 8, 0x2, 0x11480002)]
+    [DataTestMethod]
+    public void BeqAssembly(int rs, int rt, int immediate, int expected) {
+        var instruction = new Beq() {
+            Rs = (byte)rs,
+            Rt = (byte)rt,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Beq")]
+    [DataRow("beq $t2, $zero, 0x2", 10, 8, 0x2)]
+    [DataTestMethod]
+    public void BeqPopulate(string line, int rs, int rt, int immediate) {
+        var instruction = new Beq();
+        instruction.PopulateFromLine(line);
+        Assert.AreEqual(rs, instruction.Rs);
+        Assert.AreEqual(rt, instruction.Rt);
+        Assert.AreEqual(immediate, instruction.Immediate);
+    }
+
+    [TestCategory("Bgez")]
+    [TestMethod]
+    public void BgezRegex() {
+        var instruction = new Bgez();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("bgez $s2, 5"));
+        Assert.IsTrue(regex.IsMatch("bgez $v1, -5"));
+        Assert.IsTrue(regex.IsMatch("bgez $a2, 0xA"));
+        Assert.IsFalse(regex.IsMatch("bgez $t0, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("bgez $t0, 0x"));
+        Assert.IsFalse(regex.IsMatch("bgez $t0, 0xG"));
+        Assert.IsFalse(regex.IsMatch("bgez $t0, -"));
+        Assert.IsFalse(regex.IsMatch("bgez $t0, $t1"));
+    }
+
+    [TestCategory("Bgez")]
+    [DataRow(7, 0x03F03FFF, 0x04E13FFF)]
+    [DataRow(22, 0x18, 0x06C10018)]
+    [DataRow(0, 0x03F03FFD, 0x04013FFD)]
+    [DataTestMethod]
+    public void BgezAssembly(int rs, int immediate, int expected) {
+        var instruction = new Bgez() {
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Bgtz")]
+    [TestMethod]
+    public void BgtzRegex() {
+        var instruction = new Bgtz();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("bgtz $s2, 5"));
+        Assert.IsTrue(regex.IsMatch("bgtz $v1, -5"));
+        Assert.IsTrue(regex.IsMatch("bgtz $a2, 0xA"));
+        Assert.IsFalse(regex.IsMatch("bgtz $t0, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("bgtz $t0, 0x"));
+        Assert.IsFalse(regex.IsMatch("bgtz $t0, 0xG"));
+        Assert.IsFalse(regex.IsMatch("bgtz $t0, -"));
+        Assert.IsFalse(regex.IsMatch("bgtz $t0, $t1"));
+    }
+
+    [TestCategory("Bgtz")]
+    [DataRow(7, 0x03F03FFF, 0x1CE03FFF)]
+    [DataRow(22, 0x18, 0x1EC00018)]
+    [DataRow(0, 0x03F03FFD, 0x1C003FFD)]
+    [DataTestMethod]
+    public void BgtzAssembly(int rs, int immediate, int expected) {
+        var instruction = new Bgtz() {
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Blez")]
+    [TestMethod]
+    public void BlezRegex() {
+        var instruction = new Blez();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("blez $s2, 5"));
+        Assert.IsTrue(regex.IsMatch("blez $v1, -5"));
+        Assert.IsTrue(regex.IsMatch("blez $a2, 0xA"));
+        Assert.IsFalse(regex.IsMatch("blez $t0, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("blez $t0, 0x"));
+        Assert.IsFalse(regex.IsMatch("blez $t0, 0xG"));
+        Assert.IsFalse(regex.IsMatch("blez $t0, -"));
+        Assert.IsFalse(regex.IsMatch("blez $t0, $t1"));
+    }
+
+    [TestCategory("Blez")]
+    [DataRow(7, 0x03F03FFF, 0x18E03FFF)]
+    [DataRow(22, 0x18, 0x1AC00018)]
+    [DataRow(0, 0x03F03FFD, 0x18003FFD)]
+    [DataTestMethod]
+    public void BlezAssembly(int rs, int immediate, int expected) {
+        var instruction = new Blez() {
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Bltz")]
+    [TestMethod]
+    public void BltzRegex() {
+        var instruction = new Bltz();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("bltz $s2, 5"));
+        Assert.IsTrue(regex.IsMatch("bltz $v1, -5"));
+        Assert.IsTrue(regex.IsMatch("bltz $a2, 0xA"));
+        Assert.IsFalse(regex.IsMatch("bltz $t0, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("bltz $t0, 0x"));
+        Assert.IsFalse(regex.IsMatch("bltz $t0, 0xG"));
+        Assert.IsFalse(regex.IsMatch("bltz $t0, -"));
+        Assert.IsFalse(regex.IsMatch("bltz $t0, $t1"));
+    }
+
+    [TestCategory("Bltz")]
+    [DataRow(7, 0x03F03FFF, 0x04E03FFF)]
+    [DataRow(22, 0x18, 0x06C00018)]
+    [DataRow(0, 0x03F03FFD, 0x04003FFD)]
+    [DataTestMethod]
+    public void BltzAssembly(int rs, int immediate, int expected) {
+        var instruction = new Bltz() {
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Bne")]
+    [TestMethod]
+    public void BneRegex() {
+        var instruction = new Bne();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("bne $s2, $k1, 5"));
+        Assert.IsTrue(regex.IsMatch("bne $v1, $at, -5"));
+        Assert.IsTrue(regex.IsMatch("bne $a2, $sp, 0xA"));
+        Assert.IsFalse(regex.IsMatch("bne $t0, $t1, -0Xa"));
+        Assert.IsFalse(regex.IsMatch("bne $t0, $t1, 0x"));
+        Assert.IsFalse(regex.IsMatch("bne $t0, $t1, 0xG"));
+        Assert.IsFalse(regex.IsMatch("bne $t0, $t1, -"));
+        Assert.IsFalse(regex.IsMatch("bne $t0, $t1"));
+    }
+
+    [TestCategory("Bne")]
+    [DataRow(7, 28, 0x03F03FFF, 0x14FC3FFF)]
+    [DataRow(22, 12, 0x18, 0x16CC0018)]
+    [DataRow(0, 3, 0x03F03FFD, 0x14033FFD)]
+    [DataTestMethod]
+    public void BneAssembly(int rs, int rt, int immediate, int expected) {
+        var instruction = new Bne() {
+            Rs = (byte)rs,
+            Rt = (byte)rt,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
 
 
-
-
-
-
-
+        
 
 
 }

@@ -28,4 +28,30 @@ public class AssemblyTest {
 
         CollectionAssert.AreEqual(expected, actual);
     }
+
+    [TestMethod]
+    public void TestTypeRIJ() {
+        string code = """
+            addi $t0, $zero, 5
+            addi $t1, $zero, 10
+            sub $t2, $t1, $t0
+            beq $t2, $t1, 0x2
+            addi $s0, $zero, 1
+            j 0x40001C
+            addi $s0, $zero, 2
+            """;
+        byte[] expected = [
+            0x05, 0x00, 0x08, 0x20,
+            0x0A, 0x00, 0x09, 0x20,
+            0x22, 0x50, 0x28, 0x01,
+            0x02, 0x00, 0x48, 0x11,
+            0x01, 0x00, 0x10, 0x20,
+            0x01, 0x00, 0x10, 0x08,
+            0x02, 0x00, 0x10, 0x20
+        ];
+        byte[] actual = new MipsAssembler().Assemble(code);
+        string expectedHex = string.Join(" ", expected.Select(x => x.ToString("X2")));
+        string actualHex = string.Join(" ", actual.Select(x => x.ToString("X2")));
+        CollectionAssert.AreEqual(expected, actual, $"Expected: {expectedHex}; Actual: {actualHex}");
+    }
 }

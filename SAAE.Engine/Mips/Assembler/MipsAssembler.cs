@@ -13,6 +13,7 @@ public partial class MipsAssembler {
     public MipsAssembler() {
         RegisterTypeR();
         RegisterTypeI();
+        RegisterTypeJ();
     }
 
     private static int TranslateRegisterName(string name) {
@@ -53,7 +54,11 @@ public partial class MipsAssembler {
         List<Instruction> instructions = [];
         for (int i = 0; i < lines.Length; i++) {
             var line = lines[i];
-            var instruction = supportedInstructions.Find(x => x.IsMatch(line)) ?? throw new Exception($"Instruction not supported: {line}");
+            var baseInstruction = supportedInstructions.Find(x => x.IsMatch(line)) ?? throw new Exception($"Instruction not supported: {line}");
+            Instruction? instruction = (Instruction?)Activator.CreateInstance(baseInstruction.GetType());
+            if(instruction is null) {
+                throw new Exception($"Could not create instance of instruction {baseInstruction.GetType().FullName}");
+            }
             instruction.PopulateFromLine(line);
             instruction.Address = (int)(codeStart + (ulong)(i * 4));
             instructions.Add(instruction);

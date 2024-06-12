@@ -820,4 +820,40 @@ public class InstructionsTestTypeR
         };
         Assert.AreEqual(result, instruction.ConvertToInt());
     }
+
+    [TestCategory("Jalr")]
+    [TestMethod("Test Jalr Regex")]
+    public void JalrRegex() {
+        var instruction = new Jalr();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("jalr $t0, $t1"));
+        Assert.IsTrue(regex.IsMatch("jalr $t0"));
+        Assert.IsFalse(regex.IsMatch("jalr $t0, $t1, $t2"));
+        Assert.IsFalse(regex.IsMatch("jalr $t0, $t1, $t2, $t3"));
+        Assert.IsFalse(regex.IsMatch("jr $t0, $t1"));
+        Assert.IsFalse(regex.IsMatch("jalr"));
+    }
+
+    [TestCategory("Jalr")]
+    [DataRow(28, 10, 0x0140E009)]
+    [DataRow(19, 4, 0x00809809)]
+    [DataTestMethod]
+    public void JalrAssemblyDouble(int rt, int rs, int result) {
+        var instruction = new Jalr {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Jalr")]
+    [DataRow(28, 0x0380F809)]
+    [DataRow(19, 0x0260F809)]
+    [DataTestMethod]
+    public void JalrAssemblySingle(int rs, int result) {
+        var instruction = new Jalr {
+            Rs = (byte)rs
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
 }

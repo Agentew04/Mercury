@@ -38,6 +38,13 @@ public partial class MipsAssembler {
 
         supportedInstructions.Add(new Clo());
         supportedInstructions.Add(new Clz());
+
+        supportedInstructions.Add(new Mfhi());
+        supportedInstructions.Add(new Mflo());
+        supportedInstructions.Add(new Mthi());
+        supportedInstructions.Add(new Mtlo());
+        supportedInstructions.Add(new Movz());
+        supportedInstructions.Add(new Movn());
     }
 
     private void RegisterTypeI() {
@@ -57,7 +64,22 @@ public partial class MipsAssembler {
             new Lw(),
             new Sb(),
             new Sh(),
-            new Sw()
+            new Sw(),
+            new Beq(),
+            new Bgez(),
+            new Bgtz(),
+            new Blez(),
+            new Bltz(),
+            new Bne(),
+            new Jalr(),
+            new Jr()
+        ]);
+    }
+
+    private void RegisterTypeJ() {
+        supportedInstructions.AddRange([
+            new J(),
+            new Jal()
         ]);
     }
 }
