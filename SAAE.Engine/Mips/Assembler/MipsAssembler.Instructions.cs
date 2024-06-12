@@ -26,5 +26,38 @@ public partial class MipsAssembler {
         supportedInstructions.Add(new Srav());
         supportedInstructions.Add(new Srl());
         supportedInstructions.Add(new Srlv());
+
+        supportedInstructions.Add(new Div());
+        supportedInstructions.Add(new Divu());
+        supportedInstructions.Add(new Madd());
+        supportedInstructions.Add(new Maddu());
+        supportedInstructions.Add(new Msub());
+        supportedInstructions.Add(new Msubu());
+        supportedInstructions.Add(new Mult());
+        supportedInstructions.Add(new Multu());
+
+        supportedInstructions.Add(new Clo());
+        supportedInstructions.Add(new Clz());
+    }
+
+    private void RegisterTypeI() {
+        supportedInstructions.AddRange([
+            new Addi(),
+            new Addiu(),
+            new Slti(),
+            new Sltiu(),
+            new Andi(),
+            new Ori(),
+            new Xori(),
+            new Lb(),
+            new Lbu(),
+            new Lh(),
+            new Lhu(),
+            new Lui(),
+            new Lw(),
+            new Sb(),
+            new Sh(),
+            new Sw()
+        ]);
     }
 }
