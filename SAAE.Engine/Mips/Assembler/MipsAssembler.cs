@@ -9,6 +9,7 @@ namespace SAAE.Engine.Mips.Assembler;
 public partial class MipsAssembler {
 
     private readonly List<Instruction> supportedInstructions = [];
+    private static readonly string[] branchMnemonics = ["beq", "bgez", "bgtz", "blez", "bltz", "bne"];
 
     public MipsAssembler() {
         RegisterTypeR();
@@ -27,17 +28,69 @@ public partial class MipsAssembler {
         ulong codeStart = 0x00400000;
         var lines = code.Split('\n');
 
-        // remove comments
-        for (int i = 0; i < lines.Length; i++) {
-            var commentIndex = lines[i].IndexOf('#');
+        // remove empty lines
+        lines = lines
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim())
+            .ToArray();
+
+        // proccess comments
+        var comments = new List<string>();
+        var processedLines = new List<string>();
+        foreach (var line in lines) {
+            var commentIndex = line.IndexOf('#');
             if (commentIndex != -1) {
-                lines[i] = lines[i][..commentIndex];
+                comments.Add(line[(commentIndex + 1)..].Trim());
+                var codePart = line[..commentIndex].Trim();
+                if (!string.IsNullOrWhiteSpace(codePart)) {
+                    processedLines.Add(codePart);
+                }
+            } else {
+                processedLines.Add(line);
+                comments.Add("");
             }
-            lines[i] = lines[i].Trim();
         }
 
-        // remove empty lines
-        lines = lines.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+        lines = processedLines.ToArray();
+
+        // detect labels and save on table
+        Dictionary<string, int> labels = [];
+        for (int i = 0; i < lines.Length; i++) {
+            var line = lines[i];
+            if (line.Contains(':')) {
+                var parts = line.Split(':');
+                labels[parts[0].Trim()] = (int)(codeStart + (ulong)((i) * 4));
+                lines[i] = parts[1].Trim();
+            }
+        }
+
+        // translate labels on instructions
+        for (int i = 0; i < lines.Length; i++) {
+            var line = lines[i];
+            string mnemonic = line.Split(' ')[0];
+            // jump, label has the address((addr/4)[:26])
+            if (mnemonic == "j" || mnemonic == "jal") {
+                var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (labels.TryGetValue(parts[1], out int value)) {
+                    parts[1] = value.ToString();
+                }
+                lines[i] = string.Join(' ', parts);
+            }
+            // branch, label has the offset((addr/4)[:16])
+            if (branchMnemonics.Contains(mnemonic)) {
+                var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                // if any of the parts is equal of any label
+                string? label = Array.Find(parts, labels.ContainsKey);
+                if(label is not null) {
+                    int value = labels[label];
+                    value = (value - (int)(codeStart + (ulong)((i+1) * 4))) >> 2;
+                    int partIndex = Array.IndexOf(parts, label); // poderiamos fazer uma busca so em vez de 2
+                    parts[partIndex] = value.ToString();
+                }
+                lines[i] = string.Join(' ', parts);
+            }
+        }
 
         // translate register names to numbers
         for (int i = 0; i < lines.Length; i++) {
@@ -61,6 +114,7 @@ public partial class MipsAssembler {
             }
             instruction.PopulateFromLine(line);
             instruction.Address = (int)(codeStart + (ulong)(i * 4));
+            instruction.CommentTrivia = comments[i];
             instructions.Add(instruction);
         }
 

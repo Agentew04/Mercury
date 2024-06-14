@@ -15,6 +15,11 @@ public abstract class Instruction {
     public int? Address { get; set; }
 
     /// <summary>
+    /// An optional comment that may be on a instruction line
+    /// </summary>
+    public string CommentTrivia { get; set; } = "";
+
+    /// <summary>
     /// Returns the regular expression that should match the text of this instruction
     /// </summary>
     /// <returns></returns>

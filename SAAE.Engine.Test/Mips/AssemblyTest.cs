@@ -52,4 +52,26 @@ public class AssemblyTest {
         byte[] actual = new MipsAssembler().Assemble(code);
         CollectionAssert.AreEqual(expected, actual);
     }
+
+    [TestMethod]
+    public void TestLabelTranslation() {
+        string code = """
+            label1: addi $t0, $zero, 5
+            label2: addi $t1, $zero, 10
+            sub $t2, $t1, $t0
+            beq $t2, $t0, label1
+            addi $s0, $zero, 1  
+            j label2
+            """;
+        byte[] expected = [
+            0x05, 0x00, 0x08, 0x20, // addi
+            0x0A, 0x00, 0x09, 0x20, // addi
+            0x22, 0x50, 0x28, 0x01, // sub
+            0xfc, 0xff, 0x48, 0x11, // beq
+            0x01, 0x00, 0x10, 0x20, // addi
+            0x01, 0x00, 0x10, 0x08  // j
+        ];
+        byte[] actual = new MipsAssembler().Assemble(code);
+        CollectionAssert.AreEqual(expected, actual);
+    }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Instructions.System;
+namespace SAAE.Engine.Mips.Instructions;
 
 public partial class Teqi : TypeIInstruction {
 

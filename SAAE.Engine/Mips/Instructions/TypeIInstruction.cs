@@ -24,7 +24,7 @@ public abstract class TypeIInstruction : Instruction {
     protected PopulationOptions ParseOptions { get; init; }
 
     public override int ConvertToInt() {
-        return ((OpCode & 0x3F) << 26) | ((Rs & 0x1F) << 21) | ((Rt & 0x1F) << 16) | (Immediate & 0xFFFF);
+        return ((OpCode & 0x3F) << 26) | ((Rs & 0x1F) << 21) | ((Rt & 0x1F) << 16) | ((ushort)Immediate & 0xFFFF);
     }
 
     public override void FromInt(int instruction) {

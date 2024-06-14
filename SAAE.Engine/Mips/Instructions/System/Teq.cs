@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Instructions.System;
+namespace SAAE.Engine.Mips.Instructions;
 
 /// <summary>
 /// Trap if equal. Triggers a breakpoint if the contents of Rs and Rt are equal.

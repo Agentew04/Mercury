@@ -1,50 +1,47 @@
 ﻿using SAAE.Engine.Mips.Instructions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SAAE.Engine.Mips.Assembler; 
 public partial class MipsAssembler {
 
     private void RegisterTypeR() {
-        supportedInstructions.Add(new Add());
-        supportedInstructions.Add(new Addu());
-        supportedInstructions.Add(new Mul());
-        supportedInstructions.Add(new Slt());
-        supportedInstructions.Add(new Sltu());
-        supportedInstructions.Add(new Sub());
-        supportedInstructions.Add(new Subu());
-        supportedInstructions.Add(new And());
-        supportedInstructions.Add(new Nor());
-        supportedInstructions.Add(new Or());
-        supportedInstructions.Add(new Xor());
-        supportedInstructions.Add(new Sll());
-        supportedInstructions.Add(new Sllv());
-        supportedInstructions.Add(new Sra());
-        supportedInstructions.Add(new Srav());
-        supportedInstructions.Add(new Srl());
-        supportedInstructions.Add(new Srlv());
-
-        supportedInstructions.Add(new Div());
-        supportedInstructions.Add(new Divu());
-        supportedInstructions.Add(new Madd());
-        supportedInstructions.Add(new Maddu());
-        supportedInstructions.Add(new Msub());
-        supportedInstructions.Add(new Msubu());
-        supportedInstructions.Add(new Mult());
-        supportedInstructions.Add(new Multu());
-
-        supportedInstructions.Add(new Clo());
-        supportedInstructions.Add(new Clz());
-
-        supportedInstructions.Add(new Mfhi());
-        supportedInstructions.Add(new Mflo());
-        supportedInstructions.Add(new Mthi());
-        supportedInstructions.Add(new Mtlo());
-        supportedInstructions.Add(new Movz());
-        supportedInstructions.Add(new Movn());
+        supportedInstructions.AddRange([
+            new Add(),
+            new Addu(),
+            new Mul(),
+            new Slt(),
+            new Sltu(),
+            new Sub(),
+            new Subu(),
+            new And(),
+            new Nor(),
+            new Or(),
+            new Xor(),
+            new Sll(),
+            new Sllv(),
+            new Sra(),
+            new Srav(),
+            new Srl(),
+            new Srlv(),
+            new Div(),
+            new Divu(),
+            new Madd(),
+            new Maddu(),
+            new Msub(),
+            new Msubu(),
+            new Mult(),
+            new Multu(),
+            new Clo(),
+            new Clz(),
+            new Mfhi(),
+            new Mflo(),
+            new Mthi(),
+            new Mtlo(),
+            new Movz(),
+            new Movn(),
+            new Break(),
+            new Syscall(),
+            new Teq()
+        ]);
     }
 
     private void RegisterTypeI() {
@@ -72,7 +69,8 @@ public partial class MipsAssembler {
             new Bltz(),
             new Bne(),
             new Jalr(),
-            new Jr()
+            new Jr(),
+            new Teqi()
         ]);
     }
 
