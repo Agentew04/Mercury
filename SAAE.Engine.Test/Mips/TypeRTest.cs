@@ -3,8 +3,8 @@ using SAAE.Engine.Mips.Instructions;
 namespace SAAE.Engine.Test.Mips;
 
 [TestClass]
-public class InstructionsTestTypeR
-{
+public class TypeRTest {
+
     [TestCategory("Add")]
     [TestMethod("Test Add Regex")]
     public void AddRegex()
@@ -835,18 +835,6 @@ public class InstructionsTestTypeR
     }
 
     [TestCategory("Jalr")]
-    [DataRow(28, 10, 0x0140E009)]
-    [DataRow(19, 4, 0x00809809)]
-    [DataTestMethod]
-    public void JalrAssemblyDouble(int rt, int rs, int result) {
-        var instruction = new Jalr {
-            Rt = (byte)rt,
-            Rs = (byte)rs,
-        };
-        Assert.AreEqual(result, instruction.ConvertToInt());
-    }
-
-    [TestCategory("Jalr")]
     [DataRow(28, 0x0380F809)]
     [DataRow(19, 0x0260F809)]
     [DataTestMethod]
@@ -856,4 +844,18 @@ public class InstructionsTestTypeR
         };
         Assert.AreEqual(result, instruction.ConvertToInt());
     }
+
+    [TestCategory("Jalr")]
+    [DataRow(28, 10, 0x0140E009)]
+    [DataRow(19, 4, 0x00809809)]
+    [DataTestMethod]
+    public void JalrAssemblyDouble(int rd, int rs, int result) {
+        var instruction = new Jalr {
+            Rd = (byte)rd,
+            Rs = (byte)rs,
+        };
+        Assert.AreEqual(result, instruction.ConvertToInt());
+    }
+
+    
 }

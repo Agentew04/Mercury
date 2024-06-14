@@ -391,7 +391,7 @@ public class TypeITest {
     }
 
     [TestCategory("Beq")]
-    [DataRow("beq $t2, $zero, 0x2", 10, 8, 0x2)]
+    [DataRow("beq $t2, $t0, 0x2", 10, 8, 0x2)]
     [DataTestMethod]
     public void BeqPopulate(string line, int rs, int rt, int immediate) {
         var instruction = new Beq();

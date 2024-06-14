@@ -13,9 +13,4 @@ public partial class Jal : TypeJInstruction {
 
     [GeneratedRegex(@"^\s*jal\s+(?<target>(0x)?[0-9A-Fa-f]+)\s*$")]
     public override partial Regex GetRegularExpression();
-
-    public override void PopulateFromLine(string line) {
-        var match = GetRegularExpression().Match(line);
-        Target = ParseImmediate(match.Groups["target"].Value);
-    }
 }

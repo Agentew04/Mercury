@@ -12,7 +12,7 @@ public abstract class TypeJInstruction : Instruction{
     private int target = 0;
 
     public override int ConvertToInt() {
-        return ((OpCode & 0x3F) << 26) | (Target & 0x3FFFFFF);
+        return ((OpCode & 0x3F) << 26) | ((Target>>2) & 0x3FFFFFF);
     }
 
     public override void FromInt(int instruction) {
@@ -28,5 +28,10 @@ public abstract class TypeJInstruction : Instruction{
         } else {
             return int.Parse(text, System.Globalization.NumberStyles.Integer);
         }
+    }
+
+    public override void PopulateFromLine(string line) {
+        var match = GetRegularExpression().Match(line);
+        Target = ParseImmediate(match.Groups["target"].Value);
     }
 }

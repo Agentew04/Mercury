@@ -16,7 +16,7 @@ public partial class Jalr : TypeRInstruction {
     public Jalr() {
         OpCode = 0b000000;
         Rt = 0;
-        Rd = 0;
+        Rd = 0b11111;
         ShiftAmount = 0;
         Function = 0b001_001;
     }
