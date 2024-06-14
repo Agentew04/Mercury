@@ -8,6 +8,6 @@ public partial class Addiu : TypeIInstruction {
         ParseOptions = PopulationOptions.Rt | PopulationOptions.Rs | PopulationOptions.Immediate;
     }
 
-    [GeneratedRegex(@"^\s*addiu\s+\$(?<rt>\S+),\s*\$(?<rs>\S+),\s*(?<immediate>([-+]?\d+)|((0x)?[0-9A-Fa-f]+))\s*$")]
+    [GeneratedRegex(@"^\s*addiu\s+\$(?<rt>\S+),\s*\$(?<rs>\S+),\s*(?<immediate>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
     public override partial Regex GetRegularExpression();
 }

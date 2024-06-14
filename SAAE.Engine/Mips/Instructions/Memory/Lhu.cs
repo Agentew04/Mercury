@@ -8,6 +8,6 @@ public partial class Lhu : TypeIInstruction {
         ParseOptions = PopulationOptions.Rs | PopulationOptions.Rt | PopulationOptions.Immediate;
     }
 
-    [GeneratedRegex(@"^\s*lhu\s+\$(?<rt>\S+),\s*(?<immediate>([-+]?\d+)|((0x)?[0-9A-Fa-f]+))\(\$(?<rs>\S+)\)\s*$")]
+    [GeneratedRegex(@"^\s*lhu\s+\$(?<rt>\S+),\s*(?<immediate>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\(\$(?<rs>\S+)\)\s*$")]
     public override partial Regex GetRegularExpression();
 }

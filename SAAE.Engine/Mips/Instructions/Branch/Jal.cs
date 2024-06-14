@@ -11,6 +11,6 @@ public partial class Jal : TypeJInstruction {
         OpCode = 0b000011;
     }
 
-    [GeneratedRegex(@"^\s*jal\s+(?<target>(0x)?[0-9A-Fa-f]+)\s*$")]
+    [GeneratedRegex(@"^\s*jal\s+(?<target>(0x|0X)?[0-9A-Fa-f]+)\s*$")]
     public override partial Regex GetRegularExpression();
 }

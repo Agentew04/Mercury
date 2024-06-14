@@ -356,9 +356,125 @@ public class TypeITest {
     }
 
     // LW
-    // SB
-    // SH
-    // SW
+    [TestCategory("Lw")]
+    [TestMethod]
+    public void LwRegex() {
+        var instruction = new Lw();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("lw $s2, 5($k1)"));
+        Assert.IsTrue(regex.IsMatch("lw $v1, -5($at)"));
+        Assert.IsTrue(regex.IsMatch("lw $a2, 0xA($sp)"));
+        Assert.IsTrue(regex.IsMatch("lw $a2, 0XA($sp)"));
+        Assert.IsFalse(regex.IsMatch("lw $t0, -0Xa($t1)"));
+        Assert.IsFalse(regex.IsMatch("lw $t0, 0x($t1)"));
+        Assert.IsFalse(regex.IsMatch("lw $t0, 0xG($t1)"));
+        Assert.IsFalse(regex.IsMatch("lw $t0, -($t1)"));
+        Assert.IsFalse(regex.IsMatch("lw $t0, $t1"));
+    }
+
+    [TestCategory("Lw")]
+    [DataRow(1, 0xF, 11, 0x8D61000F)]
+    [DataRow(27, 0x7FF1, 28, 0x8F9B7FF1)]
+    [DataRow(31, 0x1, 23, 0x8EFF0001)]
+    [DataTestMethod]
+    public void LwAssembly(int rt, int immediate, int rs, uint expected) {
+        var instruction = new Lw() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Sb")]
+    [TestMethod]
+    public void SbRegex() {
+        var instruction = new Sb();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("sb $s2, 5($k1)"));
+        Assert.IsTrue(regex.IsMatch("sb $v1, -5($at)"));
+        Assert.IsTrue(regex.IsMatch("sb $a2, 0xA($sp)"));
+        Assert.IsTrue(regex.IsMatch("sb $a2, 0XA($sp)"));
+        Assert.IsFalse(regex.IsMatch("sb $t0, -0Xa($t1)"));
+        Assert.IsFalse(regex.IsMatch("sb $t0, 0x($t1)"));
+        Assert.IsFalse(regex.IsMatch("sb $t0, 0xG($t1)"));
+        Assert.IsFalse(regex.IsMatch("sb $t0, -($t1)"));
+        Assert.IsFalse(regex.IsMatch("sb $t0, $t1"));
+    }
+
+    [TestCategory("Sb")]
+    [DataRow(1, 0xF, 11, 0xA161000F)]
+    [DataRow(27, 0x7FF1, 28, 0xA39B7FF1)]
+    [DataRow(31, 0x1, 23, 0xA2FF0001)]
+    [DataTestMethod]
+    public void SbAssembly(int rt, int immediate, int rs, uint expected) {
+        var instruction = new Sb() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Sh")]
+    [TestMethod]
+    public void ShRegex() {
+        var instruction = new Sh();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("sh $s2, 5($k1)"));
+        Assert.IsTrue(regex.IsMatch("sh $v1, -5($at)"));
+        Assert.IsTrue(regex.IsMatch("sh $a2, 0xA($sp)"));
+        Assert.IsTrue(regex.IsMatch("sh $a2, 0XA($sp)"));
+        Assert.IsFalse(regex.IsMatch("sh $t0, -0Xa($t1)"));
+        Assert.IsFalse(regex.IsMatch("sh $t0, 0x($t1)"));
+        Assert.IsFalse(regex.IsMatch("sh $t0, 0xG($t1)"));
+        Assert.IsFalse(regex.IsMatch("sh $t0, -($t1)"));
+        Assert.IsFalse(regex.IsMatch("sh $t0, $t1"));
+    }
+
+    [TestCategory("Sh")]
+    [DataRow(1, 0xF, 11, 0xA561000F)]
+    [DataRow(27, 0x7FF1, 28, 0xA79B7FF1)]
+    [DataRow(31, 0x1, 23, 0xA6FF0001)]
+    [DataTestMethod]
+    public void ShAssembly(int rt, int immediate, int rs, uint expected) {
+        var instruction = new Sh() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Sw")]
+    [TestMethod]
+    public void SwRegex() {
+        var instruction = new Sw();
+        var regex = instruction.GetRegularExpression();
+        Assert.IsTrue(regex.IsMatch("sw $s2, 5($k1)"));
+        Assert.IsTrue(regex.IsMatch("sw $v1, -5($at)"));
+        Assert.IsTrue(regex.IsMatch("sw $a2, 0xA($sp)"));
+        Assert.IsTrue(regex.IsMatch("sw $a2, 0XA($sp)"));
+        Assert.IsFalse(regex.IsMatch("sw $t0, -0Xa($t1)"));
+        Assert.IsFalse(regex.IsMatch("sw $t0, 0x($t1)"));
+        Assert.IsFalse(regex.IsMatch("sw $t0, 0xG($t1)"));
+        Assert.IsFalse(regex.IsMatch("sw $t0, -($t1)"));
+        Assert.IsFalse(regex.IsMatch("sw $t0, $t1"));
+    }
+
+    [TestCategory("Sw")]
+    [DataRow(1, 0xF, 11, 0xAD61000F)]
+    [DataRow(27, 0x7FF1, 28, 0xAF9B7FF1)]
+    [DataRow(31, 0x1, 23, 0xAEFF0001)]
+    [DataTestMethod]
+    public void SwAssembly(int rt, int immediate, int rs, uint expected) {
+        var instruction = new Sw() {
+            Rt = (byte)rt,
+            Rs = (byte)rs,
+            Immediate = (short)immediate
+        };
+        Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
 
     [TestCategory("Beq")]
     [TestMethod]

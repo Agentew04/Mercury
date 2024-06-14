@@ -9,6 +9,6 @@ public partial class Bltz : TypeIInstruction {
         ParseOptions = PopulationOptions.Rs | PopulationOptions.Offset;
     }
 
-    [GeneratedRegex(@"^\s*bltz\s+\$(?<rs>\S+),\s*(?<offset>([-+]?\d+)|((0x)?[0-9A-Fa-f]+))\s*$")]
+    [GeneratedRegex(@"^\s*bltz\s+\$(?<rs>\S+),\s*(?<offset>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
     public override partial Regex GetRegularExpression();
 }

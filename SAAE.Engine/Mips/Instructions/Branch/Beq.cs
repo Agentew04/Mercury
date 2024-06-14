@@ -8,6 +8,6 @@ public partial class Beq : TypeIInstruction {
         ParseOptions = PopulationOptions.Rs | PopulationOptions.Rt | PopulationOptions.Offset;
     }
 
-    [GeneratedRegex(@"^\s*beq\s+\$(?<rs>\S+),\s*\$(?<rt>\S+),\s*(?<offset>([-+]?\d+)|((0x)?[0-9A-Fa-f]+))\s*$")]
+    [GeneratedRegex(@"^\s*beq\s+\$(?<rs>\S+),\s*\$(?<rt>\S+),\s*(?<offset>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
     public override partial Regex GetRegularExpression();
 }
