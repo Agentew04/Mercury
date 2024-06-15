@@ -10,12 +10,9 @@ public partial class Syscall : TypeRInstruction {
         Rt = 0;
         Function = 0b001100;
         ShiftAmount = 0;
+        ParseOptions = PopulationOptions.None;
     }
 
     [GeneratedRegex(@"^\s*syscall\s*$")]
     public override partial Regex GetRegularExpression();
-
-    public override void PopulateFromLine(string line) {
-        // empty
-    }
 }

@@ -68,7 +68,8 @@ public partial class MipsAssembler {
             new Blez(),
             new Bltz(),
             new Bne(),
-            new Jalr(),
+            new Jalr1(),
+            new Jalr2(),
             new Jr(),
             new Teqi()
         ]);

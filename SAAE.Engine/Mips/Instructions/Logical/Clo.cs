@@ -9,14 +9,9 @@ public partial class Clo : TypeRInstruction {
         ShiftAmount = 0;
         Function = 0b100001;
         Rt = 0;
+        ParseOptions = PopulationOptions.Rd | PopulationOptions.Rs;
     }
 
     [GeneratedRegex(@"^\s*clo\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*$")]
     public override partial Regex GetRegularExpression();
-
-    public override void PopulateFromLine(string line) {
-        Match m = GetRegularExpression().Match(line);
-        Rd = byte.Parse(m.Groups["rd"].Value);
-        Rs = byte.Parse(m.Groups["rs"].Value);
-    }
 }

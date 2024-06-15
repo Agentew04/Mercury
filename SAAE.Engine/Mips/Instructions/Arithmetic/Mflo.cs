@@ -8,13 +8,9 @@ public partial class Mflo : TypeRInstruction {
         Rt = 0;
         OpCode = 0;
         Function = 0b10010;
+        ParseOptions = PopulationOptions.Rd;
     }
 
     [GeneratedRegex(@"^\s*mflo\s+\$(?<rd>\S+?)\s*$")]
     public override partial Regex GetRegularExpression();
-
-    public override void PopulateFromLine(string line) {
-        Match m = GetRegularExpression().Match(line);
-        Rd = byte.Parse(m.Groups["rd"].Value);
-    }
 }

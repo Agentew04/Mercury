@@ -8,13 +8,9 @@ public partial class Mthi : TypeRInstruction {
         Rd = 0;
         OpCode = 0;
         Function = 0b010001;
+        ParseOptions = PopulationOptions.Rs;
     }
 
     [GeneratedRegex(@"^\s*mthi\s+\$(?<rs>\S+?)\s*$")]
     public override partial Regex GetRegularExpression();
-
-    public override void PopulateFromLine(string line) {
-        Match m = GetRegularExpression().Match(line);
-        Rs = byte.Parse(m.Groups["rs"].Value);
-    }
 }

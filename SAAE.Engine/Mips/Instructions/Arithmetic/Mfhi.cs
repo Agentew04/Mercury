@@ -8,13 +8,9 @@ public partial class Mfhi : TypeRInstruction {
         Rt = 0;
         OpCode = 0;
         Function = 0b10000;
+        ParseOptions = PopulationOptions.Rd;
     }
 
     [GeneratedRegex(@"^\s*mfhi\s+\$(?<rd>\S+?)\s*$")]
     public override partial Regex GetRegularExpression();
-
-    public override void PopulateFromLine(string line) {
-        Match m = GetRegularExpression().Match(line);
-        Rd = byte.Parse(m.Groups["rd"].Value);
-    }
 }

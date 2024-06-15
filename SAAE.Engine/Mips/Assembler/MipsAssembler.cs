@@ -167,6 +167,9 @@ public partial class MipsAssembler {
             string line = upstream.SourceText[i];
             Match m = labelRegex.Match(line);
             if(m.Success) {
+                // remove label from source code
+                string label = m.Groups["label"].Value;
+                upstream.SourceText[i] = line[(m.Index + m.Length)..].Trim();
                 symbolTable[m.Groups["label"].Value] = i;
             }
         }

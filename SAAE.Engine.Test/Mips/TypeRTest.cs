@@ -1,4 +1,5 @@
 using SAAE.Engine.Mips.Instructions;
+using System.Text.RegularExpressions;
 
 namespace SAAE.Engine.Test.Mips;
 
@@ -824,14 +825,22 @@ public class TypeRTest {
     [TestCategory("Jalr")]
     [TestMethod("Test Jalr Regex")]
     public void JalrRegex() {
-        var instruction = new Jalr();
-        var regex = instruction.GetRegularExpression();
-        Assert.IsTrue(regex.IsMatch("jalr $t0, $t1"));
-        Assert.IsTrue(regex.IsMatch("jalr $t0"));
-        Assert.IsFalse(regex.IsMatch("jalr $t0, $t1, $t2"));
-        Assert.IsFalse(regex.IsMatch("jalr $t0, $t1, $t2, $t3"));
-        Assert.IsFalse(regex.IsMatch("jr $t0, $t1"));
-        Assert.IsFalse(regex.IsMatch("jalr"));
+        var instruction1 = new Jalr1();
+        var instruction2 = new Jalr2();
+        var regex1 = instruction1.GetRegularExpression();
+        var regex2 = instruction2.GetRegularExpression();
+        Assert.IsTrue(regex2.IsMatch("jalr $t0, $t1"));
+        Assert.IsTrue(regex1.IsMatch("jalr $t0"));
+        Assert.IsFalse(regex1.IsMatch("jalr $t0, $t1, $t2"));
+        Assert.IsFalse(regex2.IsMatch("jalr $t0, $t1, $t2"));
+        Assert.IsFalse(regex1.IsMatch("jalr $t0, $t1, $t2, $t3"));
+        Assert.IsFalse(regex2.IsMatch("jalr $t0, $t1, $t2, $t3"));
+        Assert.IsFalse(regex1.IsMatch("jr $t0, $t1"));
+        Assert.IsFalse(regex2.IsMatch("jr $t0, $t1"));
+        Assert.IsFalse(regex1.IsMatch("jalr"));
+        Assert.IsFalse(regex2.IsMatch("jalr"));
+        Assert.IsFalse(regex1.IsMatch("jalr $t0, $t1"));
+        Assert.IsFalse(regex2.IsMatch("jalr $t0"));
     }
 
     [TestCategory("Jalr")]
@@ -839,7 +848,7 @@ public class TypeRTest {
     [DataRow(19, 0x0260F809)]
     [DataTestMethod]
     public void JalrAssemblySingle(int rs, int result) {
-        var instruction = new Jalr {
+        var instruction = new Jalr1 {
             Rs = (byte)rs
         };
         Assert.AreEqual(result, instruction.ConvertToInt());
@@ -850,7 +859,7 @@ public class TypeRTest {
     [DataRow(19, 4, 0x00809809)]
     [DataTestMethod]
     public void JalrAssemblyDouble(int rd, int rs, int result) {
-        var instruction = new Jalr {
+        var instruction = new Jalr2 {
             Rd = (byte)rd,
             Rs = (byte)rs,
         };

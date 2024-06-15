@@ -34,16 +34,6 @@ public abstract class TypeIInstruction : Instruction {
         Immediate = (short)(instruction & 0xFFFF);
     }
 
-    protected static short ParseImmediate(string text) {
-        if (text.Contains('x') || text.Contains('X') 
-            || text .StartsWith("0x") || text.StartsWith("0X")
-            || text.Any(x => x >= 'A' && x <= 'F' || x >= 'a' && x <= 'f')) {
-            return short.Parse(text[2..], System.Globalization.NumberStyles.HexNumber);
-        } else {
-            return short.Parse(text, System.Globalization.NumberStyles.Integer);
-        }
-    }
-
     [Flags]
     protected enum PopulationOptions {
         None = 0,
@@ -85,6 +75,5 @@ public abstract class TypeIInstruction : Instruction {
         }else if(ParseOptions.HasFlag(PopulationOptions.Offset)) {
             Immediate = ParseImmediate(match.Groups["offset"].Value);
         }
-
     }
 }

@@ -9,14 +9,9 @@ public partial class Clz : TypeRInstruction {
         ShiftAmount = 0;
         Function = 0b100_000;
         Rt = 0;
+        ParseOptions = PopulationOptions.Rd | PopulationOptions.Rs;
     }
 
     [GeneratedRegex(@"^\s*clz\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*$")]
     public override partial Regex GetRegularExpression();
-
-    public override void PopulateFromLine(string line) {
-        Match m = GetRegularExpression().Match(line);
-        Rd = byte.Parse(m.Groups["rd"].Value);
-        Rs = byte.Parse(m.Groups["rs"].Value);
-    }
 }

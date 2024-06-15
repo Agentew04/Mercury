@@ -2,15 +2,17 @@
 
 namespace SAAE.Engine.Mips.Instructions;
 
-public partial class Mul : TypeRInstruction {
+public partial class Jalr2 : TypeRInstruction {
 
-    public Mul() {
-        OpCode = 0b011100;
-        Function = 0x2;
+    public Jalr2() {
+        OpCode = 0b000000;
+        Rt = 0;
+        Rd = 0b11111;
         ShiftAmount = 0;
+        Function = 0b001_001;
         ParseOptions = PopulationOptions.Rs | PopulationOptions.Rt;
     }
 
-    [GeneratedRegex(@"^\s*mul\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*,\s*\$(?<rt>\S+)\s*$")]
+    [GeneratedRegex(@"^\s*jalr\s+\$(?<rt>[^\s,]+),\s*\$(?<rs>[^\s,]+)\s*$")]
     public override partial Regex GetRegularExpression();
 }

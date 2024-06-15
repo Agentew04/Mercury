@@ -58,4 +58,19 @@ public abstract class Instruction {
         ];
         return Array.IndexOf(names, name);
     }
+
+    /// <summary>
+    /// Parses a string of a number.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
+    protected static short ParseImmediate(string text) {
+        if (text.Contains('x') || text.Contains('X')
+            || text.StartsWith("0x") || text.StartsWith("0X")
+            || text.Any(x => x >= 'A' && x <= 'F' || x >= 'a' && x <= 'f')) {
+            return short.Parse(text[2..], System.Globalization.NumberStyles.HexNumber);
+        } else {
+            return short.Parse(text, System.Globalization.NumberStyles.Integer);
+        }
+    }
 }
