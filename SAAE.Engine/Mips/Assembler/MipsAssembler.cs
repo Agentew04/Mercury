@@ -169,8 +169,8 @@ public partial class MipsAssembler {
             if(m.Success) {
                 // remove label from source code
                 string label = m.Groups["label"].Value;
-                upstream.SourceText[i] = line[(m.Index + m.Length)..].Trim();
-                symbolTable[m.Groups["label"].Value] = i;
+                upstream.SourceText[i] = line[(m.Index + m.Length+1)..].Trim();
+                symbolTable[label] = i;
             }
         }
         return new() {
