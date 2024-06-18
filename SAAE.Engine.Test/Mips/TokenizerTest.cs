@@ -127,6 +127,22 @@ public class TokenizerTest {
     }
 
     [TestMethod]
+    public void TokenizeLine_ShouldReadString() {
+        var tokenizer = new Tokenizer();
+        var source = """
+            myvar: .asciiz "Hello, World!"
+            """;
+        var result = tokenizer.Tokenize(source);
+        Assert.AreEqual(5, result.Count);
+        CollectionAssert.AreEqual(new TokenType[] {
+            TokenType.IDENTIFIER, TokenType.COLON, TokenType.DIRECTIVE, TokenType.STRING, TokenType.EOF
+        }, result.Select(x => x.Type).ToList());
+
+        Assert.AreEqual(".asciiz", result[2].Value);
+        Assert.AreEqual("\"Hello, World!\"", result[3].Value);
+    }
+
+    [TestMethod]
     public void TokenizeLine_ShouldReadAll() {
         var tokenizer = new Tokenizer();
         var source = """
@@ -143,6 +159,28 @@ public class TokenizerTest {
             TokenType.IDENTIFIER, TokenType.COLON, TokenType.IDENTIFIER, TokenType.REGISTER, TokenType.COMMA, TokenType.REGISTER, TokenType.COMMA, TokenType.IDENTIFIER, TokenType.COMMENT, TokenType.NEWLINE,
             TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.EOF},
             result.Select(x => x.Type).ToList()
+        );
+    }
+
+    [TestMethod]
+    public void TokenizeLine_ShouldReadDataSection() {
+        var tokenizer = new Tokenizer();
+        var source = """
+            .data
+            myvar: .asciiz "Hello, World!"
+            mynum: .word 0x20
+            .text
+            lw $t1, mynum(0)
+            """;
+        var result = tokenizer.Tokenize(source);
+        Assert.AreEqual(22, result.Count);
+        CollectionAssert.AreEqual(new TokenType[] {
+            TokenType.DIRECTIVE, TokenType.NEWLINE,
+            TokenType.IDENTIFIER, TokenType.COLON, TokenType.DIRECTIVE, TokenType.STRING, TokenType.NEWLINE,
+            TokenType.IDENTIFIER, TokenType.COLON, TokenType.DIRECTIVE, TokenType.NUMBER, TokenType.NEWLINE,
+            TokenType.DIRECTIVE, TokenType.NEWLINE,
+            TokenType.IDENTIFIER, TokenType.REGISTER, TokenType.COMMA, TokenType.IDENTIFIER, TokenType.LEFT_PARENTHESIS, TokenType.NUMBER, TokenType.RIGHT_PARENTHESIS, TokenType.EOF,
+            },result.Select(x => x.Type).ToList()
         );
     }
 }

@@ -130,6 +130,25 @@ public class Tokenizer {
                 continue;
             }
 
+            // check string literal
+            if (line[i] == '"') {
+                int j = i+1;
+                reader.Append(line[i]); // start quote
+                while(j < line.Length && line[j] != '"') {
+                    reader.Append(line[j]);
+                    j++;
+                }
+                reader.Append(line[j]); // end quote
+                tokens.Add(new Token() {
+                    Type = TokenType.STRING,
+                    Value = reader.ToString(),
+                    TextRange = new Range(i,j)
+                });
+                reader.Clear();
+                i = j;
+                continue;
+            }
+
             // read potential number
             if (char.IsDigit(line[i])) {
                 int j = i;
@@ -213,6 +232,10 @@ public class Tokenizer {
         /// A decimal or hexadecimal number
         /// </summary>
         NUMBER,
+        /// <summary>
+        /// Represents a string literal, enclosed with double quotes
+        /// </summary>
+        STRING,
         /// <summary>
         /// Represents the '(' character
         /// </summary>
