@@ -108,6 +108,25 @@ public class TokenizerTest {
     }
 
     [TestMethod]
+    public void TokenizeLine_ShouldReadDirective() {
+        var tokenizer = new Tokenizer();
+        var source = """
+            .macro done
+            li $v0, 1
+            syscall
+            .end_macro
+            """;
+        var result = tokenizer.Tokenize(source);
+        Assert.AreEqual(12, result.Count);
+        CollectionAssert.AreEqual(new TokenType[] {
+            TokenType.DIRECTIVE, TokenType.IDENTIFIER, TokenType.NEWLINE,
+            TokenType.IDENTIFIER, TokenType.REGISTER, TokenType.COMMA, TokenType.NUMBER, TokenType.NEWLINE,
+            TokenType.IDENTIFIER, TokenType.NEWLINE,
+            TokenType.DIRECTIVE, TokenType.EOF
+        }, result.Select(x => x.Type).ToList());
+    }
+
+    [TestMethod]
     public void TokenizeLine_ShouldReadAll() {
         var tokenizer = new Tokenizer();
         var source = """

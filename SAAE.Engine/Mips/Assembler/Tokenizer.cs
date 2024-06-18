@@ -65,6 +65,23 @@ public class Tokenizer {
                 break;
             }
 
+            // match directives
+            if (line[i] == '.') {
+                int j = i;
+                while(j < line.Length && !IsSeparator(line[j])) {
+                    reader.Append(line[j]);
+                    j++;
+                }
+                tokens.Add(new Token() {
+                    Type = TokenType.DIRECTIVE,
+                    Value = reader.ToString(),
+                    TextRange = new Range(i,j)
+                });
+                reader.Clear();
+                i = j - 1;
+                continue;
+            }
+
             // match special characters
             if (line[i] == ',') {
                 tokens.Add(new Token() {
@@ -204,6 +221,10 @@ public class Tokenizer {
         /// Represents the ')' character
         /// </summary>
         RIGHT_PARENTHESIS,
+        /// <summary>
+        /// Represents a preprocessing directive. Always starts with the '.' character.
+        /// </summary>
+        DIRECTIVE,
         /// <summary>
         /// Represents a comment in the line. Always starts with
         /// the '#' character.
