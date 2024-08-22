@@ -7,11 +7,40 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Mips\Runtime\" />
+    <None Remove="Mips\Instructions\Disassembly_Rules.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Mips\Instructions\Disassembly_Rules.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Mips\Runtime\Simulated\" />
+    <Folder Include="Memory\" />
     <Folder Include="RiscV\RV128I\" />
     <Folder Include="RiscV\RV64I\" />
     <Folder Include="RiscV\RV32E\" />
     <Folder Include="RiscV\RV32I\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4" Version="4.6.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Antlr4.CodeGenerator" Version="4.6.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Update="Mips\Assembler\Mips.g4">
+      <CustomToolNamespace>SAAE.Engine.Mips.Assembler.Antlr</CustomToolNamespace>
+    </Antlr4>
   </ItemGroup>
 
 </Project>
