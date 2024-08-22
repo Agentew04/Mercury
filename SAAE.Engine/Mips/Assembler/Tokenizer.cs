@@ -11,7 +11,7 @@ namespace SAAE.Engine.Mips.Assembler;
 /// </summary>
 public class Tokenizer {
 
-    public List<Token> Tokenize(string source) {
+    public static List<Token> Tokenize(string source) {
         var tokens = new List<Token>();
         var lines = source.Split('\n');
         int startOfLine = 0;
@@ -41,7 +41,7 @@ public class Tokenizer {
         return tokens;
     }
 
-    private List<Token> TokenizeLine(string line) {
+    private static List<Token> TokenizeLine(string line) {
         var tokens = new List<Token>();
 
         StringBuilder reader = new StringBuilder();
@@ -148,6 +148,23 @@ public class Tokenizer {
                 i = j;
                 continue;
             }
+            if (line[i] == '\'') {
+                int j = i+1;
+                reader.Append(line[i]); // start quote
+                while(j < line.Length && line[j] != '\'') {
+                    reader.Append(line[j]);
+                    j++;
+                }
+                reader.Append(line[j]); // end quote
+                tokens.Add(new Token() {
+                    Type = TokenType.CHAR,
+                    Value = reader.ToString(),
+                    TextRange = new Range(i,j)
+                });
+                reader.Clear();
+                i = j;
+                continue;
+            }
 
             // read potential number
             if (char.IsDigit(line[i])) {
@@ -172,10 +189,11 @@ public class Tokenizer {
                 reader.Append(line[k]);
                 k++;
             }
+            string identifier = reader.ToString();
             tokens.Add(new Token() {
-                Type = TokenType.IDENTIFIER,
+                Type = IsMnemonic(identifier) ? TokenType.MNEMONIC : TokenType.IDENTIFIER,
                 Value = reader.ToString(),
-                TextRange = new Range(i,k)
+                TextRange = new Range(i, k)
             });
             reader.Clear();
             i = k - 1;
@@ -186,6 +204,20 @@ public class Tokenizer {
 
     private static bool IsSeparator(char c) {
         return c == ',' || c == '(' || c == ')' || c == '#' || c == ':' || c == ' ' || c == '\n' || c == '\r';
+    }
+
+    private static bool IsMnemonic(string identifier) {
+        List<string> mnemonics = [
+            "add", "addi", "addiu", "addu", "div", "divu", "madd", "maddu", 
+            "mfhi", "mflo", "movn", "movz", "msub", "msubu", "mthi", "mtlo",
+            "mul", "mult", "multu", "slt", "slti", "sltiu", "sltu", "sub", "subu",
+            "beq", "bgez", "bgtz", "blez", "bltz", "bne", "j", "jal", "jalr", "jr",
+            "and", "andi", "clo", "clz", "nor", "or", "ori", "xor", "xori",
+            "lb", "lbu", "lh", "lhu", "lui", "lw", "sb", "sh", "sw",
+            "sll", "sllv", "sra", "srav", "srl", "srlv",
+            "break", "syscall", "teq", "teqi"
+            ];
+        return mnemonics.Contains(identifier);
     }
 
     public class Token {
@@ -209,13 +241,23 @@ public class Tokenizer {
         /// Represents the range on the line that this token is located
         /// </summary>
         public Range TextRange { get; set; }
+
+        /// <summary>
+        /// Defines if this token was added in preprocessing.
+        /// For example: macros or pseudo instructions.
+        /// </summary>
+        public bool IsGenerated { get; set; } = false;
     }
 
     public enum TokenType {
         /// <summary>
-        /// A name, can be a label, an eqv or a mnemonic
+        /// A name, can be a label, an eqv
         /// </summary>
         IDENTIFIER,
+        /// <summary>
+        /// Represents the short nickname of an instruction.
+        /// </summary>
+        MNEMONIC,
         /// <summary>
         /// Represents the ':' character
         /// </summary>
@@ -236,6 +278,10 @@ public class Tokenizer {
         /// Represents a string literal, enclosed with double quotes
         /// </summary>
         STRING,
+        /// <summary>
+        /// Represents a char literal, enclosed with single quotes.
+        /// </summary>
+        CHAR,
         /// <summary>
         /// Represents the '(' character
         /// </summary>

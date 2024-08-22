@@ -1,9 +1,4 @@
 ﻿using SAAE.Engine.Mips.Assembler;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static SAAE.Engine.Mips.Assembler.Tokenizer;
 
 namespace SAAE.Engine.Test.Mips; 
@@ -13,23 +8,20 @@ public class TokenizerTest {
 
     [TestMethod]
     public void TokenizeLine_ShouldReturnEmptyList_WhenLineIsEmpty() {
-        var tokenizer = new Tokenizer();
-        var result = tokenizer.Tokenize("");
+        var result = Tokenize("");
         Assert.AreEqual(1, result.Count);
     }
 
     [TestMethod]
     public void TokenizeLine_ShouldReturnEmptyList_WhenLineIsWhiteSpace() {
-        var tokenizer = new Tokenizer();
-        var result = tokenizer.Tokenize("    ");
+        var result = Tokenize("    ");
         Assert.AreEqual(1, result.Count);
     }
 
     [TestMethod]
     public void TokenizeLine_ShouldReturnSingleToken_WhenLineIsComment() {
-        var tokenizer = new Tokenizer();
         string source = "# This is a comment";
-        var result = tokenizer.Tokenize(source);
+        var result = Tokenize(source);
         Assert.AreEqual(2, result.Count);
         Assert.AreEqual(TokenType.COMMENT, result[0].Type);
         Assert.AreEqual("# This is a comment", result[0].Value);
@@ -38,9 +30,8 @@ public class TokenizerTest {
 
     [TestMethod]
     public void TokenizeLine_ShouldReadLabels() {
-        var tokenizer = new Tokenizer();
         string source = "label:";
-        var result = tokenizer.Tokenize(source);
+        var result = Tokenize(source);
         Assert.AreEqual(3, result.Count);
         Assert.AreEqual(TokenType.IDENTIFIER, result[0].Type);
         Assert.AreEqual("label", result[0].Value);
@@ -53,9 +44,8 @@ public class TokenizerTest {
 
     [TestMethod]
     public void TokenizeLine_ShouldReadRegisters() {
-        var tokenizer = new Tokenizer();
         string source = "$t0, $ra";
-        var result = tokenizer.Tokenize(source);
+        var result = Tokenize(source);
         Assert.AreEqual(4, result.Count);
         Assert.AreEqual(TokenType.REGISTER, result[0].Type);
         Assert.AreEqual("t0", result[0].Value);
@@ -69,13 +59,12 @@ public class TokenizerTest {
 
     [TestMethod]
     public void TokenizeLine_ShouldReadParethesis() {
-        var tokenizer = new Tokenizer();
-        var source = "add()";
-        var result = tokenizer.Tokenize(source);
+        var source = "macro()";
+        var result = Tokenize(source);
         Assert.AreEqual(4, result.Count);
         Assert.AreEqual(TokenType.IDENTIFIER, result[0].Type);
-        Assert.AreEqual("add", result[0].Value);
-        Assert.AreEqual("add", source[result[0].TextRange]);
+        Assert.AreEqual("macro", result[0].Value);
+        Assert.AreEqual("macro", source[result[0].TextRange]);
         Assert.AreEqual(TokenType.LEFT_PARENTHESIS, result[1].Type);
         Assert.AreEqual("(", source[result[1].TextRange]);
         Assert.AreEqual(TokenType.RIGHT_PARENTHESIS, result[2].Type);
@@ -85,9 +74,8 @@ public class TokenizerTest {
 
     [TestMethod]
     public void TokenizeLine_ShouldReadNumber() {
-        var tokenizer = new Tokenizer();
         var source = "15 0x20 0X2 0xF0 0xCaFEF0Fa";
-        var result = tokenizer.Tokenize(source);
+        var result = Tokenize(source);
         Assert.AreEqual(6, result.Count);
         Assert.AreEqual(TokenType.NUMBER, result[0].Type);
         Assert.AreEqual("15", result[0].Value);
@@ -108,31 +96,49 @@ public class TokenizerTest {
     }
 
     [TestMethod]
+    public void TokenizeLine_ShouldReadFloat() {
+        var source = "3.14 1992 1e-2 10e10";
+        var result = Tokenize(source);
+        Assert.AreEqual(5, result.Count);
+        Assert.AreEqual(TokenType.NUMBER, result[0].Type);
+        Assert.AreEqual("3.14", result[0].Value);
+        Assert.AreEqual("3.14", source[result[0].TextRange]);
+        Assert.AreEqual(TokenType.NUMBER, result[1].Type);
+        Assert.AreEqual("1992", result[1].Value);
+        Assert.AreEqual("1992", source[result[1].TextRange]);
+        Assert.AreEqual(TokenType.NUMBER, result[2].Type);
+        Assert.AreEqual("1e-2", result[2].Value);
+        Assert.AreEqual("1e-2", source[result[2].TextRange]);
+        Assert.AreEqual(TokenType.NUMBER, result[3].Type);
+        Assert.AreEqual("10e10", result[3].Value);
+        Assert.AreEqual("10e10", source[result[3].TextRange]);
+        Assert.AreEqual(TokenType.EOF, result[4].Type);
+    }
+
+    [TestMethod]
     public void TokenizeLine_ShouldReadDirective() {
-        var tokenizer = new Tokenizer();
         var source = """
             .macro done
-            li $v0, 1
+            addi $v0, 1
             syscall
             .end_macro
             """;
-        var result = tokenizer.Tokenize(source);
+        var result = Tokenize(source);
         Assert.AreEqual(12, result.Count);
         CollectionAssert.AreEqual(new TokenType[] {
             TokenType.DIRECTIVE, TokenType.IDENTIFIER, TokenType.NEWLINE,
-            TokenType.IDENTIFIER, TokenType.REGISTER, TokenType.COMMA, TokenType.NUMBER, TokenType.NEWLINE,
-            TokenType.IDENTIFIER, TokenType.NEWLINE,
+            TokenType.MNEMONIC, TokenType.REGISTER, TokenType.COMMA, TokenType.NUMBER, TokenType.NEWLINE,
+            TokenType.MNEMONIC, TokenType.NEWLINE,
             TokenType.DIRECTIVE, TokenType.EOF
         }, result.Select(x => x.Type).ToList());
     }
 
     [TestMethod]
     public void TokenizeLine_ShouldReadString() {
-        var tokenizer = new Tokenizer();
         var source = """
             myvar: .asciiz "Hello, World!"
             """;
-        var result = tokenizer.Tokenize(source);
+        var result = Tokenize(source);
         Assert.AreEqual(5, result.Count);
         CollectionAssert.AreEqual(new TokenType[] {
             TokenType.IDENTIFIER, TokenType.COLON, TokenType.DIRECTIVE, TokenType.STRING, TokenType.EOF
@@ -143,28 +149,42 @@ public class TokenizerTest {
     }
 
     [TestMethod]
+    public void TokenizeLine_ShouldReadChar() {
+        var source = """
+            myvar: .word 'a' 'b'
+            """;
+        var result = Tokenize(source);
+        Assert.AreEqual(6, result.Count);
+        CollectionAssert.AreEqual(new TokenType[] {
+            TokenType.IDENTIFIER, TokenType.COLON, TokenType.DIRECTIVE, TokenType.CHAR, TokenType.CHAR, TokenType.EOF
+        }, result.Select(x => x.Type).ToList());
+
+        Assert.AreEqual(".word", result[2].Value);
+        Assert.AreEqual("\'a\'", result[3].Value);
+        Assert.AreEqual("\'b\'", result[4].Value);
+    }
+
+    [TestMethod]
     public void TokenizeLine_ShouldReadAll() {
-        var tokenizer = new Tokenizer();
         var source = """
             label: add $t0, $t1, $zero
             sw $f2 0x20($ra) 
             branch: beq $s0, $s1, label# this is a comment 
             j branch 
             """;
-        var result = tokenizer.Tokenize(source);
+        var result = Tokenize(source);
         Assert.AreEqual(29, result.Count);
         CollectionAssert.AreEqual(new TokenType[] {
-            TokenType.IDENTIFIER, TokenType.COLON, TokenType.IDENTIFIER, TokenType.REGISTER, TokenType.COMMA, TokenType.REGISTER, TokenType.COMMA, TokenType.REGISTER, TokenType.NEWLINE,
-            TokenType.IDENTIFIER, TokenType.REGISTER, TokenType.NUMBER, TokenType.LEFT_PARENTHESIS, TokenType.REGISTER, TokenType.RIGHT_PARENTHESIS, TokenType.NEWLINE,
-            TokenType.IDENTIFIER, TokenType.COLON, TokenType.IDENTIFIER, TokenType.REGISTER, TokenType.COMMA, TokenType.REGISTER, TokenType.COMMA, TokenType.IDENTIFIER, TokenType.COMMENT, TokenType.NEWLINE,
-            TokenType.IDENTIFIER, TokenType.IDENTIFIER, TokenType.EOF},
+            TokenType.IDENTIFIER, TokenType.COLON, TokenType.MNEMONIC, TokenType.REGISTER, TokenType.COMMA, TokenType.REGISTER, TokenType.COMMA, TokenType.REGISTER, TokenType.NEWLINE,
+            TokenType.MNEMONIC, TokenType.REGISTER, TokenType.NUMBER, TokenType.LEFT_PARENTHESIS, TokenType.REGISTER, TokenType.RIGHT_PARENTHESIS, TokenType.NEWLINE,
+            TokenType.IDENTIFIER, TokenType.COLON, TokenType.MNEMONIC, TokenType.REGISTER, TokenType.COMMA, TokenType.REGISTER, TokenType.COMMA, TokenType.IDENTIFIER, TokenType.COMMENT, TokenType.NEWLINE,
+            TokenType.MNEMONIC, TokenType.IDENTIFIER, TokenType.EOF},
             result.Select(x => x.Type).ToList()
         );
     }
 
     [TestMethod]
     public void TokenizeLine_ShouldReadDataSection() {
-        var tokenizer = new Tokenizer();
         var source = """
             .data
             myvar: .asciiz "Hello, World!"
@@ -172,14 +192,14 @@ public class TokenizerTest {
             .text
             lw $t1, mynum(0)
             """;
-        var result = tokenizer.Tokenize(source);
+        var result = Tokenize(source);
         Assert.AreEqual(22, result.Count);
         CollectionAssert.AreEqual(new TokenType[] {
             TokenType.DIRECTIVE, TokenType.NEWLINE,
             TokenType.IDENTIFIER, TokenType.COLON, TokenType.DIRECTIVE, TokenType.STRING, TokenType.NEWLINE,
             TokenType.IDENTIFIER, TokenType.COLON, TokenType.DIRECTIVE, TokenType.NUMBER, TokenType.NEWLINE,
             TokenType.DIRECTIVE, TokenType.NEWLINE,
-            TokenType.IDENTIFIER, TokenType.REGISTER, TokenType.COMMA, TokenType.IDENTIFIER, TokenType.LEFT_PARENTHESIS, TokenType.NUMBER, TokenType.RIGHT_PARENTHESIS, TokenType.EOF,
+            TokenType.MNEMONIC, TokenType.REGISTER, TokenType.COMMA, TokenType.IDENTIFIER, TokenType.LEFT_PARENTHESIS, TokenType.NUMBER, TokenType.RIGHT_PARENTHESIS, TokenType.EOF,
             },result.Select(x => x.Type).ToList()
         );
     }

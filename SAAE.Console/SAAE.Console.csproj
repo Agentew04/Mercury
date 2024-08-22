@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SAAE.Engine\SAAE.Engine.csproj" />
+  </ItemGroup>
+
 </Project>

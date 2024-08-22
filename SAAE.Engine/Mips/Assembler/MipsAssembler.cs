@@ -1,7 +1,12 @@
-﻿using SAAE.Engine.Mips.Instructions;
+﻿using Antlr4.Runtime;
+using SAAE.Engine.Mips.Instructions;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace SAAE.Engine.Mips.Assembler; 
+[assembly: CLSCompliant(true)]
+
+namespace SAAE.Engine.Mips.Assembler;
+
 public partial class MipsAssembler {
 
     private readonly List<Instruction> supportedInstructions = [];
@@ -45,7 +50,7 @@ public partial class MipsAssembler {
         };
     }
 
-    private class Macro {
+    private sealed class Macro {
         public string Name { get; init; } = "";
         public string[] Arguments { get; init; } = [];
         public List<string> Body { get; init; } = [];
@@ -288,5 +293,15 @@ public partial class MipsAssembler {
 
 
         return bytes.ToArray();
+    }
+
+    public void AntlrAssemble(string code) {
+        var inputStream = new AntlrInputStream(code);
+        var lexer = new Antlr.MipsLexer(inputStream);
+        var cts = new CommonTokenStream(lexer);
+        var parser = new Antlr.MipsParser(cts);
+
+        var visitor = new MipsVisitor();
+        var result = visitor.Visit(parser.program());
     }
 }
