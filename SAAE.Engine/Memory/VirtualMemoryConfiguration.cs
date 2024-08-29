@@ -44,5 +44,7 @@ internal readonly struct VirtualMemoryConfiguration {
     /// </remarks>
     public bool ColdStorageOptimization { get; init; } = true;
 
+    public bool ForceColdStorageReset { get; init; } = false;
+
     public VirtualMemoryConfiguration() {}
 }

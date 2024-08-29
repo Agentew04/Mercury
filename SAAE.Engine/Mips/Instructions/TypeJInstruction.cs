@@ -3,21 +3,22 @@
 public abstract class TypeJInstruction : Instruction{
 
     /// <summary>
-    /// A signed 26 bit target address value
+    /// The 26 lower bits shifted 2 to the left
+    /// of the target address.
     /// </summary>
-    public int Target {
+    public int Immediate {
         get => target & 0x3FFFFFF;
         set => target = value & 0x3FFFFFF;
     }
     private int target = 0;
 
     public override int ConvertToInt() {
-        return ((OpCode & 0x3F) << 26) | ((Target>>2) & 0x3FFFFFF);
+        return ((OpCode & 0x3F) << 26) | ((Immediate) & 0x3FFFFFF);
     }
 
     public override void FromInt(int instruction) {
         OpCode = (byte)((instruction >> 26) & 0x3F);
-        Target = instruction & 0x3FFFFFF;
+        Immediate = (instruction & 0x3FFFFFF);
     }
 
     protected static int ParseImmediate(string text) {
@@ -32,6 +33,6 @@ public abstract class TypeJInstruction : Instruction{
 
     public override void PopulateFromLine(string line) {
         var match = GetRegularExpression().Match(line);
-        Target = ParseImmediate(match.Groups["target"].Value);
+        Immediate = ParseImmediate(match.Groups["target"].Value);
     }
 }

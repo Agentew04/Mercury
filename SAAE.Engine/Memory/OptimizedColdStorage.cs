@@ -31,7 +31,14 @@ internal sealed class OptimizedColdStorage : IDisposable, IStorage {
             fs = new FileStream(config.ColdStoragePath, FileMode.Open);
             br = new BinaryReader(fs, Encoding.ASCII, true);
             bw = new BinaryWriter(fs, Encoding.ASCII, true);
-            if(fs.Length == 0) {
+            if(fs.Length == 0 || config.ForceColdStorageReset) {
+                br.Close();
+                bw.Close();
+                fs.Close();
+                File.Delete(config.ColdStoragePath);
+                fs = new FileStream(config.ColdStoragePath, FileMode.CreateNew);
+                br = new BinaryReader(fs, Encoding.ASCII, true);
+                bw = new BinaryWriter(fs, Encoding.ASCII, true);
                 CreateNew(config);
             } else {
                 // read information from file

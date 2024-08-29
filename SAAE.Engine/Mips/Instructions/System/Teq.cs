@@ -13,6 +13,14 @@ public partial class Teq : TypeRInstruction {
         ParseOptions = PopulationOptions.Rs | PopulationOptions.Rt;
     }
 
+    public int Code {
+        get => (Rd << 5) | ShiftAmount;
+        set {
+            Rd = (byte)((value >> 5) & 0b11111);
+            ShiftAmount = (byte)(value & 0b11111);
+        }
+    }
+
     [GeneratedRegex(@"^\s*teq\s+\$(?<rs>\S+),\s*\$(?<rt>\S+)\s*$")]
     public override partial Regex GetRegularExpression();
 }

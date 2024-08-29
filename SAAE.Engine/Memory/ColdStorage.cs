@@ -8,14 +8,17 @@ internal sealed class ColdStorage : IStorage, IDisposable {
     private readonly ulong pageSize;
 
     public ColdStorage(VirtualMemoryConfiguration config) {
-        fs = File.Open(config.ColdStoragePath, FileMode.OpenOrCreate);
-        fs.SetLength((long)config.Size);
         if (config.ColdStorageOptimization) {
             throw new InvalidOperationException("ColdStorage class is not the optimized one. Error in VirtualMemory logic!");
         }
         if(config.Size % config.PageSize != 0) {
             throw new ArgumentException("The total size of the memory must be a multiple of the page size.", nameof(config));
         }
+        if (config.ForceColdStorageReset && File.Exists(config.ColdStoragePath)) {
+            File.Delete(config.ColdStoragePath);
+        }
+        fs = File.Open(config.ColdStoragePath, FileMode.OpenOrCreate);
+        fs.SetLength((long)config.Size);
         pageSize = config.PageSize;
         pageCount = config.Size / config.PageSize;
     }

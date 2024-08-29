@@ -209,6 +209,13 @@
     }
   },
   {
+    "mnemonic": "Bgezal",
+    "constraints": {
+      "opcode": 1,
+      "rt": 17
+    }
+  },
+  {
     "mnemonic": "Bgtz",
     "constraints": {
       "opcode": 7,
@@ -227,6 +234,13 @@
     "constraints": {
       "opcode": 1,
       "rt": 0
+    }
+  },
+  {
+    "mnemonic": "Bltzal",
+    "constraints": {
+      "opcode": 1,
+      "rt": 16
     }
   },
   {
@@ -262,7 +276,6 @@
     "constraints": {
       "opcode": 0,
       "rt": 0,
-      "rd": 31,
       "shift": 0,
       "funct": 9
     }

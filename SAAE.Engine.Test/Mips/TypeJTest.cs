@@ -26,7 +26,7 @@ public class TypeJTest {
     [DataTestMethod]
     public void JAssembly(int address, int expected) {
         var instruction = new J {
-            Target = address
+            Immediate = (address&0x3FFFFFF)>>2
         };
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
@@ -38,7 +38,7 @@ public class TypeJTest {
     public void JPopulate(string line, int target) {
         var instruction = new J();
         instruction.PopulateFromLine(line);
-        Assert.AreEqual(target, instruction.Target);
+        Assert.AreEqual(target, instruction.Immediate);
     }
 
     [TestCategory("Jal")]
@@ -57,7 +57,7 @@ public class TypeJTest {
     [DataTestMethod]
     public void JalAssembly(int address, int expected) {
         var instruction = new Jal {
-            Target = address
+            Immediate = (address&0x3FFFFFF)>>2
         };
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
@@ -69,6 +69,6 @@ public class TypeJTest {
     public void JalPopulate(string line, int target) {
         var instruction = new Jal();
         instruction.PopulateFromLine(line);
-        Assert.AreEqual(target, instruction.Target);
+        Assert.AreEqual(target, instruction.Immediate);
     }
 }

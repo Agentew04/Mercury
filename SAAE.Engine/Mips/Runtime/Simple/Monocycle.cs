@@ -13,14 +13,15 @@ namespace SAAE.Engine.Mips.Runtime.Simple;
 /// A simplified version of the monocycle MIPS processor.
 /// Does not simulate every component of the processor.
 /// </summary>
-public class Monocycle : IClockable
+public partial class Monocycle : IClockable
 {
     public Monocycle() {
         // create virtual memory
-        ulong gb = 1024 * 1024 * 1024;
+        const ulong gb = 1024 * 1024 * 1024;
         memory = new VirtualMemory(new VirtualMemoryConfiguration() {
             ColdStoragePath = "memory.bin",
             ColdStorageOptimization = true,
+            ForceColdStorageReset = true,
             PageSize = 4096,
             Size = 4*gb,
             MaxLoadedPages = 64
@@ -48,12 +49,55 @@ public class Monocycle : IClockable
         // decode
         Instruction instruction = instructionFactory.Disassemble(instructionBinary);
 
+        int pcBefore = registerFile[RegisterFile.Register.Pc];
         Execute(instruction);
 
         // update PC
+        if (pcBefore == registerFile[RegisterFile.Register.Pc]) {
+            registerFile[RegisterFile.Register.Pc] += 4;
+        }
     }
 
-    private void Execute(Instruction instruction) {
+    public event EventHandler<SignalExceptionEventArgs>? OnSignalException = null;
 
+    private void Execute(Instruction instruction) {
+        if(instruction is TypeRInstruction r) {
+            ExecuteTypeR(r);
+        }else if(instruction is TypeIInstruction i) {
+            ExecuteTypeI(i);
+        }else if(instruction is TypeJInstruction j) {
+
+        }
+    }
+
+    private static bool IsOverflowed(int a, int b, int result) {
+        return (a > 0 && b > 0 && result < 0) || (a < 0 && b < 0 && result > 0);
+    }
+
+    private void BranchTo(int immediate) {
+        registerFile[RegisterFile.Register.Pc] += 4 + immediate << 2;
+    }
+    private void Link(RegisterFile.Register register = RegisterFile.Register.Ra) {
+        registerFile[register] = registerFile[RegisterFile.Register.Pc];
+    }
+
+    private static int ZeroExtend(short value) {
+        return (ushort)value;
+    }
+
+    public class SignalExceptionEventArgs {
+        public SignalType Signal { get; set; }
+
+        public int ProgramCounter { get; set; }
+
+        public int Instruction { get; set; }
+
+        public enum SignalType {
+            Breakpoint,
+            SystemCall,
+            Trap,
+            IntegerOverflow,
+            AddressError,
+        }
     }
 }
