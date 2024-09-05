@@ -13,12 +13,11 @@ namespace SAAE.Engine.Mips.Runtime.Simple;
 /// A simplified version of the monocycle MIPS processor.
 /// Does not simulate every component of the processor.
 /// </summary>
-public partial class Monocycle : IClockable
-{
+public sealed partial class Monocycle : IClockable, IDisposable {
     public Monocycle() {
         // create virtual memory
         const ulong gb = 1024 * 1024 * 1024;
-        memory = new VirtualMemory(new VirtualMemoryConfiguration() {
+        Memory = new VirtualMemory(new VirtualMemoryConfiguration() {
             ColdStoragePath = "memory.bin",
             ColdStorageOptimization = true,
             ForceColdStorageReset = true,
@@ -31,30 +30,39 @@ public partial class Monocycle : IClockable
     /// <summary>
     /// Represents the RAM memory
     /// </summary>
-    private VirtualMemory memory;
+    public VirtualMemory Memory { get; private set; }
 
     /// <summary>
     /// Structure that holds all of the general purpose
     /// registers of the CPU.
     /// </summary>
-    private RegisterFile registerFile = new();
+    public RegisterFile RegisterFile { get; private set; } = new();
 
-    private InstructionFactory instructionFactory = new();
+    /// <summary>
+    /// Class responsible to interpret binary instructions
+    /// and return the corresponding class.
+    /// </summary>
+    private readonly InstructionFactory instructionFactory = new();
+
+    public bool UseBranchDelaySlot { get; set; } = false;
+
+    private uint lastAvailablePcAddress = 0;
 
     public void Clock()
     {
         // read instruction from PC
-        int instructionBinary = memory.ReadWord((ulong)registerFile[RegisterFile.Register.Pc]);
+        int instructionBinary = Memory.ReadWord((ulong)RegisterFile[RegisterFile.Register.Pc]);
 
         // decode
         Instruction instruction = instructionFactory.Disassemble(instructionBinary);
 
-        int pcBefore = registerFile[RegisterFile.Register.Pc];
+        Console.WriteLine($"Executing: {instruction.GetType().Name}");
+        int pcBefore = RegisterFile[RegisterFile.Register.Pc];
         Execute(instruction);
 
         // update PC
-        if (pcBefore == registerFile[RegisterFile.Register.Pc]) {
-            registerFile[RegisterFile.Register.Pc] += 4;
+        if (pcBefore == RegisterFile[RegisterFile.Register.Pc]) {
+            RegisterFile[RegisterFile.Register.Pc] += 4;
         }
     }
 
@@ -66,7 +74,7 @@ public partial class Monocycle : IClockable
         }else if(instruction is TypeIInstruction i) {
             ExecuteTypeI(i);
         }else if(instruction is TypeJInstruction j) {
-
+            ExecuteTypeJ(j);
         }
     }
 
@@ -75,14 +83,46 @@ public partial class Monocycle : IClockable
     }
 
     private void BranchTo(int immediate) {
-        registerFile[RegisterFile.Register.Pc] += 4 + immediate << 2;
+        RegisterFile[RegisterFile.Register.Pc] += 4 + immediate << 2;
     }
     private void Link(RegisterFile.Register register = RegisterFile.Register.Ra) {
-        registerFile[register] = registerFile[RegisterFile.Register.Pc];
+        RegisterFile[register] = RegisterFile[RegisterFile.Register.Pc];
     }
 
     private static int ZeroExtend(short value) {
         return (ushort)value;
+    }
+
+    public void Dispose() {
+        Memory.Dispose();
+    }
+
+    /// <summary>
+    /// Loads data into the Text Section of RAM
+    /// </summary>
+    /// <param name="data">The byte oriented data</param>
+    public void LoadTextSection(Span<byte> data) {
+        uint textAddress = 0x0040_0000;
+        for(ulong i=0;i<(ulong)data.Length; i++) {
+            Memory.WriteByte(textAddress + i, data[(int)i]);
+        }
+        lastAvailablePcAddress = textAddress + (uint)data.Length + 1;
+    }
+
+    /// <summary>
+    /// Loads a series of words/instructions into the RAM
+    /// </summary>
+    /// <param name="data"></param>
+    public void LoadTextSection(Span<int> data) {
+        uint textAddress = 0x0040_0000;
+        for (ulong i = 0; i < (ulong)data.Length; i++) {
+            Memory.WriteWord(textAddress + i*4, data[(int)i]);
+        }
+        lastAvailablePcAddress = textAddress + (uint)data.Length*4 + 1;
+    }
+
+    public bool IsExecutionFinished() {
+        return RegisterFile[RegisterFile.Register.Pc] <= lastAvailablePcAddress;
     }
 
     public class SignalExceptionEventArgs {

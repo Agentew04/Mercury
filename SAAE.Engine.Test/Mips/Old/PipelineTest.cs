@@ -5,13 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SAAE.Engine.Test.Mips;
+namespace SAAE.Engine.Test.Mips.Old;
 
 [TestClass]
-public class PipelineTest {
+public class PipelineTest
+{
 
     [TestMethod]
-    public void TestSourceCodeStage() {
+    public void TestSourceCodeStage()
+    {
         string code = """
             add $t1, $zero, $s0
             sub $t1, $0, $s1
@@ -25,14 +27,15 @@ public class PipelineTest {
             beq $t2, $t0, label2
             sw $t1, 0($t2)
             """;
-        
+
         MipsAssembler assembler = new();
         SourceTextStage sourceTextStage = assembler.InputText(code);
         Assert.AreEqual(11, sourceTextStage.SourceText.Count);
     }
 
     [TestMethod]
-    public void TestMacroSolverStage1() {
+    public void TestMacroSolverStage1()
+    {
         string code = """
             .macro done
             addi $v0, $0, 10
@@ -66,7 +69,8 @@ public class PipelineTest {
     }
 
     [TestMethod]
-    public void TestMacroSolverStage2() {
+    public void TestMacroSolverStage2()
+    {
         string code = """
             .macro add3(%a,%b,%c)
             add %a, %a, %b
@@ -85,7 +89,8 @@ public class PipelineTest {
     }
 
     [TestMethod]
-    public void TestMacroSolverStage3() {
+    public void TestMacroSolverStage3()
+    {
         string code = """
             .eqv test 5
             addi $t1, $zero, test
@@ -100,7 +105,8 @@ public class PipelineTest {
     }
 
     [TestMethod]
-    public void TestSymbolReadingStage1() {
+    public void TestSymbolReadingStage1()
+    {
         string code = """
             add $t1, $zero, $s0
             sub $t1, $0, $s1
@@ -115,7 +121,7 @@ public class PipelineTest {
             sw $t1, 0($t2)
             # label: test comments and labels
             """;
-        
+
         MipsAssembler assembler = new();
         SourceTextStage sourceTextStage = assembler.InputText(code);
         MacroSolvingStage macroStage = assembler.ResolveMacros(sourceTextStage);
@@ -129,7 +135,8 @@ public class PipelineTest {
     }
 
     [TestMethod]
-    public void TestSymbolReadingStage2() {
+    public void TestSymbolReadingStage2()
+    {
         string code = """
             label1: or $s7, $k0, $1
             """;
@@ -146,7 +153,8 @@ public class PipelineTest {
     }
 
     [TestMethod]
-    public void TestInstructionAssembly1() {
+    public void TestInstructionAssembly1()
+    {
         string code = """
             addi $t0, $zero, 5
             addi $t1, $zero, 10

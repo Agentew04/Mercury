@@ -1,11 +1,10 @@
-﻿namespace SAAE.Engine.Memory; 
+﻿namespace SAAE.Engine.Memory;
 
+#pragma warning disable S3925
 [Serializable]
-internal class InvalidAddressException : Exception {
+public class InvalidAddressException : Exception {
     public InvalidAddressException() { }
     public InvalidAddressException(string message) : base(message) { }
     public InvalidAddressException(string message, Exception inner) : base(message, inner) { }
-    protected InvalidAddressException(
-      System.Runtime.Serialization.SerializationInfo info,
-      System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 }
+#pragma warning restore S3925

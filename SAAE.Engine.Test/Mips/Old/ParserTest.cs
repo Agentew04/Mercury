@@ -5,13 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SAAE.Engine.Test.Mips;
+namespace SAAE.Engine.Test.Mips.Old;
 
 [TestClass]
-public class ParserTest {
+public class ParserTest
+{
 
     [TestMethod]
-    public void InstructionLabelTest() {
+    public void InstructionLabelTest()
+    {
         string code = """
             start: add $t0, $t1, $t2
             add $t0, $t1, $t2
@@ -32,7 +34,8 @@ public class ParserTest {
     }
 
     [TestMethod]
-    public void VariableLabelTest() {
+    public void VariableLabelTest()
+    {
         string code = """
             add $t2,$t1,$t0
             #empty line

@@ -1,6 +1,6 @@
 namespace SAAE.Engine.Memory;
 
-internal readonly struct VirtualMemoryConfiguration {
+public readonly struct VirtualMemoryConfiguration {
     private const ulong KB = 1024;
     private const ulong MB = 1024 * KB;
     private const ulong GB = 1024 * MB;

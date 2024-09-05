@@ -1,6 +1,6 @@
 namespace SAAE.Engine.Memory;
 
-internal sealed class VirtualMemory : IDisposable
+public sealed class VirtualMemory : IDisposable
 {
     /// <summary>
     /// Total size of the virtual memory in bytes.

@@ -1,13 +1,15 @@
 ﻿using SAAE.Engine.Mips.Assembler;
 
 
-namespace SAAE.Engine.Test.Mips;
+namespace SAAE.Engine.Test.Mips.Old;
 
 [TestClass]
-public class AssemblyTest {
+public class AssemblyTest
+{
 
     [TestMethod]
-    public void TestTypeR() {
+    public void TestTypeR()
+    {
         string code = """
             add $t1, $zero, $s0
             sub $t1, $0, $s1
@@ -30,7 +32,8 @@ public class AssemblyTest {
     }
 
     [TestMethod]
-    public void TestTypeRIJ() {
+    public void TestTypeRIJ()
+    {
         string code = """
             addi $t0, $zero, 5
             addi $t1, $zero, 10
@@ -54,7 +57,8 @@ public class AssemblyTest {
     }
 
     [TestMethod]
-    public void TestLabelTranslation() {
+    public void TestLabelTranslation()
+    {
         string code = """
             label1: addi $t0, $zero, 5
             label2: addi $t1, $zero, 10

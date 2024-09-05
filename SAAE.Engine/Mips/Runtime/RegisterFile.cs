@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ public class RegisterFile {
 
     public RegisterFile() {
         _registers = new List<int>((int)Register.COUNT);
+        _registers.AddRange(Enumerable.Repeat(0, (int)Register.COUNT));
     }
 
     public int Get(Register register) => Get((int)register);

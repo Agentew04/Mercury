@@ -1,25 +1,29 @@
 ﻿using SAAE.Engine.Mips.Assembler;
 using static SAAE.Engine.Mips.Assembler.Tokenizer;
 
-namespace SAAE.Engine.Test.Mips; 
+namespace SAAE.Engine.Test.Mips.Old;
 
 [TestClass]
-public class TokenizerTest {
+public class TokenizerTest
+{
 
     [TestMethod]
-    public void TokenizeLine_ShouldReturnEmptyList_WhenLineIsEmpty() {
+    public void TokenizeLine_ShouldReturnEmptyList_WhenLineIsEmpty()
+    {
         var result = Tokenize("");
         Assert.AreEqual(1, result.Count);
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReturnEmptyList_WhenLineIsWhiteSpace() {
+    public void TokenizeLine_ShouldReturnEmptyList_WhenLineIsWhiteSpace()
+    {
         var result = Tokenize("    ");
         Assert.AreEqual(1, result.Count);
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReturnSingleToken_WhenLineIsComment() {
+    public void TokenizeLine_ShouldReturnSingleToken_WhenLineIsComment()
+    {
         string source = "# This is a comment";
         var result = Tokenize(source);
         Assert.AreEqual(2, result.Count);
@@ -29,7 +33,8 @@ public class TokenizerTest {
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReadLabels() {
+    public void TokenizeLine_ShouldReadLabels()
+    {
         string source = "label:";
         var result = Tokenize(source);
         Assert.AreEqual(3, result.Count);
@@ -43,7 +48,8 @@ public class TokenizerTest {
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReadRegisters() {
+    public void TokenizeLine_ShouldReadRegisters()
+    {
         string source = "$t0, $ra";
         var result = Tokenize(source);
         Assert.AreEqual(4, result.Count);
@@ -58,7 +64,8 @@ public class TokenizerTest {
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReadParethesis() {
+    public void TokenizeLine_ShouldReadParethesis()
+    {
         var source = "macro()";
         var result = Tokenize(source);
         Assert.AreEqual(4, result.Count);
@@ -73,7 +80,8 @@ public class TokenizerTest {
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReadNumber() {
+    public void TokenizeLine_ShouldReadNumber()
+    {
         var source = "15 0x20 0X2 0xF0 0xCaFEF0Fa";
         var result = Tokenize(source);
         Assert.AreEqual(6, result.Count);
@@ -96,7 +104,8 @@ public class TokenizerTest {
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReadFloat() {
+    public void TokenizeLine_ShouldReadFloat()
+    {
         var source = "3.14 1992 1e-2 10e10";
         var result = Tokenize(source);
         Assert.AreEqual(5, result.Count);
@@ -116,7 +125,8 @@ public class TokenizerTest {
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReadDirective() {
+    public void TokenizeLine_ShouldReadDirective()
+    {
         var source = """
             .macro done
             addi $v0, 1
@@ -134,7 +144,8 @@ public class TokenizerTest {
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReadString() {
+    public void TokenizeLine_ShouldReadString()
+    {
         var source = """
             myvar: .asciiz "Hello, World!"
             """;
@@ -149,7 +160,8 @@ public class TokenizerTest {
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReadChar() {
+    public void TokenizeLine_ShouldReadChar()
+    {
         var source = """
             myvar: .word 'a' 'b'
             """;
@@ -165,7 +177,8 @@ public class TokenizerTest {
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReadAll() {
+    public void TokenizeLine_ShouldReadAll()
+    {
         var source = """
             label: add $t0, $t1, $zero
             sw $f2 0x20($ra) 
@@ -184,7 +197,8 @@ public class TokenizerTest {
     }
 
     [TestMethod]
-    public void TokenizeLine_ShouldReadDataSection() {
+    public void TokenizeLine_ShouldReadDataSection()
+    {
         var source = """
             .data
             myvar: .asciiz "Hello, World!"
@@ -200,7 +214,7 @@ public class TokenizerTest {
             TokenType.IDENTIFIER, TokenType.COLON, TokenType.DIRECTIVE, TokenType.NUMBER, TokenType.NEWLINE,
             TokenType.DIRECTIVE, TokenType.NEWLINE,
             TokenType.MNEMONIC, TokenType.REGISTER, TokenType.COMMA, TokenType.IDENTIFIER, TokenType.LEFT_PARENTHESIS, TokenType.NUMBER, TokenType.RIGHT_PARENTHESIS, TokenType.EOF,
-            },result.Select(x => x.Type).ToList()
+            }, result.Select(x => x.Type).ToList()
         );
     }
 }

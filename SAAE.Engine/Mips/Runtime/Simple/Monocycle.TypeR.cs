@@ -5,122 +5,122 @@ namespace SAAE.Engine.Mips.Runtime.Simple;
 public partial class Monocycle {
     private void ExecuteTypeR(TypeRInstruction instruction) {
         if (instruction is Add add) {
-            registerFile[add.Rd] = registerFile[add.Rs] + registerFile[add.Rt];
-            if (IsOverflowed(registerFile[add.Rs], registerFile[add.Rt], registerFile[add.Rd])){
+            RegisterFile[add.Rd] = RegisterFile[add.Rs] + RegisterFile[add.Rt];
+            if (IsOverflowed(RegisterFile[add.Rs], RegisterFile[add.Rt], RegisterFile[add.Rd])){
                 OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
                     Instruction = add.ConvertToInt(),
-                    ProgramCounter = registerFile[RegisterFile.Register.Pc]
+                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
                 });
             }
         } else if (instruction is Addu addu) {
-            registerFile[addu.Rd] = registerFile[addu.Rs] + registerFile[addu.Rt];
+            RegisterFile[addu.Rd] = RegisterFile[addu.Rs] + RegisterFile[addu.Rt];
         } else if (instruction is Div div) {
-            if (registerFile[div.Rt] == 0) {
-                registerFile[RegisterFile.Register.Hi] = Random.Shared.Next(); // simulated undefined behaviour
-                registerFile[RegisterFile.Register.Lo] = Random.Shared.Next();
+            if (RegisterFile[div.Rt] == 0) {
+                RegisterFile[RegisterFile.Register.Hi] = Random.Shared.Next(); // simulated undefined behaviour
+                RegisterFile[RegisterFile.Register.Lo] = Random.Shared.Next();
             } else {
-                registerFile[RegisterFile.Register.Hi] = registerFile[div.Rs] % registerFile[div.Rt];
-                registerFile[RegisterFile.Register.Lo] = registerFile[div.Rs] / registerFile[div.Rt];
+                RegisterFile[RegisterFile.Register.Hi] = RegisterFile[div.Rs] % RegisterFile[div.Rt];
+                RegisterFile[RegisterFile.Register.Lo] = RegisterFile[div.Rs] / RegisterFile[div.Rt];
             }
         } else if (instruction is Divu divu) {
-            if (registerFile[divu.Rt] == 0) {
-                registerFile[RegisterFile.Register.Hi] = Random.Shared.Next(); // simulated undefined behaviour
-                registerFile[RegisterFile.Register.Lo] = Random.Shared.Next();
+            if (RegisterFile[divu.Rt] == 0) {
+                RegisterFile[RegisterFile.Register.Hi] = Random.Shared.Next(); // simulated undefined behaviour
+                RegisterFile[RegisterFile.Register.Lo] = Random.Shared.Next();
             } else {
-                registerFile[RegisterFile.Register.Hi] = registerFile[divu.Rs] % registerFile[divu.Rt];
-                registerFile[RegisterFile.Register.Lo] = registerFile[divu.Rs] / registerFile[divu.Rt];
+                RegisterFile[RegisterFile.Register.Hi] = RegisterFile[divu.Rs] % RegisterFile[divu.Rt];
+                RegisterFile[RegisterFile.Register.Lo] = RegisterFile[divu.Rs] / RegisterFile[divu.Rt];
             }
         }// MADD e MADDU sao para o coproc1
         else if (instruction is Mfhi mfhi) {
-            registerFile[mfhi.Rd] = registerFile[RegisterFile.Register.Hi];
+            RegisterFile[mfhi.Rd] = RegisterFile[RegisterFile.Register.Hi];
         } else if (instruction is Mthi mthi) {
-            registerFile[mthi.Rd] = registerFile[RegisterFile.Register.Hi];
+            RegisterFile[mthi.Rd] = RegisterFile[RegisterFile.Register.Hi];
         } else if (instruction is Mtlo mtlo) {
-            registerFile[mtlo.Rd] = registerFile[RegisterFile.Register.Lo];
+            RegisterFile[mtlo.Rd] = RegisterFile[RegisterFile.Register.Lo];
         } else if (instruction is Mflo mflo) {
-            registerFile[mflo.Rd] = registerFile[RegisterFile.Register.Lo];
+            RegisterFile[mflo.Rd] = RegisterFile[RegisterFile.Register.Lo];
         } else if (instruction is Movn movn) {
-            if (registerFile[movn.Rt] != 0) {
-                registerFile[movn.Rd] = registerFile[movn.Rs];
+            if (RegisterFile[movn.Rt] != 0) {
+                RegisterFile[movn.Rd] = RegisterFile[movn.Rs];
             }
         } else if (instruction is Movz movz) {
-            if (registerFile[movz.Rt] == 0) {
-                registerFile[movz.Rd] = registerFile[movz.Rs];
+            if (RegisterFile[movz.Rt] == 0) {
+                RegisterFile[movz.Rd] = RegisterFile[movz.Rs];
             }
         } else if (instruction is Mul mul) {
-            registerFile[mul.Rd] = registerFile[mul.Rs] * registerFile[mul.Rt];
+            RegisterFile[mul.Rd] = RegisterFile[mul.Rs] * RegisterFile[mul.Rt];
         } else if (instruction is Mult mult) {
-            long result = (long)registerFile[mult.Rs] * registerFile[mult.Rt];
-            registerFile[RegisterFile.Register.Hi] = (int)(result >> 32);
-            registerFile[RegisterFile.Register.Lo] = (int)(result & 0xFFFFFFFF);
+            long result = (long)RegisterFile[mult.Rs] * RegisterFile[mult.Rt];
+            RegisterFile[RegisterFile.Register.Hi] = (int)(result >> 32);
+            RegisterFile[RegisterFile.Register.Lo] = (int)(result & 0xFFFFFFFF);
         } else if (instruction is Multu multu) {
-            ulong result = (ulong)registerFile[multu.Rs] * (ulong)registerFile[multu.Rt];
-            registerFile[RegisterFile.Register.Hi] = (int)(result >> 32);
-            registerFile[RegisterFile.Register.Lo] = (int)(result & 0xFFFFFFFF);
+            ulong result = (ulong)RegisterFile[multu.Rs] * (ulong)RegisterFile[multu.Rt];
+            RegisterFile[RegisterFile.Register.Hi] = (int)(result >> 32);
+            RegisterFile[RegisterFile.Register.Lo] = (int)(result & 0xFFFFFFFF);
         } else if (instruction is Slt slt) {
-            registerFile[slt.Rd] = registerFile[slt.Rs] < registerFile[slt.Rt] ? 1 : 0;
+            RegisterFile[slt.Rd] = RegisterFile[slt.Rs] < RegisterFile[slt.Rt] ? 1 : 0;
         } else if (instruction is Sltu sltu) {
-            registerFile[sltu.Rd] = (uint)registerFile[sltu.Rs] < (uint)registerFile[sltu.Rt] ? 1 : 0;
+            RegisterFile[sltu.Rd] = (uint)RegisterFile[sltu.Rs] < (uint)RegisterFile[sltu.Rt] ? 1 : 0;
         } else if (instruction is Sub sub) {
-            int result = registerFile[sub.Rs] - registerFile[sub.Rt];
-            if(IsOverflowed(registerFile[sub.Rs], registerFile[sub.Rt], result)) {
+            int result = RegisterFile[sub.Rs] - RegisterFile[sub.Rt];
+            if(IsOverflowed(RegisterFile[sub.Rs], RegisterFile[sub.Rt], result)) {
                 // dont change rd, trap
                 OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
                     Instruction = sub.ConvertToInt(),
-                    ProgramCounter = registerFile[RegisterFile.Register.Pc],
+                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
                 });
             } else {
-                registerFile[sub.Rd] = result;
+                RegisterFile[sub.Rd] = result;
             }
         } else if (instruction is Subu subu) {
-            registerFile[subu.Rd] = registerFile[subu.Rs] - registerFile[subu.Rt];
+            RegisterFile[subu.Rd] = RegisterFile[subu.Rs] - RegisterFile[subu.Rt];
         } else if(instruction is Jalr1 or Jalr2) {
-            registerFile[instruction.Rd] = registerFile[RegisterFile.Register.Pc];
-            registerFile[RegisterFile.Register.Pc] = registerFile[instruction.Rs];
+            RegisterFile[instruction.Rd] = RegisterFile[RegisterFile.Register.Pc];
+            RegisterFile[RegisterFile.Register.Pc] = RegisterFile[instruction.Rs];
         } else if(instruction is And and) {
-            registerFile[and.Rd] = registerFile[and.Rs] & registerFile[and.Rt];
+            RegisterFile[and.Rd] = RegisterFile[and.Rs] & RegisterFile[and.Rt];
         } else if(instruction is Nor nor) {
-            registerFile[nor.Rd] = ~(registerFile[nor.Rs] | registerFile[nor.Rt]);
+            RegisterFile[nor.Rd] = ~(RegisterFile[nor.Rs] | RegisterFile[nor.Rt]);
         } else if(instruction is Or or) {
-            registerFile[or.Rd] = registerFile[or.Rs] | registerFile[or.Rt];
+            RegisterFile[or.Rd] = RegisterFile[or.Rs] | RegisterFile[or.Rt];
         } else if(instruction is Xor xor) {
-            registerFile[xor.Rd] = registerFile[xor.Rs] ^ registerFile[xor.Rt];
+            RegisterFile[xor.Rd] = RegisterFile[xor.Rs] ^ RegisterFile[xor.Rt];
         } else if(instruction is Sll sll) {
-            registerFile[sll.Rd] = registerFile[sll.Rt] << sll.ShiftAmount;
+            RegisterFile[sll.Rd] = RegisterFile[sll.Rt] << sll.ShiftAmount;
         } else if(instruction is Sllv sllv) {
-            registerFile[sllv.Rd] = registerFile[sllv.Rt] << registerFile[sllv.Rs];
+            RegisterFile[sllv.Rd] = RegisterFile[sllv.Rt] << RegisterFile[sllv.Rs];
         } else if(instruction is Sra sra) {
-            int filling = (registerFile[sra.Rt] < 0 ? -1 : 0) << (32-sra.ShiftAmount);
-            registerFile[sra.Rd] = filling | (registerFile[sra.Rt] >> sra.ShiftAmount);
+            int filling = (RegisterFile[sra.Rt] < 0 ? -1 : 0) << (32-sra.ShiftAmount);
+            RegisterFile[sra.Rd] = filling | (RegisterFile[sra.Rt] >> sra.ShiftAmount);
         } else if(instruction is Srav srav) {
-            int filling = (registerFile[srav.Rt] < 0 ? -1 : 0) << (32 - registerFile[srav.Rs]);
-            registerFile[srav.Rd] = filling | (registerFile[srav.Rt] >> registerFile[srav.Rs]);
+            int filling = (RegisterFile[srav.Rt] < 0 ? -1 : 0) << (32 - RegisterFile[srav.Rs]);
+            RegisterFile[srav.Rd] = filling | (RegisterFile[srav.Rt] >> RegisterFile[srav.Rs]);
         } else if(instruction is Srl srl) {
-            registerFile[srl.Rd] = (int)((uint)registerFile[srl.Rt] >> srl.ShiftAmount);
+            RegisterFile[srl.Rd] = (int)((uint)RegisterFile[srl.Rt] >> srl.ShiftAmount);
         } else if(instruction is Srlv srlv) {
-            registerFile[srlv.Rd] = (int)((uint)registerFile[srlv.Rt] >> registerFile[srlv.Rs]);
+            RegisterFile[srlv.Rd] = (int)((uint)RegisterFile[srlv.Rt] >> RegisterFile[srlv.Rs]);
         } else if(instruction is Break @break) {
             OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
                 Signal = SignalExceptionEventArgs.SignalType.Breakpoint,
                 Instruction = @break.ConvertToInt(),
-                ProgramCounter = registerFile[RegisterFile.Register.Pc]
+                ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
             });
         } else if(instruction is Syscall syscall) {
             OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
                 Signal = SignalExceptionEventArgs.SignalType.SystemCall,
                 Instruction = syscall.ConvertToInt(),
-                ProgramCounter = registerFile[RegisterFile.Register.Pc]
+                ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
             });
-        } else if (instruction is Teq teq && registerFile[teq.Rs] == registerFile[teq.Rt]) {
+        } else if (instruction is Teq teq && RegisterFile[teq.Rs] == RegisterFile[teq.Rt]) {
             OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
                 Signal = SignalExceptionEventArgs.SignalType.Trap,
                 Instruction = teq.ConvertToInt(),
-                ProgramCounter = registerFile[RegisterFile.Register.Pc]
+                ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
             });
         }else if(instruction is Jr jr) {
-            registerFile[RegisterFile.Register.Pc] = registerFile[jr.Rs];
+            RegisterFile[RegisterFile.Register.Pc] = RegisterFile[jr.Rs];
         }
     }
 }

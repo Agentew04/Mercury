@@ -465,9 +465,7 @@
     "mnemonic": "Break",
     "constraints": {
       "opcode": 0,
-      "funct": 53,
-      "shift": 0,
-      "rd": 0
+      "funct": 13
     }
   },
   {
