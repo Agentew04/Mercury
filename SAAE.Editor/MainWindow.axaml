@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:awv="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+        x:Class="SAAE.Editor.MainWindow"
+        Title="SAAE.Editor"
+        ExtendClientAreaToDecorationsHint="True">
+  <Grid Background="{StaticResource BackgroundGrey1}">
+    <DockPanel VerticalAlignment="Top">
+      <Image Source="avares://SAAE.Editor/Assets/Images/book.png"
+             Stretch="Uniform"
+             Width="25" Margin="10,0,10,0"/>
+      <Menu>
+        <MenuItem Header="_File">
+          <MenuItem Header="_New"/>
+          <MenuItem Header="_Open"/>
+          <MenuItem Header="_Recent"/>
+          <MenuItem Header="_Save"/>
+          <MenuItem Header="Save _As"/>
+        </MenuItem>
+        <MenuItem Header="_Edit">
+        
+        </MenuItem>
+        <MenuItem Header="_View">
+        
+        </MenuItem>
+      </Menu>
+    </DockPanel>
+  </Grid>
+</Window>
