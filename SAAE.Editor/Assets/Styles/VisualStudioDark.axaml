@@ -1,0 +1,36 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <!-- Add Controls for Previewer Here -->
+      <TabControl>
+        <TabControl.Items>
+          <TabItem Header="Code"/>
+          <TabItem Header="Run"/>
+          <TabItem Header="Design"/>
+        </TabControl.Items>
+      </TabControl>
+    </Border>
+  </Design.PreviewWith>
+
+  <Styles.Resources>
+    <SolidColorBrush x:Key="BackgroundGrey">#1F1F1F</SolidColorBrush>
+    <SolidColorBrush x:Key="AlternateGrey" Color="#383838" />
+    <SolidColorBrush x:Key="Purple1" Color="#7950F2" />
+  </Styles.Resources>
+
+  <Style Selector="TabControl">
+    <Setter Property="Background" Value="{StaticResource BackgroundGrey}"/>
+  </Style>
+  <Style Selector="TabItem.tab">
+    <Setter Property="Foreground" Value="White"/>
+  </Style>
+  <Style Selector="TabItem.tab:focus">
+    <Setter Property="Foreground" Value="White"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+  </Style>
+  <Style Selector="TabItem.tab:pointerover">
+    <Setter Property="Foreground" Value="LightGray"/>
+  </Style>
+  <!-- Add Styles Here -->  
+</Styles>

@@ -2,31 +2,78 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:awv="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
         x:Class="SAAE.Editor.MainWindow"
         Title="SAAE.Editor"
-        ExtendClientAreaToDecorationsHint="True">
-  <Grid Background="{StaticResource BackgroundGrey1}">
-    <DockPanel VerticalAlignment="Top">
-      <Image Source="avares://SAAE.Editor/Assets/Images/book.png"
-             Stretch="Uniform"
-             Width="25" Margin="10,0,10,0"/>
-      <Menu>
-        <MenuItem Header="_File">
-          <MenuItem Header="_New"/>
-          <MenuItem Header="_Open"/>
-          <MenuItem Header="_Recent"/>
-          <MenuItem Header="_Save"/>
-          <MenuItem Header="Save _As"/>
-        </MenuItem>
-        <MenuItem Header="_Edit">
-        
-        </MenuItem>
-        <MenuItem Header="_View">
-        
-        </MenuItem>
-      </Menu>
-    </DockPanel>
-  </Grid>
+        ExtendClientAreaToDecorationsHint="True"
+        CanResize="True">
+  <Window.Resources>
+    <SolidColorBrush x:Key="BackgroundGrey1" Color="#1F1F1F" />
+    <SolidColorBrush x:Key="BackgroundGrey2" Color="#1E1E1E" />
+    <SolidColorBrush x:Key="AlternateGrey" Color="#383838" />
+    <SolidColorBrush x:Key="Purple1" Color="#7950F2" />
+    <SolidColorBrush x:Key="Purple2" Color="#6741D9" />
+  </Window.Resources>
+  <Window.Styles>
+    <Style Selector="MenuItem">
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="Background" Value="{StaticResource BackgroundGrey1}"/>
+    </Style>
+  </Window.Styles>
+
+  <DockPanel Background="{StaticResource BackgroundGrey1}">
+    <Border BorderThickness="0,0,0,2" BorderBrush="{StaticResource Purple1}"
+            DockPanel.Dock="Top">
+      <StackPanel Orientation="Horizontal" Background="{x:Null}">
+        <Image Source="avares://SAAE.Editor/Assets/Images/book.png"
+               Stretch="Uniform"
+               Width="25" Margin="10,0,10,0"/>
+        <Menu>
+          <MenuItem Header="_File">
+            <MenuItem Header="_New"/>
+            <MenuItem Header="_Open"/>
+            <MenuItem Header="_Recent"/>
+            <MenuItem Header="_Save"/>
+            <MenuItem Header="Save _As"/>
+          </MenuItem>
+          <MenuItem Header="_Edit">
+
+          </MenuItem>
+          <MenuItem Header="_View">
+
+          </MenuItem>
+        </Menu>
+      </StackPanel>
+
+    </Border>
+
+    <StackPanel Background="{StaticResource Purple1}" DockPanel.Dock="Bottom" Height="20"/>
+    
+    <TabControl>
+      <TabControl.Items>
+        <TabItem Header="Code" Classes="tab"/>
+        <TabItem Header="Run" Classes="tab"/>
+        <TabItem Header="Design" Classes="tab"/>
+      </TabControl.Items>
+    </TabControl>
+  </DockPanel>
+    <!--<avaloniaEdit:TextEditor Name="Editor" Grid.Row="1"
+                               FontFamily="Jetbrains Mono,Cascadia Code,Consolas,Menlo,Monospace"
+                               Margin="30" Padding="5"
+                               HorizontalScrollBarVisibility="Auto"
+                               VerticalScrollBarVisibility="Visible"
+                               FontWeight="Light"
+                               FontSize="14" 
+                              Background="{StaticResource AlternateGrey}" CornerRadius="3">
+      <avaloniaEdit:TextEditor.ContextFlyout>
+        <MenuFlyout>
+          <MenuItem Header="Copy" InputGesture="ctrl+C"></MenuItem>
+          <MenuItem Header="Cut" InputGesture="ctrl+X"></MenuItem>
+          <MenuItem Header="Paste" InputGesture="ctrl+V"></MenuItem>
+          <MenuItem Header="-"/>
+          <MenuItem Header="Select All" InputGesture="ctrl+A"></MenuItem>
+        </MenuFlyout>
+      </avaloniaEdit:TextEditor.ContextFlyout>
+    </avaloniaEdit:TextEditor>-->
 </Window>

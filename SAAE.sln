@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAAE.Console", "SAAE.Consol
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAAE.Engine.Test", "SAAE.Engine.Test\SAAE.Engine.Test.csproj", "{005E7D0E-8886-4A23-88A6-17AD4D52973A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SAAE.Editor", "SAAE.Editor\SAAE.Editor.csproj", "{EF97CFA5-ACA6-45EE-93DB-6C1B514FD968}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAAE.Editor", "SAAE.Editor\SAAE.Editor.csproj", "{EF97CFA5-ACA6-45EE-93DB-6C1B514FD968}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstructionCreator", "InstructionCreator\InstructionCreator.csproj", "{822A1C56-0C9D-41C9-9DFF-75587891D63B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{EF97CFA5-ACA6-45EE-93DB-6C1B514FD968}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF97CFA5-ACA6-45EE-93DB-6C1B514FD968}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF97CFA5-ACA6-45EE-93DB-6C1B514FD968}.Release|Any CPU.Build.0 = Release|Any CPU
+		{822A1C56-0C9D-41C9-9DFF-75587891D63B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{822A1C56-0C9D-41C9-9DFF-75587891D63B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{822A1C56-0C9D-41C9-9DFF-75587891D63B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{822A1C56-0C9D-41C9-9DFF-75587891D63B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
