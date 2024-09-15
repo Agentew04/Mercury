@@ -1,3 +1,5 @@
+using System.Xml;
+
 namespace InstructionCreator {
     public partial class Form1 : Form {
         public Form1() {
@@ -6,7 +8,7 @@ namespace InstructionCreator {
 
         private readonly List<Instruction> instructions = [];
 
-        private void addInstructionButton_Click(object sender, EventArgs e) {
+        private void AddInstructionButton_Click(object sender, EventArgs e) {
             Instruction inst = new() {
                 Id = idTextbox.Text,
                 Mnemonic = mnemonicTextbox.Text,
@@ -42,7 +44,7 @@ namespace InstructionCreator {
             usageTextbox.Text = "";
         }
 
-        private void exportInstructionsButton_Click(object sender, EventArgs e) {
+        private void ExportInstructionsButton_Click(object sender, EventArgs e) {
             // trigger file dialog
             saveFileDialog.FileName = "instructions.xml";
             saveFileDialog.DefaultExt = ".xml";
@@ -52,6 +54,64 @@ namespace InstructionCreator {
                 return;
             }
             string path = saveFileDialog.FileName;
+
+            XmlWriterSettings settings = new() {
+                Indent = true,
+                IndentChars = "    ",
+                NewLineChars = Environment.NewLine,
+                NewLineHandling = NewLineHandling.Replace,
+            };
+            using XmlWriter xml = XmlWriter.Create(path, settings);
+            xml.WriteStartDocument();
+            xml.WriteStartElement("instructions");
+            foreach (var instruction in instructions)
+            {
+                xml.WriteStartElement("instruction");
+                xml.WriteAttributeString("id", instruction.Id);
+
+                xml.WriteElementString("mnemonic", instruction.Mnemonic);
+
+                xml.WriteStartElement("arch");
+                if (instruction.Arch.Contains("mips", StringComparison.CurrentCultureIgnoreCase)) {
+                    xml.WriteStartElement("mips");
+                    xml.WriteAttributeString("version", instruction.Arch);
+                    xml.WriteEndElement();
+                }
+                xml.WriteEndElement();
+
+                xml.WriteElementString("type", instruction.Type);
+
+                xml.WriteStartElement("serialization");
+                xml.WriteAttributeString("length", 32.ToString());
+                foreach(var serialize in instruction.Serializes) {
+                    xml.WriteStartElement(serialize.Type);
+                    xml.WriteAttributeString("fixed", serialize.Fixed ? "true" : "false");
+                    xml.WriteAttributeString("size", serialize.Size.ToString());
+                    xml.WriteString(serialize.Value);
+                    xml.WriteEndElement();
+                }
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("parsing");
+                foreach(var parse in instruction.Parses) {
+                    xml.WriteElementString(parse.Type, parse.Name);
+                }
+                xml.WriteEndElement();
+
+                xml.WriteStartElement("help");
+                xml.WriteElementString("fullname", instruction.Fullname);
+                xml.WriteElementString("description", instruction.Description);
+                xml.WriteElementString("usage", instruction.Usage);
+                xml.WriteEndElement();
+
+                xml.WriteEndElement();
+            }
+            xml.WriteEndElement();
+            xml.WriteEndDocument();
+
+            // reset instructions
+            instructionsList.Items.Clear();
+            instructions.Clear();
         }
 
         private void exportPseudoButton_Click(object sender, EventArgs e) {
@@ -64,19 +124,29 @@ namespace InstructionCreator {
                 return;
             }
             string path = saveFileDialog.FileName;
+
+            XmlWriterSettings settings = new() {
+                Indent = true,
+                IndentChars = "    ",
+                NewLineChars = Environment.NewLine,
+                NewLineHandling = NewLineHandling.Replace,
+            };
+            using XmlWriter xml = XmlWriter.Create(path, settings);
+            xml.WriteStartDocument();
+            xml.WriteStartElement("pseudoinstructions");
         }
 
         private readonly List<Parse> parses = [];
 
-        private void addParseButton_Click(object sender, EventArgs e) {
-            Parse p = new(typeCombo.Text, parseTextbox.Text);
+        private void AddParseButton_Click(object sender, EventArgs e) {
+            Parse p = new(parseCombo.Text, parseTextbox.Text);
             parses.Add(p);
             parsingList.Items.Add($"{p.Type}: {p.Name}");
         }
 
         private readonly List<Serialize> serializes = [];
 
-        private void addSerializeButton_Click(object sender, EventArgs e) {
+        private void AddSerializeButton_Click(object sender, EventArgs e) {
             Serialize s = new(serializeCombo.Text, fixedSerializeCheckbox.Checked, (int)serializeSizeNumeric.Value, serializeValueTextbox.Text);
             serializes.Add(s);
             serializationList.Items.Add($"{s.Type}: [{(s.Fixed ? 'X' : ' ')}] ({s.Size}) {s.Value}");

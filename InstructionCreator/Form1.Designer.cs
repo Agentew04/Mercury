@@ -25,6 +25,7 @@
         private void InitializeComponent() {
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
+            serializeValueTextbox = new TextBox();
             addSerializeButton = new Button();
             addInstructionButton = new Button();
             usageTextbox = new TextBox();
@@ -60,7 +61,7 @@
             exportInstructionsButton = new Button();
             exportPseudoButton = new Button();
             saveFileDialog = new SaveFileDialog();
-            serializeValueTextbox = new TextBox();
+            button1 = new Button();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)serializeSizeNumeric).BeginInit();
@@ -78,6 +79,7 @@
             // 
             // tabPage1
             // 
+            tabPage1.Controls.Add(button1);
             tabPage1.Controls.Add(serializeValueTextbox);
             tabPage1.Controls.Add(addSerializeButton);
             tabPage1.Controls.Add(addInstructionButton);
@@ -114,6 +116,14 @@
             tabPage1.Text = "Instrucao";
             tabPage1.UseVisualStyleBackColor = true;
             // 
+            // serializeValueTextbox
+            // 
+            serializeValueTextbox.Location = new Point(492, 38);
+            serializeValueTextbox.Name = "serializeValueTextbox";
+            serializeValueTextbox.RightToLeft = RightToLeft.No;
+            serializeValueTextbox.Size = new Size(45, 23);
+            serializeValueTextbox.TabIndex = 11;
+            // 
             // addSerializeButton
             // 
             addSerializeButton.Location = new Point(543, 39);
@@ -122,7 +132,7 @@
             addSerializeButton.TabIndex = 12;
             addSerializeButton.Text = "Add";
             addSerializeButton.UseVisualStyleBackColor = true;
-            addSerializeButton.Click += addSerializeButton_Click;
+            addSerializeButton.Click += AddSerializeButton_Click;
             // 
             // addInstructionButton
             // 
@@ -132,7 +142,7 @@
             addInstructionButton.TabIndex = 16;
             addInstructionButton.Text = "Add";
             addInstructionButton.UseVisualStyleBackColor = true;
-            addInstructionButton.Click += addInstructionButton_Click;
+            addInstructionButton.Click += AddInstructionButton_Click;
             // 
             // usageTextbox
             // 
@@ -269,7 +279,7 @@
             addParseButton.TabIndex = 7;
             addParseButton.Text = "Add";
             addParseButton.UseVisualStyleBackColor = true;
-            addParseButton.Click += addParseButton_Click;
+            addParseButton.Click += AddParseButton_Click;
             // 
             // parsingList
             // 
@@ -405,7 +415,7 @@
             exportInstructionsButton.TabIndex = 5;
             exportInstructionsButton.Text = "Export To File";
             exportInstructionsButton.UseVisualStyleBackColor = true;
-            exportInstructionsButton.Click += exportInstructionsButton_Click;
+            exportInstructionsButton.Click += ExportInstructionsButton_Click;
             // 
             // exportPseudoButton
             // 
@@ -417,13 +427,14 @@
             exportPseudoButton.UseVisualStyleBackColor = true;
             exportPseudoButton.Click += exportPseudoButton_Click;
             // 
-            // serializeValueTextbox
+            // button1
             // 
-            serializeValueTextbox.Location = new Point(492, 38);
-            serializeValueTextbox.Name = "serializeValueTextbox";
-            serializeValueTextbox.RightToLeft = RightToLeft.No;
-            serializeValueTextbox.Size = new Size(45, 23);
-            serializeValueTextbox.TabIndex = 11;
+            button1.Location = new Point(222, 39);
+            button1.Name = "button1";
+            button1.Size = new Size(19, 23);
+            button1.TabIndex = 23;
+            button1.Text = "X";
+            button1.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -487,5 +498,6 @@
         private SaveFileDialog saveFileDialog;
         private Button addSerializeButton;
         private TextBox serializeValueTextbox;
+        private Button button1;
     }
 }
