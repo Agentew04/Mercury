@@ -25,6 +25,9 @@
         private void InitializeComponent() {
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
+            serializeBinaryCheckbox = new CheckBox();
+            serializeRemove = new Button();
+            parseRemove = new Button();
             serializeValueTextbox = new TextBox();
             addSerializeButton = new Button();
             addInstructionButton = new Button();
@@ -61,7 +64,10 @@
             exportInstructionsButton = new Button();
             exportPseudoButton = new Button();
             saveFileDialog = new SaveFileDialog();
-            button1 = new Button();
+            loadFileButton = new Button();
+            openFileDialog = new OpenFileDialog();
+            deleteInstructionButton = new Button();
+            deletePseudoButton = new Button();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)serializeSizeNumeric).BeginInit();
@@ -71,15 +77,17 @@
             // 
             tabControl1.Controls.Add(tabPage1);
             tabControl1.Controls.Add(tabPage2);
-            tabControl1.Location = new Point(12, 12);
+            tabControl1.Location = new Point(12, 34);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(598, 375);
+            tabControl1.Size = new Size(598, 351);
             tabControl1.TabIndex = 0;
             // 
             // tabPage1
             // 
-            tabPage1.Controls.Add(button1);
+            tabPage1.Controls.Add(serializeBinaryCheckbox);
+            tabPage1.Controls.Add(serializeRemove);
+            tabPage1.Controls.Add(parseRemove);
             tabPage1.Controls.Add(serializeValueTextbox);
             tabPage1.Controls.Add(addSerializeButton);
             tabPage1.Controls.Add(addInstructionButton);
@@ -111,10 +119,43 @@
             tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(590, 347);
+            tabPage1.Size = new Size(590, 323);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Instrucao";
             tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // serializeBinaryCheckbox
+            // 
+            serializeBinaryCheckbox.AutoSize = true;
+            serializeBinaryCheckbox.Location = new Point(492, 14);
+            serializeBinaryCheckbox.Name = "serializeBinaryCheckbox";
+            serializeBinaryCheckbox.Size = new Size(75, 19);
+            serializeBinaryCheckbox.TabIndex = 25;
+            serializeBinaryCheckbox.TabStop = false;
+            serializeBinaryCheckbox.Text = "Is Binary?";
+            serializeBinaryCheckbox.UseVisualStyleBackColor = true;
+            // 
+            // serializeRemove
+            // 
+            serializeRemove.Location = new Point(565, 68);
+            serializeRemove.Name = "serializeRemove";
+            serializeRemove.Size = new Size(19, 23);
+            serializeRemove.TabIndex = 24;
+            serializeRemove.TabStop = false;
+            serializeRemove.Text = "X";
+            serializeRemove.UseVisualStyleBackColor = true;
+            serializeRemove.Click += SerializeRemove_Click;
+            // 
+            // parseRemove
+            // 
+            parseRemove.Location = new Point(222, 39);
+            parseRemove.Name = "parseRemove";
+            parseRemove.Size = new Size(19, 23);
+            parseRemove.TabIndex = 23;
+            parseRemove.TabStop = false;
+            parseRemove.Text = "X";
+            parseRemove.UseVisualStyleBackColor = true;
+            parseRemove.Click += ParseRemove_Click;
             // 
             // serializeValueTextbox
             // 
@@ -230,8 +271,9 @@
             // 
             // serializeCombo
             // 
+            serializeCombo.DropDownStyle = ComboBoxStyle.DropDownList;
             serializeCombo.FormattingEnabled = true;
-            serializeCombo.Items.AddRange(new object[] { "Opcode", "Register", "Shamt", "Function", "Immediate" });
+            serializeCombo.Items.AddRange(new object[] { "opcode", "register", "shamt", "function", "immediate" });
             serializeCombo.Location = new Point(323, 39);
             serializeCombo.Name = "serializeCombo";
             serializeCombo.Size = new Size(58, 23);
@@ -264,8 +306,9 @@
             // 
             // parseCombo
             // 
+            parseCombo.DropDownStyle = ComboBoxStyle.DropDownList;
             parseCombo.FormattingEnabled = true;
-            parseCombo.Items.AddRange(new object[] { "Mnemonic", "Register", "Label", "Immediate" });
+            parseCombo.Items.AddRange(new object[] { "mnemonic", "register", "label", "immediate" });
             parseCombo.Location = new Point(55, 39);
             parseCombo.Name = "parseCombo";
             parseCombo.Size = new Size(67, 23);
@@ -302,6 +345,7 @@
             // 
             // typeCombo
             // 
+            typeCombo.DropDownStyle = ComboBoxStyle.DropDownList;
             typeCombo.FormattingEnabled = true;
             typeCombo.Items.AddRange(new object[] { "R", "I", "J" });
             typeCombo.Location = new Point(407, 6);
@@ -320,8 +364,9 @@
             // 
             // archCombo
             // 
+            archCombo.DropDownStyle = ComboBoxStyle.DropDownList;
             archCombo.FormattingEnabled = true;
-            archCombo.Items.AddRange(new object[] { "I", "II", "III", "IV", "V", "32", "64" });
+            archCombo.Items.AddRange(new object[] { "MIPS I", "MIPS II", "MIPS III", "MIPS IV", "MIPS V", "MIPS32", "MIPS64" });
             archCombo.Location = new Point(285, 6);
             archCombo.Name = "archCombo";
             archCombo.Size = new Size(79, 23);
@@ -364,7 +409,7 @@
             tabPage2.Location = new Point(4, 24);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(590, 347);
+            tabPage2.Size = new Size(590, 323);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Pseudo";
             tabPage2.UseVisualStyleBackColor = true;
@@ -378,6 +423,7 @@
             instructionsList.Size = new Size(172, 139);
             instructionsList.TabIndex = 1;
             instructionsList.TabStop = false;
+            instructionsList.SelectedIndexChanged += InstructionsList_SelectedIndexChanged;
             // 
             // label1
             // 
@@ -427,20 +473,49 @@
             exportPseudoButton.UseVisualStyleBackColor = true;
             exportPseudoButton.Click += exportPseudoButton_Click;
             // 
-            // button1
+            // loadFileButton
             // 
-            button1.Location = new Point(222, 39);
-            button1.Name = "button1";
-            button1.Size = new Size(19, 23);
-            button1.TabIndex = 23;
-            button1.Text = "X";
-            button1.UseVisualStyleBackColor = true;
+            loadFileButton.Location = new Point(535, 5);
+            loadFileButton.Name = "loadFileButton";
+            loadFileButton.Size = new Size(75, 23);
+            loadFileButton.TabIndex = 8;
+            loadFileButton.Text = "Load File";
+            loadFileButton.UseVisualStyleBackColor = true;
+            loadFileButton.Click += LoadFileButton_Click;
+            // 
+            // openFileDialog
+            // 
+            openFileDialog.DefaultExt = "xml";
+            openFileDialog.Filter = "Arquivos XML|*.xml|Todos os arquivos|*.*";
+            // 
+            // deleteInstructionButton
+            // 
+            deleteInstructionButton.Location = new Point(771, 5);
+            deleteInstructionButton.Name = "deleteInstructionButton";
+            deleteInstructionButton.Size = new Size(17, 23);
+            deleteInstructionButton.TabIndex = 9;
+            deleteInstructionButton.Text = "X";
+            deleteInstructionButton.UseVisualStyleBackColor = true;
+            deleteInstructionButton.Click += DeleteInstructionButton_Click;
+            // 
+            // deletePseudoButton
+            // 
+            deletePseudoButton.Location = new Point(771, 200);
+            deletePseudoButton.Name = "deletePseudoButton";
+            deletePseudoButton.Size = new Size(17, 23);
+            deletePseudoButton.TabIndex = 10;
+            deletePseudoButton.Text = "X";
+            deletePseudoButton.UseVisualStyleBackColor = true;
+            deletePseudoButton.Click += DeletePseudoButton_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 398);
+            ClientSize = new Size(800, 397);
+            Controls.Add(deletePseudoButton);
+            Controls.Add(deleteInstructionButton);
+            Controls.Add(loadFileButton);
             Controls.Add(exportPseudoButton);
             Controls.Add(exportInstructionsButton);
             Controls.Add(pseudoList);
@@ -498,6 +573,12 @@
         private SaveFileDialog saveFileDialog;
         private Button addSerializeButton;
         private TextBox serializeValueTextbox;
-        private Button button1;
+        private Button parseRemove;
+        private Button serializeRemove;
+        private CheckBox serializeBinaryCheckbox;
+        private Button loadFileButton;
+        private OpenFileDialog openFileDialog;
+        private Button deleteInstructionButton;
+        private Button deletePseudoButton;
     }
 }

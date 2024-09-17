@@ -5,5 +5,5 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace InstructionCreator {
-    record struct Serialize(string Type, bool Fixed, int Size, string Value);
+    record struct Serialize(string Type, bool Fixed, int Size, string Value, bool IsBinaryValue);
 }
