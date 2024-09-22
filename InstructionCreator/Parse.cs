@@ -5,5 +5,5 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace InstructionCreator {
-    record struct Parse(string Type, string Name);
+    public record struct Parse(string Type, string Name);
 }

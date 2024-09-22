@@ -8,23 +8,12 @@ namespace InstructionCreator {
 
         private readonly List<Instruction> instructions = [];
 
-        private void AddInstructionButton_Click(object sender, EventArgs e) {
-            Instruction inst = new() {
-                Id = idTextbox.Text,
-                Mnemonic = mnemonicTextbox.Text,
-                Arch = archCombo.Text,
-                Type = typeCombo.Text,
-                Serializes = new(serializes),
-                Parses = new(parses),
-                Fullname = nameTextbox.Text,
-                Description = descriptionTextbox.Text,
-                Usage = usageTextbox.Text,
-            };
+        private void SyncInstructionItems() {
+            instructionsList.Items.Clear();
+            instructionsList.Items.AddRange(instructions.Select(x => $"{x.Id} ({x.Mnemonic})").ToArray());
+        }
 
-            instructions.Add(inst);
-            instructionsList.Items.Add($"{inst.Mnemonic}");
-
-            // reset all
+        private void ResetInstructionForm() {
             idTextbox.Text = "";
             mnemonicTextbox.Text = "";
             archCombo.SelectedIndex = -1;
@@ -42,6 +31,43 @@ namespace InstructionCreator {
             nameTextbox.Text = "";
             descriptionTextbox.Text = "";
             usageTextbox.Text = "";
+            addInstructionButton.Text = "Add";
+        }
+
+        private void AddInstructionButton_Click(object sender, EventArgs e) {
+            // not selected add new
+            if(instructionsList.SelectedIndex == -1) {
+                Instruction inst = new() {
+                    Id = idTextbox.Text,
+                    Mnemonic = mnemonicTextbox.Text,
+                    Arch = archCombo.Text,
+                    Type = typeCombo.Text,
+                    Serializes = new(serializes),
+                    Parses = new(parses),
+                    Fullname = nameTextbox.Text,
+                    Description = descriptionTextbox.Text,
+                    Usage = usageTextbox.Text,
+                };
+
+                instructions.Add(inst);
+            } else {
+                addInstructionButton.Text = "Add";
+                Instruction inst = instructions[instructionsList.SelectedIndex];
+                inst.Id = idTextbox.Text;
+                inst.Mnemonic = mnemonicTextbox.Text;
+                inst.Arch = archCombo.Text;
+                inst.Type = typeCombo.Text;
+                inst.Serializes = new(serializes);
+                inst.Parses = new(parses);
+                inst.Fullname = nameTextbox.Text;
+                inst.Description = descriptionTextbox.Text;
+                inst.Usage = usageTextbox.Text;
+                inst.Id = idTextbox.Text;
+                inst.Mnemonic = mnemonicTextbox.Text;
+                instructionsList.SelectedIndex = -1;
+            }
+            ResetInstructionForm();
+            SyncInstructionItems();
         }
 
         private void ExportInstructionsButton_Click(object sender, EventArgs e) {
@@ -55,65 +81,11 @@ namespace InstructionCreator {
             }
             string path = saveFileDialog.FileName;
 
-            XmlWriterSettings settings = new() {
-                Indent = true,
-                IndentChars = "    ",
-                NewLineChars = Environment.NewLine,
-                NewLineHandling = NewLineHandling.Replace,
-            };
-            using XmlWriter xml = XmlWriter.Create(path, settings);
-            xml.WriteStartDocument();
-            xml.WriteStartElement("instructions");
-            foreach (var instruction in instructions) {
-                xml.WriteStartElement("instruction");
-                xml.WriteAttributeString("id", instruction.Id);
-
-                xml.WriteElementString("mnemonic", instruction.Mnemonic);
-
-                xml.WriteStartElement("arch");
-                if (instruction.Arch.Contains("mips", StringComparison.CurrentCultureIgnoreCase)) {
-                    xml.WriteStartElement("mips");
-                    xml.WriteAttributeString("version", instruction.Arch.Replace("MIPS",""));
-                    xml.WriteEndElement();
-                }
-                xml.WriteEndElement();
-
-                xml.WriteElementString("type", instruction.Type);
-
-                xml.WriteStartElement("serialization");
-                xml.WriteAttributeString("length", 32.ToString());
-                foreach (var serialize in instruction.Serializes) {
-                    xml.WriteStartElement(serialize.Type);
-                    xml.WriteAttributeString("fixed", serialize.Fixed ? "true" : "false");
-                    xml.WriteAttributeString("size", serialize.Size.ToString());
-                    xml.WriteAttributeString("binary", serialize.IsBinaryValue ? "true" : "false");
-                    if (!string.IsNullOrWhiteSpace(serialize.Value)) {
-                        xml.WriteString(serialize.Value);
-                    }
-                    xml.WriteEndElement();
-                }
-                xml.WriteEndElement();
-
-                xml.WriteStartElement("parsing");
-                foreach (var parse in instruction.Parses) {
-                    xml.WriteElementString(parse.Type.ToLower(), parse.Name);
-                }
-                xml.WriteEndElement();
-
-                xml.WriteStartElement("help");
-                xml.WriteElementString("fullname", instruction.Fullname);
-                xml.WriteElementString("description", instruction.Description);
-                xml.WriteElementString("usage", instruction.Usage);
-                xml.WriteEndElement();
-
-                xml.WriteEndElement();
-            }
-            xml.WriteEndElement();
-            xml.WriteEndDocument();
+            InstructionXmlConverter.WriteInstructions(path, instructions);
 
             // reset instructions
-            instructionsList.Items.Clear();
             instructions.Clear();
+            SyncInstructionItems();
         }
 
         private void exportPseudoButton_Click(object sender, EventArgs e) {
@@ -178,64 +150,9 @@ namespace InstructionCreator {
                 return;
             }
             string path = openFileDialog.FileName;
-
-            var settings = new XmlReaderSettings {
-                IgnoreWhitespace = true,
-            };
-            using XmlReader xml = XmlReader.Create(path, settings);
-            xml.ReadStartElement("instructions");
-
-            do {
-                if (xml.NodeType != XmlNodeType.Element) {
-                    continue;
-                }
-                if (xml.Name == "instruction") {
-                    Instruction inst = new() {
-                        Id = xml.GetAttribute("id") ?? "UNKNOWN",
-                    };
-                    xml.ReadStartElement("instruction");
-
-                    inst.Mnemonic = xml.ReadElementString("mnemonic");
-
-                    xml.ReadStartElement("arch");
-                    if (xml.Name == "mips") {
-                        xml.MoveToAttribute("version");
-                        inst.Arch = "MIPS" + xml.Value;
-                        xml.Read();
-                    }
-                    xml.ReadEndElement();
-
-                    inst.Type = xml.ReadElementString("type");
-
-                    xml.ReadStartElement("serialization");
-                    while (xml.Name != "serialization" && xml.NodeType != XmlNodeType.EndElement) {
-                        string? fixedStr = xml.GetAttribute("fixed");
-                        string? sizeStr = xml.GetAttribute("size");
-                        string? binaryStr = xml.GetAttribute("binary");
-                        Serialize s = new(xml.Name, bool.Parse(fixedStr ?? "false"), int.Parse(sizeStr ?? "0"), xml.ReadElementContentAsString(), bool.Parse(binaryStr ?? "false"));
-                        inst.Serializes.Add(s);
-                    }
-                    xml.ReadEndElement();
-
-                    xml.ReadStartElement("parsing");
-                    while (xml.Name != "parsing" && xml.NodeType != XmlNodeType.EndElement) {
-                        string name = xml.Name;
-                        Parse p = new(name, xml.ReadElementContentAsString());
-                        inst.Parses.Add(p);
-                    }
-                    xml.ReadEndElement();
-
-                    xml.ReadStartElement("help");
-                    inst.Fullname = xml.ReadElementString("fullname");
-                    inst.Description = xml.ReadElementString("description");
-                    inst.Usage = xml.ReadElementString("usage");
-                    xml.ReadEndElement();
-
-                    instructions.Add(inst);
-                    instructionsList.Items.Add($"{inst.Mnemonic}");
-                }
-            } while (xml.Read());
-
+            var instructionsRead = InstructionXmlConverter.LoadInstructionsFile(path);
+            instructions.AddRange(instructionsRead);
+            SyncInstructionItems();
         }
 
         private void InstructionsList_SelectedIndexChanged(object sender, EventArgs e) {
@@ -265,12 +182,15 @@ namespace InstructionCreator {
             nameTextbox.Text = inst.Fullname;
             descriptionTextbox.Text = inst.Description;
             usageTextbox.Text = inst.Usage;
+
+            addInstructionButton.Text = "Save";
         }
 
         private void DeleteInstructionButton_Click(object sender, EventArgs e) {
             int idx = instructionsList.SelectedIndex;
             instructions.RemoveAt(idx);
             instructionsList.Items.RemoveAt(idx);
+            ResetInstructionForm();
         }
 
         private void DeletePseudoButton_Click(object sender, EventArgs e) {
