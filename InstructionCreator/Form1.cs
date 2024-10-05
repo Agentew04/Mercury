@@ -6,7 +6,7 @@ namespace InstructionCreator {
             InitializeComponent();
         }
 
-        private readonly List<Instruction> instructions = [];
+        private readonly List<Instruction1> instructions = [];
 
         private void SyncInstructionItems() {
             instructionsList.Items.Clear();
@@ -37,7 +37,7 @@ namespace InstructionCreator {
         private void AddInstructionButton_Click(object sender, EventArgs e) {
             // not selected add new
             if(instructionsList.SelectedIndex == -1) {
-                Instruction inst = new() {
+                Instruction1 inst = new() {
                     Id = idTextbox.Text,
                     Mnemonic = mnemonicTextbox.Text,
                     Arch = archCombo.Text,
@@ -52,7 +52,7 @@ namespace InstructionCreator {
                 instructions.Add(inst);
             } else {
                 addInstructionButton.Text = "Add";
-                Instruction inst = instructions[instructionsList.SelectedIndex];
+                Instruction1 inst = instructions[instructionsList.SelectedIndex];
                 inst.Id = idTextbox.Text;
                 inst.Mnemonic = mnemonicTextbox.Text;
                 inst.Arch = archCombo.Text;
@@ -159,7 +159,7 @@ namespace InstructionCreator {
             if(instructionsList.SelectedIndex == -1) {
                 return;
             }
-            Instruction inst = instructions[instructionsList.SelectedIndex];
+            Instruction1 inst = instructions[instructionsList.SelectedIndex];
 
             idTextbox.Text = inst.Id;
             mnemonicTextbox.Text = inst.Mnemonic;

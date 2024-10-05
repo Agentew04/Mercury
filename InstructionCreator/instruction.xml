@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<instructions version="1">
+  <instruction>
+    <!-- Defines metadata about this instruction-->
+    <meta>
+      <id>add</id>
+      <mnemonic>add</mnemonic>
+      <isa>MIPS I</isa>
+      <type>R</type> <!-- realmente necessario? -->
+      <size>32</size>
+    </meta>
+    
+    <!-- Data responsible to parse this from text -->
+    <parsing>
+      <mnemonic>add</mnemonic>
+      <comma/>
+      <!-- reference attribute -->
+      <register reference="true">rt</register>
+      <comma/>
+      <register reference="true">rs</register>
+      <comma/>
+      <register reference="true">rd</register>
+    </parsing>
+
+    <!-- All data needed to convert this instruction into a binary format -->
+    <serialization>
+      <opcode fixed="true" size="6" binary="true">000000</opcode>
+      <register fixed="false" size="5" binary="false">rs</register>
+      <register fixed="false" size="5" binary="false">rt</register>
+      <register fixed="false" size="5" binary="false">rd</register>
+      <shamt fixed="true" size="5" binary="false">0</shamt>
+      <function fixed="true" size="6" binary="false">32</function>
+    </serialization>
+
+    <!-- All data referring to help data -->
+    <help>
+      <fullname>Add Word</fullname>
+      <description>Adds the values in the registers rs and rt and stores the result in the rd register.</description>
+      <usage>add rd, rs, rt</usage>
+    </help>
+  </instruction>
+
+  <instruction>
+    <meta>
+      <id>beq</id>
+      <mnemonic>beq</mnemonic>
+      <isa>MIPS I</isa>
+      <type>I</type>
+      <size>32</size>
+    </meta>
+
+    <parsing>
+      <mnemonic>beq</mnemonic>
+      <comma/>
+      <register reference="true">rs</register>
+      <comma/>
+      <register reference="true">rt</register>
+      <comma/>
+      <label/>
+    </parsing>
+  </instruction>
+  
+  
+</instructions>

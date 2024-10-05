@@ -10,13 +10,13 @@ namespace InstructionCreator;
 
 public static class InstructionXmlConverter {
 
-    public static List<Instruction> LoadInstructionsFile(string xmlPath) {
+    public static List<Instruction1> LoadInstructionsFile(string xmlPath) {
         var settings = new XmlReaderSettings {
             IgnoreWhitespace = true,
         };
         using XmlReader xml = XmlReader.Create(xmlPath, settings);
 
-        List<Instruction> instructions = [];
+        List<Instruction1> instructions = [];
 
         xml.ReadStartElement("instructions");
         do {
@@ -24,7 +24,7 @@ public static class InstructionXmlConverter {
                 continue;
             }
             if (xml.Name == "instruction") {
-                Instruction inst = new() {
+                Instruction1 inst = new() {
                     Id = xml.GetAttribute("id") ?? "UNKNOWN",
                 };
                 xml.ReadStartElement("instruction");
@@ -71,7 +71,7 @@ public static class InstructionXmlConverter {
         return instructions;
     }
 
-    public static void WriteInstructions(string xmlPath, List<Instruction> instructions) {
+    public static void WriteInstructions(string xmlPath, List<Instruction1> instructions) {
         XmlWriterSettings settings = new() {
             Indent = true,
             IndentChars = "    ",

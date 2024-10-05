@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace InstructionCreator {
-    public class Instruction {
+    public class Instruction1 {
         public string Id { get; set; } = string.Empty;
         public string Mnemonic { get; set; } = string.Empty;
         public string Arch { get; set; } = string.Empty;
