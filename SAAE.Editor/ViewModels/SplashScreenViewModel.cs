@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,7 +15,7 @@ namespace SAAE.Editor.ViewModels;
 public partial class SplashScreenViewModel : BaseViewModel {
 
     private const string GithubUrl = "https://github.com/Agentew04/SAAE/raw/refs/heads/clang-bin/";
-    private readonly string configurationDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/.saae";
+    private readonly string configurationDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".saae");
 
     private readonly string userPreferencesPath;
 
@@ -30,7 +32,9 @@ public partial class SplashScreenViewModel : BaseViewModel {
             // write default configuration
             StatusText = "Definindo configurações padrão";
             UserPreferences defaultConfig = GetDefaultPreferences();
-            await File.WriteAllTextAsync(userPreferencesPath, JsonSerializer.Serialize(defaultConfig));
+            await File.WriteAllTextAsync(userPreferencesPath, JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions() {
+                WriteIndented = true
+            }));
         }
         
         // read stored configuration
@@ -61,11 +65,10 @@ public partial class SplashScreenViewModel : BaseViewModel {
     }
     
     private async Task DownloadCompiler(bool getCompiler, bool getLinker) {
-        string token = "?token=GHSAT0AAAAAACXMFNE6YQLTDXRKUXLYEV3WZ5BFDQA";
         // get structure of remote repo
         StatusText = "Checking compiler availability for current platform";
         using HttpClient http = new();
-        string repoStructureJson = await http.GetStringAsync(GithubUrl + "structure.json"+token);
+        string repoStructureJson = await http.GetStringAsync(GithubUrl + "structure.json");
         using JsonDocument repoStructure = JsonDocument.Parse(repoStructureJson);
         string os = OperatingSystem.IsWindows() ? "windows" : "linux";
         string arch = Environment.Is64BitOperatingSystem ? "x64" : "x86";
@@ -104,27 +107,125 @@ public partial class SplashScreenViewModel : BaseViewModel {
         if (linkerPath.StartsWith('/')) {
             linkerPath = linkerPath[1..];
         }
-        compilerPath = GithubUrl + compilerPath+token;
-        linkerPath = GithubUrl + linkerPath+token;
+        compilerPath = GithubUrl + compilerPath;
+        linkerPath = GithubUrl + linkerPath;
         
-        if (getCompiler) {
-            StatusText = "Downloading compiler";
-            await using Stream s = await http.GetStreamAsync(compilerPath);
-            using ZipArchive zip = new(s);
-            await using FileStream fs = File.Open(Path.Combine(preferences.CompilerPath, "clang.exe"), FileMode.OpenOrCreate);
-            await zip.GetEntry("clang.exe")!.Open().CopyToAsync(fs);
+        if (!Directory.Exists(preferences.CompilerPath)) {
+            Directory.CreateDirectory(preferences.CompilerPath);
         }
+        
+        StatusText = "Downloading "+(getCompiler ? "compiler" : "") + (getCompiler && getLinker ? " and " : "") + (getLinker ? "linker" : "");
+        TextProgress progress = new() { vm = this };
+        Task compilerTask = Task.Run(async () => {
+            if (!getCompiler) {
+                return;
+            }
 
-        if (getLinker) {
-            StatusText = "Downloading linker";
-            await using Stream s = await http.GetStreamAsync(linkerPath);
-            using ZipArchive zip = new(s);
-            await using FileStream fs = File.Open(Path.Combine(preferences.CompilerPath, "ld.lld.exe"), FileMode.OpenOrCreate);
-            await zip.GetEntry("ld.lld.exe")!.Open().CopyToAsync(fs);
-        }
+            MemoryStream ms = new();
+            using HttpResponseMessage response =
+                await http.GetAsync(compilerPath, HttpCompletionOption.ResponseHeadersRead);
+            long? contentLength = response.Content.Headers.ContentLength;
+            progress.max += contentLength ?? 0;
+            progress.isCompilerUsed = true;
+
+            await using Stream download = await response.Content.ReadAsStreamAsync(default);
+            Progress<long> otherProgress = new(progress.Report);
+            if (contentLength.HasValue) {
+                // posso reportar
+                await download.CopyToAsync(ms, 81920, otherProgress);
+                progress.Report(1);
+            }
+            else {
+                // n sei o tamanho total, so faz o download
+                await download.CopyToAsync(ms);
+            }
+
+            ms.Seek(0, SeekOrigin.Begin);
+            using ZipArchive archive = new(ms, ZipArchiveMode.Read);
+            ZipArchiveEntry? entry = archive.GetEntry("clang.exe");
+            if (entry is null) {
+                return;
+            }
+            await using Stream entryStream = entry.Open();
+            progress.max += entry.Length;
+            progress.isCompilerDownloading = false;
+            await using var fs = new FileStream(Path.Combine(preferences.CompilerPath, "clang.exe"),FileMode.OpenOrCreate);
+            await entryStream.CopyToAsync(fs, 81920, otherProgress);
+            progress.isCompilerDownloading = true;
+        });
+        Task linkerTask = Task.Run(async () => {
+            if (!getLinker) {
+                return;
+            }
+            
+            using MemoryStream ms = new();
+            using HttpResponseMessage response =
+                await http.GetAsync(linkerPath, HttpCompletionOption.ResponseHeadersRead);
+            long? contentLength = response.Content.Headers.ContentLength;
+            progress.max += contentLength ?? 0;
+            progress.isLinkerUsed = true;
+
+            await using Stream download = await response.Content.ReadAsStreamAsync(default);
+            Progress<long> otherProgress = new(progress.Report);
+            if (contentLength.HasValue) {
+                // posso reportar
+                await download.CopyToAsync(ms, 81920, otherProgress);
+                progress.Report(1);
+            }
+            else {
+                // n sei o tamanho total, so faz o download
+                await download.CopyToAsync(ms);
+            }
+
+            ms.Seek(0, SeekOrigin.Begin);
+            using ZipArchive archive = new(ms, ZipArchiveMode.Read);
+            ZipArchiveEntry? entry = archive.GetEntry("ld.lld.exe");
+            if (entry is null) {
+                return;
+            }
+            progress.max += entry.Length;
+            progress.isLinkerDownloading = false;
+            await using Stream entryStream = entry.Open();
+            await using var fs = new FileStream(Path.Combine(preferences.CompilerPath, "ld.lld.exe"),FileMode.OpenOrCreate);
+            await entryStream.CopyToAsync(fs, 81920, otherProgress);
+            progress.isLinkerDownloading = true;
+        });
+
+        await Task.WhenAll(compilerTask, linkerTask);
+        StatusText = "Download finished";
     }
     
     private UserPreferences GetDefaultPreferences() => new UserPreferences() {
         CompilerPath = Path.Combine(configurationDirectory, "compiler")
     };
+
+    private class TextProgress : IProgress<long> {
+
+        public SplashScreenViewModel vm;
+        public long max = 0;
+        public bool isCompilerUsed = false;
+        public bool isLinkerUsed = false;
+        public bool isCompilerDownloading = true;
+        public bool isLinkerDownloading = true;
+
+        private int smoothingValues = 30;
+        private List<double> values = new();
+        
+        public void Report(long value) {
+            double relative = (double)value / (double)max;
+            if (values.Count < smoothingValues) {
+                values.Add(relative);
+            }
+            else {
+                values.RemoveAt(0);
+                values.Add(relative);
+            }
+            
+            double smoothed = values.Average();
+            
+            vm.StatusText = ((isCompilerUsed && isCompilerDownloading) || (isLinkerUsed && isLinkerDownloading) ? "Downloading " : "Extracting ") + smoothed.ToString("P");
+        }
+    }
+    
+    
 }
