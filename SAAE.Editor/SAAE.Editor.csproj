@@ -12,6 +12,22 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\Images\book.png" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Bold.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-BoldItalic.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-ExtraBold.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-ExtraBoldItalic.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-ExtraLight.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-ExtraLightItalic.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Italic.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Light.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-LightItalic.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Medium.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-MediumItalic.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Regular.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-SemiBold.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-SemiBoldItalic.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Thin.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-ThinItalic.ttf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,12 +38,12 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Fonts.Avalonia.JetBrainsMono" Version="0.9.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Folder Include="Assets\Fonts\" />
     <Folder Include="Services\" />
-    <Folder Include="ViewModels\" />
-    <Folder Include="Views\" />
   </ItemGroup>
 </Project>

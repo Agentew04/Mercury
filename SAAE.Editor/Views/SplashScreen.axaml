@@ -1,0 +1,46 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
+        mc:Ignorable="d" 
+        d:DesignWidth="480" d:DesignHeight="250"
+        Width="480" Height="250"
+        WindowStartupLocation="CenterScreen"
+        SystemDecorations="None"
+        Topmost="True"
+        x:Class="SAAE.Editor.Views.SplashScreen"
+        x:DataType="vm:SplashScreenViewModel"
+        Title="SplashScreen"
+        Background="Transparent">
+    <Window.Styles>
+        <Style Selector="Label">
+            <Setter Property="FontFamily" Value="JetBrains Mono"></Setter>
+        </Style>
+    </Window.Styles>
+    <Border CornerRadius="20" Background="Red">
+        <Grid>
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Margin="30,15" >
+                <!-- titulo do app-->
+                <Label FontSize="42">
+                    Mips 2.0
+                </Label>
+                
+                <Label FontSize="15">
+                    Inicializando
+                </Label>
+                
+                <Label FontSize="11" Content="{Binding StatusText}"/>
+            </StackPanel>
+            <Label HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                   Margin="15">
+                Copyright 2025 Rodrigo Appelt
+            </Label>
+            <Label HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                   Margin="15">
+                Version 0.1
+            </Label>
+        </Grid>
+    </Border>
+</Window>
