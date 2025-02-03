@@ -1,0 +1,24 @@
+{
+    "windows": {
+        "x64": {
+            "clang": "/win-x64/clang.zip",
+            "lld": "/win-x64/ld.lld.zip",
+            "version": 1,
+            "available": true
+        },
+        "x86": {
+            "clang": "/win-x86/clang.zip",
+            "lld": "/win-x86/ld.lld.zip",
+            "version": 1,
+            "available": false
+        }
+    },
+    "linux": {
+        "x64":{
+            "clang": "/linux-x64/clang.zip",
+            "lld": "/linux-x64/ld.lld.zip",
+            "version": 1,
+            "available": false
+        }
+    }
+}
