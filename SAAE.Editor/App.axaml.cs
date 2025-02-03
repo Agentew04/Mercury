@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Views;
 
 namespace SAAE.Editor {
@@ -9,8 +11,17 @@ namespace SAAE.Editor {
         public override void Initialize() {
             AvaloniaXamlLoader.Load(this);
         }
-
+        
+        public static ServiceProvider Services { get; private set; }
+        
         public override async void OnFrameworkInitializationCompleted() {
+            BindingPlugins.DataValidators.RemoveAt(0);
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddCommonServices();
+
+            Services = serviceCollection.BuildServiceProvider();
+            
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
                 var splash = new SplashScreen();
                 desktop.MainWindow = splash;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -8,59 +7,46 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
+using SAAE.Editor.Services;
 
 namespace SAAE.Editor.ViewModels;
 
 public partial class SplashScreenViewModel : BaseViewModel {
 
     private const string GithubUrl = "https://github.com/Agentew04/SAAE/raw/refs/heads/clang-bin/";
-    private readonly string configurationDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".saae");
+    private readonly SettingsService settings = App.Services.GetService<SettingsService>()!;
 
-    private readonly string userPreferencesPath;
-
-    private UserPreferences preferences;
-
-    public SplashScreenViewModel() {
-        userPreferencesPath = Path.Combine(configurationDirectory, "config.json");
-    }
+    [ObservableProperty]
+    private string statusText = "";
     
     public async Task Initialize() {
-        if(!Directory.Exists(configurationDirectory) || !File.Exists(userPreferencesPath)) {
-            Directory.CreateDirectory(configurationDirectory);
+        if(!Directory.Exists(settings.AppDirectory) || !File.Exists(settings.ConfigPath)) {
+            Directory.CreateDirectory(settings.AppDirectory);
             
             // write default configuration
             StatusText = "Definindo configurações padrão";
-            UserPreferences defaultConfig = GetDefaultPreferences();
-            await File.WriteAllTextAsync(userPreferencesPath, JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions() {
-                WriteIndented = true
-            }));
+            settings.Preferences = settings.GetDefaultPreferences();
+            await settings.SaveSettings();
         }
         
         // read stored configuration
-        string configJson = await File.ReadAllTextAsync(userPreferencesPath);
-        preferences = JsonSerializer.Deserialize<UserPreferences>(configJson) ?? GetDefaultPreferences();
-
+        await settings.LoadSettings();
+        
         StatusText = "Checking for compiler...";
-        // clang
         (bool hasCompiler, bool hasLinker) = CheckCompiler();
         if (!hasCompiler || !hasLinker) {
             await DownloadCompiler(!hasCompiler, !hasLinker);
         }
 
         StatusText = "Done!";
-        await Task.Delay(1000);
-        await Task.Delay(1000);
-        await Task.Delay(1000);
     }
-
-    [ObservableProperty]
-    private string statusText;
 
     private (bool hasCompiler, bool hasLinker) CheckCompiler() {
         // TODO: check if compiler is installed e usar o do usuario se possivel
-        bool appCompiler = File.Exists(Path.Combine(preferences.CompilerPath, "clang.exe"));
-        bool appLinker = File.Exists(Path.Combine(preferences.CompilerPath, "ld.lld.exe"));
+        bool appCompiler = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"));
+        bool appLinker = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"));
         return (appCompiler, appLinker);
     }
     
@@ -110,8 +96,8 @@ public partial class SplashScreenViewModel : BaseViewModel {
         compilerPath = GithubUrl + compilerPath;
         linkerPath = GithubUrl + linkerPath;
         
-        if (!Directory.Exists(preferences.CompilerPath)) {
-            Directory.CreateDirectory(preferences.CompilerPath);
+        if (!Directory.Exists(settings.Preferences.CompilerPath)) {
+            Directory.CreateDirectory(settings.Preferences.CompilerPath);
         }
         
         StatusText = "Downloading "+(getCompiler ? "compiler" : "") + (getCompiler && getLinker ? " and " : "") + (getLinker ? "linker" : "");
@@ -149,7 +135,7 @@ public partial class SplashScreenViewModel : BaseViewModel {
             await using Stream entryStream = entry.Open();
             progress.max += entry.Length;
             progress.isCompilerDownloading = false;
-            await using var fs = new FileStream(Path.Combine(preferences.CompilerPath, "clang.exe"),FileMode.OpenOrCreate);
+            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"),FileMode.OpenOrCreate);
             await entryStream.CopyToAsync(fs, 81920, otherProgress);
             progress.isCompilerDownloading = true;
         });
@@ -186,7 +172,7 @@ public partial class SplashScreenViewModel : BaseViewModel {
             progress.max += entry.Length;
             progress.isLinkerDownloading = false;
             await using Stream entryStream = entry.Open();
-            await using var fs = new FileStream(Path.Combine(preferences.CompilerPath, "ld.lld.exe"),FileMode.OpenOrCreate);
+            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"),FileMode.OpenOrCreate);
             await entryStream.CopyToAsync(fs, 81920, otherProgress);
             progress.isLinkerDownloading = true;
         });
@@ -195,9 +181,7 @@ public partial class SplashScreenViewModel : BaseViewModel {
         StatusText = "Download finished";
     }
     
-    private UserPreferences GetDefaultPreferences() => new UserPreferences() {
-        CompilerPath = Path.Combine(configurationDirectory, "compiler")
-    };
+    
 
     private class TextProgress : IProgress<long> {
 
