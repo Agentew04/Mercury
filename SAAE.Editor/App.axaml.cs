@@ -7,12 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Views;
 
 namespace SAAE.Editor {
-    public partial class App : Application {
+    public class App : Application {
         public override void Initialize() {
             AvaloniaXamlLoader.Load(this);
         }
-        
-        public static ServiceProvider Services { get; private set; }
+
+        public static ServiceProvider Services { get; private set; } = null!;
         
         public override async void OnFrameworkInitializationCompleted() {
             BindingPlugins.DataValidators.RemoveAt(0);

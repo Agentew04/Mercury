@@ -1,0 +1,24 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:SAAE.Editor.Controls"
+                    xmlns:model="clr-namespace:SAAE.Editor.Models">
+    <Design.PreviewWith>
+        <controls:ChapterMenu />
+    </Design.PreviewWith>
+
+    <ControlTheme TargetType="controls:ChapterMenu" x:Key="{x:Type controls:ChapterMenu}">
+        <!-- Set Defaults -->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid RowDefinitions="Auto,*">
+                    <Button HorizontalAlignment="Left" Margin="10,5"
+                            Command="{TemplateBinding GoBackCommand}"></Button>
+                    <TextBlock Grid.Row="1" 
+                               Text="{Binding Chapter.Title, RelativeSource={RelativeSource TemplatedParent}}" 
+                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5"
+                               TextAlignment="Left" FontSize="20" FontWeight="Bold"/>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

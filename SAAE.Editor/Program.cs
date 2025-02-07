@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using System.Globalization;
 using Fonts.Avalonia.JetBrainsMono;
 
 namespace SAAE.Editor {

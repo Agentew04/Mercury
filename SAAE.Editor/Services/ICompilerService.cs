@@ -7,5 +7,7 @@ namespace SAAE.Editor.Services;
 /// into an executable
 /// </summary>
 public interface ICompilerService {
-    public Task<bool> CompileAssembly(string assemblyCode);
+    public Task<bool> TryCompileAssemblyAsync(string assemblyCode);
+
+    public Task<bool> TryCompileCodeAsync(string highlevelCode);
 }

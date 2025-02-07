@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
+        xmlns:localization="clr-namespace:SAAE.Editor.Localization"
         mc:Ignorable="d" 
         d:DesignWidth="480" d:DesignHeight="250"
         Width="480" Height="250"
@@ -27,20 +28,14 @@
                     Mips 2.0
                 </Label>
                 
-                <Label FontSize="15">
-                    Inicializando
-                </Label>
-                
+                <Label FontSize="15" Content="{Binding Source={x:Static localization:SplashScreenResources.Instance}, Path=InitializingText}"/>
                 <Label FontSize="11" Content="{Binding StatusText}"/>
             </StackPanel>
             <Label HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                   Margin="15">
-                Copyright 2025 Rodrigo Appelt
-            </Label>
+                   Margin="15" 
+                   Content="{Binding Source={x:Static localization:SplashScreenResources.Instance}, Path=CopyrightNotice}"/>
             <Label HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                   Margin="15">
-                Version 0.1
-            </Label>
+                   Margin="15" Content="{Binding VersionText}"/>
         </Grid>
     </Border>
 </Window>

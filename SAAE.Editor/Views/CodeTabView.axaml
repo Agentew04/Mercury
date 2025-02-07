@@ -1,0 +1,53 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:view="clr-namespace:SAAE.Editor.Views"
+             xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SAAE.Editor.Views.CodeTabView">
+    <DockPanel>
+        <!-- guide -->
+        <view:GuideView DockPanel.Dock="Right" Width="300"/>
+        
+        <!-- problems window -->
+        <Border Height="300" DockPanel.Dock="Bottom" Background="Aqua"></Border>
+        
+        <!-- project window -->
+        <Border Width="300" DockPanel.Dock="Left" Background="Coral"></Border>
+        
+        <!-- code window -->
+        <TabControl>
+            <TabControl.Items>
+                <TabItem Header="main.asm">
+                    <avaloniaEdit:TextEditor HorizontalAlignment="Stretch"
+                                             VerticalAlignment="Stretch"
+                                             FontFamily="JetBrains mono"
+                                             HorizontalScrollBarVisibility="Auto"
+                                             VerticalScrollBarVisibility="Auto"
+                                             FontWeight="Light"
+                                             FontSize="14"/>
+                    <!-- <avaloniaEdit:TextEditor Name="Editor" Grid.Row="1" -->
+                    <!--                          FontFamily="Jetbrains Mono,Cascadia Code,Consolas,Menlo,Monospace" -->
+                    <!--                          Margin="30" Padding="5" -->
+                    <!--                          HorizontalScrollBarVisibility="Auto" -->
+                    <!--                          VerticalScrollBarVisibility="Visible" -->
+                    <!--                          FontWeight="Light" -->
+                    <!--                          FontSize="14"  -->
+                    <!--                          Background="{StaticResource AlternateGrey}" CornerRadius="3"> -->
+                    <!--   <avaloniaEdit:TextEditor.ContextFlyout> -->
+                    <!--     <MenuFlyout> -->
+                    <!--       <MenuItem Header="Copy" InputGesture="ctrl+C"></MenuItem> -->
+                    <!--       <MenuItem Header="Cut" InputGesture="ctrl+X"></MenuItem> -->
+                    <!--       <MenuItem Header="Paste" InputGesture="ctrl+V"></MenuItem> -->
+                    <!--       <MenuItem Header="-"/> -->
+                    <!--       <MenuItem Header="Select All" InputGesture="ctrl+A"></MenuItem> -->
+                    <!--     </MenuFlyout> -->
+                    <!--   </avaloniaEdit:TextEditor.ContextFlyout> -->
+                    <!-- </avaloniaEdit:TextEditor> -->
+                </TabItem>
+            </TabControl.Items>
+        </TabControl>
+    </DockPanel>
+</UserControl>

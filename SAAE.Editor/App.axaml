@@ -9,5 +9,10 @@
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
     </Application.Styles>
   <Application.Resources>
+      <ResourceDictionary>
+          <ResourceDictionary.MergedDictionaries>
+              <ResourceInclude Source="Controls/GuideMenu.axaml"/>
+          </ResourceDictionary.MergedDictionaries>
+      </ResourceDictionary>
   </Application.Resources>
 </Application>

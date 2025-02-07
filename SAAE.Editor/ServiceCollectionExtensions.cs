@@ -10,5 +10,6 @@ public static class ServiceCollectionExtensions {
         collection.AddTransient<SplashScreenViewModel>();
         collection.AddSingleton<ICompilerService, MipsCompiler>();
         collection.AddSingleton<SettingsService>();
+        collection.AddSingleton<GuideViewModel>();
     }
 }
