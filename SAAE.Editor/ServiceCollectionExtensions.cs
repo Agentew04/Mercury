@@ -11,5 +11,6 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<ICompilerService, MipsCompiler>();
         collection.AddSingleton<SettingsService>();
         collection.AddSingleton<GuideViewModel>();
+        collection.AddSingleton<GuideService>();
     }
 }

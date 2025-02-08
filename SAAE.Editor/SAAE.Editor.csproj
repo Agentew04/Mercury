@@ -45,6 +45,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="ELFSharp" Version="2.17.3" />
     <PackageReference Include="Fonts.Avalonia.JetBrainsMono" Version="0.9.0" />
+    <PackageReference Include="Markdig" Version="0.40.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
   </ItemGroup>
 
@@ -62,5 +63,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>GuideResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Remove="Assets\Localization\Guides\ForLoops.en-us.md" />
+    <EmbeddedResource Include="Assets\Localization\Guides\ForLoops.en-us.md" />
+    <None Remove="Assets\Localization\Guides\ForLoops.pt-br.md" />
+    <EmbeddedResource Include="Assets\Localization\Guides\ForLoops.pt-br.md" />
   </ItemGroup>
 </Project>

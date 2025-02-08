@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Input;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SAAE.Editor.Models;
@@ -22,7 +23,8 @@ public partial class GuideMenu : ObservableObject, IGuidePart {
 }
 
 public partial class GuideChapter : ObservableObject, IGuidePart {
-    public string Title { get; set; } = "";
+    
+    public string GuideName { get; set; } = "";
 
     [ObservableProperty] private ICommand goBackCommand;
     
