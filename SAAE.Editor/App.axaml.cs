@@ -16,13 +16,14 @@ namespace SAAE.Editor {
         
         public override async void OnFrameworkInitializationCompleted() {
             BindingPlugins.DataValidators.RemoveAt(0);
-
+            
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddCommonServices();
 
             Services = serviceCollection.BuildServiceProvider();
             
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+                desktop.Exit += OnAppExit;
                 var splash = new SplashScreen();
                 desktop.MainWindow = splash;
                 splash.Show();
@@ -42,6 +43,10 @@ namespace SAAE.Editor {
             }
 
             base.OnFrameworkInitializationCompleted();
+        }
+        
+        private static void OnAppExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
+            Services.Dispose();
         }
     }
 }

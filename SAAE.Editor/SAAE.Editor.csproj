@@ -47,6 +47,7 @@
     <PackageReference Include="Fonts.Avalonia.JetBrainsMono" Version="0.9.0" />
     <PackageReference Include="Markdig" Version="0.40.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,13 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Assets\Localization\GuideResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>GuideResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <None Remove="Assets\Localization\Guides\ForLoops.en-us.md" />
-    <EmbeddedResource Include="Assets\Localization\Guides\ForLoops.en-us.md" />
-    <None Remove="Assets\Localization\Guides\ForLoops.pt-br.md" />
-    <EmbeddedResource Include="Assets\Localization\Guides\ForLoops.pt-br.md" />
+    <None Remove="Assets\Localization\Guides\*.md" />
+    <EmbeddedResource Include="Assets\Localization\Guides\*.md"  WithCulture="false"/>
   </ItemGroup>
 </Project>

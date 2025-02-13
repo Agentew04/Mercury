@@ -26,9 +26,11 @@ public partial class GuideChapter : ObservableObject, IGuidePart {
     
     public string GuideName { get; set; } = "";
 
-    [ObservableProperty] private ICommand goBackCommand;
+    [ObservableProperty] private ICommand goBackCommand = null!;
+
+    [ObservableProperty] private string localizedTitle = "";
     
-    public GuideChapter(ICommand goBackCommand) {
-        GoBackCommand = goBackCommand;
+    
+    public GuideChapter() {
     }
 }

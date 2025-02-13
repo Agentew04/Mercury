@@ -1,18 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
+using SAAE.Editor.Services;
 
 namespace SAAE.Editor.ViewModels;
 
 public partial class GuideViewModel : BaseViewModel {
 
+    private readonly GuideService _guideService = App.Services.GetService<GuideService>()!;
+    
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentGuide))]
     private ObservableCollection<GuideChapter> guideChapters;
@@ -23,33 +29,14 @@ public partial class GuideViewModel : BaseViewModel {
     private GuideMenu guideMenu;
     
     public GuideViewModel() {
-        GuideChapters = [
-            new GuideChapter(GoToMenuCommand) {
-                Title = "For Loops"
-            },
-
-            new GuideChapter(GoToMenuCommand) {
-                Title = "If Statement"
-            },
-
-            new GuideChapter(GoToMenuCommand) {
-                Title = "Functions"
-            },
-
-            new GuideChapter(GoToMenuCommand) {
-                Title = "Registers"
-            },
-
-            new GuideChapter(GoToMenuCommand) {
-                Title = "Memory"
-            }
-        ];
-
+        ReadOnlyCollection<GuideChapter> guides = _guideService.GetAvailableGuides();
+        _ = guides.ForEach(x => x.GoBackCommand = GoToMenuCommand);
+        GuideChapters = new ObservableCollection<GuideChapter>(guides);
+            
         guideMenu = new GuideMenu(OpenGuideCommand) {
             AvailableChapters = GuideChapters
         };
-
-        CurrentGuide = guideMenu;
+        CurrentGuide = GuideChapters[0];
     }
 
     [RelayCommand]

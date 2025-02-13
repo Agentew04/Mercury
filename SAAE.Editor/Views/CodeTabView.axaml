@@ -47,6 +47,9 @@
                     <!--   </avaloniaEdit:TextEditor.ContextFlyout> -->
                     <!-- </avaloniaEdit:TextEditor> -->
                 </TabItem>
+                <TabItem Header="local">
+                    <Button Click="Button_OnClick" Content="toggle lang"></Button>
+                </TabItem>
             </TabControl.Items>
         </TabControl>
     </DockPanel>

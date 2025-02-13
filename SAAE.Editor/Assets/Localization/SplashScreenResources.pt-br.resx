@@ -50,4 +50,7 @@
     <data name="InitializingText" xml:space="preserve">
         <value>Inicializando</value>
     </data>
+    <data name="ReadGuideText" xml:space="preserve">
+        <value>Lendo Guias</value>
+    </data>
 </root>

@@ -48,11 +48,17 @@ public partial class SplashScreenViewModel : BaseViewModel {
         
         LocalizationManager.CurrentCulture = settings.Preferences.Language;
         
+        // baixar compilador
         StatusText = SplashScreenResources.ToolchainCheckValue;
         (bool hasCompiler, bool hasLinker) = CheckCompiler();
         if (!hasCompiler || !hasLinker) {
             await DownloadCompiler(!hasCompiler, !hasLinker);
         }
+        
+        // inicializar guias
+        StatusText = SplashScreenResources.ReadGuideTextValue;
+        var guideService = App.Services.GetService<GuideService>()!;
+        await guideService.InitializeAsync();
 
         StatusText = SplashScreenResources.DoneValue;
         await Task.Delay(1000);

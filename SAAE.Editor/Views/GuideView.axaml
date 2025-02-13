@@ -16,7 +16,6 @@
     <UserControl.Resources>
         <converters:IsGuideMenuConverter x:Key="IsGuideMenuConverter"></converters:IsGuideMenuConverter>
         <converters:IsGuideChapterConverter x:Key="IsGuideChapterConverter"></converters:IsGuideChapterConverter>
-            
     </UserControl.Resources>
     <StackPanel Orientation="Vertical">
         <!-- header -->
@@ -24,11 +23,16 @@
                    FontSize="24" FontWeight="DemiBold"/>
         
         <!-- body -->
-        <controls:GuideMenu Chapters="{Binding GuideChapters}"
-                            IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideMenuConverter}}"
-                            OpenGuideCommand="{Binding OpenGuideCommand}"/>
-        <controls:ChapterMenu Chapter="{Binding CurrentGuide}"
-                              IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideChapterConverter}}"
-                              GoBackCommand="{Binding GoToMenuCommand}"/>
+        <ContentControl Content="{Binding CurrentGuide}">
+            <ContentControl.ContentTemplate>
+                <converters:GuideChapterDataTemplate/>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
+        <!-- <controls:GuideMenu Chapters="{Binding GuideChapters}" -->
+        <!--                     IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideMenuConverter}}" -->
+        <!--                     OpenGuideCommand="{Binding OpenGuideCommand}"/> -->
+        <!-- <controls:ChapterView DataContext="{Binding .}" -->
+        <!--                       CurrentChapter="{Binding CurrentGuide}" -->
+        <!--                       IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideChapterConverter}}"/> -->
     </StackPanel>
 </UserControl>
