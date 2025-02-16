@@ -3,13 +3,15 @@
         "x64": {
             "clang": "/win-x64/clang.zip",
             "lld": "/win-x64/ld.lld.zip",
-            "version": 1,
+            "linkerscript": "/linker.ld",
+            "version": 2,
             "available": true
         },
         "x86": {
             "clang": "/win-x86/clang.zip",
             "lld": "/win-x86/ld.lld.zip",
-            "version": 1,
+            "linkerscript": "/linker.ld",
+            "version": 2,
             "available": false
         }
     },
@@ -17,7 +19,8 @@
         "x64":{
             "clang": "/linux-x64/clang.zip",
             "lld": "/linux-x64/ld.lld.zip",
-            "version": 1,
+            "linkerscript": "/linker.ld",
+            "version": 2,
             "available": false
         }
     }
