@@ -10,6 +10,13 @@ public class RegisterFile {
 
     private List<int> _registers;
 
+    private List<Register> _changedRegisters = [];
+    public List<Register> GetChangedRegisters() {
+        List<Register> newList = [.._changedRegisters];
+        _changedRegisters.Clear();
+        return newList;
+    }
+
     public RegisterFile() {
         _registers = new List<int>((int)Register.COUNT);
         _registers.AddRange(Enumerable.Repeat(0, (int)Register.COUNT));
@@ -27,8 +34,11 @@ public class RegisterFile {
     public void Set(Register register, int value) => Set((int)register, value);
 
     public void Set(int index, int value) {
-        if (index < 0 || index >= (int)Register.COUNT) {
+        if (index is < 0 or >= (int)Register.COUNT) {
             throw new ArgumentOutOfRangeException(nameof(index), "Register index out of bounds");
+        }
+        if (_registers[index] != value) {
+            _changedRegisters.Add((Register)index);
         }
         _registers[index] = value;
     }

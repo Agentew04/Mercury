@@ -23,16 +23,10 @@
                    FontSize="24" FontWeight="DemiBold"/>
         
         <!-- body -->
-        <ContentControl Content="{Binding CurrentGuide}">
-            <ContentControl.ContentTemplate>
-                <converters:GuideChapterDataTemplate/>
-            </ContentControl.ContentTemplate>
-        </ContentControl>
-        <!-- <controls:GuideMenu Chapters="{Binding GuideChapters}" -->
-        <!--                     IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideMenuConverter}}" -->
-        <!--                     OpenGuideCommand="{Binding OpenGuideCommand}"/> -->
-        <!-- <controls:ChapterView DataContext="{Binding .}" -->
-        <!--                       CurrentChapter="{Binding CurrentGuide}" -->
-        <!--                       IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideChapterConverter}}"/> -->
+        <controls:GuideMenu Chapters="{Binding GuideChapters}"
+                            IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideMenuConverter}}"
+                            OpenGuideCommand="{Binding OpenGuideCommand}"/>
+        <controls:ChapterView CurrentChapter="{Binding CurrentGuide}"
+                              IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideChapterConverter}}"/>
     </StackPanel>
 </UserControl>

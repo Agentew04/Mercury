@@ -1,6 +1,5 @@
 ﻿---
 title: Laços de Repetição
-createDate: 2025-02-12
 ---
 
 # Laços de Repetição

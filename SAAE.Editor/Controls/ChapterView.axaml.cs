@@ -30,7 +30,7 @@ public partial class ChapterView : UserControl {
 
     public static readonly StyledProperty<GuideChapter> CurrentChapterProperty =
         AvaloniaProperty.Register<ChapterView, GuideChapter>(nameof(CurrentChapter));
-
+    
     public GuideChapter CurrentChapter {
         get => GetValue(CurrentChapterProperty);
         set => SetValue(CurrentChapterProperty, value);

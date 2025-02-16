@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Engine.Test.Mips.Runtime;
 
@@ -12,7 +13,13 @@ namespace SAAE.Engine.Test.Mips.Runtime;
 public class MonocycleTest {
     [TestMethod]
     public void TestBeq() {
-        Monocycle cpu = new();
+        using Machine machine = new MachineBuilder()
+            .WithMarsOs()
+            .With4GbRam()
+            .WithMipsMonocycle()
+            .Build();
+        
+        Monocycle cpu = machine.Cpu; 
         int[] code = [
             0x2008_000f,
             0x2009_0014,
@@ -21,9 +28,10 @@ public class MonocycleTest {
             0x0810_0006,
             0x0000_004d
             ];
-        cpu.LoadTextSection(code);
+        machine.LoadProgram(code, Span<int>.Empty);
         InstructionFactory factory = new();
         bool hasBreaked = false;
+        
         cpu.OnSignalException += (_, e) => {
             if(e.Signal != Monocycle.SignalExceptionEventArgs.SignalType.Breakpoint) {
                 return;
@@ -37,10 +45,30 @@ public class MonocycleTest {
             Assert.AreEqual(0, brk.Code);
             hasBreaked = true;
         };
-        cpu.RegisterFile[Engine.Mips.Runtime.RegisterFile.Register.Pc] = 0x0040_0000;
-        while (cpu.IsExecutionFinished() && !hasBreaked) {
+        cpu.UseBranchDelaySlot = false;
+        while (!cpu.IsExecutionFinished() && !hasBreaked) {
             cpu.Clock();
         }
-        cpu.Dispose();
+    }
+
+    [TestMethod]
+    public void TestBuilder() {
+        Machine machine = new MachineBuilder()
+            .With4GbRam()
+            .WithMarsOs()
+            .WithMipsMonocycle()
+            .Build();
+        
+        Assert.IsNotNull(machine.Memory);
+        Assert.IsNotNull(machine.Cpu);
+        Assert.IsNotNull(machine.Os);
+        Assert.AreSame(machine.Cpu.RegisterFile, machine.Registers);
+        Assert.AreSame(machine.Cpu.Memory, machine.Memory);
+        Assert.AreSame(machine.Os.Machine, machine);
+        
+        const ulong gb = 1024 * 1024 * 1024;
+        Assert.AreEqual(4 * gb, machine.Memory.Size);
+        Assert.IsInstanceOfType<Monocycle>(machine.Cpu);
+        Assert.IsInstanceOfType<Mars>(machine.Os);
     }
 }

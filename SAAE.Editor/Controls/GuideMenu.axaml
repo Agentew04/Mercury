@@ -14,7 +14,7 @@
                     <ItemsControl ItemsSource="{TemplateBinding Chapters, Mode=OneWay}" Padding="5">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="models:GuideChapter">
-                                <Button Content="{Binding GuideName}"
+                                <Button Content="{Binding LocalizedTitle}"
                                         Margin="15,5"
                                         Command="{Binding OpenGuideCommand, RelativeSource={RelativeSource AncestorType={x:Type controls:GuideMenu}}}"
                                         CommandParameter="{Binding}"/>

@@ -15,6 +15,7 @@ using Markdig;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
+using SAAE.Editor.Localization;
 using SAAE.Editor.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -76,6 +77,8 @@ public sealed partial class GuideService : IDisposable {
         }
 
         await ReadMetadataAsync();
+        // forca atualizacao dos titulos dos guias
+        LocalizeGuides(LocalizationManager.CurrentCulture);
         
         isInitialized = true;
     }

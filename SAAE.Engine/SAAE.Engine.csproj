@@ -36,12 +36,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Antlr4 Update="Mips\Assembler\Mips.g4">
-      <CustomToolNamespace>SAAE.Engine.Mips.Assembler.Antlr</CustomToolNamespace>
-    </Antlr4>
+    <PackageReference Include="ELFSharp" Version="2.17.3" />
   </ItemGroup>
 
 </Project>

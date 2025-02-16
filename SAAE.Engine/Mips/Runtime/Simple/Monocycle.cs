@@ -1,11 +1,5 @@
 ﻿using SAAE.Engine.Memory;
-using SAAE.Engine.Mips.Assembler;
 using SAAE.Engine.Mips.Instructions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SAAE.Engine.Mips.Runtime.Simple;
 
@@ -13,27 +7,22 @@ namespace SAAE.Engine.Mips.Runtime.Simple;
 /// A simplified version of the monocycle MIPS processor.
 /// Does not simulate every component of the processor.
 /// </summary>
-public sealed partial class Monocycle : IClockable, IDisposable {
+public sealed partial class Monocycle : IClockable {
     public Monocycle() {
-        // create virtual memory
-        const ulong gb = 1024 * 1024 * 1024;
-        Memory = new VirtualMemory(new VirtualMemoryConfiguration() {
-            ColdStoragePath = "memory.bin",
-            ColdStorageOptimization = true,
-            ForceColdStorageReset = true,
-            PageSize = 4096,
-            Size = 4*gb,
-            MaxLoadedPages = 64
-        });
+        RegisterFile[RegisterFile.Register.Sp] = 0x7FFF_FFFC;
+        RegisterFile[RegisterFile.Register.Fp] = 0x0000_0000;
+        RegisterFile[RegisterFile.Register.Gp] = 0x1000_8000;
+        RegisterFile[RegisterFile.Register.Ra] = 0x0000_0000;
+        RegisterFile[RegisterFile.Register.Pc] = 0x0040_0000;
     }
 
     /// <summary>
     /// Represents the RAM memory
     /// </summary>
-    public VirtualMemory Memory { get; private set; }
+    public VirtualMemory Memory { get; set; } = null!;
 
     /// <summary>
-    /// Structure that holds all of the general purpose
+    /// Structure that holds all the general purpose
     /// registers of the CPU.
     /// </summary>
     public RegisterFile RegisterFile { get; private set; } = new();
@@ -45,8 +34,10 @@ public sealed partial class Monocycle : IClockable, IDisposable {
     private readonly InstructionFactory instructionFactory = new();
 
     public bool UseBranchDelaySlot { get; set; } = false;
+    
+    public uint DropoffAddress { get; set; } = 0;
 
-    private uint lastAvailablePcAddress = 0;
+    private uint nextBranchAddress = 0;
 
     public void Clock()
     {
@@ -60,9 +51,22 @@ public sealed partial class Monocycle : IClockable, IDisposable {
         int pcBefore = RegisterFile[RegisterFile.Register.Pc];
         Execute(instruction);
 
+        // estamos num ciclo do branch delay slot
+        if (nextBranchAddress != 0) {
+            // realiza o delayed branch
+            RegisterFile[RegisterFile.Register.Pc] = (int)nextBranchAddress;
+            nextBranchAddress = 0;
+            return;
+        }
+        
         // update PC
         if (pcBefore == RegisterFile[RegisterFile.Register.Pc]) {
             RegisterFile[RegisterFile.Register.Pc] += 4;
+        }else if (pcBefore + 8 == RegisterFile[RegisterFile.Register.Pc] 
+                  && UseBranchDelaySlot) {
+            // se branch delay slot esta ligado, defer update
+            nextBranchAddress = (uint)RegisterFile[RegisterFile.Register.Pc];
+            RegisterFile[RegisterFile.Register.Pc] = pcBefore + 4;
         }
     }
 
@@ -92,11 +96,7 @@ public sealed partial class Monocycle : IClockable, IDisposable {
     private static int ZeroExtend(short value) {
         return (ushort)value;
     }
-
-    public void Dispose() {
-        Memory.Dispose();
-    }
-
+    
     /// <summary>
     /// Loads data into the Text Section of RAM
     /// </summary>
@@ -106,7 +106,7 @@ public sealed partial class Monocycle : IClockable, IDisposable {
         for(ulong i=0;i<(ulong)data.Length; i++) {
             Memory.WriteByte(textAddress + i, data[(int)i]);
         }
-        lastAvailablePcAddress = textAddress + (uint)data.Length + 1;
+        DropoffAddress = textAddress + (uint)data.Length + 1;
     }
 
     /// <summary>
@@ -118,11 +118,11 @@ public sealed partial class Monocycle : IClockable, IDisposable {
         for (ulong i = 0; i < (ulong)data.Length; i++) {
             Memory.WriteWord(textAddress + i*4, data[(int)i]);
         }
-        lastAvailablePcAddress = textAddress + (uint)data.Length*4 + 1;
+        DropoffAddress = textAddress + (uint)data.Length*4 + 1;
     }
 
     public bool IsExecutionFinished() {
-        return RegisterFile[RegisterFile.Register.Pc] <= lastAvailablePcAddress;
+        return RegisterFile[RegisterFile.Register.Pc] >= DropoffAddress;
     }
 
     public class SignalExceptionEventArgs {

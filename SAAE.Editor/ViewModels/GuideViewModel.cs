@@ -36,7 +36,7 @@ public partial class GuideViewModel : BaseViewModel {
         guideMenu = new GuideMenu(OpenGuideCommand) {
             AvailableChapters = GuideChapters
         };
-        CurrentGuide = GuideChapters[0];
+        CurrentGuide = guideMenu;
     }
 
     [RelayCommand]

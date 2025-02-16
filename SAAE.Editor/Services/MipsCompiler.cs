@@ -12,7 +12,7 @@ public class MipsCompiler : ICompilerService {
 
     private readonly SettingsService settings = App.Services.GetService<SettingsService>()!;
     
-    public async Task<bool> TryCompileAssemblyAsync(string assemblyCode) {
+    public async Task<(bool success, IELF? elf)> TryCompileAssemblyAsync(string assemblyCode) {
         // create temporary file
         string assemblyPath = Path.GetTempFileName();
         File.Move(assemblyPath, Path.ChangeExtension(assemblyPath, ".s"));
@@ -23,10 +23,11 @@ public class MipsCompiler : ICompilerService {
         
         // compile
         string compilerPath = Path.Combine(settings.Preferences.CompilerPath, "clang.exe");
+        string scriptPath = Path.Combine(settings.Preferences.CompilerPath, "linker.ld");
         ProcessStartInfo startInfo = new() {
             FileName = compilerPath,
             Arguments =
-                $"--target=mips-linux-gnu -O0 -nostdlib -static -fuse-ld=lld -o \"{exePath}\" \"{assemblyPath}\"",
+                $"--target=mips-linux-gnu -O0 -nostartfiles -Wl -T \"{scriptPath}\" -nostdlib -static -fuse-ld=lld -o \"{exePath}\" \"{assemblyPath}\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -36,7 +37,7 @@ public class MipsCompiler : ICompilerService {
         CancellationTokenSource cts = new();
         using Process? process = Process.Start(startInfo);
         if (process is null) {
-            return false;
+            return (false, null);
         }
 
         TimeSpan timeout = new(0, 0, 0, 10);
@@ -46,20 +47,16 @@ public class MipsCompiler : ICompilerService {
         }
         catch (TaskCanceledException) {
             process.Kill();
-            return false;
+            return (false, null);
         }
 
         if (process.ExitCode != 0) {
-            return false;
+            return (false, null);
         }
 
         // uint sinaliza que eh um binario 32 bits
         ELF<uint>? elf = ELFReader.Load<uint>(exePath);
-        if (elf is null) {
-            return false;
-        }
-
-        return true;
+        return elf is null ? (false, null) : (true, elf);
     }
 
     public async Task<bool> TryCompileCodeAsync(string highlevelCode) {

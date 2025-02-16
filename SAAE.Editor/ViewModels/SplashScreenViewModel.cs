@@ -50,9 +50,9 @@ public partial class SplashScreenViewModel : BaseViewModel {
         
         // baixar compilador
         StatusText = SplashScreenResources.ToolchainCheckValue;
-        (bool hasCompiler, bool hasLinker) = CheckCompiler();
-        if (!hasCompiler || !hasLinker) {
-            await DownloadCompiler(!hasCompiler, !hasLinker);
+        (bool hasCompiler, bool hasLinker, bool hasScript) = CheckCompiler();
+        if (!hasCompiler || !hasLinker || !hasScript) {
+            await DownloadTools(!hasCompiler, !hasLinker, !hasScript);
         }
         
         // inicializar guias
@@ -73,14 +73,15 @@ public partial class SplashScreenViewModel : BaseViewModel {
     }
     
     
-    private (bool hasCompiler, bool hasLinker) CheckCompiler() {
+    private (bool hasCompiler, bool hasLinker, bool hasScript) CheckCompiler() {
         // TODO: check if compiler is installed e usar o do usuario se possivel
         bool appCompiler = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"));
         bool appLinker = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"));
-        return (appCompiler, appLinker);
+        bool script = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "linker.ld"));
+        return (appCompiler, appLinker, script);
     }
-    
-    private async Task DownloadCompiler(bool getCompiler, bool getLinker) {
+
+    private async Task DownloadTools(bool getCompiler, bool getLinker, bool getScript) {
         // get structure of remote repo
         StatusText = SplashScreenResources.PlatformCheckValue;
         using HttpClient http = new();
@@ -88,7 +89,7 @@ public partial class SplashScreenViewModel : BaseViewModel {
         using JsonDocument repoStructure = JsonDocument.Parse(repoStructureJson);
         string os = OperatingSystem.IsWindows() ? "windows" : "linux";
         string arch = Environment.Is64BitOperatingSystem ? "x64" : "x86";
-        
+
         // get compiler and linker path in remote repo
         JsonElement info;
         try {
@@ -102,19 +103,20 @@ public partial class SplashScreenViewModel : BaseViewModel {
             // disparar message box
             return;
         }
-        
+
         bool available = info.GetProperty("available").GetBoolean();
         if (!available) {
             // plataforma nao disponivel ainda
             // disparar message box
             return;
         }
-        
+
         // download
         string? compilerPath = info.GetProperty("clang").GetString();
         string? linkerPath = info.GetProperty("lld").GetString();
+        string? scriptPath = info.GetProperty("linkerscript").GetString();
 
-        if (compilerPath is null || linkerPath is null) {
+        if (compilerPath is null || linkerPath is null || scriptPath is null) {
             // eh o fim. :(
             // nao tem caminho
             // disparar message box
@@ -124,33 +126,43 @@ public partial class SplashScreenViewModel : BaseViewModel {
         if (compilerPath.StartsWith('/')) {
             compilerPath = compilerPath[1..];
         }
+
         if (linkerPath.StartsWith('/')) {
             linkerPath = linkerPath[1..];
         }
+
+        if (scriptPath.StartsWith('/')) {
+            scriptPath = scriptPath[1..];
+        }
+
         compilerPath = GithubUrl + compilerPath;
         linkerPath = GithubUrl + linkerPath;
-        
+        scriptPath = GithubUrl + scriptPath;
+
         if (!Directory.Exists(settings.Preferences.CompilerPath)) {
             Directory.CreateDirectory(settings.Preferences.CompilerPath);
         }
-        
+
         string compilerLinkerText;
         if (getCompiler && getLinker) {
             compilerLinkerText =
                 $"{SplashScreenResources.CompilerTextValue} {SplashScreenResources.ConnectorTextValue} {SplashScreenResources.LinkerTextValue}";
-        }else if (getCompiler) {
+        }
+        else if (getCompiler) {
             compilerLinkerText = SplashScreenResources.CompilerTextValue;
-        }else {
+        }
+        else {
             compilerLinkerText = SplashScreenResources.LinkerTextValue;
         }
 
         StatusText = SplashScreenResources.DownloadingTextValue + compilerLinkerText;
-                     
+
         TextProgress progress = new() { vm = this };
         Task compilerTask = Task.Run(async () => {
             if (!getCompiler) {
                 return;
             }
+
             progress.compilerStatus = TextProgress.Status.Downloading;
             MemoryStream ms = new();
             using HttpResponseMessage response =
@@ -177,9 +189,11 @@ public partial class SplashScreenViewModel : BaseViewModel {
             if (entry is null) {
                 return;
             }
+
             await using Stream entryStream = entry.Open();
             progress.max += entry.Length;
-            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"),FileMode.OpenOrCreate);
+            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"),
+                FileMode.OpenOrCreate);
             await entryStream.CopyToAsync(fs, 81920, otherProgress);
             progress.compilerStatus = TextProgress.Status.Done;
         });
@@ -187,7 +201,7 @@ public partial class SplashScreenViewModel : BaseViewModel {
             if (!getLinker) {
                 return;
             }
-            
+
             progress.linkerStatus = TextProgress.Status.Downloading;
             using MemoryStream ms = new();
             using HttpResponseMessage response =
@@ -214,14 +228,27 @@ public partial class SplashScreenViewModel : BaseViewModel {
             if (entry is null) {
                 return;
             }
+
             progress.max += entry.Length;
             await using Stream entryStream = entry.Open();
-            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"),FileMode.OpenOrCreate);
+            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"),
+                FileMode.OpenOrCreate);
             await entryStream.CopyToAsync(fs, 81920, otherProgress);
             progress.linkerStatus = TextProgress.Status.Done;
         });
+        Task scriptTask = Task.Run(async () => {
+            if (!getScript) {
+                return;
+            }
+            using HttpResponseMessage response =
+                await http.GetAsync(scriptPath, HttpCompletionOption.ResponseContentRead);
+            await using Stream download = await response.Content.ReadAsStreamAsync(default);
+            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "linker.ld"),
+                FileMode.OpenOrCreate);
+            await download.CopyToAsync(fs);
+        });  
 
-        await Task.WhenAll(compilerTask, linkerTask);
+        await Task.WhenAll(compilerTask, linkerTask, scriptTask);
         StatusText = SplashScreenResources.DoneDownloadingValue;
     }
 

@@ -6,6 +6,8 @@ public sealed class VirtualMemory : IDisposable
     /// Total size of the virtual memory in bytes.
     /// </summary>
     private readonly ulong _size;
+    
+    public ulong Size => _size;
 
     /// <summary>
     /// The size of each page.

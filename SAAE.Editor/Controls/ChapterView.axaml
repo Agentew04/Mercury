@@ -10,10 +10,10 @@
              x:Class="SAAE.Editor.Controls.ChapterView">
     <Grid RowDefinitions="Auto,*">
         <Button Content="{Binding Source={x:Static localization:GuideResources.Instance}, Path=GoBackText}" 
-            Command="{Binding CurrentChapter.GoBackCommand}"
+            Command="{Binding CurrentChapter.GoBackCommand, RelativeSource={RelativeSource AncestorType=controls:ChapterView}}"
             HorizontalAlignment="Left" Margin="5"/>
         <ContentControl Grid.Row="1"
-            Content="{Binding CurrentChapter}">
+            Content="{Binding CurrentChapter, RelativeSource={RelativeSource AncestorType=controls:ChapterView}}">
             <ContentControl.ContentTemplate>
                 <converters:GuideChapterDataTemplate/>
             </ContentControl.ContentTemplate>
