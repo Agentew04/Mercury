@@ -37,6 +37,10 @@ public class MockLinux : OperatingSystem {
         }
     }
 
+    public override void Dispose() {
+        throw new NotImplementedException();
+    }
+
     private void Exit() {
         throw new InvalidOperationException();
     }

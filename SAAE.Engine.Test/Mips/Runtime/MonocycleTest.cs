@@ -37,7 +37,7 @@ public class MonocycleTest {
                 return;
             }
 
-            Instruction inst = factory.Disassemble(e.Instruction);
+            Instruction inst = factory.Disassemble((uint)e.Instruction);
             if(inst is not Break brk) {
                 return;
             }
@@ -46,14 +46,14 @@ public class MonocycleTest {
             hasBreaked = true;
         };
         cpu.UseBranchDelaySlot = false;
-        while (!cpu.IsExecutionFinished() && !hasBreaked) {
+        while (!cpu.IsClockingFinished() && !hasBreaked) {
             cpu.Clock();
         }
     }
 
     [TestMethod]
     public void TestBuilder() {
-        Machine machine = new MachineBuilder()
+        using Machine machine = new MachineBuilder()
             .With4GbRam()
             .WithMarsOs()
             .WithMipsMonocycle()

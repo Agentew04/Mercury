@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+
 namespace SAAE.Engine.Memory;
 
 public sealed class VirtualMemory : IDisposable
@@ -46,12 +48,16 @@ public sealed class VirtualMemory : IDisposable
     /// Is has the same size of <see cref="_loadedPages"/>.
     /// </summary>
     private readonly long[] _lastAccessTime;
+    
+    private readonly Endianess _endianess;
 
     private readonly bool _collectDebugInfo;
 
     private readonly VirtualMemoryDebugInfo _debugInfo = new();
     
     private readonly IStorage _coldStorage;
+
+    
 
     public VirtualMemory(VirtualMemoryConfiguration config)
     {
@@ -60,6 +66,7 @@ public sealed class VirtualMemory : IDisposable
         _pageSize = config.PageSize;
         _maxLoadedPages = config.MaxLoadedPages;
         _totalPageCount = (uint)(_size / _pageSize);
+        _endianess = config.Endianess;
         _loadedPages = new Page[_maxLoadedPages];
         Array.Fill(_loadedPages, null);
         _lastAccessTime = new long[_maxLoadedPages];
@@ -133,9 +140,12 @@ public sealed class VirtualMemory : IDisposable
 
         Page page = _loadedPages[pageIndex]!;
         int offset = (int)(address % _pageSize);
-        int data = BitConverter.ToInt32(page.Data, offset);
-        if (data != 0)
-            Console.WriteLine($"Read byte {data} from address {address}");
+        Span<byte> bytes = page.Data.AsSpan()[offset..(offset+4)];
+        int data = _endianess switch {
+            Endianess.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(bytes),
+            Endianess.BigEndian => BinaryPrimitives.ReadInt32BigEndian(bytes),
+            _ => throw new ArgumentOutOfRangeException(nameof(address))
+        };
         return data;
     }
 
@@ -157,9 +167,46 @@ public sealed class VirtualMemory : IDisposable
         if (page.Data[offset] != value) {
             page.IsDirty = true;
         }
-        byte[] data = BitConverter.GetBytes(value);
+
+        Span<byte> data = stackalloc byte[4];
+        if (_endianess == Endianess.LittleEndian) {
+            BinaryPrimitives.WriteInt32LittleEndian(data, value);
+        } else {
+            BinaryPrimitives.WriteInt32BigEndian(data, value);
+        }
         for(int i=0;i<4;i++) {
             page.Data[offset+i] = data[i];
+        }
+    }
+    
+    public byte[] Read(ulong address, int length) {
+        if (address >= _size) {
+            throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{_size}[. Got: {address}");
+        }
+
+        if (address + (ulong)length >= _size) {
+            throw new InvalidAddressException($"Data out of bounds. Expected Range: [0,{_size}[. Got: {address + (ulong)length}");
+        }
+        
+        byte[] data = new byte[length];
+        for (ulong i = 0; i < (ulong)length; i++) {
+            data[i] = ReadByte(address + i);
+        }
+        return data;
+    }
+
+    public void Write(ulong address, byte[] data) {
+        if (address >= _size) {
+            throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{_size}[. Got: {address}");
+        }
+
+        if (address + (ulong)data.Length >= _size) {
+            throw new InvalidAddressException($"Data out of bounds. Expected Range: [0,{_size}[. Got: {address + (ulong)data.Length}");
+        }
+        
+        // vai ser lento, mas faz parte
+        for (ulong i = 0; i < (ulong)data.Length; i++) {
+            WriteByte(address + i, data[i]);
         }
     }
 
@@ -251,4 +298,9 @@ public sealed class VirtualMemory : IDisposable
         }
         _coldStorage.Dispose();
     }
+}
+
+public enum Endianess {
+    LittleEndian,
+    BigEndian
 }

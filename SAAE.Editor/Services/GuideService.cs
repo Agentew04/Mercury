@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
+using Avalonia.LogicalTree;
 using Avalonia.Media;
 using AvaloniaEdit.Utils;
 using Markdig;
@@ -20,6 +21,7 @@ using SAAE.Editor.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using Inline = Avalonia.Controls.Documents.Inline;
+using MdInline = Markdig.Syntax.Inlines.Inline;
 
 namespace SAAE.Editor.Services;
 
@@ -148,90 +150,149 @@ public sealed partial class GuideService : IDisposable {
     }
 
     /// <summary>
-    /// Returns a list of inlines to be used in a TextBlock
-    /// that represents the guide content.
+    /// Returns a list of controls to be put into a stack panel making a guide
     /// </summary>
     /// <param name="guide">The guide to be processed</param>
-    /// <returns>A list of inlines</returns>
-    public List<Inline> BuildInlines(GuideChapter guide) {
+    /// <returns>An ordered list of controls</returns>
+    public List<Control> BuildGuide(GuideChapter guide) {
         string guideContent = GetLocalizedGuideContent(guide.GuideName);
         MarkdownPipeline pipeline = new MarkdownPipelineBuilder()
             .UseAdvancedExtensions()
             .UseYamlFrontMatter()
             .Build();
         MarkdownDocument markdownDocument = Markdown.Parse(guideContent, pipeline);
-        List<Inline> inlines = [];
+
+        List<Control> controls = [];
 
         foreach (Block block in markdownDocument) {
-            if (block is ParagraphBlock paragraphBlock) {
-                inlines.AddRange(ParseInline(paragraphBlock.Inline!));
-                inlines.Add(new LineBreak()); // Adiciona uma quebra de linha entre parágrafos
-            }else if (block is HeadingBlock headingBlock) {
-                var headingText = new Run(GetInlineText(headingBlock.Inline!))
-                {
-                    FontSize = 20 - (headingBlock.Level * 2), // Ajusta o tamanho do título
-                    FontWeight = headingBlock.Level == 1 ? FontWeight.Bold : FontWeight.Normal
-                };
-                inlines.Add(headingText);
-                inlines.Add(new LineBreak());
+            if (block is YamlFrontMatterBlock) {
+                continue;
             }
-        }
-
-        return inlines;
-    }
-    
-    public List<Inline> BuildInlines(string guideName) {
-        return BuildInlines(chapterDictionary[guideName]);
-    }
-    
-    private static List<Inline> ParseInline(ContainerInline container)
-    {
-        List<Inline> result = [];
-
-        foreach (Markdig.Syntax.Inlines.Inline inline in container)
-        {
-            switch (inline)
-            {
-                case LiteralInline literal:
-                    result.Add(new Run(literal.Content.ToString()));
-                    break;
-
-                case EmphasisInline emphasis:
-                    var span = new Span();
-                    foreach (Inline subInline in ParseInline(emphasis)) {
-                        span.Inlines.Add(subInline);
+            
+            switch (block) {
+                case ParagraphBlock paragraphBlock: {
+                    TextBlock textblock = new();
+                    textblock.Classes.Add("paragraph");
+                    
+                    if (paragraphBlock.Inline is null) {
+                        Console.WriteLine("Paragrafo sem inline");
+                        break;
                     }
 
-                    span.FontStyle = emphasis.DelimiterCount == 1 ? FontStyle.Italic : FontStyle.Normal;
-                    span.FontWeight = emphasis.DelimiterCount == 2 ? FontWeight.Bold : FontWeight.Normal;
-                    result.Add(span);
+                    List<Inline> inlines = ParseInlines(paragraphBlock.Inline!);
+                    textblock.Inlines ??= new InlineCollection();
+                    foreach (Inline inline in inlines) {
+                        textblock.Inlines.Add(inline);
+                    }
+                    controls.Add(textblock);
                     break;
-
-                case LinkInline link:
-                    result.Add(new Run(link.Label));
+                }
+                case HeadingBlock headingBlock: {
+                    var header = new TextBlock();
+                    int level = headingBlock.Level;
+                    if (level > 3) {
+                        Console.WriteLine("Nao sei processar titulo maior que 3. Defaultando p/ 3");
+                        level = 3;
+                    }
+                    header.Classes.Add("headerh"+level);
+                    
+                    header.Inlines ??= new InlineCollection();
+                    header.Inlines.AddRange(ParseInlines(headingBlock.Inline));
+                    controls.Add(header);
+                    break;
+                }
+                case CodeBlock codeBlock: {
+                    Border border = new();
+                    border.Classes.Add("codeblock");
+                    SelectableTextBlock textblock = new();
+                    textblock.Text = codeBlock.Lines.ToString();
+                    textblock.Classes.Add("mono");
+                    border.Child = textblock;
+                    controls.Add(border);
+                    break;
+                }
+                case QuoteBlock quoteBlock: {
+                    TextBlock textblock = new();
+                    textblock.Classes.Add("quote");
+                    foreach (Block quoteContent in quoteBlock) {
+                        if (quoteContent is not ParagraphBlock paragraph) {
+                            Console.WriteLine("Nao sei processar bloco dentro de quote: "+quoteContent.GetType().FullName);
+                            continue;
+                        }
+                        List<Inline> inlines = ParseInlines(paragraph.Inline!);
+                        textblock.Inlines ??= new InlineCollection();
+                        foreach (Inline inline in inlines) {
+                            textblock.Inlines.Add(inline);
+                        }
+                    }
+                    controls.Add(textblock);
+                    break;
+                }
+                case LinkReferenceDefinitionGroup:
+                    // Ignora, nao nos interessa. Queremos avisos importantes apenas
+                    continue;
+                default:
+                    Console.WriteLine("Nao sei processar bloco do tipo: "+block.GetType().FullName);
                     break;
             }
         }
 
-        return result;
+        return controls;
     }
 
-    private static string GetInlineText(ContainerInline container)
-    {
-        string result = "";
-        foreach (var inline in container)
-        {
-            if (inline is LiteralInline literal)
-                result += literal.Content.ToString();
+    private static List<Inline> ParseInlines(ContainerInline container) {
+        List<Inline> result = [];
+        foreach (MdInline inline in container) {
+            switch (inline) {
+                case LiteralInline literal: {
+                    result.Add(new Run(literal.Content.ToString()));
+                    break;
+                }
+                case EmphasisInline emphasis: {
+                    int delimiter = emphasis.DelimiterCount;
+                    Span span = new();
+                    if (delimiter is 1 or 3) {
+                        span.Classes.Add("italic");
+                    }
+                    if (delimiter is 2 or 3) {
+                        span.Classes.Add("bold");
+                    }
+                    foreach (Inline subInline in ParseInlines(emphasis)) {
+                        span.Inlines.Add(subInline);
+                    }
+                    result.Add(span);
+                    break;   
+                }
+                case CodeInline code: {
+                    InlineUIContainer inlineContainer = new();
+                    inlineContainer.Classes.Add("code");
+                    Border border = new();
+                    inlineContainer.Child = border;
+                    TextBlock textBlock = new();
+                    textBlock.Classes.Add("mono");
+                    textBlock.Text = code.Content;
+                    border.Child = textBlock;
+                    result.Add(inlineContainer);
+                    break;
+                }
+                case LineBreakInline:
+                    result.Add(new Run(" "));
+                    // isso se refere a um \n no markdown
+                    // nao fica bonito, entao ignoramos
+                    break;
+                default:
+                    Console.WriteLine("Nao sei processar Inline do tipo: "+inline.GetType().FullName);
+                    break;
+            }
         }
         return result;
     }
-
+    
     [GeneratedRegex(@".\w\w-\w\w")]
     private static partial Regex CultureRemoverRegex();
 
     private class GuideMetadata {
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
     }
 }
 

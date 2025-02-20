@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia.Controls;
@@ -15,7 +16,7 @@ using SAAE.Editor.Services;
 
 namespace SAAE.Editor.ViewModels;
 
-public partial class GuideViewModel : BaseViewModel {
+public sealed partial class GuideViewModel : BaseViewModel {
 
     private readonly GuideService _guideService = App.Services.GetService<GuideService>()!;
     
@@ -38,14 +39,14 @@ public partial class GuideViewModel : BaseViewModel {
         };
         CurrentGuide = guideMenu;
     }
-
+    
     [RelayCommand]
-    public void OpenGuide(GuideChapter chapter) {
+    private void OpenGuide(GuideChapter chapter) {
         CurrentGuide = chapter;
     }
 
     [RelayCommand]
-    public void GoToMenu() {
+    private void GoToMenu() {
         CurrentGuide = guideMenu;
     }
 }

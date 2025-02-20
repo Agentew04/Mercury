@@ -7,5 +7,7 @@ using System.Threading.Tasks;
 namespace SAAE.Engine.Mips.Runtime {
     internal interface IClockable {
         void Clock();
+        
+        bool IsClockingFinished();
     }
 }

@@ -19,7 +19,8 @@ public class MachineBuilder {
             ForceColdStorageReset = true,
             PageSize = 4096,
             Size = 4 * Gb,
-            MaxLoadedPages = 64
+            MaxLoadedPages = 64,
+            Endianess = Endianess.BigEndian
         });
         return this;
     }

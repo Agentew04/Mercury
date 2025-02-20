@@ -57,12 +57,12 @@
     <!-- main view -->
     <TabControl>
       <TabControl.Items>
-        <TabItem Header="Code" Classes="tab">
+        <TabItem Header="Code" >
           <view:CodeTabView></view:CodeTabView>
           
           </TabItem>
-        <TabItem Header="Run" Classes="tab"/>
-        <TabItem Header="Design" Classes="tab"/>
+        <TabItem Header="Run" />
+        <TabItem Header="Design" />
       </TabControl.Items>
     </TabControl>
   </DockPanel>

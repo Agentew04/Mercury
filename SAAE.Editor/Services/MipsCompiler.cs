@@ -27,7 +27,19 @@ public class MipsCompiler : ICompilerService {
         ProcessStartInfo startInfo = new() {
             FileName = compilerPath,
             Arguments =
-                $"--target=mips-linux-gnu -O0 -nostartfiles -Wl -T \"{scriptPath}\" -nostdlib -static -fuse-ld=lld -o \"{exePath}\" \"{assemblyPath}\"",
+                $"--target=mips-linux-gnu -O0 -fno-pic -mno-abicalls -nostartfiles -Wl -T \"{scriptPath}\" -nostdlib" +
+                $" -static -fuse-ld=lld -o \"{exePath}\" \"{assemblyPath}\"",
+            /*
+             * -O0: no optimization
+             * -fno-pic: desativa position independent code. Coloquei pra garantir que 'la' traduza para 'lui'+'ori'
+             *  e nao usar o $gp
+             * -mno-abicalls: codigo asm puro, sem nada do linker
+             * -nostartfiles: nao incluir arquivos de inicializacao
+             * -Wl -T: passa o script do linker (obriga o .text e .data ser o endereco q a gente quer)
+             * -nostdlib: nao linka a standard library. sem printf, scanf, etc
+             * -static: linka estaticamente(um exe só, sem dlls)
+             * -fuse-ld=lld: usa o lld como linker(qq muda? n sei. mas ld normal n funciona pra mips, sla)
+             */
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,

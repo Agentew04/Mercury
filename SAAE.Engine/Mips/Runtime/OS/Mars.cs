@@ -11,7 +11,6 @@ namespace SAAE.Engine.Mips.Runtime;
 public class Mars : OperatingSystem {
     
     protected override void OnSyscall(uint code) {
-
         switch (code) {
             case 1:
                 PrintInteger();
@@ -63,6 +62,44 @@ public class Mars : OperatingSystem {
                 break;
             case 17:
                 ExitWithValue();
+                break;
+            // code < 17 are compatible with SPIM simulator
+            // code >= 30 are MARS specific
+            case 30:
+                SystemTime();
+                break;
+            case 31:
+                MidiOut();
+                break;
+            case 32:
+                Sleep();
+                break;
+            case 33:
+                MidiOutSync();
+                break;
+            case 34:
+                PrintIntHex();
+                break;
+            case 35:
+                PrintIntBinary();
+                break;
+            case 36:
+                PrintUnsignedInt();
+                break;
+            case 40:
+                SetRandomSeed();
+                break;
+            case 41:
+                RandomInt();
+                break;
+            case 42:
+                RandomIntRange();
+                break;
+            case 43:
+                RandomFloat();
+                break;
+            case 44:
+                RandomDouble();
                 break;
         }
     }
@@ -127,6 +164,41 @@ public class Mars : OperatingSystem {
     private void PrintCharacter() {
         byte character = (byte)Machine.Registers[RegisterFile.Register.A0];
         Machine.StdOut.Write(new byte[] { character });
+    }
+
+    /// <summary>
+    /// Prints an integer in hexadecimal format to the console.
+    /// The displayed value has 8 digits, left padded with zeros.
+    /// </summary>
+    /// <remarks>
+    /// $a0 contains the integer to print.
+    /// </remarks>
+    private void PrintIntHex() {
+        string integer = Machine.Registers[RegisterFile.Register.A0].ToString("X8");
+        Machine.StdOut.Write(Encoding.ASCII.GetBytes(integer));
+    }
+
+    /// <summary>
+    /// Prints the binary representation of an integer. The output
+    /// is 32 bits long and left padded with zeros.
+    /// </summary>
+    /// <remarks>
+    /// $a0 contains the integer to print.
+    /// </remarks>
+    private void PrintIntBinary() {
+        string integer = Machine.Registers[RegisterFile.Register.A0].ToString("b32");
+        Machine.StdOut.Write(Encoding.ASCII.GetBytes(integer));
+    }
+
+    /// <summary>
+    /// Prints an unsigned integer to the console.
+    /// </summary>
+    /// <remarks>
+    /// $a0 contains the integer to print.
+    /// </remarks>
+    private void PrintUnsignedInt() {
+        string integer = ((uint)Machine.Registers[RegisterFile.Register.A0]).ToString();
+        Machine.StdOut.Write(Encoding.ASCII.GetBytes(integer));
     }
     
     #endregion
@@ -263,7 +335,7 @@ public class Mars : OperatingSystem {
     /// Terminates the execution of the program
     /// </summary>
     private void Exit() {
-        
+        Machine.Cpu.Halt();
     }
 
     /// <summary>
@@ -273,6 +345,56 @@ public class Mars : OperatingSystem {
     /// $a0 contains the exit value.
     /// </remarks>
     private void ExitWithValue() {
+        int code = Machine.Registers[RegisterFile.Register.A0];
+        Machine.Cpu.Halt(code);
+    }
+
+    /// <summary>
+    /// Returns the current system time
+    /// </summary>
+    /// <remarks>
+    /// $a0 returns the low order 32 bits of the system time<br/>
+    /// $a1 returns the high order 32 bits of the system time
+    /// </remarks>
+    private void SystemTime() {
+        
+    }
+
+    /// <summary>
+    /// Generates a tone and returns immediately.
+    /// </summary>
+    /// <remarks>
+    /// $a0 contains the pitch (0-127)<br/>
+    /// $a1 contains the duration in milliseconds<br/>
+    /// $a2 contains the instrument (0-127)<br/>
+    /// $a3 contains the volume (0-127)
+    /// </remarks>
+    private void MidiOut() {
+        // not implemented yet
+    }
+
+    /// <summary>
+    /// Sleeps the program for a given amount of time.
+    /// In the implementation, only acts when the user tries to execute
+    /// the next clock cycle to not block the calling thread.
+    /// </summary>
+    /// <remarks>
+    /// $a0 contains the time to sleep in milliseconds.
+    /// </remarks>
+    private void Sleep() {
+        
+    }
+
+    /// <summary>
+    /// Plays a tone and only returns when it is over
+    /// </summary>
+    /// <remarks>
+    /// $a0 contains the pitch (0-127)<br/>
+    /// $a1 contains the duration in milliseconds<br/>
+    /// $a2 contains the instrument (0-127)<br/>
+    /// $a3 contains the volume (0-127)
+    /// </remarks>
+    private void MidiOutSync() {
         
     }
 
@@ -280,17 +402,59 @@ public class Mars : OperatingSystem {
     
     #region File
 
+    private readonly Dictionary<int, Stream> fileDescriptors = [];
+    
     /// <summary>
     /// Opens a handle to a file in the host's physical filesystem.
     /// </summary>
     /// <remarks>
     /// $a0 contains the address of the filename. Is a null terminated string.<br/>
     /// $a1 contains the flags to open the file.<br/>
-    /// $a2 contains the mode to open the file.<br/>
+    /// $a2 contains the mode to open the file. Mars ignores it.<br/>
     /// $v0 returns the file descriptor or negative value if error ocurred.
     /// </remarks>
     private void OpenFile() {
+        if (fileDescriptors.Count == 0) {
+            fileDescriptors[0] = Machine.StdIn;
+            fileDescriptors[1] = Machine.StdOut;
+            fileDescriptors[2] = Machine.StdErr;
+        }
+
+        StringBuilder sb = new();
+        uint address = (uint)Machine.Registers[RegisterFile.Register.A0];
+        try {
+            byte current = Machine.Memory.ReadByte(address);
+            while (current != 0) {
+                sb.Append((char)current);
+                current = Machine.Memory.ReadByte(++address);
+            }
+        }catch (Exception) {
+            Machine.Registers[RegisterFile.Register.V0] = -1;
+            return;
+        }
+        string path = sb.ToString();
+        if (!File.Exists(path)) {
+            Machine.Registers[RegisterFile.Register.V0] = -1;
+            return;
+        }
+        int flags = Machine.Registers[RegisterFile.Register.A1];
+        // 0: read only
+        // 1: write only with create
+        // 9: write only with create and append
+        if(flags != 0 && flags != 1 && flags != 9) {
+            // que flag eh essa passada?
+            Machine.Registers[RegisterFile.Register.V0] = -1;
+            return;
+        }
         
+        int newDescriptor = fileDescriptors.Count;
+        fileDescriptors[newDescriptor] = new FileStream(path, flags switch {
+            0 => FileMode.Open,
+            1 => FileMode.Create,
+            9 => FileMode.Append,
+            _ => throw new ArgumentOutOfRangeException(nameof(flags), "Invalid file open flag")
+        });
+        Machine.Registers[RegisterFile.Register.V0] = newDescriptor;
     }
 
     /// <summary>
@@ -303,7 +467,37 @@ public class Mars : OperatingSystem {
     /// $v0 returns the number of bytes read, negative value if error ocurred or 0 if EOF.
     /// </remarks>
     private void ReadFromFile() {
+        if (fileDescriptors.Count == 0) {
+            fileDescriptors[0] = Machine.StdIn;
+            fileDescriptors[1] = Machine.StdOut;
+            fileDescriptors[2] = Machine.StdErr;
+        }
         
+        int fileDescriptor = Machine.Registers[RegisterFile.Register.A0];
+        int address = Machine.Registers[RegisterFile.Register.A1];
+        int n = Machine.Registers[RegisterFile.Register.A2];
+        
+        if (!fileDescriptors.TryGetValue(fileDescriptor, out Stream? stream)) {
+            Machine.Registers[RegisterFile.Register.V0] = -1;
+            return;
+        }
+
+        if (!stream.CanRead) {
+            Machine.Registers[RegisterFile.Register.V0] = -1;
+            return;
+        }
+        
+        byte[] buffer = new byte[n];
+        int read = stream.Read(buffer, 0, n);
+        if (read == 0) {
+            Machine.Registers[RegisterFile.Register.V0] = 0;
+            return;
+        }
+        
+        for (int i = 0; i < read; i++) {
+            Machine.Memory.WriteByte((uint)(address + i), buffer[i]);
+        }
+        Machine.Registers[RegisterFile.Register.V0] = read;
     }
     
     /// <summary>
@@ -316,7 +510,28 @@ public class Mars : OperatingSystem {
     /// $v0 returns the amount of characters written or negative value if error ocurred.
     /// </remarks>
     private void WriteToFile() {
+        if (fileDescriptors.Count == 0) {
+            fileDescriptors[0] = Machine.StdIn;
+            fileDescriptors[1] = Machine.StdOut;
+            fileDescriptors[2] = Machine.StdErr;
+        }
         
+        int fileDescriptor = Machine.Registers[RegisterFile.Register.A0];
+        int address = Machine.Registers[RegisterFile.Register.A1];
+        int n = Machine.Registers[RegisterFile.Register.A2];
+        
+        if (!fileDescriptors.TryGetValue(fileDescriptor, out Stream? stream)) {
+            Machine.Registers[RegisterFile.Register.V0] = -1;
+            return;
+        }
+        
+        if (!stream.CanWrite) {
+            Machine.Registers[RegisterFile.Register.V0] = -1;
+            return;
+        }
+        
+        byte[] buffer = Machine.Memory.Read((uint)address, n);
+        stream.Write(buffer, 0, n);
     }
 
     /// <summary>
@@ -326,8 +541,52 @@ public class Mars : OperatingSystem {
     /// $a0 contains the file descriptor.
     /// </remarks>
     private void CloseFile() {
+        int fileDescriptor = Machine.Registers[RegisterFile.Register.A0];
+        if (fileDescriptor <= 2) {
+            // nao pode fechar stdin, stdout ou stderr
+            return; 
+        }
+
+        if (!fileDescriptors.TryGetValue(fileDescriptor, out Stream? stream)) {
+            return;
+        } 
+        stream.Dispose();
+        fileDescriptors.Remove(fileDescriptor);
+    }
+
+    #endregion
+
+    #region Random
+
+    private void SetRandomSeed() {
+        
+    }
+
+    private void RandomInt() {
+        
+    }
+
+    private void RandomIntRange() {
+        
+    }
+    
+    private void RandomFloat() {
+        
+    }
+    
+    private void RandomDouble() {
         
     }
 
     #endregion
+    
+    public override void Dispose() {
+        foreach ((int descriptor, Stream stream) in fileDescriptors) {
+            if (descriptor <= 2) {
+                continue;
+            }
+            stream.Dispose();
+        }
+        GC.SuppressFinalize(this);
+    }
 }

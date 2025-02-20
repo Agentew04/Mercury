@@ -136,7 +136,6 @@ public class ResxGenerator : IIncrementalGenerator {
             }
             
             private void OnCultureChanged(CultureInfo culture) {
-                Console.WriteLine("Culture changed to " + culture.Name + ". Reloading strings...");
         {{updates}}
             }
             

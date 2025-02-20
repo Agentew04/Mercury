@@ -9,7 +9,7 @@ namespace SAAE.Engine.Mips.Runtime.Simple;
 /// </summary>
 public sealed partial class Monocycle : IClockable {
     public Monocycle() {
-        RegisterFile[RegisterFile.Register.Sp] = 0x7FFF_FFFC;
+        RegisterFile[RegisterFile.Register.Sp] = 0x7FFF_EFFC; // o 'E' aparece no MARS
         RegisterFile[RegisterFile.Register.Fp] = 0x0000_0000;
         RegisterFile[RegisterFile.Register.Gp] = 0x1000_8000;
         RegisterFile[RegisterFile.Register.Ra] = 0x0000_0000;
@@ -38,16 +38,34 @@ public sealed partial class Monocycle : IClockable {
     public uint DropoffAddress { get; set; } = 0;
 
     private uint nextBranchAddress = 0;
+    
+    private bool isHalted = false;
+
+    /// <summary>
+    /// Gets the exit code of the program.
+    /// </summary>
+    public int ExitCode { get; private set; } = 0;
 
     public void Clock()
     {
+        if (isHalted) {
+            return;
+        }
         // read instruction from PC
         int instructionBinary = Memory.ReadWord((ulong)RegisterFile[RegisterFile.Register.Pc]);
+        Console.WriteLine($"Decoding instruction 0x{instructionBinary:X8} @ 0x{RegisterFile[RegisterFile.Register.Pc]:X8}");
 
         // decode
-        Instruction instruction = instructionFactory.Disassemble(instructionBinary);
+        Instruction instruction;
+        try {
+            instruction = instructionFactory.Disassemble((uint)instructionBinary);
+        }
+        catch (Exception) {
+            Console.WriteLine("Invalid instruction");
+            return;
+        }
 
-        Console.WriteLine($"Executing: {instruction.GetType().Name}");
+        Console.WriteLine($"Executing: {instruction.GetType().Name} @ 0x{RegisterFile[RegisterFile.Register.Pc]:X8} (0x{instructionBinary:X8})");
         int pcBefore = RegisterFile[RegisterFile.Register.Pc];
         Execute(instruction);
 
@@ -70,6 +88,23 @@ public sealed partial class Monocycle : IClockable {
         }
     }
 
+    /// <summary>
+    /// Stops all execution of this cpu immediately.
+    /// The system cannot be resumed after this.
+    /// </summary>
+    public void Halt(int code = 0) {
+        isHalted = true;
+        ExitCode = code;
+        // tah certo invocar aqui? se for no meio do ciclo
+        // os registradores nao estariam certo(branch)
+        // mas tbm, soh da halt uma syscall, entao branch nunca executa esse sinal
+        OnSignalException?.Invoke(this, new SignalExceptionEventArgs {
+            Signal = SignalExceptionEventArgs.SignalType.Halt,
+            ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
+            Instruction = Memory.ReadWord((ulong)RegisterFile[RegisterFile.Register.Pc])
+        });
+    }
+    
     public event EventHandler<SignalExceptionEventArgs>? OnSignalException = null;
 
     private void Execute(Instruction instruction) {
@@ -96,33 +131,10 @@ public sealed partial class Monocycle : IClockable {
     private static int ZeroExtend(short value) {
         return (ushort)value;
     }
-    
-    /// <summary>
-    /// Loads data into the Text Section of RAM
-    /// </summary>
-    /// <param name="data">The byte oriented data</param>
-    public void LoadTextSection(Span<byte> data) {
-        uint textAddress = 0x0040_0000;
-        for(ulong i=0;i<(ulong)data.Length; i++) {
-            Memory.WriteByte(textAddress + i, data[(int)i]);
-        }
-        DropoffAddress = textAddress + (uint)data.Length + 1;
-    }
 
-    /// <summary>
-    /// Loads a series of words/instructions into the RAM
-    /// </summary>
-    /// <param name="data"></param>
-    public void LoadTextSection(Span<int> data) {
-        uint textAddress = 0x0040_0000;
-        for (ulong i = 0; i < (ulong)data.Length; i++) {
-            Memory.WriteWord(textAddress + i*4, data[(int)i]);
-        }
-        DropoffAddress = textAddress + (uint)data.Length*4 + 1;
-    }
-
-    public bool IsExecutionFinished() {
-        return RegisterFile[RegisterFile.Register.Pc] >= DropoffAddress;
+    public bool IsClockingFinished() {
+        return RegisterFile[RegisterFile.Register.Pc] >= DropoffAddress
+            || isHalted;
     }
 
     public class SignalExceptionEventArgs {
@@ -138,6 +150,7 @@ public sealed partial class Monocycle : IClockable {
             Trap,
             IntegerOverflow,
             AddressError,
+            Halt
         }
     }
 }

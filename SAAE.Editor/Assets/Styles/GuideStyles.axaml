@@ -1,0 +1,126 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <StackPanel Orientation="Vertical" Background="{DynamicResource BackgroundGrey}"
+                    Width="375">
+            <TextBlock Text="Laços de Repetição" Classes="headerh1"></TextBlock>
+            <TextBlock Classes="paragraph">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis porta felis vel est fermentum vulputate. Integer malesuada gravida sollicitudin. Curabitur ac ultricies lorem. Vivamus dapibus nisl vel neque elementum, in commodo nunc semper. Phasellus convallis consequat orci, et ultrices lectus rutrum ac. 
+            </TextBlock>
+            <TextBlock Text="For Loops" Classes="headerh2"></TextBlock>
+            <TextBlock Classes="paragraph">
+                Pellentesque 
+                <Span Classes="italic">
+                    condimentum vel lorem vel suscipit.
+                </Span>
+                    Donec maximus odio sed magna gravida mattis. Phasellus blandit, lectus in convallis condimentum, ex odio feugiat eros, nec dignissim odio tortor non orci. Proin scelerisque arcu eu eleifend vestibulum. Etiam vel blandit nisl. Etiam a arcu pretium, sodales justo et, viverra orci.
+            </TextBlock>
+            <TextBlock Text="Examples" Classes="headerh3"></TextBlock>
+            <TextBlock Classes="paragraph">
+                A seguir há um 
+                <Span Classes="bold">
+                    pequeno parágrafo 
+                </Span>
+                e um code block com código assembly escrito. 
+            </TextBlock>
+            <Border Classes="codeblock">
+                <SelectableTextBlock Classes="mono">
+                    <Run>add $t0, $t1, $t2</Run><LineBreak/>
+                    <Run>start:</Run><LineBreak/>
+                    <Run Text="    addi $t0, $t0, 1"></Run>
+                </SelectableTextBlock>
+            </Border>
+            <TextBlock Text="While Loops" Classes="headerh2"></TextBlock>
+            <TextBlock Classes="paragraph">
+                Lorem ipsum dolor
+                <InlineUIContainer Classes="code">
+                    <Border>
+                        <TextBlock Text="sit amet" Classes="mono"/>
+                    </Border>
+                </InlineUIContainer>
+                , consectetur adipiscing elit. Duis porta felis vel est fermentum vulputate. Integer malesuada gravida sollicitudin. Curabitur ac ultricies lorem. Vivamus dapibus nisl vel neque elementum, in commodo nunc semper. Phasellus convallis consequat orci, et ultrices lectus rutrum ac. 
+            </TextBlock>
+            <TextBlock Classes="quote">
+                Aviso: Você foi avisado.
+            </TextBlock>
+            <TextBlock Classes="paragraph">
+                Pellentesque 
+                <Span Classes="italic">
+                    condimentum vel lorem vel suscipit.
+                </Span>
+                Donec maximus odio sed magna gravida mattis. Phasellus blandit, lectus in convallis condimentum, ex odio feugiat eros, nec dignissim odio tortor non orci. Proin scelerisque arcu eu eleifend vestibulum. Etiam vel blandit nisl. Etiam a arcu pretium, sodales justo et, viverra orci.
+            </TextBlock>
+            
+        </StackPanel>
+    </Design.PreviewWith>
+
+    <Style Selector="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+    </Style>
+    
+    <Style Selector="TextBlock.mono">
+        <Setter Property="FontFamily" Value="JetBrains Mono"></Setter>
+    </Style>
+    <Style Selector="SelectableTextBlock.mono">
+        <Setter Property="FontFamily" Value="JetBrains Mono"></Setter>
+    </Style>
+    
+    <Style Selector="TextBlock.headerh1">
+        <Setter Property="Margin" Value="10"></Setter>
+        <Setter Property="FontSize" Value="23"></Setter>
+        <Setter Property="FontWeight" Value="SemiBold"></Setter>
+    </Style>
+    
+    <Style Selector="TextBlock.headerh2">
+        <Setter Property="Margin" Value="15,8"></Setter>
+        <Setter Property="FontSize" Value="17"></Setter>
+        <Setter Property="FontWeight" Value="SemiBold"></Setter>
+    </Style>
+    
+    <Style Selector="TextBlock.headerh3">
+        <Setter Property="Margin" Value="25,5"></Setter>
+        <Setter Property="FontSize" Value="15"></Setter>
+        <Setter Property="FontWeight" Value="SemiBold"></Setter>
+    </Style>
+    
+    <Style Selector="TextBlock.paragraph">
+        <Setter Property="TextWrapping" Value="Wrap"></Setter>
+        <Setter Property="Margin" Value="15,5"></Setter>
+        <Setter Property="FontSize" Value="13"></Setter>
+        <Setter Property="TextAlignment" Value="DetectFromContent"></Setter>
+    </Style>
+    
+    <Style Selector="Border.codeblock">
+        <Setter Property="Margin" Value="15,5"></Setter>
+        <Setter Property="Background" Value="{DynamicResource AlternateGrey}"></Setter>
+        <Setter Property="CornerRadius" Value="10"></Setter>
+        <Setter Property="Padding" Value="7"></Setter>
+    </Style>
+    
+    <Style Selector="Border.codeblock SelectableTextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+        <Setter Property="FontSize" Value="12"></Setter>
+    </Style>
+    
+    <Style Selector="Span.italic">
+        <Setter Property="FontStyle" Value="Italic"></Setter>
+    </Style>
+    
+    <Style Selector="Span.bold">
+        <Setter Property="FontWeight" Value="Bold"></Setter>
+    </Style>
+    
+    <Style Selector="InlineUIContainer.code Border">
+        <Setter Property="Background" Value="{DynamicResource AlternateGrey}"></Setter>
+        <Setter Property="Padding" Value="3,0"></Setter>
+        <Setter Property="Margin" Value="0"></Setter>
+        <Setter Property="CornerRadius" Value="3"></Setter>
+    </Style>
+    
+    <Style Selector="TextBlock.quote">
+        <Setter Property="Margin" Value="40,10"></Setter>
+        <Setter Property="Background" Value="{DynamicResource BlueLight}"></Setter>
+        <Setter Property="TextAlignment" Value="Left"></Setter>
+        <Setter Property="Padding" Value="10,10"></Setter>
+    </Style>
+</Styles>

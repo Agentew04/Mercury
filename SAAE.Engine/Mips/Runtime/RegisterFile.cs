@@ -37,7 +37,7 @@ public class RegisterFile {
         if (index is < 0 or >= (int)Register.COUNT) {
             throw new ArgumentOutOfRangeException(nameof(index), "Register index out of bounds");
         }
-        if (_registers[index] != value) {
+        if (_registers[index] != value && !_changedRegisters.Contains((Register)index)) {
             _changedRegisters.Add((Register)index);
         }
         _registers[index] = value;

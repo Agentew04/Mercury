@@ -3,8 +3,7 @@
     "mnemonic": "Add",
     "constraints": {
       "opcode": 0,
-      "funct": 32,
-      "shift": 0
+      "funct": 32
     }
   },
   {
@@ -472,11 +471,7 @@
     "mnemonic": "Syscall",
     "constraints": {
       "opcode": 0,
-      "funct": 52,
-      "shift": 0,
-      "rd": 0,
-      "rs": 0,
-      "rt": 0
+      "funct": 12
     }
   },
   {

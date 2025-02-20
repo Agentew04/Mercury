@@ -71,6 +71,7 @@ public class VirtualMemoryTest {
         }
         File.Delete(tempPath);
     }
+    
     [TestMethod]
     public void TestSmallJoinBase() {
         Span<byte> data = new byte[256];
@@ -99,6 +100,7 @@ public class VirtualMemoryTest {
         }
         File.Delete(tempPath);
     }
+    
     [TestMethod]
     public void TestSmallJoinBroad() {
         Span<byte> data = new byte[256];
@@ -193,6 +195,7 @@ public class VirtualMemoryTest {
         }
         File.Delete(tempPath);
     }
+    
     [TestMethod]
     public void TestBigJoinBase() {
         int mb = 1024 * 1024;
@@ -223,6 +226,7 @@ public class VirtualMemoryTest {
         }
         File.Delete(tempPath);
     }
+    
     [TestMethod]
     public void TestBigJoinBroad() {
         int mb = 1024 * 1024;
@@ -252,5 +256,57 @@ public class VirtualMemoryTest {
             }
         }
         File.Delete(tempPath);
+    }
+
+    [TestMethod]
+    public void TestBigEndian() {
+        string tempPath = Path.GetTempFileName();
+        VirtualMemoryConfiguration config = new() {
+            ColdStoragePath = tempPath,
+            ColdStorageOptimization = true,
+            MaxLoadedPages = 2,
+            PageSize = 64,
+            Size = 512,
+            Endianess = Endianess.BigEndian
+        };
+        using VirtualMemory memory = new(config);
+        const int expectedData = 0x01020304;
+        byte[] expectedBytes = [
+            0x01, 0x02, 0x03, 0x04,
+        ];
+        memory.Write(0, expectedBytes);
+            
+        Assert.AreEqual(0x01020304, memory.ReadWord(0));
+            
+        memory.WriteWord(4, expectedData);
+
+        byte[] read = memory.Read(4, 4);
+        CollectionAssert.AreEqual(expectedBytes, read);
+    }
+
+    [TestMethod]
+    public void TestLittleEndian() {
+        string tempPath = Path.GetTempFileName();
+        VirtualMemoryConfiguration config = new() {
+            ColdStoragePath = tempPath,
+            ColdStorageOptimization = true,
+            MaxLoadedPages = 2,
+            PageSize = 64,
+            Size = 512,
+            Endianess = Endianess.LittleEndian
+        };
+        using VirtualMemory memory = new(config);
+        const int expectedData = 0x01020304;
+        byte[] expectedBytes = [
+            0x04, 0x03, 0x02, 0x01,
+        ];
+        memory.Write(0, expectedBytes);
+            
+        Assert.AreEqual(0x01020304, memory.ReadWord(0));
+            
+        memory.WriteWord(4, expectedData);
+
+        byte[] read = memory.Read(4, 4);
+        CollectionAssert.AreEqual(expectedBytes, read);
     }
 }

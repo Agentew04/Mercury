@@ -865,6 +865,16 @@ public class TypeRTest {
         };
         Assert.AreEqual(result, instruction.ConvertToInt());
     }
+    
+    [TestCategory(("Syscall"))]
+    [TestMethod("Test Syscall Assembly")]
+    public void SyscallAssembly() {
+        var instruction = new Syscall();
+        instruction.Code = 0;
+        Assert.AreEqual(0x0000000C, instruction.ConvertToInt());
+        instruction.Code = 2;
+        Assert.AreEqual(0b000000_00000000000000000010_001100, instruction.ConvertToInt());
+    }
 
     
 }

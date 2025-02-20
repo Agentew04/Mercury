@@ -18,9 +18,9 @@ public class InstructionFactoryTest {
         int i2 = 0x200a0899;
         int i3 = 0x1200fffe;
 
-        var instruction1 = factory.Disassemble(i1) as Addi;
-        var instruction2 = factory.Disassemble(i2) as Addi;
-        var instruction3 = factory.Disassemble(i3) as Beq;
+        var instruction1 = factory.Disassemble((uint)i1) as Addi;
+        var instruction2 = factory.Disassemble((uint)i2) as Addi;
+        var instruction3 = factory.Disassemble((uint)i3) as Beq;
 
         Assert.IsNotNull(instruction1);
         Assert.AreEqual(9, instruction1.Rt);
@@ -46,8 +46,8 @@ public class InstructionFactoryTest {
         int i1 = 0x00e38022;
         int i2 = 0x012a001a;
 
-        var instruction1 = factory.Disassemble(i1) as Sub;
-        var instruction2 = factory.Disassemble(i2) as Div;
+        var instruction1 = factory.Disassemble((uint)i1) as Sub;
+        var instruction2 = factory.Disassemble((uint)i2) as Div;
 
         Assert.IsNotNull(instruction1);
         Assert.AreEqual(16, instruction1.Rd);
@@ -66,10 +66,39 @@ public class InstructionFactoryTest {
     public void TestDisassemblyTypeJ() {
         int i1 = 0x08100002;
 
-        var instruction1 = factory.Disassemble(i1) as J;
+        var instruction1 = factory.Disassemble((uint)i1) as J;
 
         Assert.IsNotNull(instruction1);
         Assert.AreEqual((0x0040_0008 & 0x3FFFFFF)>>2, instruction1.Immediate);
         Assert.AreEqual(i1, instruction1.ConvertToInt());
+    }
+
+    [TestMethod]
+    public void TestDissasemblyTest1() {
+        int cAdd = 0x0000_2020;
+        int cAddi = 0x2002_0001;
+        int cSyscall0 = 0x0000_000c;
+        int cSyscall2 = 0b000000_00000000000000000010_001100;
+        int cAddiu = 0x2408_0005;
+        int cLui = 0x3c01_1001;
+        int cOri = 0x3429_0000;
+        var iAdd = factory.Disassemble((uint)cAdd) as Add;
+        var iAddi = factory.Disassemble((uint)cAddi) as Addi;
+        var iSyscall0 = factory.Disassemble((uint)cSyscall0) as Syscall;
+        var iSyscall2 = factory.Disassemble((uint)cSyscall2) as Syscall;
+        var iAddiu = factory.Disassemble((uint)cAddiu) as Addiu;
+        var iLui = factory.Disassemble((uint)cLui) as Lui;
+        var iOri = factory.Disassemble((uint)cOri) as Ori;
+        
+        Assert.IsNotNull(iAdd);
+        Assert.IsNotNull(iAddi);
+        Assert.IsNotNull(iSyscall0);
+        Assert.IsNotNull(iSyscall2);
+        Assert.IsNotNull(iAddiu);
+        Assert.IsNotNull(iLui);
+        Assert.IsNotNull(iOri);
+        
+        Assert.AreEqual(0, iSyscall0.Code);
+        Assert.AreEqual(2, iSyscall2.Code);
     }
 }

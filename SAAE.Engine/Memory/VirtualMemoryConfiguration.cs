@@ -45,6 +45,8 @@ public readonly struct VirtualMemoryConfiguration {
     public bool ColdStorageOptimization { get; init; } = true;
 
     public bool ForceColdStorageReset { get; init; } = false;
+    
+    public Endianess Endianess { get; init; } = Endianess.LittleEndian;
 
     public VirtualMemoryConfiguration() {}
 }

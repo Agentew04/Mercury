@@ -7,7 +7,7 @@ namespace SAAE.Engine.Mips.Runtime;
 /// Common interface all operating systems must implement.
 /// Specific version for MIPS archtecture.
 /// </summary>
-public abstract class OperatingSystem {
+public abstract class OperatingSystem : IDisposable{
 
     public Machine Machine { get; set; } = null!;
     
@@ -18,8 +18,17 @@ public abstract class OperatingSystem {
         }
 
         uint mask = 0xF_FFFF << 6;
-        uint signal = (uint)eventArgs.Instruction & mask;
-        OnSyscall(signal);
+        // this signal is embedded in syscall (normally not used)
+        // used when: 'syscall 5'
+        uint instructionSignal = (uint)eventArgs.Instruction & mask;
+        if (instructionSignal != 0) {
+            OnSyscall(instructionSignal);
+        }
+        else {
+            // this is normally used on mips
+            uint registerSignal = (uint)Machine.Registers[RegisterFile.Register.V0];
+            OnSyscall(registerSignal);
+        }
     }
 
     /// <summary>
@@ -27,4 +36,6 @@ public abstract class OperatingSystem {
     /// </summary>
     /// <param name="code"></param>
     protected abstract void OnSyscall(uint code);
+
+    public abstract void Dispose();
 }

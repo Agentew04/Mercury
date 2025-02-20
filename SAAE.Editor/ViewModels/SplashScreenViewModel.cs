@@ -261,13 +261,13 @@ public partial class SplashScreenViewModel : BaseViewModel {
             Done
         }
         
-        public SplashScreenViewModel vm;
+        public SplashScreenViewModel vm = null!;
         public long max = 0;
         public Status compilerStatus = Status.Unused;
         public Status linkerStatus = Status.Unused;
 
         private int smoothingValues = 30;
-        private List<double> values = new();
+        private List<double> values = [];
         
         public void Report(long value) {
             double relative = (double)value / (double)max;

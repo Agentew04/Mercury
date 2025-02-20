@@ -36,8 +36,8 @@ public class InstructionFactory {
         public Dictionary<string, int> Constraints { get; set; } = [];
     }
 
-    public Instruction Disassemble(int binary) {
-        int opcode = binary >> 26;
+    public Instruction Disassemble(uint binary) {
+        uint opcode = binary >> 26;
         var oprules = rules.Where(x => x.Constraints.ContainsKey("opcode") && x.Constraints["opcode"] == opcode);
         foreach(var rule in oprules) {
             // checar o resto das constraints
@@ -48,31 +48,31 @@ public class InstructionFactory {
                 }
                 switch (constraint) {
                     case "funct":
-                        int funct = (binary & 0x3F);
+                        uint funct = (binary & 0x3F);
                         if(rule.Constraints[constraint] != funct) {
                             failed = true;
                         }
                         break;
                     case "shift":
-                        int shift = (binary >> 6) & 0x1F;
+                        uint shift = (binary >> 6) & 0x1F;
                         if(rule.Constraints[constraint] != shift) {
                             failed = true;
                         }
                         break;
                     case "rs":
-                        int rs = (binary >> 21) & 0x1F;
+                        uint rs = (binary >> 21) & 0x1F;
                         if(rule.Constraints[constraint] != rs) {
                             failed = true;
                         }
                         break;
                     case "rt":
-                        int rt = (binary >> 16) & 0x1F;
+                        uint rt = (binary >> 16) & 0x1F;
                         if(rule.Constraints[constraint] != rt) {
                             failed = true;
                         }
                         break;
                     case "rd":
-                        int rd = (binary >> 11) & 0x1F;
+                        uint rd = (binary >> 11) & 0x1F;
                         if(rule.Constraints[constraint] != rd) {
                             failed = true;
                         }
@@ -91,7 +91,7 @@ public class InstructionFactory {
             if(instruction is null) {
                 throw new Exception("No rule matched this instruction!");
             }
-            instruction.FromInt(binary);
+            instruction.FromInt((int)binary);
             return instruction;
         }
         throw new Exception("No rule matched this instruction!");

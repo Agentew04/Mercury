@@ -1,4 +1,6 @@
 ﻿using ELFSharp.ELF;
+using ELFSharp.ELF.Sections;
+using ELFSharp.ELF.Segments;
 using SAAE.Engine.Memory;
 using SAAE.Engine.Mips.Runtime.Simple;
 
@@ -25,7 +27,18 @@ public sealed class Machine : IDisposable, IClockable {
     public Stream StdErr { get; init; } = null!;
     
     public void LoadElf(ELF<uint> elf) {
+        Section<uint>? textSection = elf.GetSection(".text");
+        uint textStart = textSection!.LoadAddress;
+        uint textLength = textSection.Size;
+        Cpu.DropoffAddress = textStart + textLength;
         
+        // use segments to load data into memory
+        foreach (Segment<uint>? segment in elf.Segments) {
+            if (segment.Type != SegmentType.Load) {
+                continue;
+            }
+            Memory.Write(segment.Address, segment.GetMemoryContents());
+        }
     }
     
     private const uint TextSegmentAddress = 0x0040_0000;
@@ -74,11 +87,16 @@ public sealed class Machine : IDisposable, IClockable {
             OnRegisterChanged?.Invoke(regChanged);
         }
     }
+    
+    public bool IsClockingFinished() {
+        return Cpu.IsClockingFinished();
+    }
 
     public event Action<List<RegisterFile.Register>>? OnRegisterChanged = null;
 
     public void Dispose() {
         Memory.Dispose();
+        Os.Dispose();
         StdIn.Dispose();
         StdOut.Dispose();
         StdErr.Dispose();

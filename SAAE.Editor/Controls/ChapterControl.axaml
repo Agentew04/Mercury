@@ -1,0 +1,27 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:SAAE.Editor.Controls"
+        xmlns:converters="clr-namespace:SAAE.Editor.Converters"
+        xmlns:localization="clr-namespace:SAAE.Editor.Localization">
+    <Design.PreviewWith>
+        <controls:ChapterControl />
+    </Design.PreviewWith>
+
+    <Style Selector="controls|ChapterControl">
+        <!-- Set Defaults -->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid RowDefinitions="Auto,*">
+                    <Button Grid.Row="0" Command="{TemplateBinding GoBack}"
+                            Margin="10,0"
+                            Content="{Binding Path=GoBackText, Source={x:Static localization:GuideResources.Instance}}"/>
+                    <ContentControl Grid.Row="1" Content="{TemplateBinding CurrentGuide}">
+                        <ContentControl.DataTemplates>
+                            <converters:GuideChapterDataTemplate></converters:GuideChapterDataTemplate>
+                        </ContentControl.DataTemplates>
+                    </ContentControl>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>
