@@ -87,8 +87,7 @@ public class InstructionFactory {
             }
 
             // pode criar instancia aqui
-            Instruction? instruction = Activator.CreateInstance(Type.GetType($"SAAE.Engine.Mips.Instructions.{rule.Mnemonic}")) as Instruction;
-            if(instruction is null) {
+            if(Activator.CreateInstance(Type.GetType($"SAAE.Engine.Mips.Instructions.{rule.Mnemonic}")!) is not Instruction instruction) {
                 throw new Exception("No rule matched this instruction!");
             }
             instruction.FromInt((int)binary);

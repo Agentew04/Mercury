@@ -21,7 +21,7 @@ public abstract class TypeJInstruction : Instruction{
         Immediate = (instruction & 0x3FFFFFF);
     }
 
-    protected static int ParseImmediate(string text) {
+    private new static int ParseImmediate(string text) {
         if (text.Contains('x') || text.Contains('X')
             || text.StartsWith("0x") || text.StartsWith("0X")
             || text.Any(x => x >= 'A' && x <= 'F' || x >= 'a' && x <= 'f')) {

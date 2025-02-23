@@ -126,7 +126,8 @@
                              HorizontalAlignment="Stretch"
                              Text="{Binding NewProjectPath}"></TextBox>
                     <Button Grid.Column="1" Content="{Binding BrowseButton, Source={x:Static localization:ProjectResources.Instance}}"
-                            Margin="3,0"/>
+                            Margin="3,0"
+                            Click="BrowseFolderOnNewProject"/>
                 </Grid>
                 <TextBlock Text="{Binding DirectoryNotice}"
                            HorizontalAlignment="Left"
@@ -138,6 +139,14 @@
                          HorizontalAlignment="Stretch"
                          Margin="0,0,0,8"
                          Text="{Binding NewProjectName}"></TextBox>
+                <Label Content="{Binding IsaLabel, Source={x:Static localization:ProjectResources.Instance}}"
+                       Target="IsaComboBox"
+                       HorizontalAlignment="Left"></Label>
+                <ComboBox x:Name="IsaComboBox"
+                          HorizontalAlignment="Stretch"
+                          ItemsSource="{Binding Isas}"
+                          SelectedIndex="{Binding SelectedIsaIndex}"
+                          Margin="0,0,0,8"></ComboBox>
                 <Label Content="{Binding OsLabel, Source={x:Static localization:ProjectResources.Instance}}"
                        Target="OsComboBox"
                        HorizontalAlignment="Left"></Label>

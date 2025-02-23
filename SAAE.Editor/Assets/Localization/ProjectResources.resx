@@ -57,4 +57,16 @@
     <data name="OsLabel" xml:space="preserve">
         <value>Operating System</value>
     </data>
+    <data name="IsaLabel" xml:space="preserve">
+        <value>ISA</value>
+    </data>
+    <data name="SelectFolderPicker" xml:space="preserve">
+        <value>Select Project Folder</value>
+    </data>
+    <data name="SelectProjectPicker" xml:space="preserve">
+        <value>Select Project File</value>
+    </data>
+    <data name="AsmProjects" xml:space="preserve">
+        <value>Assembly Projects</value>
+    </data>
 </root>

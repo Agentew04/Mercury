@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Xml.Serialization;
 
 namespace SAAE.Editor.Models;
@@ -31,6 +32,11 @@ public class ProjectFile {
     public string ProjectPath { get; set; } = "";
 
     /// <summary>
+    /// Returns the base directory of the project.
+    /// </summary>
+    public string ProjectDirectory => Path.GetDirectoryName(ProjectPath);
+
+    /// <summary>
     /// The user given name for the project.
     /// </summary>
     [XmlElement("ProjectName")]
@@ -42,6 +48,12 @@ public class ProjectFile {
     [XmlElement("IncludeStdLib")]
     public bool IncludeStandardLibrary { get; set; } = true;
 
+    /// <summary>
+    /// What instruction set to use for the project.
+    /// </summary>
+    [XmlElement("InstructionSet")]
+    public string InstructionSet { get; set; } = "mips";
+    
     /// <summary>
     /// The string that represents the name of the operating system
     /// used to simulate syscalls.

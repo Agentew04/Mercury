@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
@@ -17,16 +18,25 @@ public class ProjectService {
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     private ProjectFile? currentProject = null;
 
+    private static bool PathEquals(string path1, string path2) {
+        string normalize(string p) {
+            return Path.GetFullPath(p)
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        }
+        StringComparison comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        return string.Equals(normalize(path1), normalize(path2), comparison);
+    }
+    
     /// <summary>
     /// Returns the path to the most recent projects.
     /// </summary>
     /// <returns></returns>
     public List<ProjectFile> GetRecentProjects() {
-        List<(string path, DateTime lastOpen)> recent = settingsService.Preferences.RecentProjects;
+        List<UserPreferences.ProjectAccess> recent = settingsService.Preferences.RecentProjects;
         // usar foreach normal?
         // azar, nao deve ter performance ruim nem rodar toda hora
         return recent
-            .Select(x => (Project: ReadProject(x.path), LastAccess: x.lastOpen))
+            .Select(x => (Project: ReadProject(x.Path), LastAccess: x.LastOpen))
             .Where(x => x.Project is not null)
             .ForEach(x => x.Project!.LastAccessed = x.LastAccess)
             .Select(x => x.Project!)
@@ -38,12 +48,31 @@ public class ProjectService {
             return null;
         }
         
-        using var reader = XmlReader.Create(path);
-        
-        System.Xml.Serialization.XmlSerializer serializer = new(typeof(ProjectFile));
-        if (serializer.Deserialize(reader) is not ProjectFile project) {
+        if (!File.Exists(path)) {
             return null;
         }
+        
+        using var reader = XmlReader.Create(path, new XmlReaderSettings {
+            Async = true
+        });
+        
+        System.Xml.Serialization.XmlSerializer serializer = new(typeof(ProjectFile));
+        ProjectFile? project;
+        try {
+            if (serializer.Deserialize(reader) is not ProjectFile proj) {
+                return null;
+            }
+
+            project = proj;
+        }
+        catch (InvalidOperationException) {
+            return null;
+        }
+        if (project.ProjectVersion > ProjectFile.LatestProjectVersion) {
+            Console.WriteLine("A versao do projeto eh maior que a versao suportada! Atualize o programa.");
+            return null;
+        }
+
         project.ProjectPath = path;
         return project;
     }
@@ -52,48 +81,54 @@ public class ProjectService {
         if (!project.ProjectPath.EndsWith(".asmproj")) {
             throw new ArgumentException("Project path must end with .asmproj");
         }
-        string? directory = Path.GetDirectoryName(project.ProjectPath);
-        if (directory is null) {
-            throw new ArgumentException("Project path must have a directory");
+        if (!Directory.Exists(project.ProjectDirectory)) {
+            Directory.CreateDirectory(project.ProjectDirectory);
         }
-        if (!Directory.Exists(directory)) {
-            Directory.CreateDirectory(directory);
-        }
-        using var writer = XmlWriter.Create(project.ProjectPath);
+        using var writer = XmlWriter.Create(project.ProjectPath, new XmlWriterSettings() {
+            Indent = true,
+            IndentChars = "    "
+        });
         
         System.Xml.Serialization.XmlSerializer serializer = new(typeof(ProjectFile));
         serializer.Serialize(writer, project);
     }
 
     
-    public ProjectFile CreateProject(string path, string name, string os) {
+    public async Task<ProjectFile> CreateProjectAsync(string path, string name, string os, string isa) {
         ProjectFile project = new() {
             ProjectName = name,
             ProjectPath = path,
             EntryFile = "src/main.asm",
             OperatingSystemName = os,
             ProjectVersion = ProjectFile.LatestProjectVersion,
-            IncludeStandardLibrary = true
+            IncludeStandardLibrary = true,
+            InstructionSet = isa
         };
         WriteProject(project);
         // get directory from filepath
-        string baseDir = Path.GetDirectoryName(project.ProjectPath) ?? throw new ArgumentException("Project path must have a directory");
-        Directory.CreateDirectory(Path.Combine(baseDir, "src"));
-        File.WriteAllText(project.EntryFile, "");
+        Directory.CreateDirectory(Path.Combine(project.ProjectDirectory, "src"));
+        await File.WriteAllTextAsync(Path.Combine(project.ProjectDirectory, project.EntryFile), "");
+        SetRecentAccess(project);
+        await settingsService.SaveSettings();
         return project;
     }
 
-    public ProjectFile? OpenProject(string path) {
+    public async Task<ProjectFile?> OpenProject(string path) {
         ProjectFile? project = ReadProject(path);
         if (project is null) {
             return null;
         }
         UpdateProject(project);
+        SetRecentAccess(project);
+        await settingsService.SaveSettings();
+        return project;
+    }
+    
+    private void SetRecentAccess(ProjectFile project) {
         DateTime accessTime = DateTime.Now;
         project.LastAccessed = accessTime;
-        settingsService.Preferences.RecentProjects.RemoveAll(x => x.path == path);
-        settingsService.Preferences.RecentProjects.Add((path, accessTime));
-        return project;
+        settingsService.Preferences.RecentProjects.RemoveAll(x => PathEquals(x.Path, project.ProjectPath));
+        settingsService.Preferences.RecentProjects.Add(new UserPreferences.ProjectAccess(project.ProjectPath, accessTime));
     }
 
     private void UpdateProject(ProjectFile projectFile) {

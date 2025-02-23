@@ -29,7 +29,10 @@ public class UserPreferences {
     public CultureInfo Language { get; set; } = new("pt-BR");
     
     /// <summary>
-    /// A list with the most recent project opened by the user.
+    /// A list with the most recent project opened by the user
+    /// and the time it was last opened.
     /// </summary>
-    public List<(string path, DateTime lastOpen)> RecentProjects { get; set; } = [];
+    public List<ProjectAccess> RecentProjects { get; set; } = [];
+
+    public record ProjectAccess(string Path, DateTime LastOpen);
 }

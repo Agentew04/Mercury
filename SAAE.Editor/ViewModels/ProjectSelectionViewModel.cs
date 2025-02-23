@@ -55,6 +55,9 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
     private ObservableCollection<string> operatingSystems = [];
     [ObservableProperty]
     private int selectedOperatingSystemIndex = -1;
+
+    [ObservableProperty] private ObservableCollection<string> isas = [];
+    [ObservableProperty] private int selectedIsaIndex = -1;
     
     public bool EmptyRecentProjects => FilteredRecentProjects.Count == 0;
 
@@ -95,16 +98,22 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
     private void NewProjectStart() {
         IsCreatingProject = true;
         OperatingSystems = ["Mars 4.5", "Linux Kernel 1.0"];
+        Isas = ["MIPS", "RISC-V", "ARM"];
     }
 
     [RelayCommand]
-    private void NewProjectEnd() {
+    private async Task NewProjectEnd() {
         string path = SanitizeProjectPath(NewProjectPath);
         string name = SanitizeProjectName(NewProjectName);
-        string projectFilePath = Path.Combine(path, name);
+        string projectFilePath = Path.Combine(path, name, name+".asmproj");
         string os = OperatingSystems[SelectedOperatingSystemIndex];
-        var project = projectService.CreateProject(path, name, os);
+        string isa = Isas[SelectedIsaIndex];
+        ProjectFile project = await projectService.CreateProjectAsync(projectFilePath, name, os, isa);
+        projectService.SetCurrentProject(project);
         IsCreatingProject = false;
+        if(!projectSelectionTask.Task.IsCompleted) {
+            projectSelectionTask.SetResult(true);
+        }
     }
     
     [RelayCommand]
@@ -115,11 +124,11 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
         }
         
         IReadOnlyList<IStorageFile> result = await view.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions {
-            Title = "Open Project File",
+            Title = Localization.ProjectResources.SelectProjectPickerValue,
             AllowMultiple = false,
             SuggestedFileName = "project.asmproj", 
             FileTypeFilter = [
-                new FilePickerFileType("Assembly Projects") {
+                new FilePickerFileType(Localization.ProjectResources.AsmProjectsValue) {
                     Patterns = [ "*.asmproj" ], 
                 }
             ]
@@ -130,17 +139,17 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
         }
 
         string path = result[0].Path.AbsolutePath;
-        OpenProject(path);
+        await OpenProject(path);
     }
     
     [RelayCommand]
-    private void OpenProject(string path) {
+    private async Task OpenProject(string path) {
         if (!path.EndsWith(".asmproj")) {
             // esse check nao precisaria, mas melhor garantir
             return;
         }
 
-        ProjectFile? project = projectService.OpenProject(path);
+        ProjectFile? project = await projectService.OpenProject(path);
         if (project is null) {
             // msg de erro ao usuario
             return;
