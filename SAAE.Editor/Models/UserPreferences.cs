@@ -1,12 +1,35 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace SAAE.Editor.Models;
 
 public class UserPreferences {
     
-    public const int LatestConfigVersion = 2;
+    /// <summary>
+    /// The latest version available for the configuration file.
+    /// </summary>
+    public const int LatestConfigVersion = 3;
     
-    public int ConfigVersion { get; set; } = 2;
+    /// <summary>
+    /// The version of the configuration file.
+    /// If less than <see cref="LatestConfigVersion"/>, a converter
+    /// will be used to update the file on app start.
+    /// </summary>
+    public int ConfigVersion { get; set; } = 3;
+    
+    /// <summary>
+    /// The path to the compiler and linker executables.
+    /// </summary>
     public string CompilerPath { get; set; } = "";
+    
+    /// <summary>
+    /// The current language of the application.
+    /// </summary>
     public CultureInfo Language { get; set; } = new("pt-BR");
+    
+    /// <summary>
+    /// A list with the most recent project opened by the user.
+    /// </summary>
+    public List<(string path, DateTime lastOpen)> RecentProjects { get; set; } = [];
 }

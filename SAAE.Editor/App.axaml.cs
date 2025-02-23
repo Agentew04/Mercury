@@ -29,17 +29,27 @@ namespace SAAE.Editor {
                 splash.Show();
 
                 try {
-                    await splash.ViewModel.Initialize();
+                    await splash.ViewModel.InitializeAsync();
                 }
                 catch (TaskCanceledException) {
                     splash.Close();
                     return;
                 }
+                
+                // inicializacao completa
+                // abre janela de selecao de projeto
+                var projectSelection = new ProjectSelectionView();
+                desktop.MainWindow = projectSelection;
+                projectSelection.Show();
+                splash.Close();
+                await projectSelection.SelectionViewModel.WaitForProjectSelection();
 
+                // finalmente inicializa IDE
                 var main = new MainWindow();
                 desktop.MainWindow = main;
                 main.Show();
-                splash.Close();
+                projectSelection.Close();
+                
             }
 
             base.OnFrameworkInitializationCompleted();

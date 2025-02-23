@@ -1,0 +1,52 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20" Background="{DynamicResource BackgroundGrey}">
+            
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="ListBoxItem">
+        <Setter Property="Padding" Value="0"></Setter>
+    </Style>
+    
+    <Style Selector="Button.invisible">
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+    </Style>
+    
+    <Style Selector="Button.invisible:hover">
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+    </Style>
+    
+    <Style Selector="Button.invisible:pressed">
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+    </Style>
+    
+    <Style Selector="Button.fill">
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+        <Setter Property="VerticalAlignment" Value="Stretch"></Setter>
+        <Setter Property="Margin" Value="0"></Setter>
+        <Setter Property="CornerRadius" Value="0"></Setter>
+    </Style>
+    
+    <Style Selector="Button.bigbutton">
+        <Setter Property="Width" Value="200"></Setter>
+        <Setter Property="Height" Value="75"></Setter>
+        <Setter Property="Padding" Value="0"></Setter>
+        <Setter Property="Margin" Value="0"></Setter>
+        <Setter Property="CornerRadius" Value="0"></Setter>
+    </Style>
+    
+    <Style Selector="Image.fill">
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+        <Setter Property="VerticalAlignment" Value="Stretch"></Setter>
+        <Setter Property="Stretch" Value="Uniform"></Setter>
+    </Style>
+    
+    <Style Selector="Button.bigbutton Grid TextBlock">
+        <Setter Property="TextWrapping" Value="Wrap"></Setter>
+    </Style>
+</Styles>

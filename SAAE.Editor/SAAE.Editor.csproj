@@ -11,29 +11,15 @@
     <AssemblyVersion>0.1</AssemblyVersion>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
+  
   <ItemGroup>
+    <AvaloniaResource Include="Assets\Fonts\Nunito\*.ttf"/>
+    <None Remove="Assets\Fonts\Nunito\*.ttf" />
+    <AvaloniaResource Include="Assets\Images\book.png" />
     <None Remove="Assets\book.png" />
   </ItemGroup>
-  <ItemGroup>
-    <AvaloniaResource Include="Assets\Images\book.png" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Bold.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-BoldItalic.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-ExtraBold.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-ExtraBoldItalic.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-ExtraLight.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-ExtraLightItalic.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Italic.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Light.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-LightItalic.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Medium.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-MediumItalic.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Regular.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-SemiBold.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-SemiBoldItalic.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-Thin.ttf" />
-    <None Remove="Assets\Fonts\JetBrainsMono-2.304\fonts\ttf\JetBrainsMonoNL-ThinItalic.ttf" />
-  </ItemGroup>
 
+  <!-- pacotes -->
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.1.0" />
     <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.1.0" />
@@ -46,21 +32,31 @@
     <PackageReference Include="ELFSharp" Version="2.17.3" />
     <PackageReference Include="Fonts.Avalonia.JetBrainsMono" Version="0.9.0" />
     <PackageReference Include="Markdig" Version="0.40.0" />
+    <PackageReference Include="MessageBox.Avalonia" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Assets\Fonts\" />
+    <Folder Include="Assets\Fonts\Nunito\" />
   </ItemGroup>
 
+  <!-- localizacao -->
   <ItemGroup>
     <ProjectReference Include="..\SAAE.Generators\SAAE.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     <AdditionalFiles Include="Assets\Localization\*.resx" />
   </ItemGroup>
 
+  <!-- guias -->
   <ItemGroup>
     <None Remove="Assets\Localization\Guides\*.md" />
     <EmbeddedResource Include="Assets\Localization\Guides\*.md"  WithCulture="false"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\ProjectView.axaml.cs">
+      <DependentUpon>ProjectMenu.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

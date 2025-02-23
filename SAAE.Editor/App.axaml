@@ -1,14 +1,14 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="SAAE.Editor.App"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
-        <StyleInclude Source="Controls/ChapterControl.axaml"></StyleInclude>
-        <StyleInclude Source="Assets/Styles/GuideStyles.axaml"></StyleInclude>
+        <StyleInclude Source="/Controls/ChapterControl.axaml"></StyleInclude>
+        <StyleInclude Source="/Assets/Styles/DefaultStyles.axaml"></StyleInclude>
     </Application.Styles>
   <Application.Resources>
       <ResourceDictionary>
@@ -16,6 +16,8 @@
               <ResourceInclude Source="Controls/GuideMenu.axaml"/>
           </ResourceDictionary.MergedDictionaries>
       </ResourceDictionary>
+      
+      <FontFamily x:Key="NunitoFont">avares://SAAE.Editor/Assets/Fonts/Nunito#Nunito</FontFamily>
       
       <SolidColorBrush x:Key="BackgroundGrey">#1F1F1F</SolidColorBrush>
       <SolidColorBrush x:Key="AlternateGrey" Color="#383838" />

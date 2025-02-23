@@ -30,7 +30,7 @@ public partial class SplashScreenViewModel : BaseViewModel {
     public string VersionText => $"{SplashScreenResources.VersionTextValue}: {Version?.Major ?? 0}.{Version?.Minor ?? 0}";
     
     
-    public async Task Initialize() {
+    public async Task InitializeAsync() {
         Version = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0,0);
         LocalizationManager.CultureChanged += Localize;
         

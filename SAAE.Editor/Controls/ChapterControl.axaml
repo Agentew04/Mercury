@@ -12,6 +12,9 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid RowDefinitions="Auto,*">
+                    <Grid.Styles>
+                        <StyleInclude Source="/Assets/Styles/GuideStyles.axaml"></StyleInclude>
+                    </Grid.Styles>
                     <Button Grid.Row="0" Command="{TemplateBinding GoBack}"
                             Margin="10,0"
                             Content="{Binding Path=GoBackText, Source={x:Static localization:GuideResources.Instance}}"/>

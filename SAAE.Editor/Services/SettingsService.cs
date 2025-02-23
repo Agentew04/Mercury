@@ -9,7 +9,7 @@ using SAAE.Editor.Models;
 
 namespace SAAE.Editor.Services;
 
-public class SettingsService {
+public sealed class SettingsService : IDisposable {
     
     public string AppDirectory { get; init; }
     public string ConfigPath { get; init; }
@@ -25,7 +25,7 @@ public class SettingsService {
         Preferences = null!;
         AppDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".saae");
         ConfigPath = Path.Combine(AppDirectory, "config.json");
-        jsonOptions = new() {
+        jsonOptions = new JsonSerializerOptions {
             WriteIndented = true,
             Converters = { new CultureJsonConverter() }
         };
@@ -50,15 +50,31 @@ public class SettingsService {
     /// </summary>
     public UserPreferences GetDefaultPreferences() => new UserPreferences() {
         CompilerPath = Path.Combine(AppDirectory, "compiler"),
-        Language = CultureInfo.CurrentCulture
+        Language = CultureInfo.CurrentCulture,
+        RecentProjects = []
     };
 
-    private void UpdatePreferences(UserPreferences preferences) {
+    private static void UpdatePreferences(UserPreferences preferences) {
+        if(preferences.ConfigVersion == UserPreferences.LatestConfigVersion) {
+            return;
+        }
+        
         if (preferences.ConfigVersion == 1) {
             preferences.ConfigVersion = 2;
             preferences.Language = CultureInfo.CurrentCulture;
             Console.WriteLine("Atualizada a versão de configuração para 2");
         }
+
+        if (preferences.ConfigVersion == 2) {
+            preferences.ConfigVersion = 3;
+            preferences.RecentProjects = [];
+            Console.WriteLine("Atualizada a versão de configuração para 3");    
+        }
         // ir adicionando novos updates aqui abaixo
+    }
+
+    public void Dispose() {
+        // faz salvar automaticamente as configurações ao fechar o programa
+        SaveSettings().Wait();
     }
 }

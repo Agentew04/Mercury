@@ -13,7 +13,9 @@ namespace SAAE.Engine.Mips.Runtime;
 /// 
 ///  </remarks>
 public class MockLinux : OperatingSystem {
-    
+
+    public override string OperatingSystemName => "linux";
+
     protected override void OnSyscall(uint code) {
         switch (code) {
             case 0:

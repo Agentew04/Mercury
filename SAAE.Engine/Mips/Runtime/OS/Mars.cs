@@ -9,7 +9,9 @@ namespace SAAE.Engine.Mips.Runtime;
 /// environment syscalls.
 /// </summary>
 public class Mars : OperatingSystem {
-    
+
+    public override string OperatingSystemName => "mars";
+
     protected override void OnSyscall(uint code) {
         switch (code) {
             case 1:

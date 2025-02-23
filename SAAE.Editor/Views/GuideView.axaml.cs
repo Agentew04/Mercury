@@ -9,7 +9,7 @@ namespace SAAE.Editor.Views;
 public partial class GuideView : UserControl {
     public GuideView() {
         InitializeComponent();
-        ViewModel = App.Services.GetService<GuideViewModel>()!;
+        ViewModel = App.Services.GetRequiredService<GuideViewModel>();
         DataContext = ViewModel;
     }
     

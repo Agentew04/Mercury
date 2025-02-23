@@ -7,10 +7,12 @@ namespace SAAE.Engine.Mips.Runtime;
 /// Common interface all operating systems must implement.
 /// Specific version for MIPS archtecture.
 /// </summary>
-public abstract class OperatingSystem : IDisposable{
+public abstract class OperatingSystem : IDisposable {
 
     public Machine Machine { get; set; } = null!;
-    
+
+    public abstract string OperatingSystemName { get; }
+
     public void OnSignalBreak(Monocycle.SignalExceptionEventArgs eventArgs) {
         if (eventArgs.Signal != Monocycle.SignalExceptionEventArgs.SignalType.SystemCall) {
             throw new InvalidOperationException($"Invalid signal type. Expected {Monocycle.SignalExceptionEventArgs.SignalType.SystemCall}, " +

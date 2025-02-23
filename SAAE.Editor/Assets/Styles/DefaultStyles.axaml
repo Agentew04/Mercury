@@ -1,0 +1,28 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20" Background="{DynamicResource BackgroundGrey}">
+            <StackPanel>
+                <TextBlock Text="MIPS 2.0" Classes="header"></TextBlock>
+                <TextBlock Text="Projetos" Classes="minorheader"></TextBlock>
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector=":is(TopLevel)">
+        <Setter Property="FontFamily" Value="{DynamicResource NunitoFont}"></Setter>
+    </Style>
+    
+    <Style Selector="TextBlock.header">
+        <Setter Property="FontSize" Value="24"></Setter>
+        <Setter Property="Margin" Value="10,5,0,5"></Setter>
+        <Setter Property="FontWeight" Value="SemiBold"></Setter>
+    </Style>
+    
+    <Style Selector="TextBlock.minorheader">
+        <Setter Property="FontSize" Value="18"></Setter>
+        <Setter Property="Margin" Value="15,5,0,5"></Setter>
+        <Setter Property="FontWeight" Value="Regular"></Setter>
+    </Style>
+    
+</Styles>

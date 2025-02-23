@@ -5,7 +5,7 @@
              xmlns:view="clr-namespace:SAAE.Editor.Views"
              xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
              xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="SAAE.Editor.Views.CodeTabView">
     <DockPanel>
         <!-- guide -->
@@ -15,9 +15,9 @@
         <Border Height="300" DockPanel.Dock="Bottom" Background="Aqua"></Border>
         
         <!-- project window -->
-        <Border Width="300" DockPanel.Dock="Left" Background="Coral"></Border>
+        <view:ProjectView Width="300" DockPanel.Dock="Left"></view:ProjectView>
         
-        <!-- code window -->
+        <!-- open files window -->
         <TabControl>
             <TabControl.Items>
                 <TabItem Header="main.asm">

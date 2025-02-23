@@ -1,0 +1,155 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
+        xmlns:model="clr-namespace:SAAE.Editor.Models"
+        xmlns:localization="clr-namespace:SAAE.Editor.Localization"
+        xmlns:converters="clr-namespace:SAAE.Editor.Converters"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+        Width="800" Height="500"
+        x:Class="SAAE.Editor.Views.ProjectSelectionView"
+        Background="{DynamicResource BackgroundGrey}"
+        CanResize="False"
+        x:DataType="vm:ProjectSelectionViewModel"
+        Title="">
+    <Window.Styles>
+        <StyleInclude Source="/Assets/Styles/ProjectSelectionStyles.axaml"/>
+    </Window.Styles>
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="5*,2*">
+        <!-- app title -->
+        <TextBlock Text="MIPS 2.0" Classes="header"
+                   Margin="15"
+                   Grid.Row="0" Grid.ColumnSpan="2"></TextBlock>
+        
+        <!-- recent -->
+        <Grid Grid.Row="1" Grid.Column="0" IsVisible="{Binding !IsCreatingProject}"
+              RowDefinitions="Auto,Auto,*">
+            <TextBlock Grid.Row="0" 
+                       Text="{Binding OpenProject, Source={x:Static localization:ProjectResources.Instance}}" Classes="minorheader"/>
+            
+            <StackPanel Grid.Row="1" Margin="15,0">
+                <TextBox x:Name="SearchBox" Watermark="{Binding RecentProjectsWatermark, Source={x:Static localization:ProjectResources.Instance}}"
+                         Text="{Binding SearchQuery, Mode=TwoWay}"/>
+            </StackPanel>
+            <ListBox Grid.Row="2"
+                     Background="{DynamicResource BackgroundGrey}"
+                     Margin="15"
+                     IsVisible="{Binding !EmptyRecentProjects}"
+                     ItemsSource="{Binding FilteredRecentProjects}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ProjectFileVisualItem">
+                        <Button Classes="invisible fill"
+                                Command="{Binding OpenCommand}"
+                                CommandParameter="{Binding ProjectFile.ProjectPath}">
+                            <Grid>
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="{Binding ProjectFile.ProjectName}"
+                                               FontSize="16"></TextBlock>
+                                    <TextBlock Text="{Binding ProjectFile.ProjectPath}"
+                                               FontSize="12"
+                                               Margin="5,0"></TextBlock>
+                                </StackPanel>
+                                <TextBlock HorizontalAlignment="Right"
+                                           VerticalAlignment="Top"
+                                           Text="{Binding ProjectFile.LastAccessed}"
+                                           FontSize="12"></TextBlock>
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBlock Grid.Row="2"
+                       IsVisible="{Binding EmptyRecentProjects}"
+                       Text="{Binding EmptyRecentProjects, Source={x:Static localization:ProjectResources.Instance}}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontSize="14"
+                       Padding="0,0,0,10"/>
+        </Grid>
+        
+        <!--sidebar -->
+        <StackPanel Grid.Row="1" Grid.Column="1"
+                    Margin="15"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="25"
+                    IsVisible="{Binding !IsCreatingProject}">
+            <Button Classes="bigbutton"
+                    Command="{Binding OpenProjectDialogCommand}">
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">
+                    <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                           Classes="fill"
+                           Width="40"
+                           Margin="15,0"
+                           Stretch="Uniform"
+                           Source="/Assets/Images/book.png"/>
+                    <TextBlock Grid.Column="1" Grid.Row="0"
+                               Text="{Binding Path=OpenProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
+                               Margin="5,8,0,0"></TextBlock>
+                    <TextBlock Grid.Column="1" Grid.Row="1"
+                               Text="{Binding OpenProjectDescButton ,Source={x:Static localization:ProjectResources.Instance}}"
+                               FontSize="11" TextWrapping="Wrap"
+                               Margin="5,5,5,0"></TextBlock>
+                </Grid>
+            </Button>
+            <Button Classes="bigbutton"
+                Command="{Binding NewProjectStartCommand}">
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">
+                    <Image Grid.Column="0" Grid.RowSpan="2"
+                           Classes="fill"
+                           Width="40"
+                           Margin="15,0"
+                           Stretch="Uniform"
+                           Source="/Assets/Images/book.png"/>
+                    <TextBlock Grid.Column="1" Grid.Row="0"
+                               Text="{Binding CreateProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
+                               Margin="5,8,0,0"></TextBlock>
+                    <TextBlock Grid.Column="1" Grid.Row="1"
+                               Text="{Binding CreateProjectDescButton, Source={x:Static localization:ProjectResources.Instance}}"
+                               FontSize="11" TextWrapping="Wrap"
+                               Margin="5,5,5,0"></TextBlock>
+                </Grid>
+            </Button>
+        </StackPanel>
+        
+        <!-- creating menu -->
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+              IsVisible="{Binding IsCreatingProject}"
+              Margin="15">
+            <StackPanel HorizontalAlignment="Center" Width="300">
+                <Label Content="{Binding FolderLabel, Source={x:Static localization:ProjectResources.Instance}}"
+                       Target="PathTextbox"
+                       HorizontalAlignment="Left"></Label>
+                <Grid HorizontalAlignment="Stretch"
+                      ColumnDefinitions="*,Auto">
+                    <TextBox Grid.Column="0" x:Name="PathTextbox"
+                             HorizontalAlignment="Stretch"
+                             Text="{Binding NewProjectPath}"></TextBox>
+                    <Button Grid.Column="1" Content="{Binding BrowseButton, Source={x:Static localization:ProjectResources.Instance}}"
+                            Margin="3,0"/>
+                </Grid>
+                <TextBlock Text="{Binding DirectoryNotice}"
+                           HorizontalAlignment="Left"
+                           FontSize="11" Margin="0,2,0,8"/>
+                <Label Content="{Binding NameLabel, Source={x:Static localization:ProjectResources.Instance}}"
+                       Target="NameTextbox"
+                       HorizontalAlignment="Left"></Label>
+                <TextBox x:Name="NameTextbox"
+                         HorizontalAlignment="Stretch"
+                         Margin="0,0,0,8"
+                         Text="{Binding NewProjectName}"></TextBox>
+                <Label Content="{Binding OsLabel, Source={x:Static localization:ProjectResources.Instance}}"
+                       Target="OsComboBox"
+                       HorizontalAlignment="Left"></Label>
+                <ComboBox x:Name="OsComboBox"
+                          HorizontalAlignment="Stretch"
+                          ItemsSource="{Binding OperatingSystems}"
+                          SelectedIndex="{Binding SelectedOperatingSystemIndex}"></ComboBox>
+                <Button Content="{Binding CreateProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
+                        HorizontalAlignment="Center"
+                        Margin="15"
+                        Command="{Binding NewProjectEndCommand}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

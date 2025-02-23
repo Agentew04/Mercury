@@ -9,9 +9,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
-using Avalonia.LogicalTree;
-using Avalonia.Media;
-using AvaloniaEdit.Utils;
 using Markdig;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
@@ -104,7 +101,7 @@ public sealed partial class GuideService : IDisposable {
             MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions()
                 .UseYamlFrontMatter()
                 .Build();
-            MarkdownDocument markdownDocument = Markdown.Parse(await sr.ReadToEndAsync(), pipeline);
+            MarkdownDocument markdownDocument = Markdig.Markdown.Parse(await sr.ReadToEndAsync(), pipeline);
             YamlFrontMatterBlock? yamlBlock = markdownDocument.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
             if (yamlBlock is null) {
                 Console.WriteLine("Nao achei yaml front matter no markdown");
@@ -160,7 +157,7 @@ public sealed partial class GuideService : IDisposable {
             .UseAdvancedExtensions()
             .UseYamlFrontMatter()
             .Build();
-        MarkdownDocument markdownDocument = Markdown.Parse(guideContent, pipeline);
+        MarkdownDocument markdownDocument = Markdig.Markdown.Parse(guideContent, pipeline);
 
         List<Control> controls = [];
 

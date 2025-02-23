@@ -1,0 +1,19 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:SAAE.Editor.Controls">
+    <Design.PreviewWith>
+        <controls:IconButton />
+    </Design.PreviewWith>
+
+    <Style Selector="controls|IconButton">
+        <!-- Set Defaults -->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <StackPanel Orientation="Horizontal">
+                    <!-- <TextBlock Text="{TemplateBinding Text}"/> -->
+                    <!-- <ContentControl Content="{TemplateBinding Content}"></ContentControl> -->
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>
