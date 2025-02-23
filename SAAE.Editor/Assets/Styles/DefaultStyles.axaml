@@ -1,11 +1,10 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:SAAE.Editor.Controls">
     <Design.PreviewWith>
-        <Border Padding="20" Background="{DynamicResource BackgroundGrey}">
-            <StackPanel>
-                <TextBlock Text="MIPS 2.0" Classes="header"></TextBlock>
-                <TextBlock Text="Projetos" Classes="minorheader"></TextBlock>
-            </StackPanel>
+        <Border Background="{DynamicResource BackgroundGrey}"
+                Width="700">
+            <controls:TitleBar></controls:TitleBar>
         </Border>
     </Design.PreviewWith>
 
@@ -25,4 +24,35 @@
         <Setter Property="FontWeight" Value="Regular"></Setter>
     </Style>
     
+    <Style Selector="Button.invisible">
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+    </Style>
+    
+    <Style Selector="Button.invisible:hover">
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+    </Style>
+    
+    <Style Selector="Button.invisible:pressed">
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+    </Style>
+    
+    
+    <Style Selector="Button.titlebarbutton">
+        <Setter Property="Margin" Value="0"></Setter>
+        <Setter Property="Padding" Value="0"></Setter>
+        <Setter Property="CornerRadius" Value="0"></Setter>
+        <Setter Property="Width" Value="45"></Setter>
+        <Setter Property="Height" Value="29"></Setter>
+        <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="RenderTransform" Value=""></Setter>
+    </Style>
+    
+    <Style Selector="Button.titlebarbuttonclose:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource CloseRed}"></Setter>
+    </Style>
 </Styles>

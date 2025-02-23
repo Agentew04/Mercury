@@ -10,21 +10,6 @@
         <Setter Property="Padding" Value="0"></Setter>
     </Style>
     
-    <Style Selector="Button.invisible">
-        <Setter Property="Background" Value="Transparent"></Setter>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
-    </Style>
-    
-    <Style Selector="Button.invisible:hover">
-        <Setter Property="Background" Value="Transparent"></Setter>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
-    </Style>
-    
-    <Style Selector="Button.invisible:pressed">
-        <Setter Property="Background" Value="Transparent"></Setter>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
-    </Style>
-    
     <Style Selector="Button.fill">
         <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
         <Setter Property="VerticalAlignment" Value="Stretch"></Setter>

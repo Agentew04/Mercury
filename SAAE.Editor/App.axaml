@@ -18,11 +18,13 @@
       </ResourceDictionary>
       
       <FontFamily x:Key="NunitoFont">avares://SAAE.Editor/Assets/Fonts/Nunito#Nunito</FontFamily>
+      <FontFamily x:Key="PhosphorFont">avares://SAAE.Editor/Assets/Fonts/Phosphor#Phosphor</FontFamily>
       
       <SolidColorBrush x:Key="BackgroundGrey">#1F1F1F</SolidColorBrush>
       <SolidColorBrush x:Key="AlternateGrey" Color="#383838" />
       <SolidColorBrush x:Key="BlueLight">#0b779c</SolidColorBrush>
       <SolidColorBrush x:Key="PrimaryForeground">#dddddd</SolidColorBrush>
       <SolidColorBrush x:Key="Purple1" Color="#7950F2" />
+      <SolidColorBrush x:Key="CloseRed" Color="#E81123"></SolidColorBrush>
   </Application.Resources>
 </Application>

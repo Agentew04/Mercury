@@ -61,7 +61,7 @@ public partial class SplashScreenViewModel : BaseViewModel {
         await guideService.InitializeAsync();
 
         StatusText = SplashScreenResources.DoneValue;
-        await Task.Delay(1000);
+        //await Task.Delay(1000);
     }
 
     private void Localize(CultureInfo cultureInfo) {

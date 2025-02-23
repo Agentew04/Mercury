@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
@@ -15,6 +17,7 @@ public partial class ProjectSelectionView : Window {
         InitializeComponent();
         DataContext = SelectionViewModel = App.Services.GetRequiredService<ProjectSelectionViewModel>();
         SelectionViewModel.view = this;
+        TitleBar.window = this;
     }
 
     public ProjectSelectionViewModel SelectionViewModel { get; set; }

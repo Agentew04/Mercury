@@ -17,10 +17,9 @@ namespace SAAE.Editor {
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .WithInterFont()
-                .ConfigureFonts(fontManager => {
-                    fontManager.AddFontCollection(new NunitoFontCollection());
-                })
                 .LogToTrace()
                 .WithJetBrainsMonoFont();
+        
+        
     }
 }
