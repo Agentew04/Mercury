@@ -194,7 +194,7 @@ public sealed partial class GuideService : IDisposable {
                     header.Classes.Add("headerh"+level);
                     
                     header.Inlines ??= new InlineCollection();
-                    header.Inlines.AddRange(ParseInlines(headingBlock.Inline));
+                    header.Inlines.AddRange(ParseInlines(headingBlock.Inline!));
                     controls.Add(header);
                     break;
                 }

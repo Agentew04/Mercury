@@ -12,7 +12,7 @@
         <view:GuideView DockPanel.Dock="Right" Width="300"/>
         
         <!-- problems window -->
-        <Border Height="300" DockPanel.Dock="Bottom" Background="Aqua"></Border>
+        <Border Height="200" DockPanel.Dock="Bottom" Background="Aqua"></Border>
         
         <!-- project window -->
         <view:ProjectView Width="300" DockPanel.Dock="Left"></view:ProjectView>

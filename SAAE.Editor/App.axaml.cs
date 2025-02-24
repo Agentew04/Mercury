@@ -88,6 +88,10 @@ namespace SAAE.Editor {
                     projectSelection.Show();
                     splash.Close();
                     await projectSelection.SelectionViewModel.WaitForProjectSelection();
+                    if (projectSelection.SelectionViewModel.Cancelled) {
+                        //desktop.Shutdown();
+                        return;
+                    }
                 }
                 
                 // finalmente inicializa IDE

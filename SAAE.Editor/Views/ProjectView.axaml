@@ -3,16 +3,51 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:localization="clr-namespace:SAAE.Editor.Localization"
+             xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
+             xmlns:converters="clr-namespace:SAAE.Editor.Converters"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="500"
              Background="{DynamicResource BackgroundGrey}"
-             x:Class="SAAE.Editor.Views.ProjectView">
+             x:Class="SAAE.Editor.Views.ProjectView"
+             x:DataType="vm:ProjectViewModel">
+    <UserControl.Resources>
+        <converters:ProjectNodeTypeToIcon x:Key="NodeTypeToIcon"></converters:ProjectNodeTypeToIcon>
+    </UserControl.Resources>
+    <Design.DataContext>
+        <vm:ProjectViewModel></vm:ProjectViewModel>
+    </Design.DataContext>
+    <UserControl.Styles>
+        <Style Selector="TreeViewItem">
+            <Setter Property="Background" Value="Red"></Setter>
+            <Setter Property="Margin" Value="0"></Setter>
+            <Setter Property="MinWidth" Value="8"></Setter>
+            <Setter Property="Padding" Value="0"></Setter>
+        </Style>
+        <Style Selector="TreeViewItem /template/ Panel#PART_ExpandCollapseChevronContainer">
+            <Setter Property="Margin" Value="0"></Setter>
+        </Style>
+    </UserControl.Styles>
     <Border BorderBrush="Black" BorderThickness="1">
         <Grid RowDefinitions="Auto,*">
-            <TextBlock Classes="headerh1"
+            <TextBlock Grid.Row="0" Classes="header"
                 Text="{Binding Path=ProjectViewTitle, Source={x:Static localization:ProjectResources.Instance}}"/>
-            
-            <TreeView Grid.Row="1" Background="Red">
-                
+        
+            <TreeView Grid.Row="1" ItemsSource="{Binding Nodes}"
+                      Margin="15"
+                      >
+                <TreeView.ItemTemplate>
+                    <TreeDataTemplate ItemsSource="{Binding Children}"
+                                      x:DataType="vm:Node"
+                                      >
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Type, Converter={StaticResource NodeTypeToIcon}}"
+                                       FontFamily="{DynamicResource PhosphorFont}"
+                                       VerticalAlignment="Center"></TextBlock>
+                            <TextBlock Text="{Binding Name}"
+                                Margin="5,0,0,0"
+                                VerticalAlignment="Center"></TextBlock>
+                        </StackPanel>
+                    </TreeDataTemplate>
+                </TreeView.ItemTemplate>
             </TreeView>
         </Grid>
     </Border>

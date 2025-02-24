@@ -31,6 +31,8 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
 
     public ProjectSelectionView view = null!; // isso eh feio mas nao quero fazer um role pro filepicker
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+
+    public bool Cancelled { get; private set; } = false;
     
     [ObservableProperty]
     private string searchQuery = string.Empty;
@@ -166,5 +168,12 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
 
     private static string SanitizeProjectPath(string path) {
         return Path.GetInvalidPathChars().Aggregate(path, (current, illegal) => current.Replace(illegal.ToString(), ""));
+    }
+    
+    public void OverrideTaskCompletion() {
+        Cancelled = true;
+        if(!projectSelectionTask.Task.IsCompleted) {
+            projectSelectionTask.SetResult(true);
+        }
     }
 }

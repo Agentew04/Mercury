@@ -34,7 +34,7 @@ public class ProjectFile {
     /// <summary>
     /// Returns the base directory of the project.
     /// </summary>
-    public string ProjectDirectory => Path.GetDirectoryName(ProjectPath);
+    public string ProjectDirectory => Path.GetDirectoryName(ProjectPath) ?? "";
 
     /// <summary>
     /// The user given name for the project.

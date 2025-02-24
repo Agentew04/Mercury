@@ -15,16 +15,15 @@
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="-1"
-        Title="MIPS 2.0">
+        Title="MIPS 2.0"
+        Closing="Window_OnClosing">
     <Window.Styles>
         <StyleInclude Source="/Assets/Styles/ProjectSelectionStyles.axaml"/>
     </Window.Styles>
     <Grid RowDefinitions="Auto,*" ColumnDefinitions="5*,2*">
         <!-- title bar -->
         <controls:TitleBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
-                           x:Name="TitleBar">
-            <!-- <TextBlock Text="sexo"></TextBlock> -->
-        </controls:TitleBar>
+                           x:Name="TitleBar"/>
         
         <!-- app title -->
         <TextBlock Text="MIPS 2.0" Classes="header"

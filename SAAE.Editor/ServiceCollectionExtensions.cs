@@ -15,5 +15,6 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<GuideService>();
         collection.AddSingleton<ProjectSelectionViewModel>();
         collection.AddSingleton<ProjectService>();
+        collection.AddSingleton<ProjectViewModel>();
     }
 }

@@ -72,9 +72,11 @@ public sealed class SettingsService : IDisposable {
         }
         // ir adicionando novos updates aqui abaixo
     }
-
+    
     public void Dispose() {
-        // faz salvar automaticamente as configurações ao fechar o programa
-        SaveSettings().Wait();
+        // ATENCAO: nao dah pra usar async aqui por algum motivo obscuro.
+        // faz escrita blocking
+        File.WriteAllText(ConfigPath, JsonSerializer.Serialize(Preferences, jsonOptions));
+        Console.WriteLine("Saved User Settings");
     }
 }

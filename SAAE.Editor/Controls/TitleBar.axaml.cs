@@ -9,7 +9,7 @@ namespace SAAE.Editor.Controls;
 
 public partial class TitleBar : UserControl {
 
-    public Window window;
+    public Window Window = null!;
     
     public TitleBar() {
         InitializeComponent();
@@ -17,7 +17,7 @@ public partial class TitleBar : UserControl {
     }
     
     private void BeginDrag(object? sender, PointerPressedEventArgs e) {
-        window.BeginMoveDrag(e);
+        Window.BeginMoveDrag(e);
     }
 
     private void Minimize(object? sender, RoutedEventArgs e) {
@@ -25,7 +25,7 @@ public partial class TitleBar : UserControl {
             return;
         }
 
-        window.WindowState = WindowState.Minimized;
+        Window.WindowState = WindowState.Minimized;
     }
 
     private void Maximize(object? sender, RoutedEventArgs e) {
@@ -33,8 +33,8 @@ public partial class TitleBar : UserControl {
             return;
         }
 
-        if (window.CanResize) {
-            window.WindowState = window.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        if (Window.CanResize) {
+            Window.WindowState = Window.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
     }
 
@@ -43,6 +43,6 @@ public partial class TitleBar : UserControl {
             return;
         }
         
-        window.Close();
+        Window.Close();
     }
 }

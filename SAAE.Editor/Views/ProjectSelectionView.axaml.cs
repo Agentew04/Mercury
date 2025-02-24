@@ -17,7 +17,7 @@ public partial class ProjectSelectionView : Window {
         InitializeComponent();
         DataContext = SelectionViewModel = App.Services.GetRequiredService<ProjectSelectionViewModel>();
         SelectionViewModel.view = this;
-        TitleBar.window = this;
+        TitleBar.Window = this;
     }
 
     public ProjectSelectionViewModel SelectionViewModel { get; set; }
@@ -39,5 +39,9 @@ public partial class ProjectSelectionView : Window {
 
         string path = result[0].Path.AbsolutePath;
         SelectionViewModel.NewProjectPath = path;
+    }
+
+    private void Window_OnClosing(object? sender, WindowClosingEventArgs e) {
+        SelectionViewModel.OverrideTaskCompletion();
     }
 }

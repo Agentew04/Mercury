@@ -9,8 +9,8 @@ namespace SAAE.Editor.Views;
 public partial class ProjectView : UserControl {
     public ProjectView() {
         InitializeComponent();
-        DataContext = SelectionViewModel = App.Services.GetRequiredService<ProjectSelectionViewModel>();
+        DataContext = ViewModel = App.Services.GetRequiredService<ProjectViewModel>();
     }
     
-    public ProjectSelectionViewModel SelectionViewModel { get; set; }
+    public ProjectViewModel ViewModel { get; set; }
 }

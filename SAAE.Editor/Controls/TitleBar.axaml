@@ -23,7 +23,6 @@
                     Click="Close"></Button>
         </StackPanel>
         <Grid Grid.Column="0" PointerPressed="BeginDrag">
-            <!-- <ContentPresenter Content="{Binding Content}"></ContentPresenter> -->
         </Grid>
     </Grid>
 </UserControl>
