@@ -18,7 +18,7 @@ public sealed class Machine : IDisposable, IClockable {
 
     public RegisterFile Registers => Cpu.RegisterFile;
 
-    public OperatingSystem Os { get; init; } = null!;
+    public MipsOperatingSystem Os { get; init; } = null!;
 
     public Stream StdIn { get; init; } = null!;
     

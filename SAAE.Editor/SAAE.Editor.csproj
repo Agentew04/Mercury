@@ -19,6 +19,12 @@
     <None Remove="Assets\Fonts\Nunito\*.ttf" />
     <AvaloniaResource Include="Assets\Images\book.png" />
     <None Remove="Assets\book.png" />
+    <None Remove="Assets\Images\arm-logo.png" />
+    <AvaloniaResource Include="Assets\Images\arm-logo.png" />
+    <None Remove="Assets\Images\mips-logo.png" />
+    <AvaloniaResource Include="Assets\Images\mips-logo.png" />
+    <None Remove="Assets\Images\riscv-logo.png" />
+    <AvaloniaResource Include="Assets\Images\riscv-logo.png" />
   </ItemGroup>
 
   <!-- pacotes -->
@@ -46,6 +52,7 @@
 
   <!-- localizacao -->
   <ItemGroup>
+    <ProjectReference Include="..\SAAE.Engine\SAAE.Engine.csproj" />
     <ProjectReference Include="..\SAAE.Generators\SAAE.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     <AdditionalFiles Include="Assets\Localization\*.resx" />
   </ItemGroup>

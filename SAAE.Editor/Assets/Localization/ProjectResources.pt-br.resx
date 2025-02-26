@@ -62,4 +62,10 @@
     <data name="AsmProjects" xml:space="preserve">
         <value>Projetos Assembly</value>
     </data>
+    <data name="ProjectFiles" xml:space="preserve">
+        <value>Arquivos do Projeto</value>
+    </data>
+    <data name="StdLib" xml:space="preserve">
+        <value>Biblioteca Padrão</value>
+    </data>
 </root>

@@ -69,4 +69,10 @@
     <data name="AsmProjects" xml:space="preserve">
         <value>Assembly Projects</value>
     </data>
+    <data name="ProjectFiles" xml:space="preserve">
+        <value>Project Files</value>
+    </data>
+    <data name="StdLib" xml:space="preserve">
+        <value>Standard Library</value>
+    </data>
 </root>

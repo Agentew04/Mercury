@@ -1,6 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 
 namespace SAAE.Editor.ViewModels;
@@ -12,63 +14,51 @@ public partial class ProjectViewModel : BaseViewModel {
     public ProjectViewModel() {
         Nodes = [
             // stdlib
-            new Node{
+            new ProjectNode{
                 Name = "Standard Library",
-                Type = NodeType.Category,
+                Type = ProjectNodeType.Category,
                 Children = [
-                    new Node {
+                    new ProjectNode {
                         Name = "printf.asm",
-                        Type = NodeType.AssemblyFile
+                        Type = ProjectNodeType.AssemblyFile
                     },
-                    new Node {
+                    new ProjectNode {
                         Name = "scanf.asm",
-                        Type = NodeType.AssemblyFile
+                        Type = ProjectNodeType.AssemblyFile
                     }
                 ]
             },
             // user files
-            new Node {
+            new ProjectNode {
                 Name = "Project Files",
-                Type = NodeType.Category,
+                Type = ProjectNodeType.Category,
                 Children = [
-                    new Node {
+                    new ProjectNode {
                         Name = "src",
-                        Type = NodeType.Folder,
+                        Type = ProjectNodeType.Folder,
                         Children = [
-                            new Node {
+                            new ProjectNode {
                                 Name = "main.asm",
-                                Type = NodeType.AssemblyFile
+                                Type = ProjectNodeType.AssemblyFile
                             }
                         ]
                     },
-                    new Node {
+                    new ProjectNode {
                         Name = "image.bmp",
-                        Type = NodeType.UnknownFile
+                        Type = ProjectNodeType.UnknownFile
                     }
                 ]
             }
         ];
     }
     
-    [ObservableProperty] private ObservableCollection<Node> nodes = [];
+    [ObservableProperty] private ObservableCollection<ProjectNode> nodes = [];
+
+    [ObservableProperty] private ProjectNode selectedNode = null!;
+
+    partial void OnSelectedNodeChanged(ProjectNode value) {
+        Console.WriteLine($"Selected node: {value.Name}");
+        // open file
+    }
 }
 
-public enum NodeType {
-    None,
-    Category,
-    Folder,
-    AssemblyFile,
-    UnknownFile
-}
-
-public partial class Node : ObservableObject {
-
-    [ObservableProperty]
-    private string name = string.Empty;
-    
-    [ObservableProperty]
-    private NodeType type = NodeType.None;
-    
-    [ObservableProperty]
-    private ObservableCollection<Node> children = [];
-}

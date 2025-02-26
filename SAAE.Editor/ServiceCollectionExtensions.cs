@@ -16,5 +16,6 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<ProjectSelectionViewModel>();
         collection.AddSingleton<ProjectService>();
         collection.AddSingleton<ProjectViewModel>();
+        collection.AddSingleton<FileService>();
     }
 }

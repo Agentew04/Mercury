@@ -5,6 +5,9 @@
         xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
         xmlns:localization="clr-namespace:SAAE.Editor.Localization"
         xmlns:controls="clr-namespace:SAAE.Editor.Controls"
+        xmlns:converters="clr-namespace:SAAE.Editor.Converters"
+        xmlns:engine="clr-namespace:SAAE.Engine;assembly=SAAE.Engine"
+        xmlns:models="clr-namespace:SAAE.Editor.Models"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
         Width="800" Height="500"
         x:Class="SAAE.Editor.Views.ProjectSelectionView"
@@ -20,6 +23,10 @@
     <Window.Styles>
         <StyleInclude Source="/Assets/Styles/ProjectSelectionStyles.axaml"/>
     </Window.Styles>
+    <Window.Resources>
+        <converters:ArchitectureToString x:Key="ArchToStr"></converters:ArchitectureToString>
+        <converters:ArchitectureToIconSource x:Key="ArchToIcon"></converters:ArchitectureToIconSource>
+    </Window.Resources>
     <Grid RowDefinitions="Auto,*" ColumnDefinitions="5*,2*">
         <!-- title bar -->
         <controls:TitleBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
@@ -50,18 +57,25 @@
                         <Button Classes="invisible fill"
                                 Command="{Binding OpenCommand}"
                                 CommandParameter="{Binding ProjectFile.ProjectPath}">
-                            <Grid>
-                                <StackPanel Spacing="5">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="5">
                                     <TextBlock Text="{Binding ProjectFile.ProjectName}"
                                                FontSize="16"></TextBlock>
                                     <TextBlock Text="{Binding ProjectFile.ProjectPath}"
                                                FontSize="12"
                                                Margin="5,0"></TextBlock>
                                 </StackPanel>
-                                <TextBlock HorizontalAlignment="Right"
-                                           VerticalAlignment="Top"
-                                           Text="{Binding ProjectFile.LastAccessed}"
-                                           FontSize="12"></TextBlock>
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Right"
+                                            Spacing="5">
+                                    <TextBlock Text="{Binding ProjectFile.LastAccessed}"
+                                               HorizontalAlignment="Right"
+                                               FontSize="12"></TextBlock>
+                                    <Image HorizontalAlignment="Right"
+                                           Source="{Binding ProjectFile.Architecture, Converter={StaticResource ArchToIcon}}"
+                                           Height="18">
+                                        
+                                    </Image>
+                                </StackPanel>
                             </Grid>
                         </Button>
                     </DataTemplate>
@@ -154,17 +168,34 @@
                           HorizontalAlignment="Stretch"
                           ItemsSource="{Binding Isas}"
                           SelectedIndex="{Binding SelectedIsaIndex}"
-                          Margin="0,0,0,8"></ComboBox>
+                          Margin="0,0,0,8">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="engine:Architecture">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding .,Converter={StaticResource ArchToIcon}}"></Image>
+                                <TextBlock Text="{Binding .,Converter={StaticResource ArchToStr}}"></TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <Label Content="{Binding OsLabel, Source={x:Static localization:ProjectResources.Instance}}"
                        Target="OsComboBox"
                        HorizontalAlignment="Left"></Label>
                 <ComboBox x:Name="OsComboBox"
                           HorizontalAlignment="Stretch"
                           ItemsSource="{Binding OperatingSystems}"
-                          SelectedIndex="{Binding SelectedOperatingSystemIndex}"></ComboBox>
+                          SelectedIndex="{Binding SelectedOperatingSystemIndex}"
+                          IsEnabled="{Binding HasAvailableOperatingSystems}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="engine:OperatingSystemType">
+                            <TextBlock Text="{Binding Name}"></TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <Button Content="{Binding CreateProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
                         HorizontalAlignment="Center"
                         Margin="15"
+                        IsEnabled="{Binding CanCreateProject}"
                         Command="{Binding NewProjectEndCommand}"/>
             </StackPanel>
         </Grid>

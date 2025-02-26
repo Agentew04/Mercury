@@ -8,9 +8,9 @@ namespace SAAE.Engine.Mips.Runtime;
 /// Operating system that mocks the MARS
 /// environment syscalls.
 /// </summary>
-public class Mars : OperatingSystem {
+public sealed class Mars : MipsOperatingSystem {
 
-    public override string OperatingSystemName => "mars";
+    public override string FriendlyName => "Mars 4.5 Runtime";
 
     protected override void OnSyscall(uint code) {
         switch (code) {
@@ -589,6 +589,5 @@ public class Mars : OperatingSystem {
             }
             stream.Dispose();
         }
-        GC.SuppressFinalize(this);
     }
 }

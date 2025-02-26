@@ -1,0 +1,63 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:view="clr-namespace:SAAE.Editor.Views"
+        xmlns:converters="clr-namespace:SAAE.Editor.Converters"
+        xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
+        xmlns:model="clr-namespace:SAAE.Editor.Models">
+    <Styles.Resources>
+        <converters:ProjectNodeTypeToIcon x:Key="NodeTypeToIcon"></converters:ProjectNodeTypeToIcon>
+    </Styles.Resources>
+    <Design.PreviewWith>
+        <Border Padding="20" Background="{DynamicResource BackgroundGrey}"
+                Width="300" Height="600">
+            <TreeView Classes="projectTree">
+                <TreeView.ItemTemplate>
+                    <TreeDataTemplate ItemsSource="{Binding Children}"
+                                      x:DataType="model:ProjectNode">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Type, Converter={StaticResource NodeTypeToIcon}}"
+                                       FontFamily="{DynamicResource PhosphorFont}"
+                                       VerticalAlignment="Center"></TextBlock>
+                            <TextBlock Text="{Binding Name}"
+                                       Margin="5,0,0,0"
+                                       VerticalAlignment="Center"></TextBlock>
+                        </StackPanel>
+                    </TreeDataTemplate>
+                </TreeView.ItemTemplate>
+                <model:ProjectNode Type="Category" Name="StdLib">
+                    <model:ProjectNode.Children>
+                        <model:ProjectNode Type="AssemblyFile" Name="printf.s"></model:ProjectNode>
+                        <model:ProjectNode Type="AssemblyFile" Name="scanf.s"></model:ProjectNode>
+                    </model:ProjectNode.Children>
+                </model:ProjectNode>
+                <model:ProjectNode Type="Category" Name="Project Files">
+                    <model:ProjectNode.Children>
+                        <model:ProjectNode Type="Folder" Name="src">
+                            <model:ProjectNode.Children>
+                                <model:ProjectNode Type="AssemblyFile" Name="main.s"></model:ProjectNode>
+                                <model:ProjectNode Type="AssemblyFile" Name="gui.s"></model:ProjectNode>
+                                <model:ProjectNode Type="AssemblyFile" Name="math.s"></model:ProjectNode>
+                            </model:ProjectNode.Children>
+                        </model:ProjectNode>
+                    </model:ProjectNode.Children>
+                </model:ProjectNode>
+            </TreeView>
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="TreeView.projectTree TreeViewItem">
+        <Setter Property="MinHeight" Value="0"></Setter>
+    </Style>
+    <Style Selector="TreeView.projectTree TreeViewItem Panel#PART_ExpandCollapseChevronContainer">
+        <Setter Property="Margin" Value="0,0,8,0"></Setter>
+    </Style>
+    <Style Selector="TreeView.projectTree TreeViewItem Border#PART_LayoutRoot:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AlternateGrey}"></Setter>
+    </Style>
+    <Style Selector="TreeView.projectTree TreeViewItem:selected Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="{DynamicResource AlternateGrey}"></Setter>
+    </Style>
+    <Style Selector="TreeView.projectTree TreeViewItem:selected Border#PART_LayoutRoot:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AlternateGrey}"></Setter>
+    </Style>
+</Styles>

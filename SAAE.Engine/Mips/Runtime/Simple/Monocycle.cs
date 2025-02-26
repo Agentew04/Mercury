@@ -62,6 +62,12 @@ public sealed partial class Monocycle : IClockable {
         }
         catch (Exception) {
             Console.WriteLine("Invalid instruction");
+            OnSignalException?.Invoke(this, new SignalExceptionEventArgs {
+                Signal = SignalExceptionEventArgs.SignalType.InvalidInstruction,
+                ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
+                Instruction = instructionBinary
+            });
+            Halt(-1);
             return;
         }
 
@@ -150,7 +156,8 @@ public sealed partial class Monocycle : IClockable {
             Trap,
             IntegerOverflow,
             AddressError,
-            Halt
+            Halt,
+            InvalidInstruction
         }
     }
 }

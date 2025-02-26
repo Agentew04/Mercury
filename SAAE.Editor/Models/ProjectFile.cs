@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
+using SAAE.Engine;
 
 namespace SAAE.Editor.Models;
 
@@ -51,19 +52,24 @@ public class ProjectFile {
     /// <summary>
     /// What instruction set to use for the project.
     /// </summary>
-    [XmlElement("InstructionSet")]
-    public string InstructionSet { get; set; } = "mips";
+    [XmlElement("Architecture")]
+    public Architecture Architecture { get; set; } = Architecture.Mips;
     
     /// <summary>
-    /// The string that represents the name of the operating system
-    /// used to simulate syscalls.
+    /// The operating system that the project will use.
+    /// </summary>
+    [XmlIgnore]
+    public OperatingSystemType OperatingSystem { get; set; }
+    
+    /// <summary>
+    /// O nome do sistema operacional que o projeto usará.
     /// </summary>
     [XmlElement("OperatingSystem")]
-    public string OperatingSystemName { get; set; } = "mars";
-
+    public string OperatingSystemName { get; set; } = "";
+    
     /// <summary>
     /// The main entry point file of the project. It is this file
-    /// that will be injected a __start label and globl directive
+    /// that will be injected a '__start' label and .globl directive
     /// </summary>
     [XmlElement("EntryFile")]
     public string EntryFile { get; set; } = "src/main.asm";

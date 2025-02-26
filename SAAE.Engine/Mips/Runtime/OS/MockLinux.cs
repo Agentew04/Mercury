@@ -12,9 +12,9 @@ namespace SAAE.Engine.Mips.Runtime;
 /// Convencao do mips32: https://gist.github.com/yamnikov-oleg/454f48c3c45b735631f2
 /// 
 ///  </remarks>
-public class MockLinux : OperatingSystem {
+public sealed class MockLinux : MipsOperatingSystem {
 
-    public override string OperatingSystemName => "linux";
+    public override string FriendlyName => "Linux 1.0";
 
     protected override void OnSyscall(uint code) {
         switch (code) {
@@ -40,7 +40,7 @@ public class MockLinux : OperatingSystem {
     }
 
     public override void Dispose() {
-        throw new NotImplementedException();
+        
     }
 
     private void Exit() {

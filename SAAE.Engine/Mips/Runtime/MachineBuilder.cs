@@ -6,7 +6,7 @@ namespace SAAE.Engine.Mips.Runtime;
 public class MachineBuilder {
     private VirtualMemory? _memory;
     private Monocycle? _cpu;
-    private OperatingSystem? _os;
+    private MipsOperatingSystem? _os;
     private Stream? stdin;
     private Stream? stdout;
     private Stream? stderr;

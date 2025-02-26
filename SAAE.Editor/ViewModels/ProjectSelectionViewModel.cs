@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 using SAAE.Editor.Views;
+using SAAE.Engine;
 
 namespace SAAE.Editor.ViewModels;
 
@@ -47,21 +49,39 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DirectoryNotice))]
+    [NotifyPropertyChangedFor(nameof(CanCreateProject))]
     private string newProjectName = string.Empty;
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DirectoryNotice))]
+    [NotifyPropertyChangedFor(nameof(CanCreateProject))]
     private string newProjectPath = string.Empty;
 
+    private List<OperatingSystemType> allOperatingSystems = null!;
     [ObservableProperty] 
-    private ObservableCollection<string> operatingSystems = [];
+    [NotifyPropertyChangedFor(nameof(HasAvailableOperatingSystems))]
+    private ObservableCollection<OperatingSystemType> operatingSystems = [];
+    
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateProject))]
     private int selectedOperatingSystemIndex = -1;
 
-    [ObservableProperty] private ObservableCollection<string> isas = [];
-    [ObservableProperty] private int selectedIsaIndex = -1;
+    [ObservableProperty] private ObservableCollection<Architecture> isas = [];
+    
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateProject))]
+    [NotifyPropertyChangedFor(nameof(HasAvailableOperatingSystems))]
+    private int selectedIsaIndex = -1;
     
     public bool EmptyRecentProjects => FilteredRecentProjects.Count == 0;
+    
+    public bool CanCreateProject => !string.IsNullOrWhiteSpace(NewProjectName) 
+                                    && !string.IsNullOrWhiteSpace(NewProjectPath)
+                                    && SelectedOperatingSystemIndex >= 0
+                                    && SelectedIsaIndex >= 0;
+    
+    public bool HasAvailableOperatingSystems => OperatingSystems.Count > 0;
+    
 
     private readonly TaskCompletionSource<bool> projectSelectionTask = new();
     
@@ -99,8 +119,31 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
     [RelayCommand]
     private void NewProjectStart() {
         IsCreatingProject = true;
-        OperatingSystems = ["Mars 4.5", "Linux Kernel 1.0"];
-        Isas = ["MIPS", "RISC-V", "ARM"];
+        allOperatingSystems = OperatingSystemManager.GetAvailableOperatingSystems().ToList();
+        OperatingSystems = new ObservableCollection<OperatingSystemType>(allOperatingSystems);
+        Isas = [Architecture.Mips, Architecture.RiscV, Architecture.Arm];
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasAvailableOperatingSystems)));
+    }
+    
+    partial void OnSelectedIsaIndexChanged(int value) {
+        if (value < 0 || value >= allOperatingSystems.Count) {
+            return;
+        }
+        Console.WriteLine("Selected ISA changed");
+        Architecture isa = Isas[value];
+        IEnumerable<OperatingSystemType> oss = allOperatingSystems
+            .Where(x => x.CompatibleArchitecture == isa);
+        OperatingSystems.Clear();
+        foreach (OperatingSystemType os in oss) {
+            OperatingSystems.Add(os);
+        }
+        if (OperatingSystems.Count > 0) {
+            SelectedOperatingSystemIndex = 0;
+        }else {
+            SelectedOperatingSystemIndex = -1;
+        }
+
+        Console.WriteLine("Now with {0} OSes and selection at {1}", OperatingSystems.Count, SelectedOperatingSystemIndex);
     }
 
     [RelayCommand]
@@ -108,8 +151,8 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
         string path = SanitizeProjectPath(NewProjectPath);
         string name = SanitizeProjectName(NewProjectName);
         string projectFilePath = Path.Combine(path, name, name+".asmproj");
-        string os = OperatingSystems[SelectedOperatingSystemIndex];
-        string isa = Isas[SelectedIsaIndex];
+        OperatingSystemType os = OperatingSystems[SelectedOperatingSystemIndex];
+        Architecture isa = Isas[SelectedIsaIndex];
         ProjectFile project = await projectService.CreateProjectAsync(projectFilePath, name, os, isa);
         projectService.SetCurrentProject(project);
         IsCreatingProject = false;

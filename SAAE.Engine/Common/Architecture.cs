@@ -4,7 +4,8 @@
 /// An enumerator that lists all available Instruction Set Architectures
 /// for the engine.
 /// </summary>
-public enum Isa {
+public enum Architecture {
+    Unknown,
     Mips,
     RiscV,
     Arm

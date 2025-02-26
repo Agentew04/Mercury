@@ -7,6 +7,7 @@ using System.Xml;
 using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
 using SAAE.Editor.ViewModels;
+using SAAE.Engine;
 
 namespace SAAE.Editor.Services;
 
@@ -72,6 +73,9 @@ public class ProjectService {
             Console.WriteLine("A versao do projeto eh maior que a versao suportada! Atualize o programa.");
             return null;
         }
+        
+        project.OperatingSystem = OperatingSystemManager.GetAvailableOperatingSystems()
+            .First(x => x.Name == project.OperatingSystemName);
 
         project.ProjectPath = path;
         return project;
@@ -89,20 +93,23 @@ public class ProjectService {
             IndentChars = "    "
         });
         
+        project.OperatingSystemName = project.OperatingSystem.Name;
+        
         System.Xml.Serialization.XmlSerializer serializer = new(typeof(ProjectFile));
         serializer.Serialize(writer, project);
     }
 
     
-    public async Task<ProjectFile> CreateProjectAsync(string path, string name, string os, string isa) {
+    public async Task<ProjectFile> CreateProjectAsync(string path, string name, OperatingSystemType os, Architecture isa) {
         ProjectFile project = new() {
             ProjectName = name,
             ProjectPath = path,
             EntryFile = "src/main.asm",
-            OperatingSystemName = os,
+            OperatingSystem = os,
+            OperatingSystemName = os.Name,
             ProjectVersion = ProjectFile.LatestProjectVersion,
             IncludeStandardLibrary = true,
-            InstructionSet = isa
+            Architecture = isa
         };
         WriteProject(project);
         // get directory from filepath
