@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:localization="clr-namespace:SAAE.Editor.Localization"
              xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
+             xmlns:conv="clr-namespace:SAAE.Editor.Converters"
              xmlns:model="clr-namespace:SAAE.Editor.Models"
+             xmlns:view="clr-namespace:SAAE.Editor.Views"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="500"
              Background="{DynamicResource BackgroundGrey}"
              x:Class="SAAE.Editor.Views.ProjectView"
@@ -15,6 +17,8 @@
     <UserControl.Styles>
         <StyleInclude Source="/Assets/Styles/ProjectViewStyles.axaml"></StyleInclude>
     </UserControl.Styles>
+    <UserControl.Resources>
+    </UserControl.Resources>
     <Border BorderBrush="Black" BorderThickness="1">
         <Grid RowDefinitions="Auto,*">
             <TextBlock Grid.Row="0" Classes="header"
@@ -24,10 +28,54 @@
                       Classes="projectTree"
                       Margin="15"
                       SelectedItem="{Binding SelectedNode}">
+                <!-- <TreeView.ContextMenu> -->
+                <!--     <ContextMenu> -->
+                <!--         <MenuItem Header="a"> -->
+                <!--             <MenuItem Header="a.a"/> -->
+                <!--             <MenuItem Header="a.b"/> -->
+                <!--             <MenuItem Header="a.c"/> -->
+                <!--         </MenuItem> -->
+                <!--         <MenuItem Header="b"> -->
+                <!--             <MenuItem Header="b.a"/> -->
+                <!--             <MenuItem Header="b.b"/> -->
+                <!--             <MenuItem Header="b.c"/> -->
+                <!--         </MenuItem> -->
+                <!--     </ContextMenu> -->
+                <!-- </TreeView.ContextMenu> -->
+                <TreeView.Resources>
+                    <conv:Converter x:Key="Conv"></conv:Converter>
+                </TreeView.Resources>
                 <TreeView.ItemTemplate>
                     <TreeDataTemplate ItemsSource="{Binding Children}"
                                       x:DataType="model:ProjectNode">
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{Binding $parent[TreeViewItem].Background}">
+                            <StackPanel.ContextMenu>
+                                <!-- <ContextMenu ItemsSource="{Binding ContextOptions}" -->
+                                <!--              IsEnabled="{Binding HasContextMenu}"> -->
+                                <!--     <ContextMenu.ItemTemplate> -->
+                                <!--         <DataTemplate x:DataType="model:ContextOption"> -->
+                                <!--             <MenuItem Command="{Binding Command}" -->
+                                <!--                       IsEnabled="{Binding IsEnabled}" -->
+                                <!--                       IsVisible="{Binding IsVisible}" -->
+                                <!--                       Header="{Binding Command, Converter={StaticResource Conv}}"></MenuItem> -->
+                                <!--         </DataTemplate> -->
+                                <!--     </ContextMenu.ItemTemplate> -->
+                                <!-- </ContextMenu> -->
+                                <ContextMenu>
+                                    <MenuItem Header="a" Classes.selected="False">
+                                        <MenuItem Header="a.a"/>
+                                        <MenuItem Header="a.b"/>
+                                        <MenuItem Header="a.c"/>
+                                    </MenuItem>
+                                    <MenuItem Header="b" Classes.selected="False">
+                                        <MenuItem Header="b.a"/>
+                                        <MenuItem Header="b.b"/>
+                                        <MenuItem Header="b.c"/>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </StackPanel.ContextMenu>
                             <TextBlock Text="{Binding Type, Converter={StaticResource NodeTypeToIcon}}"
                                        FontFamily="{DynamicResource PhosphorFont}"
                                        VerticalAlignment="Center"></TextBlock>

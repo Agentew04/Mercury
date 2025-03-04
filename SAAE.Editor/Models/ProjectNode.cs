@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
+using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SAAE.Editor.Models;
@@ -30,5 +32,30 @@ public partial class ProjectNode : ObservableObject {
     private ObservableCollection<ProjectNode> children = [];
 
     public Guid Id { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasContextMenu))]
+    private ObservableCollection<ContextOption> contextOptions = [];
+    
+    public bool HasContextMenu => ContextOptions.Count > 0;
+
+}
+
+/// <summary>
+/// Representa uma opcao de contexto para um nó na árvore de arquivos do projeto.
+/// </summary>
+public partial class ContextOption : ObservableObject {
+
+    [ObservableProperty]
+    private string name = "ERRO";
+    
+    [ObservableProperty]
+    private bool isEnabled = true;
+
+    [ObservableProperty]
+    private bool isVisible = true;
+
+    [ObservableProperty]
+    private ICommand command = null!;
 }
 

@@ -22,6 +22,7 @@
       
       <SolidColorBrush x:Key="BackgroundGrey">#1F1F1F</SolidColorBrush>
       <SolidColorBrush x:Key="AlternateGrey" Color="#383838" />
+      <SolidColorBrush x:Key="AlternateGreyLight" Color="#484f4f" />
       <SolidColorBrush x:Key="BlueLight">#0b779c</SolidColorBrush>
       <SolidColorBrush x:Key="PrimaryForeground">#dddddd</SolidColorBrush>
       <SolidColorBrush x:Key="Purple1" Color="#7950F2" />

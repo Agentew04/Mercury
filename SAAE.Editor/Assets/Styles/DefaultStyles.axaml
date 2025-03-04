@@ -34,6 +34,11 @@
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
     </Style>
     
+    <Style Selector="Button.invisible:pointerover">
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+    </Style>
+    
     <Style Selector="Button.invisible:pressed">
         <Setter Property="Background" Value="Transparent"></Setter>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
@@ -54,5 +59,24 @@
     
     <Style Selector="Button.titlebarbuttonclose:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource CloseRed}"></Setter>
+    </Style>
+    
+    <Style Selector="Button.fill">
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+        <Setter Property="VerticalAlignment" Value="Stretch"></Setter>
+        <Setter Property="Margin" Value="0"></Setter>
+        <Setter Property="CornerRadius" Value="0"></Setter>
+    </Style>
+    
+    <Style Selector="Button.nohover:pointerover">
+        <Setter Property="Background" Value="Transparent"></Setter>
+    </Style>
+    
+    <Style Selector="Button.nohover:hover">
+        <Setter Property="Background" Value="Transparent"></Setter>
+    </Style>
+    
+    <Style Selector="Button.notransform">
+        <Setter Property="RenderTransform" Value=""></Setter>
     </Style>
 </Styles>

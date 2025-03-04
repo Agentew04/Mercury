@@ -51,13 +51,13 @@
     <Style Selector="TreeView.projectTree TreeViewItem Panel#PART_ExpandCollapseChevronContainer">
         <Setter Property="Margin" Value="0,0,8,0"></Setter>
     </Style>
-    <Style Selector="TreeView.projectTree TreeViewItem Border#PART_LayoutRoot:pointerover">
+    <Style Selector="TreeView.projectTree TreeViewItem > StackPanel >  Border#PART_LayoutRoot:pointerover">
         <Setter Property="Background" Value="{DynamicResource AlternateGrey}"></Setter>
     </Style>
-    <Style Selector="TreeView.projectTree TreeViewItem:selected Border#PART_LayoutRoot">
+    <Style Selector="TreeView.projectTree TreeViewItem:selected > StackPanel > Border#PART_LayoutRoot">
         <Setter Property="Background" Value="{DynamicResource AlternateGrey}"></Setter>
     </Style>
-    <Style Selector="TreeView.projectTree TreeViewItem:selected Border#PART_LayoutRoot:pointerover">
-        <Setter Property="Background" Value="{DynamicResource AlternateGrey}"></Setter>
+    <Style Selector="TreeView.projectTree TreeViewItem:selected > StackPanel > Border#PART_LayoutRoot:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AlternateGreyLight}"></Setter>
     </Style>
 </Styles>
