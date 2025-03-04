@@ -115,23 +115,18 @@ public partial class ProjectViewModel : BaseViewModel {
 
     [RelayCommand]
     private void AddFile() {
+        ProjectNode? node = SelectedNode;
         
+        Console.WriteLine("add file:" + node?.Name ?? "null");
     }
 
-    [RelayCommand(CanExecute = nameof(CanSetEntryPoint))]
+    [RelayCommand]
     private void SetEntryPoint() {
         ProjectNode node = SelectedNode;
         Console.WriteLine("Set entry point: "+ node.Name);
         
     }
     
-    public bool CanSetEntryPoint() {
-        ProjectNode node = SelectedNode;
-        Console.WriteLine("Can set entry point: "+node.Name);
-        return node.Type == ProjectNodeType.AssemblyFile;
-    }
-
-
     [RelayCommand]
     private void RemoveNode() {
         

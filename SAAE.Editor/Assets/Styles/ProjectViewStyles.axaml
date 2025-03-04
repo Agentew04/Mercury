@@ -60,4 +60,11 @@
     <Style Selector="TreeView.projectTree TreeViewItem:selected > StackPanel > Border#PART_LayoutRoot:pointerover">
         <Setter Property="Background" Value="{DynamicResource AlternateGreyLight}"></Setter>
     </Style>
+    
+    <Style Selector="MenuItem:pointerover > Panel > Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="Transparent"></Setter>
+    </Style>
+    <Style Selector="MenuItem:selected > Panel > Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="Transparent"></Setter>
+    </Style>
 </Styles>

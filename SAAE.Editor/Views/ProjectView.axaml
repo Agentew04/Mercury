@@ -28,20 +28,12 @@
                       Classes="projectTree"
                       Margin="15"
                       SelectedItem="{Binding SelectedNode}">
-                <!-- <TreeView.ContextMenu> -->
-                <!--     <ContextMenu> -->
-                <!--         <MenuItem Header="a"> -->
-                <!--             <MenuItem Header="a.a"/> -->
-                <!--             <MenuItem Header="a.b"/> -->
-                <!--             <MenuItem Header="a.c"/> -->
-                <!--         </MenuItem> -->
-                <!--         <MenuItem Header="b"> -->
-                <!--             <MenuItem Header="b.a"/> -->
-                <!--             <MenuItem Header="b.b"/> -->
-                <!--             <MenuItem Header="b.c"/> -->
-                <!--         </MenuItem> -->
-                <!--     </ContextMenu> -->
-                <!-- </TreeView.ContextMenu> -->
+                <TreeView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="{Binding AddFileCommand}"
+                                  Header="Add"></MenuItem>
+                    </ContextMenu>
+                </TreeView.ContextMenu>
                 <TreeView.Resources>
                     <conv:Converter x:Key="Conv"></conv:Converter>
                 </TreeView.Resources>
@@ -52,28 +44,25 @@
                                     HorizontalAlignment="Stretch"
                                     Background="{Binding $parent[TreeViewItem].Background}">
                             <StackPanel.ContextMenu>
-                                <!-- <ContextMenu ItemsSource="{Binding ContextOptions}" -->
-                                <!--              IsEnabled="{Binding HasContextMenu}"> -->
-                                <!--     <ContextMenu.ItemTemplate> -->
-                                <!--         <DataTemplate x:DataType="model:ContextOption"> -->
-                                <!--             <MenuItem Command="{Binding Command}" -->
-                                <!--                       IsEnabled="{Binding IsEnabled}" -->
-                                <!--                       IsVisible="{Binding IsVisible}" -->
-                                <!--                       Header="{Binding Command, Converter={StaticResource Conv}}"></MenuItem> -->
-                                <!--         </DataTemplate> -->
-                                <!--     </ContextMenu.ItemTemplate> -->
-                                <!-- </ContextMenu> -->
-                                <ContextMenu>
-                                    <MenuItem Header="a" Classes.selected="False">
-                                        <MenuItem Header="a.a"/>
-                                        <MenuItem Header="a.b"/>
-                                        <MenuItem Header="a.c"/>
-                                    </MenuItem>
-                                    <MenuItem Header="b" Classes.selected="False">
-                                        <MenuItem Header="b.a"/>
-                                        <MenuItem Header="b.b"/>
-                                        <MenuItem Header="b.c"/>
-                                    </MenuItem>
+                                <ContextMenu ItemsSource="{Binding ContextOptions}"
+                                             IsEnabled="{Binding HasContextMenu}"
+                                             IsVisible="{Binding HasContextMenu}">
+                                    <ContextMenu.ItemTemplate>
+                                        <DataTemplate x:DataType="model:ContextOption">
+                                            <MenuItem IsEnabled="{Binding IsEnabled}"
+                                                      IsVisible="{Binding IsVisible}">
+                                                <MenuItem.Styles>
+                                                    <Style Selector="MenuItem">
+                                                        <Setter Property="Command" Value="{Binding Command}"></Setter>
+                                                    </Style>
+                                                </MenuItem.Styles>
+                                                <MenuItem.Header>
+                                                    <TextBlock Text="{Binding Name}"
+                                                               Background="Transparent"></TextBlock>
+                                                </MenuItem.Header>
+                                            </MenuItem>
+                                        </DataTemplate>
+                                    </ContextMenu.ItemTemplate>
                                 </ContextMenu>
                             </StackPanel.ContextMenu>
                             <TextBlock Text="{Binding Type, Converter={StaticResource NodeTypeToIcon}}"
