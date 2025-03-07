@@ -28,12 +28,6 @@
                       Classes="projectTree"
                       Margin="15"
                       SelectedItem="{Binding SelectedNode}">
-                <TreeView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Command="{Binding AddFileCommand}"
-                                  Header="Add"></MenuItem>
-                    </ContextMenu>
-                </TreeView.ContextMenu>
                 <TreeView.Resources>
                     <conv:Converter x:Key="Conv"></conv:Converter>
                 </TreeView.Resources>
@@ -49,16 +43,17 @@
                                              IsVisible="{Binding HasContextMenu}">
                                     <ContextMenu.ItemTemplate>
                                         <DataTemplate x:DataType="model:ContextOption">
+                                            <!-- IsEnabled="{Binding IsEnabled}"-->
                                             <MenuItem IsEnabled="{Binding IsEnabled}"
                                                       IsVisible="{Binding IsVisible}">
                                                 <MenuItem.Styles>
                                                     <Style Selector="MenuItem">
                                                         <Setter Property="Command" Value="{Binding Command}"></Setter>
+                                                        <Setter Property="CommandParameter" Value="{Binding $parent[ContextMenu].DataContext}"></Setter>
                                                     </Style>
                                                 </MenuItem.Styles>
                                                 <MenuItem.Header>
-                                                    <TextBlock Text="{Binding Name}"
-                                                               Background="Transparent"></TextBlock>
+                                                    <TextBlock Text="{Binding Name}"></TextBlock>
                                                 </MenuItem.Header>
                                             </MenuItem>
                                         </DataTemplate>

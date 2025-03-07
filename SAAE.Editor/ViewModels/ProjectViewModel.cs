@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,47 +15,10 @@ namespace SAAE.Editor.ViewModels;
 public partial class ProjectViewModel : BaseViewModel {
 
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+    private readonly FileService fileService = App.Services.GetRequiredService<FileService>();
 
     public ProjectViewModel() {
-        // temp
-        List<ProjectNode> nodes = [
-            new() {
-                Name = "Standard Library",
-                Type = ProjectNodeType.Category,
-                Children = [
-                    new ProjectNode {
-                        Name = "printf.asm",
-                        Type = ProjectNodeType.AssemblyFile
-                    },
-                    new ProjectNode {
-                        Name = "scanf.asm",
-                        Type = ProjectNodeType.AssemblyFile
-                    }
-                ]
-            },
-            // user files
-
-            new() {
-                Name = "Project Files",
-                Type = ProjectNodeType.Category,
-                Children = [
-                    new ProjectNode {
-                        Name = "src",
-                        Type = ProjectNodeType.Folder,
-                        Children = [
-                            new ProjectNode {
-                                Name = "main.asm",
-                                Type = ProjectNodeType.AssemblyFile
-                            }
-                        ]
-                    },
-                    new ProjectNode {
-                        Name = "image.bmp",
-                        Type = ProjectNodeType.UnknownFile
-                    }
-                ]
-            }
-        ];
+        List<ProjectNode> nodes = fileService.GetProjectTree();
         foreach (ProjectNode node in nodes) {
             SetCommands(node);
         }
@@ -68,11 +32,11 @@ public partial class ProjectViewModel : BaseViewModel {
                 break;
             case ProjectNodeType.Folder:
                 node.ContextOptions = [
-                    new ContextOption() {
+                    new ContextOption(node) {
                         Name = "New Folder",
                         Command = AddFolderCommand
                     },
-                    new ContextOption() {
+                    new ContextOption(node) {
                         Name = "New File",
                         Command = AddFileCommand
                     }
@@ -80,7 +44,7 @@ public partial class ProjectViewModel : BaseViewModel {
                 break;
             case ProjectNodeType.AssemblyFile:
                 node.ContextOptions = [
-                    new ContextOption() {
+                    new ContextOption(node) {
                         Name = "Set Entry Point",
                         Command = SetEntryPointCommand
                     }
@@ -108,27 +72,58 @@ public partial class ProjectViewModel : BaseViewModel {
         // open file
     }
 
-    [RelayCommand]
-    private void AddFolder() {
-        
+    [RelayCommand(CanExecute = nameof(CanAddFolder))]
+    private void AddFolder(ProjectNode node) {
+        ProjectNode folder = new() {
+            Name = "folder",
+            Children = [],
+            Type = ProjectNodeType.Folder,
+            Id = Guid.NewGuid()
+        };
+        fileService.RegisterNode(node, folder);
+        SetCommands(folder);
     }
 
-    [RelayCommand]
-    private void AddFile() {
-        ProjectNode? node = SelectedNode;
-        
-        Console.WriteLine("add file:" + node?.Name ?? "null");
+    private bool CanAddFolder(ProjectNode node) {
+        return !node.IsEffectiveReadOnly;
     }
 
-    [RelayCommand]
-    private void SetEntryPoint() {
-        ProjectNode node = SelectedNode;
-        Console.WriteLine("Set entry point: "+ node.Name);
+    [RelayCommand(CanExecute = nameof(CanAddFile))]
+    private void AddFile(ProjectNode node) {
+
+        if (node.Type != ProjectNodeType.Folder) {
+            return;
+        }
         
+        ProjectNode file = new() {
+            Name = "file.asm",
+            Children = [],
+            Type = ProjectNodeType.AssemblyFile,
+            Id = Guid.NewGuid()
+        };
+        fileService.RegisterNode(node,file);
+        SetCommands(file);
+    }
+
+    private bool CanAddFile(ProjectNode node) {
+        return !node.IsEffectiveReadOnly;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSetEntryPoint))]
+    private void SetEntryPoint(ProjectNode node) {
+        ProjectFile? project = projectService.GetCurrentProject();
+        Debug.Assert(project != null, "project != null (SetEntryPoint)");
+        project.EntryFile = fileService.GetRelativePath(node.Id);
+        projectService.SaveProject();
+    }
+
+    private bool CanSetEntryPoint(ProjectNode node) {
+        Console.WriteLine("CanSetEntryPoint = "+!node.IsEffectiveReadOnly);
+        return !node.IsEffectiveReadOnly;
     }
     
     [RelayCommand]
-    private void RemoveNode() {
+    private void RemoveNode(ProjectNode node) {
         
     }
 }

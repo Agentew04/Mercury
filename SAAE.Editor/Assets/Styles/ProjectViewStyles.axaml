@@ -62,9 +62,9 @@
     </Style>
     
     <Style Selector="MenuItem:pointerover > Panel > Border#PART_LayoutRoot">
-        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Background" Value="red"></Setter>
     </Style>
     <Style Selector="MenuItem:selected > Panel > Border#PART_LayoutRoot">
-        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Background" Value="blue"></Setter>
     </Style>
 </Styles>

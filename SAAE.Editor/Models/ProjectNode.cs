@@ -36,9 +36,15 @@ public partial class ProjectNode : ObservableObject {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasContextMenu))]
     private ObservableCollection<ContextOption> contextOptions = [];
+
+    public WeakReference<ProjectNode> ParentReference { get; set; } = null!;
     
     public bool HasContextMenu => ContextOptions.Count > 0;
 
+    [ObservableProperty] 
+    private bool isReadOnly = false;
+    
+    public bool IsEffectiveReadOnly => IsReadOnly || (ParentReference?.TryGetTarget(out ProjectNode? parent) == true && parent.IsEffectiveReadOnly);
 }
 
 /// <summary>
@@ -49,13 +55,19 @@ public partial class ContextOption : ObservableObject {
     [ObservableProperty]
     private string name = "ERRO";
     
-    [ObservableProperty]
-    private bool isEnabled = true;
+    public bool IsEnabled => Command.CanExecute((nodeReference.TryGetTarget(out ProjectNode? target) ? target : null)!);
 
     [ObservableProperty]
     private bool isVisible = true;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsEnabled))]
     private ICommand command = null!;
+
+    private WeakReference<ProjectNode> nodeReference;
+    
+    public ContextOption(ProjectNode node) {
+        nodeReference = new WeakReference<ProjectNode>(node);
+    }
 }
 

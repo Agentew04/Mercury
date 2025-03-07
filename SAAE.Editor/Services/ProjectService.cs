@@ -17,15 +17,16 @@ namespace SAAE.Editor.Services;
 public class ProjectService {
 
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
-    private ProjectFile? currentProject = null;
+    private ProjectFile? currentProject;
 
     private static bool PathEquals(string path1, string path2) {
-        string normalize(string p) {
+        StringComparison comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        return string.Equals(Normalize(path1), Normalize(path2), comparison);
+
+        string Normalize(string p) {
             return Path.GetFullPath(p)
                 .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         }
-        StringComparison comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-        return string.Equals(normalize(path1), normalize(path2), comparison);
     }
     
     /// <summary>
@@ -98,7 +99,6 @@ public class ProjectService {
         System.Xml.Serialization.XmlSerializer serializer = new(typeof(ProjectFile));
         serializer.Serialize(writer, project);
     }
-
     
     public async Task<ProjectFile> CreateProjectAsync(string path, string name, OperatingSystemType os, Architecture isa) {
         ProjectFile project = new() {
@@ -154,5 +154,12 @@ public class ProjectService {
     
     public void SetCurrentProject(ProjectFile? project) {
         currentProject = project;
+    }
+    
+    public void SaveProject() {
+        if (currentProject is null) {
+            return;
+        }
+        WriteProject(currentProject);
     }
 }
