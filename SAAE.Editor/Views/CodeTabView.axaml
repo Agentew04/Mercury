@@ -18,39 +18,40 @@
         <view:ProjectView Width="300" DockPanel.Dock="Left"></view:ProjectView>
         
         <!-- open files window -->
-        <TabControl>
-            <TabControl.Items>
-                <TabItem Header="main.asm">
-                    <avaloniaEdit:TextEditor HorizontalAlignment="Stretch"
-                                             VerticalAlignment="Stretch"
-                                             FontFamily="JetBrains mono"
-                                             HorizontalScrollBarVisibility="Auto"
-                                             VerticalScrollBarVisibility="Auto"
-                                             FontWeight="Light"
-                                             FontSize="14"/>
-                    <!-- <avaloniaEdit:TextEditor Name="Editor" Grid.Row="1" -->
-                    <!--                          FontFamily="Jetbrains Mono,Cascadia Code,Consolas,Menlo,Monospace" -->
-                    <!--                          Margin="30" Padding="5" -->
-                    <!--                          HorizontalScrollBarVisibility="Auto" -->
-                    <!--                          VerticalScrollBarVisibility="Visible" -->
-                    <!--                          FontWeight="Light" -->
-                    <!--                          FontSize="14"  -->
-                    <!--                          Background="{StaticResource AlternateGrey}" CornerRadius="3"> -->
-                    <!--   <avaloniaEdit:TextEditor.ContextFlyout> -->
-                    <!--     <MenuFlyout> -->
-                    <!--       <MenuItem Header="Copy" InputGesture="ctrl+C"></MenuItem> -->
-                    <!--       <MenuItem Header="Cut" InputGesture="ctrl+X"></MenuItem> -->
-                    <!--       <MenuItem Header="Paste" InputGesture="ctrl+V"></MenuItem> -->
-                    <!--       <MenuItem Header="-"/> -->
-                    <!--       <MenuItem Header="Select All" InputGesture="ctrl+A"></MenuItem> -->
-                    <!--     </MenuFlyout> -->
-                    <!--   </avaloniaEdit:TextEditor.ContextFlyout> -->
-                    <!-- </avaloniaEdit:TextEditor> -->
-                </TabItem>
-                <TabItem Header="local">
-                    <Button Click="Button_OnClick" Content="toggle lang"></Button>
-                </TabItem>
-            </TabControl.Items>
-        </TabControl>
+        <view:FileEditorView></view:FileEditorView>
+        <!-- <TabControl> -->
+        <!--     <TabControl.Items> -->
+        <!--         <TabItem Header="main.asm"> -->
+        <!--             <avaloniaEdit:TextEditor HorizontalAlignment="Stretch" -->
+        <!--                                      VerticalAlignment="Stretch" -->
+        <!--                                      FontFamily="JetBrains mono" -->
+        <!--                                      HorizontalScrollBarVisibility="Auto" -->
+        <!--                                      VerticalScrollBarVisibility="Auto" -->
+        <!--                                      FontWeight="Light" -->
+        <!--                                      FontSize="14"/> -->
+        <!--             ~1~ <avaloniaEdit:TextEditor Name="Editor" Grid.Row="1" @1@ -->
+        <!--             ~1~                          FontFamily="Jetbrains Mono,Cascadia Code,Consolas,Menlo,Monospace" @1@ -->
+        <!--             ~1~                          Margin="30" Padding="5" @1@ -->
+        <!--             ~1~                          HorizontalScrollBarVisibility="Auto" @1@ -->
+        <!--             ~1~                          VerticalScrollBarVisibility="Visible" @1@ -->
+        <!--             ~1~                          FontWeight="Light" @1@ -->
+        <!--             ~1~                          FontSize="14"  @1@ -->
+        <!--             ~1~                          Background="{StaticResource AlternateGrey}" CornerRadius="3"> @1@ -->
+        <!--             ~1~   <avaloniaEdit:TextEditor.ContextFlyout> @1@ -->
+        <!--             ~1~     <MenuFlyout> @1@ -->
+        <!--             ~1~       <MenuItem Header="Copy" InputGesture="ctrl+C"></MenuItem> @1@ -->
+        <!--             ~1~       <MenuItem Header="Cut" InputGesture="ctrl+X"></MenuItem> @1@ -->
+        <!--             ~1~       <MenuItem Header="Paste" InputGesture="ctrl+V"></MenuItem> @1@ -->
+        <!--             ~1~       <MenuItem Header="-"/> @1@ -->
+        <!--             ~1~       <MenuItem Header="Select All" InputGesture="ctrl+A"></MenuItem> @1@ -->
+        <!--             ~1~     </MenuFlyout> @1@ -->
+        <!--             ~1~   </avaloniaEdit:TextEditor.ContextFlyout> @1@ -->
+        <!--             ~1~ </avaloniaEdit:TextEditor> @1@ -->
+        <!--         </TabItem> -->
+        <!--         <TabItem Header="local"> -->
+        <!--             <Button Click="Button_OnClick" Content="toggle lang"></Button> -->
+        <!--         </TabItem> -->
+        <!--     </TabControl.Items> -->
+        <!-- </TabControl> -->
     </DockPanel>
 </UserControl>

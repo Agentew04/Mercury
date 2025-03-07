@@ -1,0 +1,26 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:view="clr-namespace:SAAE.Editor.Views"
+        xmlns:vm="clr-namespace:SAAE.Editor.ViewModels">
+    <Design.DataContext>
+        <vm:FileEditorViewModel></vm:FileEditorViewModel>
+    </Design.DataContext>
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <view:FileEditorView></view:FileEditorView>
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="TabItem">
+        <Setter Property="Padding" Value="0"></Setter>
+        <Setter Property="Margin" Value="0"></Setter>
+        <Setter Property="MinHeight" Value="0"></Setter>
+    </Style>
+    <Style Selector="TabItem > Border#PART_LayoutRoot">
+        <Setter Property="Padding" Value="0"></Setter>
+    </Style>
+    
+    <Style Selector="TextBlock.tabheader">
+        <Setter Property="FontSize" Value="18"></Setter>
+    </Style>
+</Styles>

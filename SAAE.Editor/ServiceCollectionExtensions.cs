@@ -8,14 +8,26 @@ namespace SAAE.Editor;
 
 public static class ServiceCollectionExtensions {
     public static void AddCommonServices(this IServiceCollection collection) {
+
+        #region ViewModels
+
         collection.AddTransient<SplashScreenViewModel>();
+        collection.AddSingleton<GuideViewModel>();
+        collection.AddSingleton<ProjectSelectionViewModel>();
+        collection.AddSingleton<ProjectViewModel>();
+        collection.AddSingleton<FileEditorViewModel>();
+
+        #endregion
+
+        #region Services
+
         collection.AddSingleton<ICompilerService, MipsCompiler>();
         collection.AddSingleton<SettingsService>();
-        collection.AddSingleton<GuideViewModel>();
         collection.AddSingleton<GuideService>();
-        collection.AddSingleton<ProjectSelectionViewModel>();
         collection.AddSingleton<ProjectService>();
-        collection.AddSingleton<ProjectViewModel>();
         collection.AddSingleton<FileService>();
+        
+        #endregion
+        
     }
 }
