@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
              xmlns:model="clr-namespace:SAAE.Editor.Models"
+             xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="200"
              x:Class="SAAE.Editor.Views.FileEditorView"
              x:DataType="vm:FileEditorViewModel"
@@ -12,26 +13,29 @@
         <StyleInclude Source="/Assets/Styles/FileEditorStyles.axaml"></StyleInclude>
     </UserControl.Styles>
     <Border BorderBrush="Black" BorderThickness="1" CornerRadius="0">
-        <TabControl ItemsSource="{Binding OpenFiles}"
-                    Margin="2,5,2,2">
-            <TabControl.ItemTemplate>
-                <DataTemplate x:DataType="model:OpenFile">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <TextBlock Grid.Column="0" Text="{Binding Filename}"
-                                   Classes="tabheader"></TextBlock>
-                        <TextBlock Grid.Column="1" FontFamily="{DynamicResource PhosphorFont}" Text="&#xE3B4;"
-                                   Classes="tabheader"
-                                   VerticalAlignment="Center"></TextBlock>
-                    </Grid>
-                </DataTemplate>
-            </TabControl.ItemTemplate>
-            <TabControl.ContentTemplate>
-               <DataTemplate x:DataType="model:OpenFile">
-                   <Grid>
-                       <TextBlock Text="{Binding Content}"></TextBlock>
-                   </Grid>
-               </DataTemplate> 
-            </TabControl.ContentTemplate>
-        </TabControl>
+        <!-- Por enquanto vai ser só um arquivo aberto. Fodasse abas -->
+        <avaloniaEdit:TextEditor Classes="textEditor"
+                                 Document="{Binding TextDocument}"/>
+        <!-- <TabControl ItemsSource="{Binding OpenFiles}" -->
+        <!--             Margin="2,5,2,2"> -->
+        <!--     <TabControl.ItemTemplate> -->
+        <!--         <DataTemplate x:DataType="model:OpenFile"> -->
+        <!--             <Grid ColumnDefinitions="*,Auto"> -->
+        <!--                 <TextBlock Grid.Column="0" Text="{Binding Filename}" -->
+        <!--                            Classes="tabheader"></TextBlock> -->
+        <!--                 <TextBlock Grid.Column="1" FontFamily="{DynamicResource PhosphorFont}" Text="&#xE3B4;" -->
+        <!--                            Classes="tabheader" -->
+        <!--                            VerticalAlignment="Center"></TextBlock> -->
+        <!--             </Grid> -->
+        <!--         </DataTemplate> -->
+        <!--     </TabControl.ItemTemplate> -->
+        <!--     <TabControl.ContentTemplate> -->
+        <!--        <DataTemplate x:DataType="model:OpenFile"> -->
+        <!--            <Grid> -->
+        <!--                <TextBlock Text="{Binding Content}"></TextBlock> -->
+        <!--            </Grid> -->
+        <!--        </DataTemplate>  -->
+        <!--     </TabControl.ContentTemplate> -->
+        <!-- </TabControl> -->
     </Border>
 </UserControl>

@@ -16,8 +16,7 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
 
     public void OnSignalBreak(Monocycle.SignalExceptionEventArgs eventArgs) {
         if (eventArgs.Signal != Monocycle.SignalExceptionEventArgs.SignalType.SystemCall) {
-            throw new InvalidOperationException($"Invalid signal type. Expected {Monocycle.SignalExceptionEventArgs.SignalType.SystemCall}, " +
-                                                $"got: {eventArgs.Signal}");
+            return;
         }
 
         uint mask = 0xF_FFFF << 6;

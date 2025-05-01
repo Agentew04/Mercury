@@ -1,6 +1,7 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:view="clr-namespace:SAAE.Editor.Views"
+        xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
         xmlns:vm="clr-namespace:SAAE.Editor.ViewModels">
     <Design.DataContext>
         <vm:FileEditorViewModel></vm:FileEditorViewModel>
@@ -22,5 +23,16 @@
     
     <Style Selector="TextBlock.tabheader">
         <Setter Property="FontSize" Value="18"></Setter>
+    </Style>
+    
+    <Style Selector="avaloniaEdit|TextEditor.textEditor">
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+        <Setter Property="VerticalAlignment" Value="Stretch"></Setter>
+        <Setter Property="FontFamily" Value="JetBrains mono"></Setter>
+        <Setter Property="HorizontalScrollBarVisibility" Value="Auto"></Setter>
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto"></Setter>
+        <Setter Property="FontWeight" Value="Light"></Setter>
+        <Setter Property="FontSize" Value="14"></Setter>
+        <Setter Property="ShowLineNumbers" Value="True"></Setter>
     </Style>
 </Styles>

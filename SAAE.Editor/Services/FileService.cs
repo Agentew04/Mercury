@@ -74,7 +74,13 @@ public class FileService {
         if (project is null) {
             return "";
         }
-        return Path.Combine(project.ProjectDirectory, relative);
+
+        // Path.Combine nao junta se o segundo for 'absoluto' (comeca com barra)
+        if (relative.StartsWith('\\') || relative.StartsWith('/')) {
+            relative = relative[1..];
+        }
+        string absPath = Path.Combine(project.ProjectDirectory, relative); 
+        return absPath;
     }
 
     public void RegisterNode(ProjectNode father, ProjectNode node) {

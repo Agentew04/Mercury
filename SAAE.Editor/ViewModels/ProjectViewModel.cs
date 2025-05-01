@@ -6,8 +6,10 @@ using System.Linq;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
+using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
 
 namespace SAAE.Editor.ViewModels;
@@ -69,7 +71,11 @@ public partial class ProjectViewModel : BaseViewModel {
 
     partial void OnSelectedNodeChanged(ProjectNode value) {
         Console.WriteLine($"Selected node: {value.Name}");
-        // open file
+
+        if (value.Type == ProjectNodeType.AssemblyFile) {
+            // open file
+            WeakReferenceMessenger.Default.Send(new FileOpenMessage(value));
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanAddFolder))]
