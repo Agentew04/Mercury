@@ -11,7 +11,16 @@ namespace SAAE.Editor.Services;
 
 public sealed class SettingsService : IDisposable {
     
+    /// <summary>
+    /// The directory where the application stores its configuration files
+    /// and is the default location for the compiler and stdlib.
+    /// </summary>
     public string AppDirectory { get; init; }
+    
+    /// <summary>
+    /// The path to the config file. It is a file named 'config.json' that
+    /// lives inside <see cref="AppDirectory"/>.
+    /// </summary>
     public string ConfigPath { get; init; }
 
     /// <summary>
@@ -50,11 +59,12 @@ public sealed class SettingsService : IDisposable {
     /// </summary>
     public UserPreferences GetDefaultPreferences() => new UserPreferences() {
         CompilerPath = Path.Combine(AppDirectory, "compiler"),
+        StdLibPath = Path.Combine(AppDirectory, "stdlib"),
         Language = CultureInfo.CurrentCulture,
         RecentProjects = []
     };
 
-    private static void UpdatePreferences(UserPreferences preferences) {
+    private void UpdatePreferences(UserPreferences preferences) {
         if(preferences.ConfigVersion == UserPreferences.LatestConfigVersion) {
             return;
         }
@@ -69,6 +79,12 @@ public sealed class SettingsService : IDisposable {
             preferences.ConfigVersion = 3;
             preferences.RecentProjects = [];
             Console.WriteLine("Atualizada a versão de configuração para 3");    
+        }
+
+        if (preferences.ConfigVersion == 3) {
+            preferences.ConfigVersion = 4;
+            preferences.StdLibPath = Path.Combine(AppDirectory, "stdlib");
+            Console.WriteLine("Atualizada a versão de configuração para 4");
         }
         // ir adicionando novos updates aqui abaixo
     }

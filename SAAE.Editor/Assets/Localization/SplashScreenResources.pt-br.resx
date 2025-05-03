@@ -53,4 +53,10 @@
     <data name="ReadGuideText" xml:space="preserve">
         <value>Lendo Guias</value>
     </data>
+    <data name="CheckingStdlib" xml:space="preserve">
+        <value>Verificando versão da StdLib</value>
+    </data>
+    <data name="DownloadingStdlib" xml:space="preserve">
+        <value>Baixando StdLib</value>
+    </data>
 </root>

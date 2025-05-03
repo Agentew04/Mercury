@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using AvaloniaEdit.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
 
@@ -15,6 +16,7 @@ public class FileService {
     private readonly Guid projectCategoryId = Guid.Parse("C03D266B-3D00-486A-9517-D8A2F3065C53");
     
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+    private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     
     private readonly Dictionary<Guid, ProjectNodeType> nodeTypes = [];
     private readonly Dictionary<Guid, string> relativePaths = [];
@@ -43,7 +45,7 @@ public class FileService {
             nodes.Add(GetStdLibNode());
         }
 
-        List<ProjectNode> projectFiles = GetFolderNodes(project.ProjectDirectory, "");
+        List<ProjectNode> projectFiles = GetFolderNodes(project.ProjectDirectory);
         // Aviso: a localizacao dos nos de categoria NAO vao ser atualizadas
         // na troca de lingua desse modo!
         nodes.Add(new ProjectNode {
@@ -68,7 +70,7 @@ public class FileService {
         return relativePath;
     }
 
-    public string GetAbsolutePath(Guid nodeId) {
+    public string GetAbsolutePath(Guid nodeId, bool isStdLib = false) {
         string relative = GetRelativePath(nodeId);
         ProjectFile? project = projectService.GetCurrentProject();
         if (project is null) {
@@ -79,8 +81,12 @@ public class FileService {
         if (relative.StartsWith('\\') || relative.StartsWith('/')) {
             relative = relative[1..];
         }
-        string absPath = Path.Combine(project.ProjectDirectory, relative); 
-        return absPath;
+
+        if (!isStdLib) {
+            return Path.Combine(project.ProjectDirectory, relative);
+        }
+        // eh std lib
+        return Path.Combine(settingsService.Preferences.StdLibPath, relative);
     }
 
     public void RegisterNode(ProjectNode father, ProjectNode node) {
@@ -120,21 +126,22 @@ public class FileService {
             IsReadOnly = true
         };
 
-        var testfile = new ProjectNode() {
-            Name = "scanf.asm",
-            Id = Guid.NewGuid(),
-            Type = ProjectNodeType.AssemblyFile,
-        };
-        testfile.ParentReference = new WeakReference<ProjectNode>(root);
-        root.Children.Add(testfile);
-        // TODO: realmente pegar os arquivos da stdlib
-        // talvez baixar do github? mais uma branch com
+        var children = GetFolderNodes(settingsService.Preferences.StdLibPath);
+        if (children.RemoveAll(x => x.Name == "version.json") != 1) {
+            Console.WriteLine("deu brete");
+        }
+        foreach (ProjectNode child in children) {
+            child.ParentReference = new WeakReference<ProjectNode>(root);
+            child.IsReadOnly = true;
+        }
+        root.Children.AddRange(children);
+        // mais uma branch com
         // a std lib em cada ISA(risc-v, mips, etc)
 
         return root;
     }
 
-    private List<ProjectNode> GetFolderNodes(string folder, string currentPath) {
+    private List<ProjectNode> GetFolderNodes(string folder, string currentPath = "", ProjectNode parentReference = null!) {
         IEnumerable<string> entries = Directory.EnumerateFileSystemEntries(folder);
         List<ProjectNode> nodes = [];
         foreach (string entry in entries) {
@@ -147,7 +154,8 @@ public class FileService {
                 node = new ProjectNode {
                     Name = Path.GetFileName(entry),
                     Type = ProjectNodeType.AssemblyFile,
-                    Id = Guid.NewGuid()
+                    Id = Guid.NewGuid(),
+                    ParentReference = new WeakReference<ProjectNode>(parentReference)
                 };
                 nodes.Add(node);
             }else if (isFile && !isCodeExtension) {
@@ -155,7 +163,8 @@ public class FileService {
                 node = new ProjectNode {
                     Name = Path.GetFileName(entry),
                     Type = ProjectNodeType.UnknownFile,
-                    Id = Guid.NewGuid()
+                    Id = Guid.NewGuid(),
+                    ParentReference = new WeakReference<ProjectNode>(parentReference)
                 };
                 nodes.Add(node);
             }else if(isDirectory) {
@@ -163,11 +172,11 @@ public class FileService {
                 node = new ProjectNode {
                     Name = folderName,
                     Type = ProjectNodeType.Folder,
-                    // recursao abaixo
-                    Children = new ObservableCollection<ProjectNode>(GetFolderNodes(entry,
-                        currentPath + Path.DirectorySeparatorChar + folderName)),
-                    Id = Guid.NewGuid()
+                    Id = Guid.NewGuid(),
+                    ParentReference = new WeakReference<ProjectNode>(parentReference)
                 };
+                node.Children = new ObservableCollection<ProjectNode>(GetFolderNodes(entry,
+                    currentPath + Path.DirectorySeparatorChar + folderName, node));
                 nodes.Add(node);
             }
             else {

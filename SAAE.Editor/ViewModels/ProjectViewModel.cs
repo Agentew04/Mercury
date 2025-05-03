@@ -70,10 +70,10 @@ public partial class ProjectViewModel : BaseViewModel {
     [ObservableProperty] private ProjectNode selectedNode = null!;
 
     partial void OnSelectedNodeChanged(ProjectNode value) {
-        Console.WriteLine($"Selected node: {value.Name}");
+        Console.WriteLine($"Selected node: {value.Name}. Type: {value.Type}");
 
         if (value.Type == ProjectNodeType.AssemblyFile) {
-            // open file
+            Console.WriteLine("Abrindo arquivo " + value.Name);
             WeakReferenceMessenger.Default.Send(new FileOpenMessage(value));
         }
     }

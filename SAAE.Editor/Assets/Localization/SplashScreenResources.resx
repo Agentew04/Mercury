@@ -60,4 +60,10 @@
     <data name="ReadGuideText" xml:space="preserve">
         <value>Reading Guides</value>
     </data>
+    <data name="CheckingStdlib" xml:space="preserve">
+        <value>Checking StdLib version</value>
+    </data>
+    <data name="DownloadingStdlib" xml:space="preserve">
+        <value>Downloading StdLib</value>
+    </data>
 </root>

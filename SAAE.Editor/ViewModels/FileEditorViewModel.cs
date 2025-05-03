@@ -29,6 +29,9 @@ public partial class FileEditorViewModel : BaseViewModel {
         ];
 
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
+        Localization.LocalizationManager.CultureChanged += _ => {
+            OnPropertyChanged(nameof(EditingNotice));
+        };
     }
     
     [ObservableProperty]
@@ -37,12 +40,25 @@ public partial class FileEditorViewModel : BaseViewModel {
     [ObservableProperty]
     private TextDocument textDocument = new();
 
+    public string EditingNotice => string.Format(Localization.FileEditorResources.EditMessageValue, filename);
+    
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(EditingNotice))]
+    private string filename;
+
+    [ObservableProperty] 
+    private bool isReadonlyEditor = false;
+
     private void OnFileOpen(object sender, FileOpenMessage message) {
-        Console.WriteLine("Recebi mensagem de arquivo aberto: " + message.Value.Name);
-        string path = fileService.GetAbsolutePath(message.Value.Id);
+        // hackzinho, so os nos do stdlib sao readonly por enquanto
+        string path = fileService.GetAbsolutePath(message.Value.Id, message.Value.IsEffectiveReadOnly);
+        if (path == "") {
+            Console.WriteLine("Nao foi possivel encontrar o arquivo");
+            return;
+        }
         string content = File.ReadAllText(path);
         TextDocument.Text = content;
-        Console.WriteLine("Path: " + path);
-        Console.WriteLine("Content: " + content);
+        IsReadonlyEditor = message.Value.IsEffectiveReadOnly;
+        Filename = message.Value.Name;
     }
 }

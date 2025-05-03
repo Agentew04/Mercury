@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
+using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 using SAAE.Editor.ViewModels;
@@ -26,8 +28,13 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<GuideService>();
         collection.AddSingleton<ProjectService>();
         collection.AddSingleton<FileService>();
-        
+
+        HttpClient httpClient = new();
+        HttpRequestHeaders headers = httpClient.DefaultRequestHeaders;
+        headers.UserAgent.ParseAdd("SAAE/1.0");
+        collection.AddSingleton(httpClient);
+
         #endregion
-        
+
     }
 }

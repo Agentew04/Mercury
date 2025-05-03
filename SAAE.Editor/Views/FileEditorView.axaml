@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
              xmlns:model="clr-namespace:SAAE.Editor.Models"
+             xmlns:localization="clr-namespace:SAAE.Editor.Localization"
              xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="200"
              x:Class="SAAE.Editor.Views.FileEditorView"
@@ -13,9 +14,16 @@
         <StyleInclude Source="/Assets/Styles/FileEditorStyles.axaml"></StyleInclude>
     </UserControl.Styles>
     <Border BorderBrush="Black" BorderThickness="1" CornerRadius="0">
+        <Grid RowDefinitions="Auto,*">
+            <TextBlock Text="{Binding EditingNotice}"
+                       Classes="header" Grid.Row="0" />
+            <avaloniaEdit:TextEditor Classes="textEditor"
+                                     Grid.Row="1"
+                                     Document="{Binding TextDocument}"
+                                     IsReadOnly="{Binding IsReadonlyEditor}"
+                                     />
+        </Grid>
         <!-- Por enquanto vai ser só um arquivo aberto. Fodasse abas -->
-        <avaloniaEdit:TextEditor Classes="textEditor"
-                                 Document="{Binding TextDocument}"/>
         <!-- <TabControl ItemsSource="{Binding OpenFiles}" -->
         <!--             Margin="2,5,2,2"> -->
         <!--     <TabControl.ItemTemplate> -->
