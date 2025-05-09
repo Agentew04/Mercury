@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace SAAE.Editor.Services;
 
-public class MipsCompiler : ICompilerService {
+public class MipsCompiler : CompilerService {
 
     private readonly SettingsService settings = App.Services.GetService<SettingsService>()!;
     
@@ -118,5 +118,10 @@ public class MipsCompiler : ICompilerService {
         }
 
         return true;
+    }
+
+    protected override Task Compile()
+    {
+        throw new NotImplementedException();
     }
 }

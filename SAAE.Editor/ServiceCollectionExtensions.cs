@@ -5,6 +5,7 @@ using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 using SAAE.Editor.ViewModels;
 using SAAE.Editor.Views;
+using SAAE.Engine;
 
 namespace SAAE.Editor;
 
@@ -18,20 +19,21 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<ProjectSelectionViewModel>();
         collection.AddSingleton<ProjectViewModel>();
         collection.AddSingleton<FileEditorViewModel>();
+        collection.AddSingleton<ProblemsViewModel>();
 
         #endregion
 
         #region Services
 
-        collection.AddSingleton<ICompilerService, MipsCompiler>();
+        collection.AddKeyedSingleton<CompilerService, MipsCompiler>(Architecture.Mips);
         collection.AddSingleton<SettingsService>();
         collection.AddSingleton<GuideService>();
         collection.AddSingleton<ProjectService>();
         collection.AddSingleton<FileService>();
 
-        HttpClient httpClient = new();
+        HttpClient httpClient = new(); // reuse the same instance
         HttpRequestHeaders headers = httpClient.DefaultRequestHeaders;
-        headers.UserAgent.ParseAdd("SAAE/1.0");
+        headers.UserAgent.ParseAdd("SAAE/" + typeof(App).Assembly.GetName().Version);
         collection.AddSingleton(httpClient);
 
         #endregion
