@@ -25,7 +25,7 @@ public static class ServiceCollectionExtensions {
 
         #region Services
 
-        collection.AddKeyedSingleton<CompilerService, MipsCompiler>(Architecture.Mips);
+        collection.AddKeyedSingleton<ICompilerService, MipsCompiler>(Architecture.Mips);
         collection.AddSingleton<SettingsService>();
         collection.AddSingleton<GuideService>();
         collection.AddSingleton<ProjectService>();

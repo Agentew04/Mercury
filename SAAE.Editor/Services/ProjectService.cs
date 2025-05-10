@@ -125,7 +125,10 @@ public class ProjectService {
         if (project is null) {
             return null;
         }
-        UpdateProject(project);
+
+        if (UpdateProject(project)) {
+            WriteProject(project);
+        }
         SetRecentAccess(project);
         await settingsService.SaveSettings();
         return project;
@@ -138,14 +141,19 @@ public class ProjectService {
         settingsService.Preferences.RecentProjects.Add(new UserPreferences.ProjectAccess(project.ProjectPath, accessTime));
     }
 
-    private void UpdateProject(ProjectFile projectFile) {
+    private bool UpdateProject(ProjectFile projectFile) {
         if(projectFile.ProjectVersion == ProjectFile.LatestProjectVersion) {
-            return;
+            return false;
         }
         
         if(projectFile.ProjectVersion == 1) {
-            // atualizar para a versao 2 quando houver
+            projectFile.OutputPath = "bin/";
+            projectFile.OutputFile = "main.exe";
+            projectFile.ProjectVersion = 2;
+            Console.WriteLine("Projeto atualizado para versao 2");
         }
+        // preencher com novas versoes quando houver
+        return true;
     }
     
     public ProjectFile? GetCurrentProject() {

@@ -48,8 +48,7 @@ public sealed class SettingsService : IDisposable {
         Preferences = JsonSerializer.Deserialize<UserPreferences>(await File.ReadAllTextAsync(ConfigPath), jsonOptions)
             ?? GetDefaultPreferences();
         
-        if(Preferences.ConfigVersion < UserPreferences.LatestConfigVersion) {
-            UpdatePreferences(Preferences);
+        if(UpdatePreferences(Preferences)) {
             await SaveSettings();
         }
     }
@@ -64,9 +63,9 @@ public sealed class SettingsService : IDisposable {
         RecentProjects = []
     };
 
-    private void UpdatePreferences(UserPreferences preferences) {
+    private bool UpdatePreferences(UserPreferences preferences) {
         if(preferences.ConfigVersion == UserPreferences.LatestConfigVersion) {
-            return;
+            return false;
         }
         
         if (preferences.ConfigVersion == 1) {
@@ -87,6 +86,7 @@ public sealed class SettingsService : IDisposable {
             Console.WriteLine("Atualizada a versão de configuração para 4");
         }
         // ir adicionando novos updates aqui abaixo
+        return true;
     }
     
     public void Dispose() {

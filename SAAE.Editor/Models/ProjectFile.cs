@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Xml;
 using System.Xml.Serialization;
 using SAAE.Engine;
 
@@ -14,7 +15,7 @@ public class ProjectFile {
     /// <summary>
     /// The latest version available for project files. 
     /// </summary>
-    public const int LatestProjectVersion = 1;
+    public const int LatestProjectVersion = 2;
     
     /// <summary>
     /// The project version that this file is using. If
@@ -22,7 +23,7 @@ public class ProjectFile {
     /// will be used to update the file.
     /// </summary>
     [XmlAttribute("Version")]
-    public int ProjectVersion { get; set; } = 1;
+    public int ProjectVersion { get; set; } = LatestProjectVersion;
     
     /// <summary>
     /// The path to the project file. It is understood that
@@ -35,6 +36,7 @@ public class ProjectFile {
     /// <summary>
     /// Returns the base directory of the project.
     /// </summary>
+    [XmlIgnore]
     public string ProjectDirectory => Path.GetDirectoryName(ProjectPath) ?? "";
 
     /// <summary>
@@ -62,7 +64,8 @@ public class ProjectFile {
     public OperatingSystemType OperatingSystem { get; set; }
     
     /// <summary>
-    /// O nome do sistema operacional que o projeto usará.
+    /// The name of the operating system that the project will
+    /// use.
     /// </summary>
     [XmlElement("OperatingSystem")]
     public string OperatingSystemName { get; set; } = "";
@@ -80,4 +83,17 @@ public class ProjectFile {
     /// </summary>
     [XmlIgnore]
     public DateTime LastAccessed { get; set; }
+
+    /// <summary>
+    /// The folder where the binaries will be placed.
+    /// </summary>
+    [XmlElement("OutputPath")]
+    public string OutputPath { get; set; } = "bin/";
+    
+    /// <summary>
+    /// The name of the generated binary file.
+    /// </summary>
+    /// <remarks>This is relative to <see cref="OutputPath"/>!</remarks>
+    [XmlElement("OutputFile")]
+    public string OutputFile { get; set; } = "output.bin";
 }

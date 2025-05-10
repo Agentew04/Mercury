@@ -7,7 +7,7 @@ namespace SAAE.Editor.ViewModels;
 
 public sealed partial class ProblemsViewModel : BaseViewModel
 {
-    private readonly CompilerService _compilerService = App.Services.GetRequiredKeyedService<CompilerService>(Architecture.Mips);
+    private readonly ICompilerService _compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
 
     public ProblemsViewModel()
     {
