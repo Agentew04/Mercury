@@ -10,9 +10,23 @@
         <Button Grid.Row="0" Command="{Binding CompileCommand}">
             Compilar
         </Button>
-        <StackPanel Grid.Row="1">
-            <TextBlock Text="Output: "/>
-            <TextBlock ></TextBlock>
-        </StackPanel>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Diagnostics}"
+                  IsReadOnly="True" GridLinesVisibility="Horizontal"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Type" Binding="{Binding Type}"
+                                    />
+                <DataGridTextColumn Header="Message" Binding="{Binding Message}"/>
+                <DataGridTextColumn Header="Line" Binding="{Binding Line}"/>
+                <DataGridTextColumn Header="File" Binding="{Binding FilePath}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <!-- <ScrollViewer Grid.Row="1"> -->
+        <!--     ~1~ <StackPanel> @1@ -->
+        <!--     ~1~     <TextBlock Text="Output: "/> @1@ -->
+        <!--     ~1~     <TextBlock Text="{Binding Output}"/> @1@ -->
+        <!--     ~1~ </StackPanel> @1@ -->
+        <!-- </ScrollViewer> -->
     </Grid>
 </UserControl>

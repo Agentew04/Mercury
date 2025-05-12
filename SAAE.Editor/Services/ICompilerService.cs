@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using ELFSharp.ELF;
+using SAAE.Editor.Models.Compilation;
 
 namespace SAAE.Editor.Services;
 
@@ -18,52 +18,4 @@ public interface ICompilerService {
     public ValueTask<CompilationResult> CompileStandaloneAsync(Stream input);
 
     public ValueTask<CompilationResult> CompileAsync(CompilationInput input);
-}
-
-/// <summary>
-/// A structure with information about the result
-/// of a compilation process.
-/// </summary>
-public readonly struct CompilationResult
-{
-    /// <summary>
-    /// Whether the compilation was successful or not.
-    /// </summary>
-    public bool IsSuccess { get; init; }
-
-    public CompilationError Error { get; init; }
-    
-    /// <summary>
-    /// A stream to the binary output of the compilation process.
-    /// </summary>
-    public Stream? OutputStream { get; init; }
-    
-    /// <summary>
-    /// The output processed as an ELF file.
-    /// </summary>
-    public IELF? OutputElf { get; init; }
-}
-
-public enum CompilationError {
-    None,
-    InternalError,
-    TimeoutError,
-    FileNotFound,
-    CompilationError,
-    LinkingError,
-}
-
-/// <summary>
-/// Structure that organizes the input to the compilation process.
-/// </summary>
-public readonly struct CompilationInput
-{
-    /// <summary>
-    /// A list with all files that will be compiled.
-    /// </summary>
-    public List<Stream> Files { get; init; }
-    /// <summary>
-    /// The index of the entry point in the list of files.
-    /// </summary>
-    public int EntryPoint { get; init; }
 }
