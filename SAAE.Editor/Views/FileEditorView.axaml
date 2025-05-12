@@ -15,8 +15,12 @@
     </UserControl.Styles>
     <Border BorderBrush="Black" BorderThickness="1" CornerRadius="0">
         <Grid RowDefinitions="Auto,*">
-            <TextBlock Text="{Binding EditingNotice}"
-                       Classes="header" Grid.Row="0" />
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding EditingNotice}"
+                           Classes="header" />
+                <Button Grid.Column="1" Command="{Binding SaveCommand}">Salvar</Button>
+                
+            </Grid>
             <avaloniaEdit:TextEditor Classes="textEditor"
                                      Grid.Row="1"
                                      Document="{Binding TextDocument}"

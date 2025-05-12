@@ -2,8 +2,4 @@
 
 namespace SAAE.Editor.Models.Messages;
 
-public class FileOpenMessage : ValueChangedMessage<ProjectNode> {
-    public FileOpenMessage(ProjectNode value) : base(value) {
-        
-    }
-}
+public class FileOpenMessage(ProjectNode value) : ValueChangedMessage<ProjectNode>(value);

@@ -15,6 +15,12 @@ namespace SAAE.Editor.Models.Compilation;
 public readonly struct CompilationResult : IDisposable
 {
     /// <summary>
+    /// A unique identifier for this compilation. If all the
+    /// input files are the same, the identifier will be the same.
+    /// </summary>
+    public Guid Id { get; init; }
+    
+    /// <summary>
     /// Whether the compilation was successful or not.
     /// </summary>
     public bool IsSuccess { get; init; }
@@ -30,12 +36,6 @@ public readonly struct CompilationResult : IDisposable
     public List<Diagnostic>? Diagnostics { get; init; }
     
     /// <summary>
-    /// A stream containing the compiler output when
-    /// an error occurs.
-    /// </summary>
-    public Stream? ErrorStream { get; init; }
-    
-    /// <summary>
     /// A stream to the binary output of the compilation process.
     /// </summary>
     public Stream? OutputStream { get; init; }
@@ -46,7 +46,6 @@ public readonly struct CompilationResult : IDisposable
     public IELF? OutputElf { get; init; }
 
     public void Dispose() {
-        ErrorStream?.Dispose();
         // dispose outputstream e elf?
     }
 }

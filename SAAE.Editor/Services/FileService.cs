@@ -7,6 +7,7 @@ using System.Linq;
 using AvaloniaEdit.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
+using SAAE.Editor.Models.Compilation;
 
 namespace SAAE.Editor.Services;
 
@@ -20,6 +21,8 @@ public class FileService {
     
     private readonly Dictionary<Guid, ProjectNodeType> nodeTypes = [];
     private readonly Dictionary<Guid, string> relativePaths = [];
+    private readonly Dictionary<Guid, ProjectNode> nodeAcceleration = [];
+    private List<ProjectNode> internalTree = [];
     
     public FileService() {
         
@@ -54,7 +57,8 @@ public class FileService {
             Children = new ObservableCollection<ProjectNode>(projectFiles),
             Id = projectCategoryId
         });
-        
+
+        internalTree = nodes;
         return nodes;
     }
 
@@ -118,6 +122,39 @@ public class FileService {
         father.Children = new ObservableCollection<ProjectNode>(father.Children.OrderBy(x => x.Name));
     }
 
+    public ProjectNode? GetNode(Guid nodeId)
+    {
+
+        return null;
+    }
+    
+    /// <summary>
+    /// Creates a <see cref="CompilationInput"/> object with all of the
+    /// files that need to be compiled
+    /// </summary>
+    /// <returns></returns>
+    public CompilationInput CreateCompilationInput()
+    {
+        var project = projectService.GetCurrentProject();
+        if(project is null) {
+            return new CompilationInput();
+        }
+        List<CompilationFile> files = new List<CompilationFile>();
+        string entryPoint = project.EntryFile;
+        foreach (var (id, path) in relativePaths)
+        {
+            
+            
+            
+            
+        }
+
+        return new()
+        {
+            Files = files
+        };
+    }
+
     private ProjectNode GetStdLibNode() {
         var root = new ProjectNode {
             Name = Localization.ProjectResources.StdLibValue,
@@ -135,8 +172,7 @@ public class FileService {
             child.IsReadOnly = true;
         }
         root.Children.AddRange(children);
-        // mais uma branch com
-        // a std lib em cada ISA(risc-v, mips, etc)
+        // TODO: contabilizar outras arquiteturas
 
         return root;
     }
@@ -158,6 +194,7 @@ public class FileService {
                     ParentReference = new WeakReference<ProjectNode>(parentReference)
                 };
                 nodes.Add(node);
+                nodeAcceleration.Add(node.Id, node);
             }else if (isFile && !isCodeExtension) {
                 // arquivo aleatorio
                 node = new ProjectNode {
@@ -167,6 +204,7 @@ public class FileService {
                     ParentReference = new WeakReference<ProjectNode>(parentReference)
                 };
                 nodes.Add(node);
+                nodeAcceleration.Add(node.Id, node);
             }else if(isDirectory) {
                 string folderName = new DirectoryInfo(entry).Name;
                 node = new ProjectNode {
@@ -178,6 +216,7 @@ public class FileService {
                 node.Children = new ObservableCollection<ProjectNode>(GetFolderNodes(entry,
                     currentPath + Path.DirectorySeparatorChar + folderName, node));
                 nodes.Add(node);
+                nodeAcceleration.Add(node.Id, node);
             }
             else {
                 Console.WriteLine("Uma entrada nao eh nem arquivo nem pasta! Ignorando: " + entry);
@@ -193,6 +232,4 @@ public class FileService {
 
         return nodes;
     }
-    
-    
 }

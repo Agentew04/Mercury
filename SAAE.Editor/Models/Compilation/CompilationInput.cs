@@ -11,9 +11,5 @@ public readonly struct CompilationInput
     /// <summary>
     /// A list with all files that will be compiled.
     /// </summary>
-    public List<Stream> Files { get; init; }
-    /// <summary>
-    /// The index of the entry point in the list of files.
-    /// </summary>
-    public int EntryPoint { get; init; }
+    public List<CompilationFile> Files { get; init; }
 }

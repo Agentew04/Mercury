@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls.Documents;
 using ELFSharp.ELF;
 using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
@@ -19,139 +21,198 @@ public partial class MipsCompiler : ICompilerService {
     private string CompilerPath => Path.Combine(settingsService.Preferences.CompilerPath, "clang.exe");
     private string LinkerPath => Path.Combine(settingsService.Preferences.CompilerPath, "linker.ld");
 
+    private const string EntryPointPreambule = ".globl __start\n__start:\n";
     
-    public async ValueTask<CompilationResult> CompileStandaloneAsync(Stream input) {
-        ProjectFile? project = projectService.GetCurrentProject();
-        if (project is null) {
-            return new CompilationResult() {
-                IsSuccess = false,
-                Error = CompilationError.InternalError,
-                OutputElf = null,
-                OutputStream = null,
-                Diagnostics = null,
-                ErrorStream = null
-            };
+    public async ValueTask<CompilationResult> CompileStandaloneAsync(CompilationFile input)
+    {   
+        var project = projectService.GetCurrentProject();
+        if (project is null)
+        {
+            return internalErrorCompilationResult;
         }
 
-        string compilationDirectory = Path.Combine(project.ProjectDirectory, project.OutputPath);
+        var compilationDirectory = Path.Combine(project.ProjectDirectory, project.OutputPath);
         Directory.CreateDirectory(compilationDirectory);
         
-        string processedPath = Path.Combine(compilationDirectory, project.EntryFile);
+        input.CalculateHash(project.ProjectDirectory);
+        var compilationId = CalculateIdFromHashes([input.Hash]);
+        var processedPath = Path.Combine(compilationDirectory, "standalone.asm");
         Directory.CreateDirectory(Path.GetDirectoryName(processedPath)!);
-        await using FileStream fs = File.Open(processedPath, FileMode.Create, FileAccess.Write);
-        StreamWriter swout = new(fs, leaveOpen: true);
-        await swout.WriteAsync("\t.global __start\n__start:\n");
+        await using var fsOut = File.Open(processedPath, FileMode.Create, FileAccess.Write);
+        StreamWriter swout = new(fsOut, leaveOpen: true);
+        await swout.WriteAsync(EntryPointPreambule);
         swout.Close();
-        await input.CopyToAsync(fs);
-        fs.Close();
+        await using var fsIn = File.Open(Path.Combine(project.ProjectDirectory, input.FilePath), FileMode.Open, FileAccess.Read);
+        await fsIn.CopyToAsync(fsOut);
+        fsIn.Close();
+        fsOut.Close();
         
-        string exePath = Path.Combine(compilationDirectory, project.OutputFile);
+        var exePath = Path.Combine(compilationDirectory, "standalone.exe");
         
-        ProcessStartInfo startInfo = new() {
-            FileName = CompilerPath,
-            Arguments = GenerateCommand([processedPath], exePath),
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-        
-        CancellationTokenSource processCts = new(new TimeSpan(0, 0, 0, 10));
-        
-        Process? process;
-        try {
-            process = Process.Start(startInfo);
-        }
-        catch (Exception) {
-            return new CompilationResult() {
+        var command = GenerateCommand([processedPath], exePath);
+        using MemoryStream diagMs = new();
+        var commandError = await RunCommand(command, TimeSpan.FromMilliseconds(1000), diagMs);
+        diagMs.Seek(0, SeekOrigin.Begin);
+
+        if (commandError != CompilationError.None && commandError != CompilationError.CompilationError)
+        {
+            return LastCompilationResult = new CompilationResult()
+            {
                 IsSuccess = false,
-                Error = CompilationError.FileNotFound, // causa mais provavel
-                OutputElf = null,
-                OutputStream = null,
+                Id = compilationId,
+                Error = commandError,
                 Diagnostics = null,
-                ErrorStream = null
-            };
-        }
-        if (process is null) {
-            // clang nao foi nem executado
-            return new CompilationResult() {
-                IsSuccess = false,
-                Error = CompilationError.InternalError,
-                OutputElf = null,
                 OutputStream = null,
-                ErrorStream = null,
-                Diagnostics = null
-            };
-        }
-        try {
-            await process.WaitForExitAsync(processCts.Token);
-        }
-        catch (TaskCanceledException) {
-            process.Kill();
-            process.Close();
-            return new CompilationResult() {
-                IsSuccess = false,
-                Error = CompilationError.TimeoutError,
-                OutputElf = null,
-                OutputStream = null,
-                Diagnostics = null,
-                ErrorStream = null
+                OutputElf = null
             };
         }
 
-        MemoryStream diagMs = new();
-        await process.StandardError.BaseStream.CopyToAsync(diagMs);
-        diagMs.Seek(0, SeekOrigin.Begin);
-        List<Diagnostic> diagnostics = ParseDiagnostics(diagMs);
-        diagMs.Seek(0, SeekOrigin.Begin);
+        var diagnostics = ParseDiagnostics(diagMs);
         
-        if (process.ExitCode != 0) {
-            // compiler error
-            process.Close();
-            return new CompilationResult {
+        if (commandError == CompilationError.CompilationError)
+        {
+            return LastCompilationResult = new CompilationResult()
+            {
                 IsSuccess = false,
+                Id = compilationId,
                 Error = CompilationError.CompilationError,
-                OutputElf = null,
                 Diagnostics = diagnostics,
-                ErrorStream = diagMs,
+                OutputElf = null,
                 OutputStream = null
             };
         }
         
-        // deu tudo ok a princípio
-        process.Close();
-        
-        FileStream exeFs = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-        // usar tryLoad?
-        ELF<uint>? elf = ELFReader.Load<uint>(exeFs, false);
+        var exeFs = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var elf = ELFReader.Load<uint>(exeFs, false);
 
         if (elf is null) {
             // nao conseguiu ler corretamente o arquivo ELF
             exeFs.Close();
-            return new CompilationResult() {
+            return LastCompilationResult = new CompilationResult() {
                 IsSuccess = false,
                 Error = CompilationError.ElfError,
-                ErrorStream = diagMs,
                 OutputStream = null,
                 OutputElf = null,
-                Diagnostics = diagnostics
+                Diagnostics = diagnostics,
+                Id = compilationId
             };
         }
         
-        return new CompilationResult {
+        return LastCompilationResult = new CompilationResult {
             IsSuccess = true,
             Error = CompilationError.None,
-            ErrorStream = diagMs,
             OutputStream = exeFs,
             OutputElf = elf,
             Diagnostics = diagnostics,
+            Id = compilationId
         };
     }
 
-    public ValueTask<CompilationResult> CompileAsync(CompilationInput input) {
-        throw new NotImplementedException();
+    public async ValueTask<CompilationResult> CompileAsync(CompilationInput input)
+    {
+        var project = projectService.GetCurrentProject();
+        if (project is null)
+        {
+            return internalErrorCompilationResult;
+        }
+
+        if (input.Files.Count(x => x.IsEntryPoint) > 1)
+        {
+            throw new Exception("Only one entry point is allowed.");
+        }
+        
+        var compilationDirectory = Path.Combine(project.ProjectDirectory, project.OutputPath);
+        Directory.CreateDirectory(compilationDirectory);
+        
+        // calcular id
+        var compilationId = CalculateIdFromCompilation(input, project.ProjectDirectory);
+
+        // copia soh o entry point para o arquivo de saida
+        var paths = input.Files.Select(x =>
+        {
+            var basePath = x.IsEntryPoint ? project.ProjectDirectory : compilationDirectory;
+            return Path.Combine(basePath, x.FilePath);
+        }).ToList();
+        paths.ForEach(x => Directory.CreateDirectory(Path.GetDirectoryName(x)!));
+
+        var entry = input.Files.Find(x => x.IsEntryPoint);
+        
+        var fsOut = File.Open(Path.Combine(compilationDirectory, entry.FilePath), FileMode.Create, FileAccess.Write);
+        StreamWriter swout = new(fsOut, leaveOpen: true);
+        await swout.WriteAsync(EntryPointPreambule);
+        swout.Close();
+        var fsIn = File.Open(Path.Combine(project.ProjectDirectory, entry.FilePath), FileMode.Open, FileAccess.Read);
+        await fsIn.CopyToAsync(fsOut);
+        fsIn.Close();
+        fsOut.Close();
+        
+        var exePath = Path.Combine(compilationDirectory, project.OutputFile);
+        
+        var command = GenerateCommand(paths, exePath);
+        
+        using MemoryStream diagMs = new();
+        var commandError = await RunCommand(command, TimeSpan.FromMilliseconds(1000), diagMs);
+        diagMs.Seek(0, SeekOrigin.Begin);
+
+        if (commandError != CompilationError.None && commandError != CompilationError.CompilationError)
+        {
+            return LastCompilationResult = new CompilationResult
+            {
+                IsSuccess = false,
+                Error = commandError,
+                OutputElf = null,
+                Diagnostics = null,
+                OutputStream = null,
+                Id = Guid.Empty
+            }; 
+        }
+        
+        var diagnostics = ParseDiagnostics(diagMs);
+
+        if (commandError == CompilationError.CompilationError)
+        {
+            return LastCompilationResult = new CompilationResult
+            {
+                IsSuccess = false,
+                Error = commandError,
+                OutputElf = null,
+                OutputStream = null,
+                Diagnostics = diagnostics,
+                Id = compilationId
+            };
+        }
+        
+        var exeFs = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var elf = ELFReader.Load<uint>(exeFs, false);
+        exeFs.Seek(0, SeekOrigin.Begin);
+
+        if (elf is null)
+        {
+            exeFs.Close();
+            return LastCompilationResult = new CompilationResult
+            {
+                IsSuccess = false,
+                Error = CompilationError.ElfError,
+                OutputElf = null,
+                OutputStream = null,
+                Diagnostics = diagnostics,
+                Id = compilationId
+            };
+        }
+        
+        return LastCompilationResult = new CompilationResult
+        {
+            IsSuccess = true,
+            Id = compilationId,
+            Error = CompilationError.None,
+            Diagnostics = diagnostics,
+            OutputElf = elf,
+            OutputStream = exeFs
+        };
     }
-    
+
+    public CompilationResult LastCompilationResult { get; private set; }
+
     private string GenerateCommand(List<string> inputFiles, string outputName) {
         string files = string.Join(" ", inputFiles);
         return $"--target=mips-linux-gnu -O0 -fno-pic -mno-abicalls -nostartfiles -Wl -T \"{LinkerPath}\" -nostdlib" +
@@ -170,7 +231,7 @@ public partial class MipsCompiler : ICompilerService {
     }
 
     // talvez esse codigo repita para todos os compilers que usem clang!
-    private List<Diagnostic> ParseDiagnostics(Stream stream) {
+    private static List<Diagnostic> ParseDiagnostics(Stream stream) {
         List<Diagnostic> diagnostics = [];
 
         using StreamReader reader = new(stream, leaveOpen: true);
@@ -218,4 +279,97 @@ public partial class MipsCompiler : ICompilerService {
 
     [GeneratedRegex(@"^(?<path>.+):(?<line>\d+):(?<column>\d+): (?<type>error|warning): (?<message>.+)$")]
     private static partial Regex ClangDiagnosticRegex();
+    
+    private readonly CompilationResult internalErrorCompilationResult = new() {
+        IsSuccess = false,
+        Error = CompilationError.InternalError,
+        OutputElf = null,
+        OutputStream = null,
+        Diagnostics = null,
+        Id = Guid.Empty
+    };
+    
+    private static Guid CalculateIdFromHashes(List<byte[]> hashes)
+    {
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        using var ms = new MemoryStream();
+        foreach (var hash in hashes)
+        {
+            ms.Write(hash, 0, hash.Length);
+        }
+        ms.Seek(0, SeekOrigin.Begin);
+        var id = sha256.ComputeHash(ms).Take(16).ToArray();
+        return new Guid(id);
+    }
+
+    private static Guid CalculateIdFromCompilation(CompilationInput input, string baseDirectory)
+    {
+        List<byte[]> hashes = [];
+        foreach (var file in input.Files)
+        {
+            if (file.IsEntryPoint)
+            {
+                using MemoryStream ms = new();
+                StreamWriter writer = new(ms);
+                writer.Write(EntryPointPreambule);
+                writer.Close();
+                Stream fs = File.OpenRead(Path.Combine(baseDirectory, file.FilePath));
+                fs.CopyTo(ms);
+                fs.Close();
+                using var sha256 = System.Security.Cryptography.SHA256.Create();
+                ms.Seek(0, SeekOrigin.Begin);
+                var hash = sha256.ComputeHash(ms);
+                ms.Close();
+                hashes.Add(hash);
+            }
+            else
+            {
+                file.CalculateHash(baseDirectory);
+                hashes.Add(file.Hash);
+            }
+        }
+        return CalculateIdFromHashes(hashes);
+    }
+
+    private async ValueTask<CompilationError> RunCommand(string arguments, TimeSpan timeout, Stream output)
+    {
+        ProcessStartInfo startInfo = new() {
+            FileName = CompilerPath,
+            Arguments = arguments,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+        
+        using CancellationTokenSource processCts = new(timeout);
+        
+        Process? process;
+        try {
+            process = Process.Start(startInfo);
+        }
+        catch (Exception) {
+            return CompilationError.FileNotFound; // causa mais provavel, nao achou o compilador
+        }
+        if (process is null) {
+            // clang nao foi nem executado
+            return CompilationError.InternalError; // nem ideia oq causaria isso
+        }
+        try {
+            await process.WaitForExitAsync(processCts.Token);
+        }
+        catch (TaskCanceledException) {
+            process.Kill();
+            process.Close();
+            return CompilationError.TimeoutError;
+        }
+
+        using CancellationTokenSource copyOutputCts = new(TimeSpan.FromMilliseconds(200));
+        // aqui o compilador rodou
+        // agora le o output
+        await process.StandardError.BaseStream.CopyToAsync(output, copyOutputCts.Token);
+        var error = process.ExitCode == 0 ? CompilationError.None : CompilationError.CompilationError;
+        process.Close();
+        return error;
+    }
 }
