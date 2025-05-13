@@ -124,8 +124,7 @@ public class FileService {
 
     public ProjectNode? GetNode(Guid nodeId)
     {
-
-        return null;
+        return nodeAcceleration[nodeId];
     }
     
     /// <summary>
@@ -139,17 +138,31 @@ public class FileService {
         if(project is null) {
             return new CompilationInput();
         }
-        List<CompilationFile> files = new List<CompilationFile>();
-        string entryPoint = project.EntryFile;
+        List<CompilationFile> files = [];
+        var entryPoint = project.EntryFile;
         foreach (var (id, path) in relativePaths)
         {
-            
-            
-            
-            
+            if (nodeTypes[id] != ProjectNodeType.AssemblyFile)
+            {
+                continue;
+            }
+
+            // por alguma razao os paths comecam com barra
+            string nonRootPath = path[1..];
+
+            // TODO: fazer isso
+            // if (fi.Equals(fi2))
+            // {
+            //     
+            // }
+            files.Add(new CompilationFile(path, path == entryPoint));
         }
 
-        return new()
+        if (!files.Exists(x => x.IsEntryPoint))
+        {
+            Console.WriteLine("Fudeu nao tem entry point!!");
+        }
+        return new CompilationInput
         {
             Files = files
         };
@@ -207,6 +220,12 @@ public class FileService {
                 nodeAcceleration.Add(node.Id, node);
             }else if(isDirectory) {
                 string folderName = new DirectoryInfo(entry).Name;
+
+                if (currentPath == "" && folderName == projectService.GetCurrentProject()!.OutputPath[..^1])
+                {
+                    continue;
+                }
+                
                 node = new ProjectNode {
                     Name = folderName,
                     Type = ProjectNodeType.Folder,

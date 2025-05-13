@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SAAE.Editor.Models.Compilation;
 
@@ -12,4 +14,31 @@ public readonly struct CompilationInput
     /// A list with all files that will be compiled.
     /// </summary>
     public List<CompilationFile> Files { get; init; }
+
+    /// <summary>
+    /// Calculates a unique id from an ordered set of hashes.
+    /// </summary>
+    /// <returns>A unique identifier of this collection of hashes</returns>
+    public Guid CalculateId(string baseDirectory, string? entryPointPrefix)
+    {
+        var hashes = Files.Select(x =>
+        {
+            if (x.Hash.Length > 0)
+            {
+                return x.Hash;
+            }
+            x.CalculateHash(baseDirectory, entryPointPrefix);
+            return x.Hash;
+        }).ToList();
+        
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        using var ms = new MemoryStream();
+        foreach (var hash in hashes)
+        {
+            ms.Write(hash, 0, hash.Length);
+        }
+        ms.Seek(0, SeekOrigin.Begin);
+        var id = sha256.ComputeHash(ms).Take(16).ToArray();
+        return new Guid(id);
+    }
 }

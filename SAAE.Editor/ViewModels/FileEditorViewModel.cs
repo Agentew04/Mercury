@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Threading;
@@ -8,7 +8,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
-using SAAE.Editor.Models;
 using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
@@ -19,6 +18,7 @@ namespace SAAE.Editor.ViewModels;
 public partial class FileEditorViewModel : BaseViewModel {
 
     private readonly FileService fileService = App.Services.GetRequiredService<FileService>();
+    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
     
     public FileEditorViewModel() {
@@ -30,8 +30,8 @@ public partial class FileEditorViewModel : BaseViewModel {
         {
             Interval = TimeSpan.FromSeconds(1)
         };
-        //compilationTimer.Tick += OnCompilationTimerTick;
-        //compilationTimer.Start();
+        compilationTimer.Tick += OnCompilationTimerTick;
+        compilationTimer.Start();
     }
     
     [ObservableProperty]
@@ -48,19 +48,19 @@ public partial class FileEditorViewModel : BaseViewModel {
     
     private string currentPath = "";
     private readonly DispatcherTimer compilationTimer;
-    private byte[]? compilationHash;
+    private Guid? compilationId;
     
     
     private void OnFileOpen(object sender, FileOpenMessage message) {
         // hackzinho, so os nos do stdlib sao readonly por enquanto
-        string path = fileService.GetAbsolutePath(message.Value.Id, message.Value.IsEffectiveReadOnly);
+        var path = fileService.GetAbsolutePath(message.Value.Id, message.Value.IsEffectiveReadOnly);
         if (path == "") {
             Console.WriteLine("Nao foi possivel encontrar o arquivo");
             return;
         }
 
         currentPath = path;
-        string content = File.ReadAllText(path);
+        var content = File.ReadAllText(path);
         TextDocument.Text = content;
         IsReadonlyEditor = message.Value.IsEffectiveReadOnly;
         Filename = message.Value.Name;
@@ -82,29 +82,39 @@ public partial class FileEditorViewModel : BaseViewModel {
             {
                 return;
             }
-        
+            
+            var input = fileService.CreateCompilationInput();
+            
             // verifica se o arquivo foi alterado
-            if (compilationHash is null)
+            if (compilationId is null)
             {
                 // primeira compilacao
-                await Compile();
+                await Compile(input);
+                return;
             }
+
+            var currentId = input.CalculateId(projectService.GetCurrentProject()!.ProjectDirectory,
+                MipsCompiler.EntryPointPreambule);
+
+            if (currentId == compilationId)
+            {
+                // nao precisa compilar, nada mudou
+                return;
+            }
+            
+            // algo mudou, recompila
+            await Compile(input);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            throw; // TODO handle exception
+            Debug.Fail("Houve um erro interno na compilacao automatica!");
         }
     }
     
-    private async Task Compile()
+    private async ValueTask Compile(CompilationInput input)
     {
-        //var project = fileService.GetProjectFiles();
-        
-        CompilationInput input = new CompilationInput()
-        {
-        };
         var result = await compilerService.CompileAsync(input);
-
+        compilationId = result.Id;
         WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result.Id));
     }
 }

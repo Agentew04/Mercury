@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using SAAE.Editor.Services;
 
 namespace SAAE.Editor.Models.Compilation;
@@ -35,17 +37,38 @@ public struct CompilationFile
     /// Defines if this file is an entry point for the program or not.
     /// </summary>
     public bool IsEntryPoint { get; private set; }
-    
+
     /// <summary>
     /// Calculates the hash of the contents of this file.
     /// </summary>
     /// <param name="baseDirectory">The base directory of the program.</param>
-    public void CalculateHash(string baseDirectory)
+    /// <param name="entryPointPrefix"></param>
+    public void CalculateHash(string baseDirectory, string? entryPointPrefix)
     {
         var fullPath = Path.Combine(baseDirectory, FilePath);
-        using var stream = File.OpenRead(fullPath);
-        using var sha256 = System.Security.Cryptography.SHA256.Create();
-        var hash = sha256.ComputeHash(stream);
-        Hash = hash;
+        if (IsEntryPoint)
+        {
+            ArgumentNullException.ThrowIfNull(entryPointPrefix);
+            
+            using MemoryStream ms = new();
+            StreamWriter writer = new(ms);
+            writer.Write(entryPointPrefix);
+            writer.Close();
+            Stream fs = File.OpenRead(Path.Combine(baseDirectory, fullPath));
+            fs.CopyTo(ms);
+            fs.Close();
+            using var sha256 = System.Security.Cryptography.SHA256.Create();
+            ms.Seek(0, SeekOrigin.Begin);
+            var hash = sha256.ComputeHash(ms);
+            ms.Close();
+            Hash = hash;
+        }
+        else
+        {
+            using var stream = File.OpenRead(fullPath);
+            using var sha256 = System.Security.Cryptography.SHA256.Create();
+            var hash = sha256.ComputeHash(stream);
+            Hash = hash;
+        }   
     }
 }

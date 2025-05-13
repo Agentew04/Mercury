@@ -6,10 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls.Documents;
-using ELFSharp.ELF;
 using Microsoft.Extensions.DependencyInjection;
-using SAAE.Editor.Models;
 using SAAE.Editor.Models.Compilation;
 
 namespace SAAE.Editor.Services;
@@ -21,7 +18,7 @@ public partial class MipsCompiler : ICompilerService {
     private string CompilerPath => Path.Combine(settingsService.Preferences.CompilerPath, "clang.exe");
     private string LinkerPath => Path.Combine(settingsService.Preferences.CompilerPath, "linker.ld");
 
-    private const string EntryPointPreambule = ".globl __start\n__start:\n";
+    public const string EntryPointPreambule = ".globl __start\n__start:\n";
     
     public async ValueTask<CompilationResult> CompileStandaloneAsync(CompilationFile input)
     {   
@@ -34,8 +31,11 @@ public partial class MipsCompiler : ICompilerService {
         var compilationDirectory = Path.Combine(project.ProjectDirectory, project.OutputPath);
         Directory.CreateDirectory(compilationDirectory);
         
-        input.CalculateHash(project.ProjectDirectory);
-        var compilationId = CalculateIdFromHashes([input.Hash]);
+        input.CalculateHash(project.ProjectDirectory, EntryPointPreambule);
+        var compilationId = new CompilationInput
+        {
+            Files = [input]
+        }.CalculateId(project.ProjectDirectory, EntryPointPreambule);
         var processedPath = Path.Combine(compilationDirectory, "standalone.asm");
         Directory.CreateDirectory(Path.GetDirectoryName(processedPath)!);
         await using var fsOut = File.Open(processedPath, FileMode.Create, FileAccess.Write);
@@ -62,8 +62,7 @@ public partial class MipsCompiler : ICompilerService {
                 Id = compilationId,
                 Error = commandError,
                 Diagnostics = null,
-                OutputStream = null,
-                OutputElf = null
+                OutputPath = null
             };
         }
 
@@ -77,34 +76,16 @@ public partial class MipsCompiler : ICompilerService {
                 Id = compilationId,
                 Error = CompilationError.CompilationError,
                 Diagnostics = diagnostics,
-                OutputElf = null,
-                OutputStream = null
+                OutputPath = null
             };
         }
-        
-        var exeFs = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-        var elf = ELFReader.Load<uint>(exeFs, false);
 
-        if (elf is null) {
-            // nao conseguiu ler corretamente o arquivo ELF
-            exeFs.Close();
-            return LastCompilationResult = new CompilationResult() {
-                IsSuccess = false,
-                Error = CompilationError.ElfError,
-                OutputStream = null,
-                OutputElf = null,
-                Diagnostics = diagnostics,
-                Id = compilationId
-            };
-        }
-        
         return LastCompilationResult = new CompilationResult {
             IsSuccess = true,
             Error = CompilationError.None,
-            OutputStream = exeFs,
-            OutputElf = elf,
             Diagnostics = diagnostics,
-            Id = compilationId
+            Id = compilationId,
+            OutputPath = exePath
         };
     }
 
@@ -125,7 +106,7 @@ public partial class MipsCompiler : ICompilerService {
         Directory.CreateDirectory(compilationDirectory);
         
         // calcular id
-        var compilationId = CalculateIdFromCompilation(input, project.ProjectDirectory);
+        var compilationId = input.CalculateId(project.ProjectDirectory, EntryPointPreambule);
 
         // copia soh o entry point para o arquivo de saida
         var paths = input.Files.Select(x =>
@@ -160,10 +141,9 @@ public partial class MipsCompiler : ICompilerService {
             {
                 IsSuccess = false,
                 Error = commandError,
-                OutputElf = null,
                 Diagnostics = null,
-                OutputStream = null,
-                Id = Guid.Empty
+                Id = Guid.Empty,
+                OutputPath = null
             }; 
         }
         
@@ -175,28 +155,9 @@ public partial class MipsCompiler : ICompilerService {
             {
                 IsSuccess = false,
                 Error = commandError,
-                OutputElf = null,
-                OutputStream = null,
                 Diagnostics = diagnostics,
-                Id = compilationId
-            };
-        }
-        
-        var exeFs = File.Open(exePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-        var elf = ELFReader.Load<uint>(exeFs, false);
-        exeFs.Seek(0, SeekOrigin.Begin);
-
-        if (elf is null)
-        {
-            exeFs.Close();
-            return LastCompilationResult = new CompilationResult
-            {
-                IsSuccess = false,
-                Error = CompilationError.ElfError,
-                OutputElf = null,
-                OutputStream = null,
-                Diagnostics = diagnostics,
-                Id = compilationId
+                Id = compilationId,
+                OutputPath = null
             };
         }
         
@@ -206,15 +167,14 @@ public partial class MipsCompiler : ICompilerService {
             Id = compilationId,
             Error = CompilationError.None,
             Diagnostics = diagnostics,
-            OutputElf = elf,
-            OutputStream = exeFs
+            OutputPath = exePath
         };
     }
 
     public CompilationResult LastCompilationResult { get; private set; }
 
     private string GenerateCommand(List<string> inputFiles, string outputName) {
-        string files = string.Join(" ", inputFiles);
+        var files = string.Join(" ", inputFiles);
         return $"--target=mips-linux-gnu -O0 -fno-pic -mno-abicalls -nostartfiles -Wl -T \"{LinkerPath}\" -nostdlib" +
                $" -static -fuse-ld=lld -o \"{outputName}\" \"{files}\"";
         /*
@@ -283,53 +243,10 @@ public partial class MipsCompiler : ICompilerService {
     private readonly CompilationResult internalErrorCompilationResult = new() {
         IsSuccess = false,
         Error = CompilationError.InternalError,
-        OutputElf = null,
-        OutputStream = null,
         Diagnostics = null,
-        Id = Guid.Empty
+        Id = Guid.Empty,
+        OutputPath = null
     };
-    
-    private static Guid CalculateIdFromHashes(List<byte[]> hashes)
-    {
-        using var sha256 = System.Security.Cryptography.SHA256.Create();
-        using var ms = new MemoryStream();
-        foreach (var hash in hashes)
-        {
-            ms.Write(hash, 0, hash.Length);
-        }
-        ms.Seek(0, SeekOrigin.Begin);
-        var id = sha256.ComputeHash(ms).Take(16).ToArray();
-        return new Guid(id);
-    }
-
-    private static Guid CalculateIdFromCompilation(CompilationInput input, string baseDirectory)
-    {
-        List<byte[]> hashes = [];
-        foreach (var file in input.Files)
-        {
-            if (file.IsEntryPoint)
-            {
-                using MemoryStream ms = new();
-                StreamWriter writer = new(ms);
-                writer.Write(EntryPointPreambule);
-                writer.Close();
-                Stream fs = File.OpenRead(Path.Combine(baseDirectory, file.FilePath));
-                fs.CopyTo(ms);
-                fs.Close();
-                using var sha256 = System.Security.Cryptography.SHA256.Create();
-                ms.Seek(0, SeekOrigin.Begin);
-                var hash = sha256.ComputeHash(ms);
-                ms.Close();
-                hashes.Add(hash);
-            }
-            else
-            {
-                file.CalculateHash(baseDirectory);
-                hashes.Add(file.Hash);
-            }
-        }
-        return CalculateIdFromHashes(hashes);
-    }
 
     private async ValueTask<CompilationError> RunCommand(string arguments, TimeSpan timeout, Stream output)
     {

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
@@ -276,9 +277,14 @@ public partial class SplashScreenViewModel : BaseViewModel {
         }
         
         string localVersionJson = await File.ReadAllTextAsync(Path.Combine(libpath, "version.json"));
-        JsonDocument localVersionDocument = JsonDocument.Parse(localVersionJson);
-        JsonElement localVersionElement = localVersionDocument.RootElement;
-        Version localVersion = Version.Parse(localVersionElement.GetProperty("version").GetString() ?? "0.0");
+        JsonNode rootNode = JsonNode.Parse(localVersionJson)!.AsObject();
+        Version localVersion = Version.Parse(rootNode["version"]?.GetValue<string>() ?? "0.0");
+        DateTime lastCheck = rootNode["lastCheck"]?.GetValue<DateTime>() ?? DateTime.MinValue;
+        
+        if(lastCheck > DateTime.Now.AddDays(-1)) {
+            // ja verifiquei a versao hoje
+            return true;
+        }
         
         // verificar se esta atualizada com a remota
         string versionJson;
@@ -287,11 +293,15 @@ public partial class SplashScreenViewModel : BaseViewModel {
         }
         catch (HttpRequestException e) {
             Console.WriteLine("Sem conexao. Nao foi possivel verificar a versao da stdlib. Erro: " + e.Message);
-            return false;
+            return true;
         }
         JsonDocument versionDocument = JsonDocument.Parse(versionJson);
         JsonElement versionElement = versionDocument.RootElement;
         Version remoteVersion = Version.Parse(versionElement.GetProperty("version").GetString() ?? "0.0");
+        
+        // atualiza data de ultima verificação
+        rootNode["lastCheck"] = DateTime.Now;
+        await File.WriteAllTextAsync(Path.Combine(libpath, "version.json"), rootNode.ToJsonString());
         
         return localVersion >= remoteVersion;
     }

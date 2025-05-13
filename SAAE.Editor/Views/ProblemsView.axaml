@@ -7,9 +7,6 @@
              x:Class="SAAE.Editor.Views.ProblemsView"
              x:DataType="vm:ProblemsViewModel">
     <Grid RowDefinitions="Auto,*">
-        <Button Grid.Row="0" Command="{Binding CompileCommand}">
-            Compilar
-        </Button>
         <DataGrid Grid.Row="1" ItemsSource="{Binding Diagnostics}"
                   IsReadOnly="True" GridLinesVisibility="Horizontal"
                   HorizontalAlignment="Stretch"

@@ -12,7 +12,7 @@ namespace SAAE.Editor.Models.Compilation;
 /// <remarks>The <see cref="Dispose"/> method does not
 /// clean up <see cref="OutputStream"/> and <see cref="OutputElf"/>
 /// if they were generated</remarks>
-public readonly struct CompilationResult : IDisposable
+public readonly struct CompilationResult
 {
     /// <summary>
     /// A unique identifier for this compilation. If all the
@@ -36,16 +36,7 @@ public readonly struct CompilationResult : IDisposable
     public List<Diagnostic>? Diagnostics { get; init; }
     
     /// <summary>
-    /// A stream to the binary output of the compilation process.
+    /// An absolute path to the final compiled binary.
     /// </summary>
-    public Stream? OutputStream { get; init; }
-    
-    /// <summary>
-    /// The output processed as an ELF file.
-    /// </summary>
-    public IELF? OutputElf { get; init; }
-
-    public void Dispose() {
-        // dispose outputstream e elf?
-    }
+    public string? OutputPath { get; init; }
 }
