@@ -30,7 +30,7 @@ public class ArchitectureToIconSource : IValueConverter{
             return null;
         }
 
-        var arch = iconSource switch {
+        Architecture arch = iconSource switch {
             "avares://SAAE.Editor/Assets/Images/mips-logo.png" => Architecture.Mips,
             "avares://SAAE.Editor/Assets/Images/riscv-logo.png" => Architecture.RiscV,
             "avares://SAAE.Editor/Assets/Images/arm-logo.png" => Architecture.Arm,

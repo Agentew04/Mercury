@@ -341,7 +341,7 @@ public partial class SplashScreenViewModel : BaseViewModel {
         foreach (ZipArchiveEntry zipArchiveEntry in archive.Entries) {
             // remove primeira pasta
             string name = zipArchiveEntry.FullName;
-            var parts = name.Split('/');
+            string[]? parts = name.Split('/');
             parts = parts.Skip(1).ToArray();
             name = string.Join('/', parts);
             

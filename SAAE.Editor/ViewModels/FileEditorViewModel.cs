@@ -53,14 +53,14 @@ public partial class FileEditorViewModel : BaseViewModel {
     
     private void OnFileOpen(object sender, FileOpenMessage message) {
         // hackzinho, so os nos do stdlib sao readonly por enquanto
-        var path = fileService.GetAbsolutePath(message.Value.Id, message.Value.IsEffectiveReadOnly);
+        string path = fileService.GetAbsolutePath(message.Value.Id);
         if (path == "") {
             Console.WriteLine("Nao foi possivel encontrar o arquivo");
             return;
         }
 
         currentPath = path;
-        var content = File.ReadAllText(path);
+        string content = File.ReadAllText(path);
         TextDocument.Text = content;
         IsReadonlyEditor = message.Value.IsEffectiveReadOnly;
         Filename = message.Value.Name;
@@ -69,7 +69,7 @@ public partial class FileEditorViewModel : BaseViewModel {
     [RelayCommand]
     private async Task Save()
     {
-        var content = TextDocument.Text;
+        string? content = TextDocument.Text;
         await File.WriteAllTextAsync(currentPath, content);
     }
 
@@ -83,7 +83,7 @@ public partial class FileEditorViewModel : BaseViewModel {
                 return;
             }
             
-            var input = fileService.CreateCompilationInput();
+            CompilationInput input = fileService.CreateCompilationInput();
             
             // verifica se o arquivo foi alterado
             if (compilationId is null)
@@ -93,8 +93,7 @@ public partial class FileEditorViewModel : BaseViewModel {
                 return;
             }
 
-            var currentId = input.CalculateId(projectService.GetCurrentProject()!.ProjectDirectory,
-                MipsCompiler.EntryPointPreambule);
+            Guid currentId = input.CalculateId(MipsCompiler.EntryPointPreambule);
 
             if (currentId == compilationId)
             {
@@ -105,15 +104,17 @@ public partial class FileEditorViewModel : BaseViewModel {
             // algo mudou, recompila
             await Compile(input);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            Debug.Fail("Houve um erro interno na compilacao automatica!");
+            Debug.Fail("Houve um erro interno na compilacao automatica! " + ex.Message + "; " + ex.StackTrace);
         }
     }
     
     private async ValueTask Compile(CompilationInput input)
     {
-        var result = await compilerService.CompileAsync(input);
+        Console.WriteLine("Compiling...");
+        CompilationResult result = await compilerService.CompileAsync(input);
+        Console.WriteLine($"Compilado {(result.IsSuccess ? "com sucesso" : $"com erro ({result.Diagnostics?.Count ?? -1} diagnosticos)")}");
         compilationId = result.Id;
         WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result.Id));
     }

@@ -18,14 +18,15 @@ public struct CompilationFile
     /// <param name="entryPoint">If this file is an entry point for the program.</param>
     public CompilationFile(string filepath, bool entryPoint = false)
     {
-        FilePath = filepath;
+        FullPath = filepath;
         IsEntryPoint = entryPoint;
     }
     
     /// <summary>
-    /// The relative path of this file. Relative to <see cref="ProjectFile.ProjectDirectory"/>.
+    /// The absolute path of the file to be compiled. Cannot be relative because it can't differentiate
+    /// between project files and stdlib files(live in shared directory).
     /// </summary>
-    public string FilePath { get; private set; }
+    public string FullPath { get; private set; }
 
     /// <summary>
     /// The hash of the contents of this file. It is calculated by
@@ -41,33 +42,31 @@ public struct CompilationFile
     /// <summary>
     /// Calculates the hash of the contents of this file.
     /// </summary>
-    /// <param name="baseDirectory">The base directory of the program.</param>
     /// <param name="entryPointPrefix"></param>
-    public void CalculateHash(string baseDirectory, string? entryPointPrefix)
+    public void CalculateHash(string? entryPointPrefix)
     {
-        var fullPath = Path.Combine(baseDirectory, FilePath);
         if (IsEntryPoint)
         {
             ArgumentNullException.ThrowIfNull(entryPointPrefix);
             
             using MemoryStream ms = new();
-            StreamWriter writer = new(ms);
+            StreamWriter writer = new(ms, leaveOpen: true);
             writer.Write(entryPointPrefix);
             writer.Close();
-            Stream fs = File.OpenRead(Path.Combine(baseDirectory, fullPath));
+            Stream fs = File.OpenRead(FullPath);
             fs.CopyTo(ms);
             fs.Close();
             using var sha256 = System.Security.Cryptography.SHA256.Create();
             ms.Seek(0, SeekOrigin.Begin);
-            var hash = sha256.ComputeHash(ms);
+            byte[] hash = sha256.ComputeHash(ms);
             ms.Close();
             Hash = hash;
         }
         else
         {
-            using var stream = File.OpenRead(fullPath);
+            using FileStream stream = File.OpenRead(FullPath);
             using var sha256 = System.Security.Cryptography.SHA256.Create();
-            var hash = sha256.ComputeHash(stream);
+            byte[] hash = sha256.ComputeHash(stream);
             Hash = hash;
         }   
     }

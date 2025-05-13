@@ -1,4 +1,6 @@
-﻿namespace SAAE.Engine.Mips.Instructions; 
+﻿using System.Text.RegularExpressions;
+
+namespace SAAE.Engine.Mips.Instructions; 
 
 public abstract class TypeJInstruction : Instruction{
 
@@ -32,7 +34,7 @@ public abstract class TypeJInstruction : Instruction{
     }
 
     public override void PopulateFromLine(string line) {
-        var match = GetRegularExpression().Match(line);
+        Match? match = GetRegularExpression().Match(line);
         Immediate = ParseImmediate(match.Groups["target"].Value);
     }
 }

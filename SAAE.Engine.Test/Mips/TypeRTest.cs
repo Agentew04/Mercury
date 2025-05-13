@@ -11,7 +11,7 @@ public class TypeRTest {
     public void AddRegex()
     {
         var instruction = new Add();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("add $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("add $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("add $t0, $t1"));
@@ -37,7 +37,7 @@ public class TypeRTest {
     [TestMethod("Test Addu Regex")]
     public void AdduRegex() {
         var instruction = new Addu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("addu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("addu $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("add $t0, $t1, $t2"));
@@ -63,7 +63,7 @@ public class TypeRTest {
     [TestMethod("Test Mul Regex")]
     public void MulRegex() {
         var instruction = new Mul();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("mul $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("mul $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("mul $t0, $t1"));
@@ -89,7 +89,7 @@ public class TypeRTest {
     [TestMethod("Test Slt Regex")]
     public void SltRegex() {
         var instruction = new Slt();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("slt $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("slt $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("slt $t0, $t1"));
@@ -114,7 +114,7 @@ public class TypeRTest {
     [TestMethod("Test Sltu Regex")]
     public void SltuRegex() {
         var instruction = new Sltu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sltu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("sltu $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("slt $t0, $t1, $t2"));
@@ -140,7 +140,7 @@ public class TypeRTest {
     [TestMethod("Test Sub Regex")]
     public void SubRegex() {
         var instruction = new Sub();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sub $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("sub $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("subu $t0, $t1, $t2"));
@@ -166,7 +166,7 @@ public class TypeRTest {
     [TestMethod("Test Subu Regex")]
     public void SubuRegex() {
         var instruction = new Subu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("subu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("subu $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("subu $t0, $t1"));
@@ -192,7 +192,7 @@ public class TypeRTest {
     [TestMethod("Test And Regex")]
     public void AndRegex() {
         var instruction = new And();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("and $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("and $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("and $t0, $t1"));
@@ -218,7 +218,7 @@ public class TypeRTest {
     [TestMethod("Test Nor Regex")]
     public void NorRegex() {
         var instruction = new Nor();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("nor $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("nor $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("nor $t0, $t1"));
@@ -243,7 +243,7 @@ public class TypeRTest {
     [TestMethod("Test Or Regex")]
     public void OrRegex() {
         var instruction = new Or();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("or $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("or $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("or $t0, $t1"));
@@ -270,7 +270,7 @@ public class TypeRTest {
     [TestMethod("Test Xor Regex")]
     public void XorRegex() {
         var instruction = new Xor();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("xor $t0, $zero, $t2"));
         Assert.IsTrue(regex.IsMatch("xor $s0, $t1, $k1"));
         Assert.IsTrue(regex.IsMatch("xor $t0, $t1, $gp"));
@@ -298,7 +298,7 @@ public class TypeRTest {
     [TestMethod("Test Sll Regex")]
     public void SllRegex() {
         var instruction = new Sll();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sll $t0, $t1, 5"));
         Assert.IsFalse(regex.IsMatch("sll $t0, $t1, 5, $t3"));
         Assert.IsFalse(regex.IsMatch("sll $t0, $t1"));
@@ -324,7 +324,7 @@ public class TypeRTest {
     [TestMethod("Test Sllv Regex")]
     public void SllvRegex() {
         var instruction = new Sllv();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sllv $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("sllv $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("sllv $t0, $t1"));
@@ -350,7 +350,7 @@ public class TypeRTest {
     [TestMethod("Test Sra Regex")]
     public void SraRegex() {
         var instruction = new Sra();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sra $t0, $t1, 5"));
         Assert.IsFalse(regex.IsMatch("sra $t0, $t1, 5, $t3"));
         Assert.IsFalse(regex.IsMatch("sra $t0, $t1"));
@@ -378,7 +378,7 @@ public class TypeRTest {
     [TestMethod("Test Srav Regex")]
     public void SravRegex() {
         var instruction = new Srav();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("srav $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("srav $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("srav $t0, $t1"));
@@ -406,7 +406,7 @@ public class TypeRTest {
     [TestMethod("Test Srl Regex")]
     public void SrlRegex() {
         var instruction = new Srl();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("srl $t0, $t1, 5"));
         Assert.IsFalse(regex.IsMatch("srl $t0, $t1, 5, $t3"));
         Assert.IsFalse(regex.IsMatch("srl $t0, $t1"));
@@ -434,7 +434,7 @@ public class TypeRTest {
     [TestMethod("Test Srlv Regex")]
     public void SrlvRegex() {
         var instruction = new Srlv();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("srlv $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("srlv $t0, $t1, $t2, $t3"));
         Assert.IsFalse(regex.IsMatch("srlv $t0, $t1"));
@@ -462,7 +462,7 @@ public class TypeRTest {
     [TestMethod("Test Div Regex")]
     public void DivRegex() {
         var instruction = new Div();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("div $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("div $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("div $t0, $t1, $t2, $t3"));
@@ -488,7 +488,7 @@ public class TypeRTest {
     [TestMethod("Test Divu Regex")]
     public void DivuRegex() {
         var instruction = new Divu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("divu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("divu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("divu $t0, $t1, $t2, $t3"));
@@ -514,7 +514,7 @@ public class TypeRTest {
     [TestMethod("Test Madd Regex")]
     public void MaddRegex() {
         var instruction = new Madd();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("madd $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("madd $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("madd $t0, $t1, $t2, $t3"));
@@ -540,7 +540,7 @@ public class TypeRTest {
     [TestMethod("Test Maddu Regex")]
     public void MadduRegex() {
         var instruction = new Maddu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("maddu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("maddu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("maddu $t0, $t1, $t2, $t3"));
@@ -566,7 +566,7 @@ public class TypeRTest {
     [TestMethod("Test Msub Regex")]
     public void MsubRegex() {
         var instruction = new Msub();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("msub $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("msub $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("msub $t0, $t1, $t2, $t3"));
@@ -592,7 +592,7 @@ public class TypeRTest {
     [TestMethod("Test Msubu Regex")]
     public void MsubuRegex() {
         var instruction = new Msubu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("msubu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("msubu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("msubu $t0, $t1, $t2, $t3"));
@@ -618,7 +618,7 @@ public class TypeRTest {
     [TestMethod("Test Mult Regex")]
     public void MultRegex() {
         var instruction = new Mult();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("mult $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("mult $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("mult $t0, $t1, $t2, $t3"));
@@ -644,7 +644,7 @@ public class TypeRTest {
     [TestMethod("Test Multu Regex")]
     public void MultuRegex() {
         var instruction = new Multu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("multu $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("multu $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("multu $t0, $t1, $t2, $t3"));
@@ -670,7 +670,7 @@ public class TypeRTest {
     [TestMethod("Test Mfhi Regex")]
     public void MfhiRegex() {
         var instruction = new Mfhi();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("mfhi $t0"));
         Assert.IsFalse(regex.IsMatch("mfhi $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("mfhi $t0, $t1, $t2"));
@@ -696,7 +696,7 @@ public class TypeRTest {
     [TestMethod("Test Mflo Regex")]
     public void MfloRegex() {
         var instruction = new Mflo();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("mflo $t0"));
         Assert.IsFalse(regex.IsMatch("mflo $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("mflo $t0, $t1, $t2"));
@@ -722,7 +722,7 @@ public class TypeRTest {
     [TestMethod("Test Mthi Regex")]
     public void MthiRegex() {
         var instruction = new Mthi();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("mthi $t0"));
         Assert.IsFalse(regex.IsMatch("mthi $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("mthi $t0, $t1, $t2"));
@@ -748,7 +748,7 @@ public class TypeRTest {
     [TestMethod("Test Mtlo Regex")]
     public void MtloRegex() {
         var instruction = new Mtlo();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("mtlo $t0"));
         Assert.IsFalse(regex.IsMatch("mtlo $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("mtlo $t0, $t1, $t2"));
@@ -774,7 +774,7 @@ public class TypeRTest {
     [TestMethod("Test Clo Regex")]
     public void CloRegex() {
         var instruction = new Clo();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("clo $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("clo $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("clo $t0, $t1, $t2, $t3"));
@@ -800,7 +800,7 @@ public class TypeRTest {
     [TestMethod("Test Clz Regex")]
     public void ClzRegex() {
         var instruction = new Clz();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("clz $t0, $t1"));
         Assert.IsFalse(regex.IsMatch("clz $t0, $t1, $t2"));
         Assert.IsFalse(regex.IsMatch("clz $t0, $t1, $t2, $t3"));
@@ -827,8 +827,8 @@ public class TypeRTest {
     public void JalrRegex() {
         var instruction1 = new Jalr1();
         var instruction2 = new Jalr2();
-        var regex1 = instruction1.GetRegularExpression();
-        var regex2 = instruction2.GetRegularExpression();
+        Regex? regex1 = instruction1.GetRegularExpression();
+        Regex? regex2 = instruction2.GetRegularExpression();
         Assert.IsTrue(regex2.IsMatch("jalr $t0, $t1"));
         Assert.IsTrue(regex1.IsMatch("jalr $t0"));
         Assert.IsFalse(regex1.IsMatch("jalr $t0, $t1, $t2"));

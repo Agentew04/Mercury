@@ -11,7 +11,7 @@ public class OptimizedColdStorageTest {
 
     [TestMethod]
     public void TestSmallSplit() {
-        var tempPath = Path.GetTempFileName();
+        string? tempPath = Path.GetTempFileName();
         VirtualMemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = false,
@@ -70,7 +70,7 @@ public class OptimizedColdStorageTest {
 
     [TestMethod]
     public void TestSmallJoined() {
-        var tempPath = Path.GetTempFileName();
+        string? tempPath = Path.GetTempFileName();
         VirtualMemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = false,

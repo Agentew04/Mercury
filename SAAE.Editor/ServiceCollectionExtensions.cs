@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<GuideService>();
         collection.AddSingleton<ProjectService>();
         collection.AddSingleton<FileService>();
+        collection.AddSingleton<GrammarService>();
 
         HttpClient httpClient = new(); // reuse the same instance
         HttpRequestHeaders headers = httpClient.DefaultRequestHeaders;

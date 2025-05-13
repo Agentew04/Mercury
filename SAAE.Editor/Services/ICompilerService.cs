@@ -15,9 +15,14 @@ namespace SAAE.Editor.Services;
 /// <remarks>This api doesnt support additional compilations yet.</remarks>
 public interface ICompilerService {
 
-    // TODO: mudar isso para CompilationFile. carrega mais informacao
-    public ValueTask<CompilationResult> CompileStandaloneAsync(CompilationFile input);
-
+    /// <summary>
+    /// Compiles the given input into an executable. The input is a list of
+    /// the files to be compiled.
+    /// </summary>
+    /// <remarks>One of the <see cref="CompilationFile"/> in <see cref="input"/> must
+    /// have <see cref="CompilationFile.IsEntryPoint"/> set to true.</remarks>
+    /// <param name="input">The collection of files to be compiled</param>
+    /// <returns>Returns a collection of information about the compilation</returns>
     public ValueTask<CompilationResult> CompileAsync(CompilationInput input);
     
     /// <summary>

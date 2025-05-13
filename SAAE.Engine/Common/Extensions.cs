@@ -9,7 +9,7 @@ public static class Extensions {
 
     public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> collection, T splitter) {
         List<T> currentList = [];
-        foreach (var item in collection) {
+        foreach (T? item in collection) {
             if(EqualityComparer<T>.Default.Equals(item, splitter)) {
                 yield return new List<T>(currentList);
                 currentList.Clear();
@@ -24,7 +24,7 @@ public static class Extensions {
 
     public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> collection, Predicate<T> splitPredicate) {
         List<T> currentList = [];
-        foreach (var item in collection) {
+        foreach (T? item in collection) {
             if (splitPredicate.Invoke(item)) {
                 yield return new List<T>(currentList);
                 currentList.Clear();
@@ -46,7 +46,7 @@ public static class Extensions {
     /// <returns>The next one or</returns>
     /// <exception cref="InvalidOperationException">If the item is not in the collection or is the last one.</exception>"
     public static T After<T>(this IEnumerable<T> enumerable, T item) {
-        var enumerator = enumerable.GetEnumerator();
+        IEnumerator<T>? enumerator = enumerable.GetEnumerator();
         while (enumerator.MoveNext()) {
             if (EqualityComparer<T>.Default.Equals(enumerator.Current, item) && enumerator.MoveNext()) {
                 return enumerator.Current;
@@ -70,7 +70,7 @@ public static class Extensions {
         if (!enumerable.Contains(item))
             throw new InvalidOperationException("The item is not in the collection.");
 
-        using (var enumerator = enumerable.GetEnumerator()) {
+        using (IEnumerator<T>? enumerator = enumerable.GetEnumerator()) {
             T previous = default;
             bool isFirstItem = true;
 

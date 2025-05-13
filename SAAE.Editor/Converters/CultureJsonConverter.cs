@@ -11,7 +11,7 @@ public class CultureJsonConverter : JsonConverter<CultureInfo> {
             throw new JsonException();
         }
 
-        var value = reader.GetString();
+        string? value = reader.GetString();
         if (value == null) {
             return null;
         }

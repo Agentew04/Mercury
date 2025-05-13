@@ -12,7 +12,7 @@ public class ExtensionsTest {
     [TestMethod]
     public void TestLinqSplit() {
         List<int> nums = [1,2,3,4,0,1,4,2,0,1,20,15,0,1,0];
-        var parts = nums.Split(0).ToList();
+        List<IEnumerable<int>>? parts = nums.Split(0).ToList();
         Assert.AreEqual(4, parts.Count);
         CollectionAssert.AreEqual(new List<int>(){ 1,2,3,4}, parts[0].ToList());
         CollectionAssert.AreEqual(new List<int>() { 1,4,2}, parts[1].ToList());
@@ -23,7 +23,7 @@ public class ExtensionsTest {
     [TestMethod]
     public void TestLinqSplitNonEnding() {
         List<int> nums = [1,2,3,0,1,4,2,0,1,20,15,0,1];
-        var parts = nums.Split(0).ToList();
+        List<IEnumerable<int>>? parts = nums.Split(0).ToList();
         Assert.AreEqual(4, parts.Count);
         CollectionAssert.AreEqual(new List<int>() { 1,2,3}, parts[0].ToList());
         CollectionAssert.AreEqual(new List<int>() { 1,4,2}, parts[1].ToList());
@@ -34,7 +34,7 @@ public class ExtensionsTest {
     [TestMethod]
     public void TestLinqSplitPredicate() {
         List<int> nums = [1, 2, 3, 4, 0, 1, 4, 2, 0, 1, 20, 15, 0, 1, 0];
-        var parts = nums.Split(x => x == 0).ToList();
+        List<IEnumerable<int>>? parts = nums.Split(x => x == 0).ToList();
         Assert.AreEqual(4, parts.Count);
         CollectionAssert.AreEqual(new List<int>() { 1, 2, 3, 4 }, parts[0].ToList());
         CollectionAssert.AreEqual(new List<int>() { 1, 4, 2 }, parts[1].ToList());

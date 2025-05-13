@@ -38,11 +38,11 @@ public class InstructionFactory {
 
     public Instruction Disassemble(uint binary) {
         uint opcode = binary >> 26;
-        var oprules = rules.Where(x => x.Constraints.ContainsKey("opcode") && x.Constraints["opcode"] == opcode);
-        foreach(var rule in oprules) {
+        IEnumerable<Rule>? oprules = rules.Where(x => x.Constraints.ContainsKey("opcode") && x.Constraints["opcode"] == opcode);
+        foreach(Rule? rule in oprules) {
             // checar o resto das constraints
             bool failed = false;
-            foreach(var constraint in rule.Constraints.Keys) {
+            foreach(string? constraint in rule.Constraints.Keys) {
                 if(constraint == "opcode") {
                     continue;
                 }

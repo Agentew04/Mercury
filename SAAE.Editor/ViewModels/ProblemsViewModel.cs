@@ -28,7 +28,7 @@ public sealed partial class ProblemsViewModel : BaseViewModel
 
     private void OnCompilationFinished(object sender, CompilationFinishedMessage message)
     {
-        var lastResult = compilerService.LastCompilationResult;
+        CompilationResult lastResult = compilerService.LastCompilationResult;
         if (lastResult.Id != message.Value)
         {
             Console.WriteLine("Recebi compilacao desatualizada");

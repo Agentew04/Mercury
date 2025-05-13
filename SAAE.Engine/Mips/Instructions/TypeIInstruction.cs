@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -44,7 +45,7 @@ public abstract class TypeIInstruction : Instruction {
     }
 
     public override void PopulateFromLine(string line) {
-        var match = GetRegularExpression().Match(line);
+        Match? match = GetRegularExpression().Match(line);
 
         if(ParseOptions.HasFlag(PopulationOptions.Rs)) {
             if (byte.TryParse(match.Groups["rs"].Value, out byte rs)) {

@@ -26,14 +26,14 @@ public class VirtualMemoryTest {
         int baseAddress = 0x0;
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach(var b in data) {
+            foreach(byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
         }
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach(var b in data) {
+            foreach(byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
                 address++;
             }
@@ -57,14 +57,14 @@ public class VirtualMemoryTest {
         int baseAddress = 0x2;
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
         }
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
                 address++;
             }
@@ -88,12 +88,12 @@ public class VirtualMemoryTest {
         int baseAddress = 0x0;
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
             address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
                 address++;
             }
@@ -117,12 +117,12 @@ public class VirtualMemoryTest {
         int baseAddress = 0x2;
         using (VirtualMemory memory = new(config)){
             int address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
             address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
                 address++;
             }
@@ -148,14 +148,14 @@ public class VirtualMemoryTest {
         int baseAddress = 0x0;
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
         }
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
                 address++;
             }
@@ -181,14 +181,14 @@ public class VirtualMemoryTest {
         int baseAddress = 0x20*mb;
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
         }
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
                 address++;
             }
@@ -214,12 +214,12 @@ public class VirtualMemoryTest {
         int baseAddress = 0x0;
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
             address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
                 address++;
             }
@@ -245,12 +245,12 @@ public class VirtualMemoryTest {
         int baseAddress = 0x20*mb;
         using (VirtualMemory memory = new(config)) {
             int address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
             address = baseAddress;
-            foreach (var b in data) {
+            foreach (byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
                 address++;
             }

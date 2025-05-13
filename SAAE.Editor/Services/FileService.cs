@@ -22,6 +22,7 @@ public class FileService {
     private readonly Dictionary<Guid, ProjectNodeType> nodeTypes = [];
     private readonly Dictionary<Guid, string> relativePaths = [];
     private readonly Dictionary<Guid, ProjectNode> nodeAcceleration = [];
+    private readonly Dictionary<Guid, bool> isStdlibNode = [];
     private List<ProjectNode> internalTree = [];
     
     public FileService() {
@@ -31,6 +32,8 @@ public class FileService {
     private void ResetCache() {
         nodeTypes.Clear();
         relativePaths.Clear();
+        nodeAcceleration.Clear();
+        isStdlibNode.Clear();
     }
     
     public List<ProjectNode> GetProjectTree() {
@@ -74,7 +77,7 @@ public class FileService {
         return relativePath;
     }
 
-    public string GetAbsolutePath(Guid nodeId, bool isStdLib = false) {
+    public string GetAbsolutePath(Guid nodeId) {
         string relative = GetRelativePath(nodeId);
         ProjectFile? project = projectService.GetCurrentProject();
         if (project is null) {
@@ -86,7 +89,7 @@ public class FileService {
             relative = relative[1..];
         }
 
-        if (!isStdLib) {
+        if (!isStdlibNode[nodeId]) {
             return Path.Combine(project.ProjectDirectory, relative);
         }
         // eh std lib
@@ -101,7 +104,7 @@ public class FileService {
         string fatherPath = relativePaths[father.Id];
         if (father.Type == ProjectNodeType.Folder) {
             // node eh subdir de father
-            relativePaths[node.Id] = fatherPath + Path.DirectorySeparatorChar + node.Name;
+            relativePaths[node.Id] = fatherPath + '/' + node.Name;
         }else if (father.Type == ProjectNodeType.Category) {
             // esta na root do projeto
             relativePaths[node.Id] = node.Name;
@@ -110,7 +113,7 @@ public class FileService {
             // soh eh filho logico, o path de node eh o dir de father
             string? dir = Path.GetDirectoryName(fatherPath);
             Debug.Assert(dir != null, "dir != null (RegisterNode)");
-            relativePaths[node.Id] = dir + Path.DirectorySeparatorChar + node.Name;
+            relativePaths[node.Id] = dir + '/' + node.Name;
         }
 
         nodeTypes[node.Id] = node.Type;
@@ -128,39 +131,33 @@ public class FileService {
     }
     
     /// <summary>
-    /// Creates a <see cref="CompilationInput"/> object with all of the
+    /// Creates a <see cref="CompilationInput"/> object with all the
     /// files that need to be compiled
     /// </summary>
     /// <returns></returns>
     public CompilationInput CreateCompilationInput()
     {
-        var project = projectService.GetCurrentProject();
+        ProjectFile? project = projectService.GetCurrentProject();
         if(project is null) {
             return new CompilationInput();
         }
         List<CompilationFile> files = [];
-        var entryPoint = project.EntryFile;
-        foreach (var (id, path) in relativePaths)
+        string entryPoint = project.EntryFile;
+        foreach ((Guid id, string path) in relativePaths)
         {
             if (nodeTypes[id] != ProjectNodeType.AssemblyFile)
             {
                 continue;
             }
 
-            // por alguma razao os paths comecam com barra
-            string nonRootPath = path[1..];
-
-            // TODO: fazer isso
-            // if (fi.Equals(fi2))
-            // {
-            //     
-            // }
-            files.Add(new CompilationFile(path, path == entryPoint));
+            files.Add(new CompilationFile(
+                filepath: GetAbsolutePath(id),
+                entryPoint: path == entryPoint));
         }
 
         if (!files.Exists(x => x.IsEntryPoint))
         {
-            Console.WriteLine("Fudeu nao tem entry point!!");
+            Debug.Fail("Nao havia nenhum arquivo no projeto registrado que fosse igual o entryPoint!");
         }
         return new CompilationInput
         {
@@ -176,9 +173,9 @@ public class FileService {
             IsReadOnly = true
         };
 
-        var children = GetFolderNodes(settingsService.Preferences.StdLibPath);
+        List<ProjectNode> children = GetFolderNodes(settingsService.Preferences.StdLibPath, isStdLib: true);
         if (children.RemoveAll(x => x.Name == "version.json") != 1) {
-            Console.WriteLine("deu brete");
+            Debug.Fail("StandardLibrary nao tinha arquivo chamado version.json na root!");
         }
         foreach (ProjectNode child in children) {
             child.ParentReference = new WeakReference<ProjectNode>(root);
@@ -190,7 +187,8 @@ public class FileService {
         return root;
     }
 
-    private List<ProjectNode> GetFolderNodes(string folder, string currentPath = "", ProjectNode parentReference = null!) {
+    private List<ProjectNode> GetFolderNodes(string folder, string currentPath = "", ProjectNode parentReference = null!,
+        bool isStdLib = false) {
         IEnumerable<string> entries = Directory.EnumerateFileSystemEntries(folder);
         List<ProjectNode> nodes = [];
         foreach (string entry in entries) {
@@ -207,7 +205,6 @@ public class FileService {
                     ParentReference = new WeakReference<ProjectNode>(parentReference)
                 };
                 nodes.Add(node);
-                nodeAcceleration.Add(node.Id, node);
             }else if (isFile && !isCodeExtension) {
                 // arquivo aleatorio
                 node = new ProjectNode {
@@ -217,7 +214,6 @@ public class FileService {
                     ParentReference = new WeakReference<ProjectNode>(parentReference)
                 };
                 nodes.Add(node);
-                nodeAcceleration.Add(node.Id, node);
             }else if(isDirectory) {
                 string folderName = new DirectoryInfo(entry).Name;
 
@@ -232,10 +228,12 @@ public class FileService {
                     Id = Guid.NewGuid(),
                     ParentReference = new WeakReference<ProjectNode>(parentReference)
                 };
-                node.Children = new ObservableCollection<ProjectNode>(GetFolderNodes(entry,
-                    currentPath + Path.DirectorySeparatorChar + folderName, node));
+                node.Children = new ObservableCollection<ProjectNode>(GetFolderNodes(
+                    folder: entry,
+                    currentPath: currentPath + (currentPath != string.Empty ? '/' : string.Empty) + folderName, 
+                    parentReference: node,
+                    isStdLib: isStdLib));
                 nodes.Add(node);
-                nodeAcceleration.Add(node.Id, node);
             }
             else {
                 Console.WriteLine("Uma entrada nao eh nem arquivo nem pasta! Ignorando: " + entry);
@@ -245,8 +243,10 @@ public class FileService {
                 continue;
             }
             // cache node info
-            relativePaths[node.Id] = currentPath + Path.DirectorySeparatorChar + node.Name;
+            relativePaths[node.Id] = currentPath + (currentPath != string.Empty ? '/' : string.Empty) + node.Name;
             nodeTypes[node.Id] = node.Type;
+            nodeAcceleration[node.Id] = node;
+            isStdlibNode[node.Id] = isStdLib;
         }
 
         return nodes;

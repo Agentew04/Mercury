@@ -1,4 +1,5 @@
-﻿using SAAE.Engine.Mips.Instructions;
+﻿using System.Text.RegularExpressions;
+using SAAE.Engine.Mips.Instructions;
 
 namespace SAAE.Engine.Test.Mips;
 
@@ -9,7 +10,7 @@ public class TypeITest {
     [TestMethod]
     public void AddiRegex() {
         var instruction = new Addi();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("addi $t0, $t1, 5"));
         Assert.IsTrue(regex.IsMatch("addi $t0, $t1, -5"));
         Assert.IsTrue(regex.IsMatch("addi $t0, $t1, 0xA"));
@@ -38,7 +39,7 @@ public class TypeITest {
     [TestMethod]
     public void AddiuRegex() {
         var instruction = new Addiu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("addiu $t0, $t1, 5"));
         Assert.IsTrue(regex.IsMatch("addiu $t0, $t1, -5"));
         Assert.IsTrue(regex.IsMatch("addiu $t0, $t1, 0xA"));
@@ -67,7 +68,7 @@ public class TypeITest {
     [TestMethod]
     public void SltiRegex() { 
         var instruction = new Slti();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("slti $t0, $t1, 5"));
         Assert.IsTrue(regex.IsMatch("slti $t0, $t1, -5"));
         Assert.IsTrue(regex.IsMatch("slti $t0, $t1, 0xA"));
@@ -96,7 +97,7 @@ public class TypeITest {
     [TestMethod]
     public void SltiuRegex() {
         var instruction = new Sltiu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sltiu $t0, $t1, 5"));
         Assert.IsTrue(regex.IsMatch("sltiu $t0, $t1, -5"));
         Assert.IsTrue(regex.IsMatch("sltiu $t0, $t1, 0xA"));
@@ -125,7 +126,7 @@ public class TypeITest {
     [TestMethod]
     public void AndiRegex() {
         var instruction = new Andi();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("andi $t0, $t1, 5"));
         Assert.IsTrue(regex.IsMatch("andi $t0, $t1, -5"));
         Assert.IsTrue(regex.IsMatch("andi $t0, $t1, 0xA"));
@@ -156,7 +157,7 @@ public class TypeITest {
     [TestMethod]
     public void OriRegex() {
         var instruction = new Ori();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("ori $t0, $t1, 5"));
         Assert.IsTrue(regex.IsMatch("ori $t0, $t1, -5"));
         Assert.IsTrue(regex.IsMatch("ori $t0, $t1, 0xA"));
@@ -185,7 +186,7 @@ public class TypeITest {
     [TestMethod]
     public void XoriRegex() {
         var instruction = new Xori();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("xori $t0, $t1, 5"));
         Assert.IsTrue(regex.IsMatch("xori $t0, $t1, -5"));
         Assert.IsTrue(regex.IsMatch("xori $t0, $t1, 0xA"));
@@ -214,7 +215,7 @@ public class TypeITest {
     [TestMethod]
     public void LbRegex() {
         var instruction = new Lb();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("lb $s2, 5($k1)"));
         Assert.IsTrue(regex.IsMatch("lb $v1, -5($at)"));
         Assert.IsTrue(regex.IsMatch("lb $a2, 0xA($sp)"));
@@ -243,7 +244,7 @@ public class TypeITest {
     [TestMethod]
     public void LbuRegex() {
         var instruction = new Lbu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("lbu $s2, 5($k1)"));
         Assert.IsTrue(regex.IsMatch("lbu $v1, -5($at)"));
         Assert.IsTrue(regex.IsMatch("lbu $a2, 0xA($sp)"));
@@ -272,7 +273,7 @@ public class TypeITest {
     [TestMethod]
     public void LhRegex() {
         var instruction = new Lh();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("lh $s2, 5($k1)"));
         Assert.IsTrue(regex.IsMatch("lh $v1, -5($at)"));
         Assert.IsTrue(regex.IsMatch("lh $a2, 0xA($sp)"));
@@ -301,7 +302,7 @@ public class TypeITest {
     [TestMethod]
     public void LhuRegex() {
         var instruction = new Lhu();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("lhu $s2, 5($k1)"));
         Assert.IsTrue(regex.IsMatch("lhu $v1, -5($at)"));
         Assert.IsTrue(regex.IsMatch("lhu $a2, 0xA($sp)"));
@@ -330,7 +331,7 @@ public class TypeITest {
     [TestMethod]
     public void LuiRegex() {
         var instruction = new Lui();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("lui $s2, 5"));
         Assert.IsTrue(regex.IsMatch("lui $s2, 0"));
         Assert.IsTrue(regex.IsMatch("lui $v1, -5"));
@@ -360,7 +361,7 @@ public class TypeITest {
     [TestMethod]
     public void LwRegex() {
         var instruction = new Lw();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("lw $s2, 5($k1)"));
         Assert.IsTrue(regex.IsMatch("lw $v1, -5($at)"));
         Assert.IsTrue(regex.IsMatch("lw $a2, 0xA($sp)"));
@@ -390,7 +391,7 @@ public class TypeITest {
     [TestMethod]
     public void SbRegex() {
         var instruction = new Sb();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sb $s2, 5($k1)"));
         Assert.IsTrue(regex.IsMatch("sb $v1, -5($at)"));
         Assert.IsTrue(regex.IsMatch("sb $a2, 0xA($sp)"));
@@ -420,7 +421,7 @@ public class TypeITest {
     [TestMethod]
     public void ShRegex() {
         var instruction = new Sh();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sh $s2, 5($k1)"));
         Assert.IsTrue(regex.IsMatch("sh $v1, -5($at)"));
         Assert.IsTrue(regex.IsMatch("sh $a2, 0xA($sp)"));
@@ -450,7 +451,7 @@ public class TypeITest {
     [TestMethod]
     public void SwRegex() {
         var instruction = new Sw();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("sw $s2, 5($k1)"));
         Assert.IsTrue(regex.IsMatch("sw $v1, -5($at)"));
         Assert.IsTrue(regex.IsMatch("sw $a2, 0xA($sp)"));
@@ -480,7 +481,7 @@ public class TypeITest {
     [TestMethod]
     public void BeqRegex() {
         var instruction = new Beq();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("beq $s2, $k1, 5"));
         Assert.IsTrue(regex.IsMatch("beq $v1, $at, -5"));
         Assert.IsTrue(regex.IsMatch("beq $a2, $sp, 0xA"));
@@ -521,7 +522,7 @@ public class TypeITest {
     [TestMethod]
     public void BgezRegex() {
         var instruction = new Bgez();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("bgez $s2, 5"));
         Assert.IsTrue(regex.IsMatch("bgez $v1, -5"));
         Assert.IsTrue(regex.IsMatch("bgez $a2, 0xA"));
@@ -549,7 +550,7 @@ public class TypeITest {
     [TestMethod]
     public void BgtzRegex() {
         var instruction = new Bgtz();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("bgtz $s2, 5"));
         Assert.IsTrue(regex.IsMatch("bgtz $v1, -5"));
         Assert.IsTrue(regex.IsMatch("bgtz $a2, 0xA"));
@@ -577,7 +578,7 @@ public class TypeITest {
     [TestMethod]
     public void BlezRegex() {
         var instruction = new Blez();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("blez $s2, 5"));
         Assert.IsTrue(regex.IsMatch("blez $v1, -5"));
         Assert.IsTrue(regex.IsMatch("blez $a2, 0xA"));
@@ -605,7 +606,7 @@ public class TypeITest {
     [TestMethod]
     public void BltzRegex() {
         var instruction = new Bltz();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("bltz $s2, 5"));
         Assert.IsTrue(regex.IsMatch("bltz $v1, -5"));
         Assert.IsTrue(regex.IsMatch("bltz $a2, 0xA"));
@@ -633,7 +634,7 @@ public class TypeITest {
     [TestMethod]
     public void BneRegex() {
         var instruction = new Bne();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("bne $s2, $k1, 5"));
         Assert.IsTrue(regex.IsMatch("bne $v1, $at, -5"));
         Assert.IsTrue(regex.IsMatch("bne $a2, $sp, 0xA"));

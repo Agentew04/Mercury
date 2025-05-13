@@ -13,7 +13,7 @@ public class ColdStorageTest {
     
     [TestMethod]
     public void TestStorage1() {
-        var tempPath = Path.GetTempFileName();
+        string? tempPath = Path.GetTempFileName();
         VirtualMemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = false,

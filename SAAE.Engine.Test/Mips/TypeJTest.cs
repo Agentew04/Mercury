@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SAAE.Engine.Test.Mips;
@@ -14,7 +15,7 @@ public class TypeJTest {
     [TestMethod]
     public void JRegex() {
         var instruction = new J();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("j 0x00400000"));
         Assert.IsTrue(regex.IsMatch("j 0x00400004"));
         Assert.IsFalse(regex.IsMatch("jal 0x0040000"));
@@ -45,7 +46,7 @@ public class TypeJTest {
     [TestMethod]
     public void JalRegex() {
         var instruction = new Jal();
-        var regex = instruction.GetRegularExpression();
+        Regex? regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("jal 0x00400000"));
         Assert.IsTrue(regex.IsMatch("jal 0x00400004"));
         Assert.IsFalse(regex.IsMatch("j 0x0040000"));

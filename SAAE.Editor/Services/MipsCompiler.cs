@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using SAAE.Editor.Models;
 using SAAE.Editor.Models.Compilation;
 
 namespace SAAE.Editor.Services;
@@ -20,119 +22,52 @@ public partial class MipsCompiler : ICompilerService {
 
     public const string EntryPointPreambule = ".globl __start\n__start:\n";
     
-    public async ValueTask<CompilationResult> CompileStandaloneAsync(CompilationFile input)
-    {   
-        var project = projectService.GetCurrentProject();
-        if (project is null)
-        {
-            return internalErrorCompilationResult;
-        }
-
-        var compilationDirectory = Path.Combine(project.ProjectDirectory, project.OutputPath);
-        Directory.CreateDirectory(compilationDirectory);
-        
-        input.CalculateHash(project.ProjectDirectory, EntryPointPreambule);
-        var compilationId = new CompilationInput
-        {
-            Files = [input]
-        }.CalculateId(project.ProjectDirectory, EntryPointPreambule);
-        var processedPath = Path.Combine(compilationDirectory, "standalone.asm");
-        Directory.CreateDirectory(Path.GetDirectoryName(processedPath)!);
-        await using var fsOut = File.Open(processedPath, FileMode.Create, FileAccess.Write);
-        StreamWriter swout = new(fsOut, leaveOpen: true);
-        await swout.WriteAsync(EntryPointPreambule);
-        swout.Close();
-        await using var fsIn = File.Open(Path.Combine(project.ProjectDirectory, input.FilePath), FileMode.Open, FileAccess.Read);
-        await fsIn.CopyToAsync(fsOut);
-        fsIn.Close();
-        fsOut.Close();
-        
-        var exePath = Path.Combine(compilationDirectory, "standalone.exe");
-        
-        var command = GenerateCommand([processedPath], exePath);
-        using MemoryStream diagMs = new();
-        var commandError = await RunCommand(command, TimeSpan.FromMilliseconds(1000), diagMs);
-        diagMs.Seek(0, SeekOrigin.Begin);
-
-        if (commandError != CompilationError.None && commandError != CompilationError.CompilationError)
-        {
-            return LastCompilationResult = new CompilationResult()
-            {
-                IsSuccess = false,
-                Id = compilationId,
-                Error = commandError,
-                Diagnostics = null,
-                OutputPath = null
-            };
-        }
-
-        var diagnostics = ParseDiagnostics(diagMs);
-        
-        if (commandError == CompilationError.CompilationError)
-        {
-            return LastCompilationResult = new CompilationResult()
-            {
-                IsSuccess = false,
-                Id = compilationId,
-                Error = CompilationError.CompilationError,
-                Diagnostics = diagnostics,
-                OutputPath = null
-            };
-        }
-
-        return LastCompilationResult = new CompilationResult {
-            IsSuccess = true,
-            Error = CompilationError.None,
-            Diagnostics = diagnostics,
-            Id = compilationId,
-            OutputPath = exePath
-        };
-    }
-
     public async ValueTask<CompilationResult> CompileAsync(CompilationInput input)
     {
-        var project = projectService.GetCurrentProject();
-        if (project is null)
-        {
-            return internalErrorCompilationResult;
-        }
-
+        /*
+         * 1. Calcular onde eh o diretorio de compilacao
+         * 2. Calcular id da compilacao
+         * 3. Mover entry point modificado para o diretorio de compilacao
+         * 4. Compilar 
+         */
+        ProjectFile project = projectService.GetCurrentProject()!;
+        
         if (input.Files.Count(x => x.IsEntryPoint) > 1)
         {
             throw new Exception("Only one entry point is allowed.");
         }
         
-        var compilationDirectory = Path.Combine(project.ProjectDirectory, project.OutputPath);
+        // 1. Calcular onde eh o diretorio de compilacao
+        string compilationDirectory = Path.Combine(project.ProjectDirectory, project.OutputPath);
         Directory.CreateDirectory(compilationDirectory);
         
-        // calcular id
-        var compilationId = input.CalculateId(project.ProjectDirectory, EntryPointPreambule);
+        // 2. Calcular id da compilacao
+        Guid compilationId = input.CalculateId(EntryPointPreambule);
 
-        // copia soh o entry point para o arquivo de saida
-        var paths = input.Files.Select(x =>
-        {
-            var basePath = x.IsEntryPoint ? project.ProjectDirectory : compilationDirectory;
-            return Path.Combine(basePath, x.FilePath);
-        }).ToList();
-        paths.ForEach(x => Directory.CreateDirectory(Path.GetDirectoryName(x)!));
-
-        var entry = input.Files.Find(x => x.IsEntryPoint);
-        
-        var fsOut = File.Open(Path.Combine(compilationDirectory, entry.FilePath), FileMode.Create, FileAccess.Write);
+        // 3. Mover entry point modificado para o diretorio de compilacao
+        CompilationFile entryPoint = input.Files.First(x => x.IsEntryPoint);
+        string entryPointPath = Path.Combine(compilationDirectory, Path.GetFileName(entryPoint.FullPath));
+        FileStream fsOut = File.Open(entryPointPath, FileMode.Create, FileAccess.Write);
+        // adicionar preambulo do entry point
         StreamWriter swout = new(fsOut, leaveOpen: true);
         await swout.WriteAsync(EntryPointPreambule);
         swout.Close();
-        var fsIn = File.Open(Path.Combine(project.ProjectDirectory, entry.FilePath), FileMode.Open, FileAccess.Read);
+        // completa com arquivo original
+        FileStream fsIn = File.Open(entryPoint.FullPath, FileMode.Open, FileAccess.Read);
         await fsIn.CopyToAsync(fsOut);
         fsIn.Close();
         fsOut.Close();
         
-        var exePath = Path.Combine(compilationDirectory, project.OutputFile);
         
-        var command = GenerateCommand(paths, exePath);
+        // 4. Compilar
+        string exePath = Path.Combine(compilationDirectory, project.OutputFile);
+        List<string> paths = input.Files.Where(x => !x.IsEntryPoint)
+            .Select(x => x.FullPath).ToList();
+        paths.Add(entryPointPath);
+        string command = GenerateCommand(paths, exePath);
         
         using MemoryStream diagMs = new();
-        var commandError = await RunCommand(command, TimeSpan.FromMilliseconds(1000), diagMs);
+        CompilationError commandError = await RunCommand(command, TimeSpan.FromMilliseconds(1000), diagMs);
         diagMs.Seek(0, SeekOrigin.Begin);
 
         if (commandError != CompilationError.None && commandError != CompilationError.CompilationError)
@@ -147,7 +82,7 @@ public partial class MipsCompiler : ICompilerService {
             }; 
         }
         
-        var diagnostics = ParseDiagnostics(diagMs);
+        List<Diagnostic>? diagnostics = ParseDiagnostics(diagMs);
 
         if (commandError == CompilationError.CompilationError)
         {
@@ -174,9 +109,16 @@ public partial class MipsCompiler : ICompilerService {
     public CompilationResult LastCompilationResult { get; private set; }
 
     private string GenerateCommand(List<string> inputFiles, string outputName) {
-        var files = string.Join(" ", inputFiles);
+        StringBuilder sb = new();
+        foreach (string file in inputFiles) {
+            sb.Append('"');
+            sb.Append(file);
+            sb.Append('"');
+            sb.Append(' ');
+        }
+        string? files = string.Join(" ", inputFiles);
         return $"--target=mips-linux-gnu -O0 -fno-pic -mno-abicalls -nostartfiles -Wl -T \"{LinkerPath}\" -nostdlib" +
-               $" -static -fuse-ld=lld -o \"{outputName}\" \"{files}\"";
+               $" -static -fuse-ld=lld -o \"{outputName}\" {files}";
         /*
          * -O0: no optimization
          * -fno-pic: desativa position independent code. Coloquei pra garantir que 'la' traduza para 'lui'+'ori'
@@ -204,11 +146,14 @@ public partial class MipsCompiler : ICompilerService {
         Regex regex = ClangDiagnosticRegex();
         while (!reader.EndOfStream) {
             string? line = reader.ReadLine();
-            if (line is null) {
+            if (string.IsNullOrWhiteSpace(line)) {
                 break;
             }
 
             Match match = regex.Match(line);
+            if (!match.Success) {
+                continue;
+            }
             string path = match.Groups["path"].Value;
             DiagnosticType type = match.Groups["type"].Value switch {
                 "error" => DiagnosticType.Error,
@@ -285,7 +230,7 @@ public partial class MipsCompiler : ICompilerService {
         // aqui o compilador rodou
         // agora le o output
         await process.StandardError.BaseStream.CopyToAsync(output, copyOutputCts.Token);
-        var error = process.ExitCode == 0 ? CompilationError.None : CompilationError.CompilationError;
+        CompilationError error = process.ExitCode == 0 ? CompilationError.None : CompilationError.CompilationError;
         process.Close();
         return error;
     }
