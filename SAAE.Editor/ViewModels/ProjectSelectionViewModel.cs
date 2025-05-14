@@ -124,6 +124,12 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
         Isas = [Architecture.Mips, Architecture.RiscV, Architecture.Arm];
         OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasAvailableOperatingSystems)));
     }
+
+    [RelayCommand]
+    private void NewProjectReturn()
+    {
+        IsCreatingProject = false;
+    }
     
     partial void OnSelectedIsaIndexChanged(int value) {
         if (value < 0 || value >= allOperatingSystems.Count) {

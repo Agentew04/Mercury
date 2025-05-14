@@ -18,6 +18,10 @@
     <None Remove="Assets\Fonts\Nunito\*.ttf" />
     <AvaloniaResource Include="Assets\Fonts\Phosphor\*.ttf"/>
     <None Remove="Assets\Fonts\Nunito\*.ttf" />
+    <None Remove="Assets\Images\file-open.svg" />
+    <AvaloniaResource Include="Assets\Images\file-open.svg" />
+    <None Remove="Assets\Images\note-add.svg" />
+    <AvaloniaResource Include="Assets\Images\note-add.svg" />
   </ItemGroup>
   
   <!-- pacotes -->
@@ -25,6 +29,7 @@
     <PackageReference Include="Avalonia" Version="11.1.0" />
     <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.1.0" />
     <PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Svg" Version="11.1.0" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->

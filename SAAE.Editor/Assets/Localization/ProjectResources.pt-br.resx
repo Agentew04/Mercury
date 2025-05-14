@@ -68,4 +68,7 @@
     <data name="StdLib" xml:space="preserve">
         <value>Biblioteca Padrão</value>
     </data>
+    <data name="GoBack" xml:space="preserve">
+        <value>Voltar</value>
+    </data>
 </root>

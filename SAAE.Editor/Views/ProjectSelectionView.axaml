@@ -57,8 +57,13 @@
                         <Button Classes="invisible fill"
                                 Command="{Binding OpenCommand}"
                                 CommandParameter="{Binding ProjectFile.ProjectPath}">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <StackPanel Grid.Column="0" Spacing="5">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <Image Grid.Column="0"
+                                       HorizontalAlignment="Right"
+                                       Margin="5"
+                                       Width="50"
+                                       Source="{Binding ProjectFile.Architecture, Converter={StaticResource ArchToIcon}}"/>
+                                <StackPanel Grid.Column="1" Spacing="5">
                                     <TextBlock Text="{Binding ProjectFile.ProjectName}"
                                                FontSize="16"></TextBlock>
                                     <TextBlock Text="{Binding ProjectFile.ProjectPath}"
@@ -67,17 +72,10 @@
                                                TextTrimming="CharacterEllipsis"
                                                Margin="5,0"></TextBlock>
                                 </StackPanel>
-                                <StackPanel Grid.Column="1" HorizontalAlignment="Right"
-                                            Spacing="5">
-                                    <TextBlock Text="{Binding ProjectFile.LastAccessed}"
-                                               HorizontalAlignment="Right"
-                                               FontSize="12"></TextBlock>
-                                    <Image HorizontalAlignment="Right"
-                                           Source="{Binding ProjectFile.Architecture, Converter={StaticResource ArchToIcon}}"
-                                           Height="18">
-                                        
-                                    </Image>
-                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding ProjectFile.LastAccessed}"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Top"
+                                           FontSize="12"/>
                             </Grid>
                         </Button>
                     </DataTemplate>
@@ -101,12 +99,12 @@
             <Button Classes="bigbutton"
                     Command="{Binding OpenProjectDialogCommand}">
                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">
-                    <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                    <Svg Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
                            Classes="fill"
                            Width="40"
                            Margin="15,0"
                            Stretch="Uniform"
-                           Source="/Assets/Images/book.png"/>
+                           Path="/Assets/Images/file-open.svg"/>
                     <TextBlock Grid.Column="1" Grid.Row="0"
                                Text="{Binding Path=OpenProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
                                Margin="5,8,0,0"></TextBlock>
@@ -119,12 +117,12 @@
             <Button Classes="bigbutton"
                 Command="{Binding NewProjectStartCommand}">
                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">
-                    <Image Grid.Column="0" Grid.RowSpan="2"
+                    <Svg Grid.Column="0" Grid.RowSpan="2"
                            Classes="fill"
                            Width="40"
                            Margin="15,0"
                            Stretch="Uniform"
-                           Source="/Assets/Images/book.png"/>
+                           Path="/Assets/Images/note-add.svg"/>
                     <TextBlock Grid.Column="1" Grid.Row="0"
                                Text="{Binding CreateProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
                                Margin="5,8,0,0"></TextBlock>
@@ -141,7 +139,7 @@
               IsVisible="{Binding IsCreatingProject}"
               Margin="15">
             <ScrollViewer>
-            <StackPanel HorizontalAlignment="Center" Width="300">
+                <StackPanel HorizontalAlignment="Center" Width="300">
                 <Label Content="{Binding FolderLabel, Source={x:Static localization:ProjectResources.Instance}}"
                        Target="PathTextbox"
                        HorizontalAlignment="Left"></Label>
@@ -199,11 +197,14 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Button Content="{Binding CreateProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
-                        HorizontalAlignment="Center"
-                        Margin="15"
-                        IsEnabled="{Binding CanCreateProject}"
-                        Command="{Binding NewProjectEndCommand}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="{Binding GoBack, Source={x:Static localization:ProjectResources.Instance}}"
+                            Command="{Binding NewProjectReturnCommand}"/>
+                    <Button Content="{Binding CreateProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
+                            Margin="15"
+                            IsEnabled="{Binding CanCreateProject}"
+                            Command="{Binding NewProjectEndCommand}"/>
+                </StackPanel>
             </StackPanel>
             </ScrollViewer>
         </Grid>
