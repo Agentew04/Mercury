@@ -124,6 +124,8 @@ public partial class FileEditorViewModel : BaseViewModel {
     
     private async ValueTask Compile(CompilationInput input)
     {
+        WeakReferenceMessenger.Default.Send(
+            new CompilationStartedMessage(input.CalculateId(MipsCompiler.EntryPointPreambule)));
         Console.WriteLine("Compiling...");
         CompilationResult result = await compilerService.CompileAsync(input);
         Console.WriteLine($"Compilado {(result.IsSuccess ? "com sucesso" : $"com erro ({result.Diagnostics?.Count ?? -1} diagnosticos)")}");

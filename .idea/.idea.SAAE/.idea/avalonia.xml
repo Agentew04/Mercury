@@ -27,6 +27,7 @@
         <entry key="SAAE.Editor/Views/ProjectView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/SpashScreen.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/SplashScreen.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
+        <entry key="SAAE.Editor/Views/StatusBar.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
       </map>
     </option>
   </component>
