@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia.Input;
 using Avalonia.Threading;
 using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -66,9 +67,20 @@ public partial class FileEditorViewModel : BaseViewModel {
         Filename = message.Value.Name;
     }
 
+    public KeyGesture SaveAllGesture => new KeyGesture(Key.S, KeyModifiers.Control | KeyModifiers.Shift);
+
     [RelayCommand]
-    private async Task Save()
+    private async Task SaveAll()
     {
+        Console.WriteLine("Save All");
+    }
+    
+    public KeyGesture SaveCurrentGesture => new KeyGesture(Key.S, KeyModifiers.Control);
+        
+    [RelayCommand]
+    private async Task SaveCurrent()
+    {
+        Console.WriteLine("Save Current");
         string? content = TextDocument.Text;
         await File.WriteAllTextAsync(currentPath, content);
     }

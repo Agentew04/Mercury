@@ -15,17 +15,27 @@
     </UserControl.Styles>
     <Border BorderBrush="Black" BorderThickness="1" CornerRadius="0">
         <Grid RowDefinitions="Auto,*">
+            <!-- header -->
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0" Text="{Binding EditingNotice}"
                            Classes="header" />
-                <Button Grid.Column="1" Command="{Binding SaveCommand}">Salvar</Button>
-                
+                <!-- botao dummy para ctrl+S-->
+                <Button Grid.Column="1" Command="{Binding SaveCurrentCommand}"
+                        IsVisible="False"
+                        HotKey="Ctrl+S"
+                        >Salvar</Button>
+                <!-- botao dummy para ctrlshifts-->
+                <Button Grid.Column="1" Command="{Binding SaveAllCommand}"
+                        IsVisible="False"
+                        HotKey="Ctrl+Shift+S">Salvar Tudo</Button>
             </Grid>
-            <avaloniaEdit:TextEditor Classes="textEditor"
+            
+            <!-- editor em si -->
+            <avaloniaEdit:TextEditor x:Name="TextEditor" Classes="textEditor"
                                      Grid.Row="1"
                                      Document="{Binding TextDocument}"
-                                     IsReadOnly="{Binding IsReadonlyEditor}"
-                                     />
+                                     IsReadOnly="{Binding IsReadonlyEditor}">
+            </avaloniaEdit:TextEditor>
         </Grid>
         <!-- Por enquanto vai ser só um arquivo aberto. Fodasse abas -->
         <!-- <TabControl ItemsSource="{Binding OpenFiles}" -->
