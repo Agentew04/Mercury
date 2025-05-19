@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Mips\Runtime\Simulated\" />
     <Folder Include="Memory\" />
+    <Folder Include="Mips\Runtime\Simulated\" />
     <Folder Include="RiscV\RV128I\" />
     <Folder Include="RiscV\RV64I\" />
     <Folder Include="RiscV\RV32E\" />

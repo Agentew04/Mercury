@@ -33,6 +33,7 @@ public sealed partial class Monocycle : IClockable {
     /// </summary>
     private readonly InstructionFactory instructionFactory = new();
 
+    // TODO: remover isso, monociclo nao tem branch delay slot
     public bool UseBranchDelaySlot { get; set; } = false;
     
     public uint DropoffAddress { get; set; } = 0;
