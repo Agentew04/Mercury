@@ -12,7 +12,7 @@ public class OptimizedColdStorageTest {
     [TestMethod]
     public void TestSmallSplit() {
         string? tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = false,
             Size = 4096,
@@ -71,7 +71,7 @@ public class OptimizedColdStorageTest {
     [TestMethod]
     public void TestSmallJoined() {
         string? tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = false,
             Size = 4096,
@@ -138,7 +138,7 @@ public class OptimizedColdStorageTest {
         if (File.Exists(tempPath)) {
             File.Delete(tempPath);
         }
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             Size = 64 * MB,
@@ -183,7 +183,7 @@ public class OptimizedColdStorageTest {
         if (File.Exists(tempPath)) {
             File.Delete(tempPath);
         }
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             Size = 64 * MB,

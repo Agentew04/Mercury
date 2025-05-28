@@ -12,7 +12,7 @@ namespace SAAE.Engine.Mips.Runtime;
 /// </summary>
 public sealed class Machine : IDisposable, IClockable {
 
-    public VirtualMemory Memory { get; init; } = null!;
+    public Memory.Memory Memory { get; init; } = null!;
 
     public Monocycle Cpu { get; init; } = null!;
 

@@ -4,7 +4,7 @@ using SAAE.Engine.Mips.Runtime.Simple;
 namespace SAAE.Engine.Mips.Runtime;
 
 public class MachineBuilder {
-    private VirtualMemory? _memory;
+    private Memory.Memory? _memory;
     private Monocycle? _cpu;
     private MipsOperatingSystem? _os;
     private Stream? stdin;
@@ -13,7 +13,7 @@ public class MachineBuilder {
     private const ulong Gb = 1024 * 1024 * 1024;
     
     public MachineBuilder With4GbRam() {
-        _memory = new VirtualMemory(new VirtualMemoryConfiguration() {
+        _memory = new Memory.Memory(new MemoryConfiguration() {
             ColdStoragePath = "memory.bin",
             ColdStorageOptimization = true,
             ForceColdStorageReset = true,

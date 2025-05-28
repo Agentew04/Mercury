@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SAAE.Engine.Test.Memory;
 
 [TestClass]
-public class VirtualMemoryTest {
+public class MemoryTest {
 
     [TestMethod]
     public void TestSmallSplitBase() {
@@ -16,7 +16,7 @@ public class VirtualMemoryTest {
         Random.Shared.NextBytes(data);
 
         string tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             MaxLoadedPages = 2,
@@ -24,14 +24,14 @@ public class VirtualMemoryTest {
             Size = 512
         };
         int baseAddress = 0x0;
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach(byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
         }
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach(byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
@@ -47,7 +47,7 @@ public class VirtualMemoryTest {
         Random.Shared.NextBytes(data);
 
         string tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             MaxLoadedPages = 2,
@@ -55,14 +55,14 @@ public class VirtualMemoryTest {
             Size = 512
         };
         int baseAddress = 0x2;
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
         }
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach (byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
@@ -78,7 +78,7 @@ public class VirtualMemoryTest {
         Random.Shared.NextBytes(data);
 
         string tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             MaxLoadedPages = 2,
@@ -86,7 +86,7 @@ public class VirtualMemoryTest {
             Size = 512
         };
         int baseAddress = 0x0;
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
@@ -107,7 +107,7 @@ public class VirtualMemoryTest {
         Random.Shared.NextBytes(data);
 
         string tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             MaxLoadedPages = 2,
@@ -115,7 +115,7 @@ public class VirtualMemoryTest {
             Size = 512
         };
         int baseAddress = 0x2;
-        using (VirtualMemory memory = new(config)){
+        using (Engine.Memory.Memory memory = new(config)){
             int address = baseAddress;
             foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
@@ -138,7 +138,7 @@ public class VirtualMemoryTest {
         Random.Shared.NextBytes(data);
 
         string tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             MaxLoadedPages = 4,
@@ -146,14 +146,14 @@ public class VirtualMemoryTest {
             Size = 64ul*(ulong)mb
         };
         int baseAddress = 0x0;
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
         }
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach (byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
@@ -171,7 +171,7 @@ public class VirtualMemoryTest {
         Random.Shared.NextBytes(data);
 
         string tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             MaxLoadedPages = 4,
@@ -179,14 +179,14 @@ public class VirtualMemoryTest {
             Size = 64ul * (ulong)mb
         };
         int baseAddress = 0x20*mb;
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
                 address++;
             }
         }
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach (byte b in data) {
                 Assert.AreEqual(b, memory.ReadByte((ulong)address));
@@ -204,7 +204,7 @@ public class VirtualMemoryTest {
         Random.Shared.NextBytes(data);
 
         string tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             MaxLoadedPages = 4,
@@ -212,7 +212,7 @@ public class VirtualMemoryTest {
             Size = 64ul * (ulong)mb
         };
         int baseAddress = 0x0;
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
@@ -235,7 +235,7 @@ public class VirtualMemoryTest {
         Random.Shared.NextBytes(data);
 
         string tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             MaxLoadedPages = 4,
@@ -243,7 +243,7 @@ public class VirtualMemoryTest {
             Size = 64ul * (ulong)mb
         };
         int baseAddress = 0x20*mb;
-        using (VirtualMemory memory = new(config)) {
+        using (Engine.Memory.Memory memory = new(config)) {
             int address = baseAddress;
             foreach (byte b in data) {
                 memory.WriteByte((ulong)address, b);
@@ -261,7 +261,7 @@ public class VirtualMemoryTest {
     [TestMethod]
     public void TestBigEndian() {
         string tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             MaxLoadedPages = 2,
@@ -269,7 +269,7 @@ public class VirtualMemoryTest {
             Size = 512,
             Endianess = Endianess.BigEndian
         };
-        using VirtualMemory memory = new(config);
+        using Engine.Memory.Memory memory = new(config);
         const int expectedData = 0x01020304;
         byte[] expectedBytes = [
             0x01, 0x02, 0x03, 0x04,
@@ -287,7 +287,7 @@ public class VirtualMemoryTest {
     [TestMethod]
     public void TestLittleEndian() {
         string tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = true,
             MaxLoadedPages = 2,
@@ -295,7 +295,7 @@ public class VirtualMemoryTest {
             Size = 512,
             Endianess = Endianess.LittleEndian
         };
-        using VirtualMemory memory = new(config);
+        using Engine.Memory.Memory memory = new(config);
         const int expectedData = 0x01020304;
         byte[] expectedBytes = [
             0x04, 0x03, 0x02, 0x01,

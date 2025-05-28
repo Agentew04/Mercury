@@ -11,7 +11,7 @@ public class DirectAccessCache : ICache {
     /// <summary>
     /// The backing memory for this cache.
     /// </summary>
-    private readonly IMemory memory;
+    private readonly IMemory backingMemory;
     /// <summary>
     /// The amount of blocks this cache has.
     /// </summary>
@@ -29,12 +29,12 @@ public class DirectAccessCache : ICache {
     /// <summary>
     /// Creates a new cache with the specified memory, block count, and block size.
     /// </summary>
-    /// <param name="memory">The backing memory</param>
+    /// <param name="backingMemory">The backing memory</param>
     /// <param name="blockCount">The amount of blocks this cache has</param>
     /// <param name="blockSize">The amount of bytes each block has</param>
     /// <param name="writePolicy">The write policy of this cache</param>
-    public DirectAccessCache(IMemory memory, int blockCount, int blockSize, CacheWritePolicy writePolicy) {
-        this.memory = memory;
+    public DirectAccessCache(IMemory backingMemory, int blockCount, int blockSize, CacheWritePolicy writePolicy) {
+        this.backingMemory = backingMemory;
         this.blockCount = blockCount;
         this.blockSize = blockSize;
         WritePolicy = writePolicy;
@@ -91,10 +91,10 @@ public class DirectAccessCache : ICache {
         
         Span<byte> data = stackalloc byte[blockSize];
         // Read the block from memory
-        memory.Read(address, data);
+        backingMemory.Read(address, data);
         // Update the cache block; check modified if write policy is WriteBack
         if (WritePolicy == CacheWritePolicy.WriteBack && cacheBlocks[tag].Valid && cacheBlocks[tag].Modified) {
-            memory.Write(address, data);
+            backingMemory.Write(address, data);
         }
         // Update the cache block
         cacheBlocks[index].Valid = true;
@@ -120,7 +120,7 @@ public class DirectAccessCache : ICache {
     
     #region IMemory
 
-    public Endianess Endianess => memory.Endianess;
+    public Endianess Endianess => backingMemory.Endianess;
 
     public byte ReadByte(ulong address) {
         (int tag, int index) = GetAddressData(address);
@@ -145,7 +145,7 @@ public class DirectAccessCache : ICache {
         if (WritePolicy == CacheWritePolicy.WriteThrough) {
             if (IsHit(tag, index)) {
                 cacheBlocks[index].Data[(int)(address % (ulong)blockSize)] = value;
-                memory.Write(address, cacheBlocks[index].Data);
+                backingMemory.Write(address, cacheBlocks[index].Data);
                 return;
             }
             // miss
@@ -154,7 +154,7 @@ public class DirectAccessCache : ICache {
             LoadBlock(address);
             // write on cache and memory
             cacheBlocks[index].Data[(int)(address % (ulong)blockSize)] = value;
-            memory.Write(address, cacheBlocks[index].Data);
+            backingMemory.Write(address, cacheBlocks[index].Data);
         }
         else {
             // WriteBack
@@ -178,7 +178,7 @@ public class DirectAccessCache : ICache {
         data[2] = ReadByte(address + 2);
         data[3] = ReadByte(address + 3);
 
-        return memory.Endianess switch {
+        return backingMemory.Endianess switch {
             Endianess.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(data),
             Endianess.BigEndian => BinaryPrimitives.ReadInt32BigEndian(data),
             _ => throw new NotSupportedException("Unsupported endianness.")
@@ -187,10 +187,10 @@ public class DirectAccessCache : ICache {
 
     public void WriteWord(ulong address, int value) {
         Span<byte> data = stackalloc byte[4];
-        if (memory.Endianess == Endianess.LittleEndian) {
+        if (backingMemory.Endianess == Endianess.LittleEndian) {
             BinaryPrimitives.WriteInt32LittleEndian(data, value);
         }
-        else if (memory.Endianess == Endianess.BigEndian) {
+        else if (backingMemory.Endianess == Endianess.BigEndian) {
             BinaryPrimitives.WriteInt32BigEndian(data, value);
         }
         else {

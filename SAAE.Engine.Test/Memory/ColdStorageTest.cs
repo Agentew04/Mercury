@@ -14,7 +14,7 @@ public class ColdStorageTest {
     [TestMethod]
     public void TestStorage1() {
         string? tempPath = Path.GetTempFileName();
-        VirtualMemoryConfiguration config = new() {
+        MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
             ColdStorageOptimization = false,
             Size = 4096,

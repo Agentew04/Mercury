@@ -24,7 +24,7 @@ public class SimplePipeline : IClockable
     /// Represents the RAM of this cpu. It is normally
     /// set from a <see cref="MachineBuilder"/>.
     /// </summary>
-    public VirtualMemory Memory { get; set; } = null!;
+    public Memory.Memory Memory { get; set; } = null!;
 
     /// <summary>
     /// Structure that holds all the general purpose

@@ -1,12 +1,12 @@
 namespace SAAE.Engine.Memory;
 
-public readonly struct VirtualMemoryConfiguration {
+public readonly struct MemoryConfiguration {
     private const ulong KB = 1024;
     private const ulong MB = 1024 * KB;
     private const ulong GB = 1024 * MB;
 
     /// <summary>
-    /// The total amount of bytes of this virtual memory.
+    /// The total amount of bytes of this memory.
     /// </summary>
     public ulong Size { get; init; } = 4*GB;
 
@@ -48,5 +48,5 @@ public readonly struct VirtualMemoryConfiguration {
     
     public Endianess Endianess { get; init; } = Endianess.LittleEndian;
 
-    public VirtualMemoryConfiguration() {}
+    public MemoryConfiguration() {}
 }

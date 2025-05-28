@@ -22,7 +22,7 @@ internal sealed class OptimizedColdStorage : IStorage {
 
     private const uint PagesPerJumpTable = 256;
     
-    public OptimizedColdStorage(VirtualMemoryConfiguration config) {
+    public OptimizedColdStorage(MemoryConfiguration config) {
         if(config.Size % config.PageSize != 0) {
             throw new ArgumentException("Size must be a multiple of PageSize.");
         }
@@ -73,7 +73,7 @@ internal sealed class OptimizedColdStorage : IStorage {
         }
     }
 
-    private void CreateNew(VirtualMemoryConfiguration config) {
+    private void CreateNew(MemoryConfiguration config) {
         bw.Write(_fileSignature);
         _header.PageSize = (uint)config.PageSize;
         bw.Write(_header.PageSize);

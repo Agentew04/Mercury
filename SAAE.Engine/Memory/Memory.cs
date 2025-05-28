@@ -2,10 +2,10 @@ using System.Buffers.Binary;
 
 namespace SAAE.Engine.Memory;
 
-public sealed class VirtualMemory : IDisposable, IMemory
+public sealed class Memory : IDisposable, IMemory
 {
     /// <summary>
-    /// Total size of the virtual memory in bytes.
+    /// Total size of the memory in bytes.
     /// </summary>
     private readonly ulong _size;
     
@@ -22,7 +22,7 @@ public sealed class VirtualMemory : IDisposable, IMemory
     private readonly uint _maxLoadedPages;
 
     /// <summary>
-    /// Total number of pages in the virtual memory. Includes
+    /// Total number of pages in the memory. Includes
     /// loaded and unloaded pages.
     /// </summary>
     private readonly uint _totalPageCount;
@@ -53,13 +53,13 @@ public sealed class VirtualMemory : IDisposable, IMemory
 
     private readonly bool _collectDebugInfo;
 
-    private readonly VirtualMemoryDebugInfo _debugInfo = new();
+    private readonly MemoryDebugInfo _debugInfo = new();
     
     private readonly IStorage _coldStorage;
 
     
 
-    public VirtualMemory(VirtualMemoryConfiguration config)
+    public Memory(MemoryConfiguration config)
     {
         _collectDebugInfo = config.CollectDebugInfo;
         _size = config.Size;
@@ -340,8 +340,8 @@ public sealed class VirtualMemory : IDisposable, IMemory
         _lastAccessTime[destinationIndex] = DateTime.Now.Ticks;
     }
 
-    public VirtualMemoryDebugInfo GetDebugInfo() {
-        return (VirtualMemoryDebugInfo)_debugInfo.Clone();
+    public MemoryDebugInfo GetDebugInfo() {
+        return (MemoryDebugInfo)_debugInfo.Clone();
     }
 
     public void Dispose() {
