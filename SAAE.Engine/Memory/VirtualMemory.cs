@@ -2,7 +2,7 @@ using System.Buffers.Binary;
 
 namespace SAAE.Engine.Memory;
 
-public sealed class VirtualMemory : IDisposable
+public sealed class VirtualMemory : IDisposable, IMemory
 {
     /// <summary>
     /// Total size of the virtual memory in bytes.
@@ -49,7 +49,7 @@ public sealed class VirtualMemory : IDisposable
     /// </summary>
     private readonly long[] _lastAccessTime;
     
-    private readonly Endianess _endianess;
+    public Endianess Endianess { get; init; }
 
     private readonly bool _collectDebugInfo;
 
@@ -66,7 +66,7 @@ public sealed class VirtualMemory : IDisposable
         _pageSize = config.PageSize;
         _maxLoadedPages = config.MaxLoadedPages;
         _totalPageCount = (uint)(_size / _pageSize);
-        _endianess = config.Endianess;
+        Endianess = config.Endianess;
         _loadedPages = new Page[_maxLoadedPages];
         Array.Fill(_loadedPages, null);
         _lastAccessTime = new long[_maxLoadedPages];
@@ -141,7 +141,7 @@ public sealed class VirtualMemory : IDisposable
         Page page = _loadedPages[pageIndex]!;
         int offset = (int)(address % _pageSize);
         Span<byte> bytes = page.Data.AsSpan()[offset..(offset+4)];
-        int data = _endianess switch {
+        int data = Endianess switch {
             Endianess.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(bytes),
             Endianess.BigEndian => BinaryPrimitives.ReadInt32BigEndian(bytes),
             _ => throw new ArgumentOutOfRangeException(nameof(address))
@@ -169,7 +169,7 @@ public sealed class VirtualMemory : IDisposable
         }
 
         Span<byte> data = stackalloc byte[4];
-        if (_endianess == Endianess.LittleEndian) {
+        if (Endianess == Endianess.LittleEndian) {
             BinaryPrimitives.WriteInt32LittleEndian(data, value);
         } else {
             BinaryPrimitives.WriteInt32BigEndian(data, value);
@@ -207,6 +207,64 @@ public sealed class VirtualMemory : IDisposable
         // vai ser lento, mas faz parte
         for (ulong i = 0; i < (ulong)data.Length; i++) {
             WriteByte(address + i, data[i]);
+        }
+    }
+
+    public void Read(ulong address, Span<byte> bytes) {
+        if (address >= _size) {
+            throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{_size}[. Got: {address}");
+        }
+
+        if (address + (ulong)bytes.Length >= _size) {
+            throw new InvalidAddressException($"Data out of bounds. Expected Range: [0,{_size}[. Got: {address + (ulong)bytes.Length}");
+        }
+        
+        for (int i = 0; i < bytes.Length; i++) {
+            bytes[i] = ReadByte(address + (ulong)i);
+        }
+    }
+
+    public void Write(ulong address, Span<byte> bytes) {
+        if (address >= _size) {
+            throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{_size}[. Got: {address}");
+        }
+
+        if (address + (ulong)bytes.Length >= _size) {
+            throw new InvalidAddressException($"Data out of bounds. Expected Range: [0,{_size}[. Got: {address + (ulong)bytes.Length}");
+        }
+        
+        // vai ser lento, mas faz parte
+        for (int i = 0; i < bytes.Length; i++) {
+            WriteByte(address + (ulong)i, bytes[i]);
+        }
+    }
+
+    public void Read(ulong address, Span<int> words) {
+        if (address >= _size) {
+            throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{_size}[. Got: {address}");
+        }
+
+        if (address + (ulong)(words.Length * 4) >= _size) {
+            throw new InvalidAddressException($"Data out of bounds. Expected Range: [0,{_size}[. Got: {address + (ulong)(words.Length * 4)}");
+        }
+        
+        for (int i = 0; i < words.Length; i++) {
+            words[i] = ReadWord(address + (ulong)(i * 4));
+        }
+    }
+
+    public void Write(ulong address, Span<int> words) {
+        if (address >= _size) {
+            throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{_size}[. Got: {address}");
+        }
+
+        if (address + (ulong)(words.Length * 4) >= _size) {
+            throw new InvalidAddressException($"Data out of bounds. Expected Range: [0,{_size}[. Got: {address + (ulong)(words.Length * 4)}");
+        }
+        
+        // vai ser lento, mas faz parte
+        for (int i = 0; i < words.Length; i++) {
+            WriteWord(address + (ulong)(i * 4), words[i]);
         }
     }
 
@@ -298,9 +356,4 @@ public sealed class VirtualMemory : IDisposable
         }
         _coldStorage.Dispose();
     }
-}
-
-public enum Endianess {
-    LittleEndian,
-    BigEndian
 }

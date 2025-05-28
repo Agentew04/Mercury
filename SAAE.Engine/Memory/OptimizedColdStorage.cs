@@ -2,7 +2,7 @@
 
 namespace SAAE.Engine.Memory;
 
-internal sealed class OptimizedColdStorage : IDisposable, IStorage {
+internal sealed class OptimizedColdStorage : IStorage {
     private FileStream fs;
     private BinaryReader br;
     private BinaryWriter bw;

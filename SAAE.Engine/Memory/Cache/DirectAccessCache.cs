@@ -1,0 +1,278 @@
+﻿using System.Buffers.Binary;
+using System.Drawing;
+using System.Formats.Asn1;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+
+namespace SAAE.Engine.Memory.Cache;
+
+/// <summary>
+/// Basic cache that uses the direct access architecture.
+/// </summary>
+public class DirectAccessCache : ICache {
+
+    /// <summary>
+    /// The backing memory for this cache.
+    /// </summary>
+    private readonly IMemory memory;
+    /// <summary>
+    /// The amount of blocks this cache has.
+    /// </summary>
+    private readonly int blockCount;
+    /// <summary>
+    /// The amount of bytes each block has.
+    /// </summary>
+    private readonly int blockSize;
+
+    /// <summary>
+    /// The write policy of this cache.
+    /// </summary>
+    public CacheWritePolicy WritePolicy { get; init; }
+    
+    /// <summary>
+    /// Creates a new cache with the specified memory, block count, and block size.
+    /// </summary>
+    /// <param name="memory">The backing memory</param>
+    /// <param name="blockCount">The amount of blocks this cache has</param>
+    /// <param name="blockSize">The amount of bytes each block has</param>
+    /// <param name="writePolicy">The write policy of this cache</param>
+    public DirectAccessCache(IMemory memory, int blockCount, int blockSize, CacheWritePolicy writePolicy) {
+        this.memory = memory;
+        this.blockCount = blockCount;
+        this.blockSize = blockSize;
+        WritePolicy = writePolicy;
+        
+        // check if block size is a multiple of 4
+        if ((blockSize & 3) > 0 && blockSize > 0) {
+            throw new ArgumentException("Block size must be a multiple of 4 bytes.");
+        }
+        
+        // check if block count is a power of 2
+        if ((blockCount & (blockCount - 1)) != 0 || blockCount <= 0) {
+            throw new ArgumentException("Block count must be a power of 2 and greater than zero.");
+        }
+
+        cacheBlocks = [];
+        for(int i=0;i<blockCount;i++) {
+            cacheBlocks.Add(new CacheBlock {
+                Valid = false,
+                Modified = false,
+                Index = i,
+                Tag = -1,
+                Data = new byte[blockSize]
+            });
+        }
+    }
+
+    private readonly List<CacheBlock> cacheBlocks;
+
+    private (int tag, int index) GetAddressData(ulong address) {
+        //4 bytes -> 2 bit skip
+        // n bytes -> skip = n / 4
+        int skip = BitOperations.Log2((uint)blockSize);
+        
+        // Calculate the index and tag from the address
+        int indexSize = BitOperations.Log2((uint)blockCount);
+        int tagSize = sizeof(ulong) - indexSize - skip;
+        uint indexMask = (unchecked((uint)-1) >> tagSize) << skip;
+        uint tagMask = (unchecked((uint)-1) >> tagSize) << tagSize;
+        int index = (int)((address & indexMask) >> skip);
+        int tag = (int)((address & tagMask) >> (indexSize + skip));
+        return (tag, index);
+    }
+
+    private class CacheBlock {
+        public bool Valid { get; set; }
+        public bool Modified { get; set; }
+        public int Index { get; set; }
+        public int Tag { get; set; }
+        public byte[] Data { get; set; }
+    }
+        
+    public event EventHandler<CacheMissEventArgs>? OnCacheMiss;
+
+    private void LoadBlock(ulong address) {
+        (int tag, int index) = GetAddressData(address);
+        
+        Span<byte> data = stackalloc byte[blockSize];
+        // Read the block from memory
+        memory.Read(address, data);
+        // Update the cache block; check modified if write policy is WriteBack
+        if (WritePolicy == CacheWritePolicy.WriteBack && cacheBlocks[tag].Valid && cacheBlocks[tag].Modified) {
+            memory.Write(address, data);
+        }
+        // Update the cache block
+        cacheBlocks[index].Valid = true;
+        cacheBlocks[index].Modified = false;
+        cacheBlocks[index].Tag = tag;
+        data.CopyTo(cacheBlocks[index].Data);
+    }
+    
+    private byte GetByteFromBlock(CacheBlock block, ulong address) {
+        // Calculate the offset within the block
+        int offset = (int)(address % (ulong)blockSize);
+        if (offset < 0 || offset >= blockSize) {
+            throw new ArgumentOutOfRangeException(nameof(address), "Address is out of bounds for the block size.");
+        }
+        // Return the byte from the block's data
+        return block.Data[offset];
+    }
+
+    private bool IsHit(int tag, int index) {
+        // Check if the cache block is valid and the tag matches
+        return cacheBlocks[index].Valid && cacheBlocks[index].Tag == tag;
+    }
+    
+    #region IMemory
+
+    public Endianess Endianess => memory.Endianess;
+
+    public byte ReadByte(ulong address) {
+        (int tag, int index) = GetAddressData(address);
+
+        if (!cacheBlocks[index].Valid) {
+            // nao ha nada na cache, miss
+            OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
+            //load
+            LoadBlock(address);
+        }
+        else if (cacheBlocks[index].Tag != tag) {
+            // ha algo na cache, mas nao eh o que queremos, miss
+            OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
+            //load
+            LoadBlock(address);
+        }
+        return GetByteFromBlock(cacheBlocks[index], address);
+    }
+
+    public void WriteByte(ulong address, byte value) {
+        (int tag, int index) = GetAddressData(address);
+        if (WritePolicy == CacheWritePolicy.WriteThrough) {
+            if (IsHit(tag, index)) {
+                cacheBlocks[index].Data[(int)(address % (ulong)blockSize)] = value;
+                memory.Write(address, cacheBlocks[index].Data);
+                return;
+            }
+            // miss
+            OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
+            // load block
+            LoadBlock(address);
+            // write on cache and memory
+            cacheBlocks[index].Data[(int)(address % (ulong)blockSize)] = value;
+            memory.Write(address, cacheBlocks[index].Data);
+        }
+        else {
+            // WriteBack
+            if (IsHit(tag, index)) {
+                cacheBlocks[index].Data[(int)(address % (ulong)blockSize)] = value;
+                cacheBlocks[index].Modified = true;
+                return;
+            }
+            // miss
+            OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
+            LoadBlock(address);
+            cacheBlocks[index].Data[(int)(address % (ulong)blockSize)] = value;
+            cacheBlocks[index].Modified = true;
+        }
+    }
+
+    public int ReadWord(ulong address) {
+        Span<byte> data = stackalloc byte[4];
+        data[0] = ReadByte(address);
+        data[1] = ReadByte(address + 1);
+        data[2] = ReadByte(address + 2);
+        data[3] = ReadByte(address + 3);
+
+        return memory.Endianess switch {
+            Endianess.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(data),
+            Endianess.BigEndian => BinaryPrimitives.ReadInt32BigEndian(data),
+            _ => throw new NotSupportedException("Unsupported endianness.")
+        };
+    }
+
+    public void WriteWord(ulong address, int value) {
+        Span<byte> data = stackalloc byte[4];
+        if (memory.Endianess == Endianess.LittleEndian) {
+            BinaryPrimitives.WriteInt32LittleEndian(data, value);
+        }
+        else if (memory.Endianess == Endianess.BigEndian) {
+            BinaryPrimitives.WriteInt32BigEndian(data, value);
+        }
+        else {
+            throw new NotSupportedException("Unsupported endianness.");
+        }
+
+        WriteByte(address, data[0]);
+        WriteByte(address + 1, data[1]);
+        WriteByte(address + 2, data[2]);
+        WriteByte(address + 3, data[3]);
+    }
+
+    public byte[] Read(ulong address, int length) {
+        if (length <= 0) {
+            throw new ArgumentOutOfRangeException(nameof(length), "Length must be greater than zero.");
+        }
+
+        byte[] result = new byte[length];
+        for (int i = 0; i < length; i++) {
+            result[i] = ReadByte(address + (ulong)i);
+        }
+        return result;
+    }
+
+    public void Write(ulong address, byte[] bytes) {
+        if (bytes == null) {
+            throw new ArgumentNullException(nameof(bytes), "Bytes cannot be null.");
+        }
+        if (bytes.Length <= 0) {
+            throw new ArgumentOutOfRangeException(nameof(bytes), "Bytes length must be greater than zero.");
+        }
+
+        for (int i = 0; i < bytes.Length; i++) {
+            WriteByte(address + (ulong)i, bytes[i]);
+        }
+    }
+
+    public void Read(ulong address, Span<byte> bytes) {
+        if (bytes == null || bytes.Length <= 0) {
+            throw new ArgumentOutOfRangeException(nameof(bytes), "Bytes span must be greater than zero.");
+        }
+
+        for (int i = 0; i < bytes.Length; i++) {
+            bytes[i] = ReadByte(address + (ulong)i);
+        }
+    }
+
+    public void Write(ulong address, Span<byte> bytes) {
+        if (bytes == null || bytes.Length <= 0) {
+            throw new ArgumentOutOfRangeException(nameof(bytes), "Bytes span must be greater than zero.");
+        }
+
+        for (int i = 0; i < bytes.Length; i++) {
+            WriteByte(address + (ulong)i, bytes[i]);
+        }
+    }
+
+    public void Read(ulong address, Span<int> words) {
+        if (words == null || words.Length <= 0) {
+            throw new ArgumentOutOfRangeException(nameof(words), "Words span must be greater than zero.");
+        }
+
+        for (int i = 0; i < words.Length; i++) {
+            words[i] = ReadWord(address + (ulong)(i * 4));
+        }
+    }
+
+    public void Write(ulong address, Span<int> words) {
+        if (words == null || words.Length <= 0) {
+            throw new ArgumentOutOfRangeException(nameof(words), "Words span must be greater than zero.");
+        }
+
+        for (int i = 0; i < words.Length; i++) {
+            WriteWord(address + (ulong)(i * 4), words[i]);
+        }
+    }
+
+    #endregion
+    
+}
