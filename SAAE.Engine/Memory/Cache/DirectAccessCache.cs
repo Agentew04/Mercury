@@ -26,6 +26,8 @@ public class DirectAccessCache : ICache {
     /// The write policy of this cache.
     /// </summary>
     public CacheWritePolicy WritePolicy { get; init; }
+    public Endianess Endianess => backingMemory.Endianess;
+    
     
     /// <summary>
     /// Creates a new cache with the specified memory, block count, and block size.
@@ -86,6 +88,7 @@ public class DirectAccessCache : ICache {
     }
         
     public event EventHandler<CacheMissEventArgs>? OnCacheMiss;
+    public event EventHandler<CacheEvictionEventArgs>? OnCacheEvict;
 
     private void LoadBlock(ulong address) {
         (int tag, int index) = GetAddressData(address);
@@ -94,6 +97,18 @@ public class DirectAccessCache : ICache {
         // Read the block from memory
         backingMemory.Read(address, data);
         // Update the cache block; check modified if write policy is WriteBack
+        if (cacheBlocks[index].Valid)
+        {
+            int indexSize = BitOperations.Log2((uint)blockCount);
+            int skip = BitOperations.Log2((uint)blockSize);
+            // ja havia algo aqui, atira evento de evict
+            OnCacheEvict?.Invoke(this, 
+                new CacheEvictionEventArgs(
+                    address, 
+                    evictedAddress: (ulong)cacheBlocks[index].Tag << (indexSize + skip) 
+                                    | (ulong)index << skip
+            ));
+        }
         if (WritePolicy == CacheWritePolicy.WriteBack && cacheBlocks[index].Valid && cacheBlocks[index].Modified) {
             StoreBlock(cacheBlocks[index], index);
         }
@@ -130,7 +145,6 @@ public class DirectAccessCache : ICache {
     
     #region IMemory
 
-    public Endianess Endianess => backingMemory.Endianess;
 
     public byte ReadByte(ulong address) {
         (int tag, int index) = GetAddressData(address);
@@ -188,7 +202,7 @@ public class DirectAccessCache : ICache {
         data[2] = ReadByte(address + 2);
         data[3] = ReadByte(address + 3);
 
-        return backingMemory.Endianess switch {
+        return Endianess switch {
             Endianess.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(data),
             Endianess.BigEndian => BinaryPrimitives.ReadInt32BigEndian(data),
             _ => throw new NotSupportedException("Unsupported endianness.")
@@ -197,10 +211,10 @@ public class DirectAccessCache : ICache {
 
     public void WriteWord(ulong address, int value) {
         Span<byte> data = stackalloc byte[4];
-        if (backingMemory.Endianess == Endianess.LittleEndian) {
+        if (Endianess == Endianess.LittleEndian) {
             BinaryPrimitives.WriteInt32LittleEndian(data, value);
         }
-        else if (backingMemory.Endianess == Endianess.BigEndian) {
+        else if (Endianess == Endianess.BigEndian) {
             BinaryPrimitives.WriteInt32BigEndian(data, value);
         }
         else {

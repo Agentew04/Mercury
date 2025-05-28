@@ -16,6 +16,12 @@ public interface ICache : IMemory, IDisposable {
     /// Event raised when an access results in a cache miss.
     /// </summary>
     event EventHandler<CacheMissEventArgs>? OnCacheMiss;
+    
+    /// <summary>
+    /// Event raised when a block is evicted from the cache to open
+    /// up space for a new block.
+    /// </summary>
+    event EventHandler<CacheEvictionEventArgs>? OnCacheEvict;
 }
 
 public class CacheMissEventArgs : EventArgs {
@@ -23,5 +29,15 @@ public class CacheMissEventArgs : EventArgs {
 
     public CacheMissEventArgs(ulong address) {
         Address = address;
+    }
+}
+
+public class CacheEvictionEventArgs : EventArgs {
+    public ulong Address { get; }
+    public ulong EvictedAddress { get; }
+
+    public CacheEvictionEventArgs(ulong address, ulong evictedAddress) {
+        Address = address;
+        EvictedAddress = evictedAddress;
     }
 }

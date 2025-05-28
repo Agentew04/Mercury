@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SAAE.Engine.Test;
+﻿namespace SAAE.Engine.Test;
 
 [TestClass]
 public class ExtensionsTest {
@@ -12,7 +6,7 @@ public class ExtensionsTest {
     [TestMethod]
     public void TestLinqSplit() {
         List<int> nums = [1,2,3,4,0,1,4,2,0,1,20,15,0,1,0];
-        List<IEnumerable<int>>? parts = nums.Split(0).ToList();
+        List<IEnumerable<int>> parts = nums.Split(0).ToList();
         Assert.AreEqual(4, parts.Count);
         CollectionAssert.AreEqual(new List<int>(){ 1,2,3,4}, parts[0].ToList());
         CollectionAssert.AreEqual(new List<int>() { 1,4,2}, parts[1].ToList());
@@ -23,7 +17,7 @@ public class ExtensionsTest {
     [TestMethod]
     public void TestLinqSplitNonEnding() {
         List<int> nums = [1,2,3,0,1,4,2,0,1,20,15,0,1];
-        List<IEnumerable<int>>? parts = nums.Split(0).ToList();
+        List<IEnumerable<int>> parts = nums.Split(0).ToList();
         Assert.AreEqual(4, parts.Count);
         CollectionAssert.AreEqual(new List<int>() { 1,2,3}, parts[0].ToList());
         CollectionAssert.AreEqual(new List<int>() { 1,4,2}, parts[1].ToList());
@@ -34,7 +28,7 @@ public class ExtensionsTest {
     [TestMethod]
     public void TestLinqSplitPredicate() {
         List<int> nums = [1, 2, 3, 4, 0, 1, 4, 2, 0, 1, 20, 15, 0, 1, 0];
-        List<IEnumerable<int>>? parts = nums.Split(x => x == 0).ToList();
+        List<IEnumerable<int>> parts = nums.Split(x => x == 0).ToList();
         Assert.AreEqual(4, parts.Count);
         CollectionAssert.AreEqual(new List<int>() { 1, 2, 3, 4 }, parts[0].ToList());
         CollectionAssert.AreEqual(new List<int>() { 1, 4, 2 }, parts[1].ToList());
@@ -60,6 +54,4 @@ public class ExtensionsTest {
         Assert.AreEqual(19, nums.Before(-2));
         Assert.ThrowsException<InvalidOperationException>(() => nums.Before(1));
     }
-
-    
 }
