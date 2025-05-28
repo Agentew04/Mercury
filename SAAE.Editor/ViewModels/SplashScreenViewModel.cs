@@ -87,11 +87,11 @@ public partial class SplashScreenViewModel : BaseViewModel {
     }
     
     private (bool hasCompiler, bool hasLinker, bool hasScript) CheckCompiler() {
-        // TODO: check if compiler is installed e usar o do usuario se possivel
-        // olhar issue #1
+        // TODO: check if compiler is installed e usar o do usuario se possivel. issue #1
         bool appCompiler = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"));
         bool appLinker = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"));
         bool script = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "linker.ld"));
+        
         return (appCompiler, appLinker, script);
     }
 

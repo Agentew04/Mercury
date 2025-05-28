@@ -2,5 +2,8 @@
 
 public class MemoryStage : PipelineStage
 {
-    
+    public override void Clock()
+    {
+        throw new NotImplementedException();
+    }
 }

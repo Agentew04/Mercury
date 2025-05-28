@@ -1,5 +1,6 @@
 ﻿using System.Buffers.Binary;
 using System.Numerics;
+using System.Linq;
 
 namespace SAAE.Engine.Memory.Cache;
 
@@ -39,8 +40,8 @@ public class DirectAccessCache : ICache {
         this.blockSize = blockSize;
         WritePolicy = writePolicy;
         
-        // check if block size is a multiple of 4
-        if ((blockSize & 3) > 0 && blockSize > 0) {
+        // check if block size is power of 2
+        if(blockSize <= 0 || (blockSize & (blockSize - 1)) != 0) {
             throw new ArgumentException("Block size must be a multiple of 4 bytes.");
         }
         
@@ -69,9 +70,9 @@ public class DirectAccessCache : ICache {
         
         // Calculate the index and tag from the address
         int indexSize = BitOperations.Log2((uint)blockCount);
-        int tagSize = sizeof(ulong) - indexSize - skip;
-        uint indexMask = (unchecked((uint)-1) >> tagSize) << skip;
-        uint tagMask = (unchecked((uint)-1) >> tagSize) << tagSize;
+        int tagSize = sizeof(ulong)*8 - indexSize - skip;
+        ulong tagMask = (unchecked((ulong)-1) >> (indexSize+skip)) << (indexSize+skip);
+        ulong indexMask = (unchecked((ulong)-1) >> (tagSize+skip)) << skip;
         int index = (int)((address & indexMask) >> skip);
         int tag = (int)((address & tagMask) >> (indexSize + skip));
         return (tag, index);
@@ -93,14 +94,23 @@ public class DirectAccessCache : ICache {
         // Read the block from memory
         backingMemory.Read(address, data);
         // Update the cache block; check modified if write policy is WriteBack
-        if (WritePolicy == CacheWritePolicy.WriteBack && cacheBlocks[tag].Valid && cacheBlocks[tag].Modified) {
-            backingMemory.Write(address, data);
+        if (WritePolicy == CacheWritePolicy.WriteBack && cacheBlocks[index].Valid && cacheBlocks[index].Modified) {
+            StoreBlock(cacheBlocks[index], index);
         }
         // Update the cache block
         cacheBlocks[index].Valid = true;
         cacheBlocks[index].Modified = false;
         cacheBlocks[index].Tag = tag;
         data.CopyTo(cacheBlocks[index].Data);
+    }
+
+    private void StoreBlock(CacheBlock block, int blockIndex)
+    {
+        ulong tag = (ulong)block.Tag << (BitOperations.Log2((uint)blockCount) + BitOperations.Log2((uint)blockSize));
+        ulong index = (ulong)blockIndex << BitOperations.Log2((uint)blockSize);
+        ulong address = tag | index;
+        // skip is null because it indexes inside the block
+        backingMemory.Write(address, block.Data);
     }
     
     private byte GetByteFromBlock(CacheBlock block, ulong address) {
@@ -269,5 +279,20 @@ public class DirectAccessCache : ICache {
     }
 
     #endregion
-    
+
+    public void Dispose()
+    {
+        if (WritePolicy != CacheWritePolicy.WriteBack)
+        {
+            return;
+        }
+        // para cada bloco modificado, escrever de volta na memoria
+        for(int i=0;i<cacheBlocks.Count;i++)
+        {
+            CacheBlock block = cacheBlocks[i];
+            if(!block.Valid || !block.Modified) continue;   
+            StoreBlock(cacheBlocks[i], i);
+        }
+        GC.SuppressFinalize(this);
+    }
 }

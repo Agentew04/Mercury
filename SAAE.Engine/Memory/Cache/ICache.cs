@@ -3,7 +3,7 @@
 /// <summary>
 /// Common interface that all caches must implement.
 /// </summary>
-public interface ICache : IMemory {
+public interface ICache : IMemory, IDisposable {
 
     /// <summary>
     /// The WritePolicy of this cache. Can be either
@@ -13,7 +13,7 @@ public interface ICache : IMemory {
     public CacheWritePolicy WritePolicy { get; }
     
     /// <summary>
-    /// Event raised when this cache misses a access.
+    /// Event raised when an access results in a cache miss.
     /// </summary>
     event EventHandler<CacheMissEventArgs>? OnCacheMiss;
 }

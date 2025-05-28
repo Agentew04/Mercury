@@ -2,5 +2,8 @@
 
 public class WriteBackStage : PipelineStage
 {
-    
+    public override void Clock()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -2,5 +2,8 @@
 
 public class ExecuteInstructionStage : PipelineStage
 {
-    
+    public override void Clock()
+    {
+        throw new NotImplementedException();
+    }
 }

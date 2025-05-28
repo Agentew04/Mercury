@@ -81,4 +81,14 @@ public class FullyAssociativeCache : ICache {
     }
 
     #endregion
+
+    public void Dispose()
+    {
+        if (WritePolicy != CacheWritePolicy.WriteBack)
+        {
+            return;
+        }
+        
+        GC.SuppressFinalize(this);
+    }
 }
