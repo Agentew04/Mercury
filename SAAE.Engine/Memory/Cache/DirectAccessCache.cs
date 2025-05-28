@@ -1,8 +1,5 @@
 ﻿using System.Buffers.Binary;
-using System.Drawing;
-using System.Formats.Asn1;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace SAAE.Engine.Memory.Cache;
 
@@ -57,7 +54,6 @@ public class DirectAccessCache : ICache {
             cacheBlocks.Add(new CacheBlock {
                 Valid = false,
                 Modified = false,
-                Index = i,
                 Tag = -1,
                 Data = new byte[blockSize]
             });
@@ -84,9 +80,8 @@ public class DirectAccessCache : ICache {
     private class CacheBlock {
         public bool Valid { get; set; }
         public bool Modified { get; set; }
-        public int Index { get; set; }
         public int Tag { get; set; }
-        public byte[] Data { get; set; }
+        public required byte[] Data { get; init; }
     }
         
     public event EventHandler<CacheMissEventArgs>? OnCacheMiss;
