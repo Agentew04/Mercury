@@ -22,9 +22,6 @@ public class DirectAccessCache : ICache {
     /// </summary>
     private readonly int blockSize;
 
-    /// <summary>
-    /// The write policy of this cache.
-    /// </summary>
     public CacheWritePolicy WritePolicy { get; init; }
     public Endianess Endianess => backingMemory.Endianess;
     
