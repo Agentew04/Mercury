@@ -13,6 +13,15 @@ public class SetAssociativeCache : ICache
     private readonly int indexSize;
     private readonly int skipSize;
     private readonly List<CacheSet> lines;
+    
+    // TODO: adaptar isso para ser SetAssociative
+    // private readonly Queue<uint>? fifoBlockQueue;
+    // private readonly List<uint>? lruTimestamps;
+    // private uint lruHead;
+    // private uint lfuAccessCounter;
+    // private const uint LfuHalflife = 64;
+    // private readonly List<uint>? lfuFrequencies;
+    // private readonly Random? rng;
 
     public Endianess Endianess => backingMemory.Endianess;
     public CacheWritePolicy WritePolicy { get; }
@@ -60,11 +69,38 @@ public class SetAssociativeCache : ICache
         indexSize = (int)Math.Log2(blockCount);
         skipSize = (int)Math.Log2(blockSize);
         tagSize = sizeof(ulong) - indexSize - skipSize;
+        
+        switch (substitutionStrategy)
+        {
+            // case SubstitutionStrategy.Fifo:
+            //     fifoBlockQueue = new Queue<uint>(blockCount);
+            //     break;
+            // case SubstitutionStrategy.Lru:
+            //     lruTimestamps = new List<uint>(blockCount);
+            //     for (int i = 0; i < blockCount; i++) {
+            //         lruTimestamps.Add(0);
+            //     }
+            //     break;
+            // case SubstitutionStrategy.Lfu:
+            //     lfuFrequencies = new List<uint>(blockCount);
+            //     for (int i = 0; i < blockCount; i++) {
+            //         lfuFrequencies.Add(0);
+            //     }
+            //     break;
+            // case SubstitutionStrategy.Random:
+            //     rng = new Random();
+            //     break;
+            default:
+                throw new NotSupportedException("SubstitutionStrategy not supported.");
+        }
 
         lines = [];
         for (int i = 0; i < blockCount; i++)
         {
-            CacheSet set = new();
+            CacheSet set = new()
+            {
+                Blocks = new CacheBlock[associativity],
+            };
             for (int j = 0; j < associativity; j++)
             {
                 CacheBlock block = new()
@@ -104,6 +140,24 @@ public class SetAssociativeCache : ICache
             if (block.Valid && block.Tag == tag)
             {
                 column = i;
+                
+                // switch (SubstitutionStrategy)
+                // {
+                //     case SubstitutionStrategy.Lru:
+                //         lruTimestamps![index] = lruHead++;
+                //         break;
+                //     case SubstitutionStrategy.Lfu:
+                //         lfuFrequencies![index]++;
+                //         if(lfuAccessCounter++ >= LfuHalflife) {
+                //             // halve the frequencies
+                //             for (int j = 0; i < lfuFrequencies!.Count; i++) {
+                //                 lfuFrequencies[j] /= 2;
+                //             }
+                //             lfuAccessCounter = 0;
+                //         }
+                //         break;
+                // }
+                
                 return true; // Cache hit
             }
         }
@@ -115,22 +169,18 @@ public class SetAssociativeCache : ICache
 
     private (int line, int column) LoadBlock(ulong address)
     {
-        (ulong tag, int index) = GetAddressData(address);
+        (ulong tag, int line) = GetAddressData(address);
         
-        CacheSet set = lines[index];
+        CacheSet set = lines[line];
 
         // check if there is a free block in the set
         bool found = false;
+        int candidate = -1;
         for (int i = 0; i < associativity; i++)
         {
             if (!set.Blocks[i].Valid)
             {
-                // load the block from backing memory
-                CacheBlock block = set.Blocks[i];
-                block.Valid = true;
-                block.Modified = false;
-                block.Tag = tag;
-                backingMemory.Read(address, block.Data);
+                candidate = i;
                 found = true;
                 break;
             }
@@ -139,8 +189,43 @@ public class SetAssociativeCache : ICache
         if (!found)
         {
             // evict someone
+            int evictedIndex = GetEvictedBlockIndex(set);
+            ulong evictedTag = set.Blocks[evictedIndex].Tag;
+            ulong addressEvicted = (evictedTag << (indexSize + skipSize)) |
+                ((ulong)line << skipSize);
+            OnCacheEvict?.Invoke(this, new CacheEvictionEventArgs(address, addressEvicted));
+            StoreBlock(set.Blocks[evictedIndex], evictedIndex);
+            
+            candidate = evictedIndex;
         }
         
+        // load at candidate index
+        CacheBlock block = set.Blocks[candidate];
+        block.Valid = true;
+        block.Modified = false; // Reset modified flag when loading a new block
+        block.Tag = tag;
+        backingMemory.Read(address, block.Data);
+        return (line, candidate);
+    }
+    
+    private int GetEvictedBlockIndex(CacheSet set)
+    {
+        // TODO: fazer isso
+        // Use the substitution strategy to determine which block to evict
+        switch (SubstitutionStrategy)
+        {
+            case SubstitutionStrategy.Fifo:
+                return -1;
+            case SubstitutionStrategy.Lru:
+                return -1;
+            case SubstitutionStrategy.Lfu:
+                return -1;
+            case SubstitutionStrategy.Random:
+                Random random = new();
+                return random.Next(0, associativity);
+            default:
+                throw new NotSupportedException($"SubstitutionStrategy {SubstitutionStrategy} is not supported.");
+        }
     }
     
     private byte GetByteFromBlock(ulong address, int line, int column) {
@@ -151,6 +236,20 @@ public class SetAssociativeCache : ICache
         }
         // Return the byte from the block's data
         return lines[line].Blocks[column].Data[offset];
+    }
+    
+    private void StoreBlock(CacheBlock block, int index)
+    {
+        if (WritePolicy != CacheWritePolicy.WriteBack || !block.Modified)
+        {
+            return;
+        }
+        // Write the block back to the backing memory
+        ulong address = (block.Tag << (indexSize + skipSize)) | ((ulong)index << skipSize);
+        backingMemory.Write(address, block.Data);
+        block.Tag = 0;
+        block.Valid = false;
+        block.Modified = false; // Reset modified flag after writing
     }
     
     #region Memory
@@ -172,7 +271,28 @@ public class SetAssociativeCache : ICache
 
     public void WriteByte(ulong address, byte value)
     {
-        throw new NotImplementedException();
+        if (!IsHit(address, out int line, out int column))
+        {
+            // miss
+            OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
+            
+            // load block from backing memory
+            (line, column) = LoadBlock(address);
+        }
+        
+        // hit
+        CacheBlock block = lines[line].Blocks[column];
+        if (WritePolicy == CacheWritePolicy.WriteThrough)
+        {
+            backingMemory.WriteByte(address, value);
+            block.Data[address % (ulong)blockSize] = value;
+        }
+        else
+        {
+            // write back
+            block.Data[address % (ulong)blockSize] = value;
+            block.Modified = true;
+        }
     }
 
     public int ReadWord(ulong address)
@@ -224,18 +344,21 @@ public class SetAssociativeCache : ICache
             return;
         }
         // para cada bloco modificado, escrever de volta na memoria
-        for(int i=0;i<cacheBlocks.Count;i++)
+        for(int i=0;i<lines.Count;i++)
         {
-            CacheBlock block = cacheBlocks[i];
-            if(!block.Valid || !block.Modified) continue;   
-            StoreBlock(cacheBlocks[i], i);
+            for(int j=0;j<associativity;j++)
+            {
+                CacheBlock block = lines[i].Blocks[j];
+                if(!block.Valid || !block.Modified) continue;   
+                StoreBlock(block, i);
+            }
         }
         GC.SuppressFinalize(this);
     }
 
     private class CacheSet
     {
-        public CacheBlock[] Blocks { get; }
+        public required CacheBlock[] Blocks { get; init; }
     }
 
     private class CacheBlock
@@ -243,6 +366,6 @@ public class SetAssociativeCache : ICache
         public bool Valid { get; set; }
         public bool Modified { get; set; }
         public ulong Tag { get; set; }
-        public byte[] Data { get; set; }
+        public required byte[] Data { get; init; }
     }
 }

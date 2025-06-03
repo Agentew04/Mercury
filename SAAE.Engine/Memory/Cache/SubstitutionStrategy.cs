@@ -21,4 +21,8 @@ public enum SubstitutionStrategy {
     /// Discards a random block in the cache.
     /// </summary>
     Random,
+    /// <summary>
+    /// Similar to the <see cref="Fifo"/> but allows a second chance for the block that was just used.
+    /// </summary>
+    SecondChance,
 }

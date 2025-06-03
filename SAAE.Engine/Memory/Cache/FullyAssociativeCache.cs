@@ -50,34 +50,24 @@ public class FullyAssociativeCache : ICache {
         {
             case SubstitutionStrategy.Fifo:
                 fifoBlockQueue = new Queue<uint>(blockCount);
-                lruTimestamps = null;
-                lfuFrequencies = null;
-                rng = null;
                 break;
             case SubstitutionStrategy.Lru:
-                fifoBlockQueue = null;
                 lruTimestamps = new List<uint>(blockCount);
-                lfuFrequencies = null;
-                rng = null;
                 for (int i = 0; i < blockCount; i++) {
                     lruTimestamps.Add(0);
                 }
                 break;
             case SubstitutionStrategy.Lfu:
-                fifoBlockQueue = null;
-                lruTimestamps = null;
                 lfuFrequencies = new List<uint>(blockCount);
-                rng = null;
                 for (int i = 0; i < blockCount; i++) {
                     lfuFrequencies.Add(0);
                 }
                 break;
             case SubstitutionStrategy.Random:
-                fifoBlockQueue = null;
-                lruTimestamps = null;
-                lfuFrequencies = null;
                 rng = new Random();
                 break;
+            default:
+                throw new NotSupportedException("SubstitutionStrategy not supported.");
         }
         
         blocks = new List<CacheBlock>(blockCount);
