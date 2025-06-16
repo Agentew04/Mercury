@@ -11,7 +11,7 @@ public partial class Monocycle {
                 ((uint)RegisterFile[RegisterFile.Register.Pc] & pcMask) // PC[31..28]
                 | ((uint)j.Immediate << 2));
         }else if(instruction is Jal jal) {
-            RegisterFile[RegisterFile.Register.Pc] = RegisterFile[RegisterFile.Register.Pc] + (UseBranchDelaySlot ? 8 : 4);
+            RegisterFile[RegisterFile.Register.Ra] = RegisterFile[RegisterFile.Register.Pc] + (UseBranchDelaySlot ? 8 : 4);
             uint pcMask = 0xF000_0000;
             RegisterFile[RegisterFile.Register.Pc] = (int)(
                 ((uint)RegisterFile[RegisterFile.Register.Pc] & pcMask) // PC[31..28]

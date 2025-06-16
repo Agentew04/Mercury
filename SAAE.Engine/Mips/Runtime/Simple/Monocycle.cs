@@ -54,7 +54,7 @@ public sealed partial class Monocycle : IClockable {
         }
         // read instruction from PC
         int instructionBinary = Memory.ReadWord((ulong)RegisterFile[RegisterFile.Register.Pc]);
-        Console.WriteLine($"Decoding instruction 0x{instructionBinary:X8} @ 0x{RegisterFile[RegisterFile.Register.Pc]:X8}");
+        //Console.WriteLine($"Decoding instruction 0x{instructionBinary:X8} @ 0x{RegisterFile[RegisterFile.Register.Pc]:X8}");
 
         // decode
         Instruction instruction;
@@ -62,7 +62,7 @@ public sealed partial class Monocycle : IClockable {
             instruction = instructionFactory.Disassemble((uint)instructionBinary);
         }
         catch (Exception) {
-            Console.WriteLine("Invalid instruction");
+            Console.WriteLine("Invalid instruction @ " + RegisterFile[RegisterFile.Register.Pc].ToString("X8"));
             OnSignalException?.Invoke(this, new SignalExceptionEventArgs {
                 Signal = SignalExceptionEventArgs.SignalType.InvalidInstruction,
                 ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
@@ -72,7 +72,7 @@ public sealed partial class Monocycle : IClockable {
             return;
         }
 
-        Console.WriteLine($"Executing: {instruction.GetType().Name} @ 0x{RegisterFile[RegisterFile.Register.Pc]:X8} (0x{instructionBinary:X8})");
+        //Console.WriteLine($"Executing: {instruction.GetType().Name} @ 0x{RegisterFile[RegisterFile.Register.Pc]:X8} (0x{instructionBinary:X8})");
         int pcBefore = RegisterFile[RegisterFile.Register.Pc];
         Execute(instruction);
 

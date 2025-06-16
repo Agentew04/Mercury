@@ -42,6 +42,13 @@ public class MachineBuilder {
         return this;
     }
 
+    public MachineBuilder WithStdio(Stream stdin, Stream stdout, Stream stderr) {
+        this.stdin = stdin;
+        this.stdout = stdout;
+        this.stderr = stderr;
+        return this;
+    }
+
     public Machine Build() {
         if (_memory is null) {
             throw new InvalidOperationException("Memory must be set.");
