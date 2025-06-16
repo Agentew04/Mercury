@@ -50,15 +50,12 @@ internal sealed class VolatileStorage : IStorage
             throw new ArgumentOutOfRangeException(nameof(pageNumber), $"The page number is out of bounds. Expected range: [0,{Config.Size / Config.PageSize}[. Got: {pageNumber}.");
         }
 
-        if (!Pages.TryGetValue(pageNumber, out Page? page))
+        if (Pages.TryGetValue(pageNumber, out Page? page))
         {
             return page!;
         }
-        page = new Page(Config.PageSize, pageNumber)
-        {
-            Data = page.Data,
-            IsDirty = page.IsDirty
-        }; 
+
+        page = new Page(Config.PageSize, pageNumber);
         Pages[page.Number] = page;
         return page;
     }

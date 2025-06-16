@@ -95,8 +95,8 @@ public sealed class Memory : IDisposable, IMemory
         Page page = loadedPages[pageIndex]!;
         int offset = (int)(address % pageSize);
         byte data = page.Data[offset];
-        if(data != 0)
-            Console.WriteLine($"Read byte {data} from address {address}");
+        // if(data != 0)
+        //     Console.WriteLine($"Read byte {data} from address {address}");
         return data;
     }
 

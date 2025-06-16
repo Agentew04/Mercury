@@ -38,7 +38,9 @@ public sealed partial class Monocycle : IClockable {
     
     public uint DropoffAddress { get; set; } = 0;
 
-    private uint nextBranchAddress = 0;
+    private bool isExecutingBranch = false;
+    private bool isNextCycleBranch = false;
+    private uint branchAddress = 0;
     
     private bool isHalted = false;
 
@@ -76,22 +78,24 @@ public sealed partial class Monocycle : IClockable {
         int pcBefore = RegisterFile[RegisterFile.Register.Pc];
         Execute(instruction);
 
-        // estamos num ciclo do branch delay slot
-        if (nextBranchAddress != 0) {
-            // realiza o delayed branch
-            RegisterFile[RegisterFile.Register.Pc] = (int)nextBranchAddress;
-            nextBranchAddress = 0;
-            return;
-        }
-        
-        // update PC
-        if (pcBefore == RegisterFile[RegisterFile.Register.Pc]) {
-            RegisterFile[RegisterFile.Register.Pc] += 4;
-        }else if (pcBefore + 8 == RegisterFile[RegisterFile.Register.Pc] 
-                  && UseBranchDelaySlot) {
-            // se branch delay slot esta ligado, defer update
-            nextBranchAddress = (uint)RegisterFile[RegisterFile.Register.Pc];
+        if (isExecutingBranch && isNextCycleBranch)
+        {
+            // estamos no proximo ciclo, faz o branch
+            isExecutingBranch = false;
+            isNextCycleBranch = false;
+
+            RegisterFile[RegisterFile.Register.Pc] = (int)branchAddress;
+        }else if (isExecutingBranch && !isNextCycleBranch)
+        {
+            // estamos no cliclo do branch. 
+            isNextCycleBranch = true;
+            // pc+4
             RegisterFile[RegisterFile.Register.Pc] = pcBefore + 4;
+        }
+        else
+        {
+            // instrucao sem branch
+            RegisterFile[RegisterFile.Register.Pc] += 4;
         }
     }
 
@@ -129,10 +133,11 @@ public sealed partial class Monocycle : IClockable {
     }
 
     private void BranchTo(int immediate) {
-        RegisterFile[RegisterFile.Register.Pc] += 4 + immediate << 2;
+        isExecutingBranch = true;
+        branchAddress = (uint)(RegisterFile[RegisterFile.Register.Pc] + 4 + (immediate << 2));
     }
     private void Link(RegisterFile.Register register = RegisterFile.Register.Ra) {
-        RegisterFile[register] = RegisterFile[RegisterFile.Register.Pc];
+        RegisterFile[register] = RegisterFile[RegisterFile.Register.Pc] + (UseBranchDelaySlot ? 8 : 4);
     }
 
     private static int ZeroExtend(short value) {

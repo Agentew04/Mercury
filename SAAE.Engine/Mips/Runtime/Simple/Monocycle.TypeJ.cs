@@ -6,16 +6,19 @@ public partial class Monocycle {
 
     private void ExecuteTypeJ(TypeJInstruction instruction) {
         if(instruction is J j) {
-            uint pcMask = 0xF000_0000;
-            RegisterFile[RegisterFile.Register.Pc] = (int)(
+            isExecutingBranch = true;
+            const uint pcMask = 0xF000_0000;
+            branchAddress = 
                 ((uint)RegisterFile[RegisterFile.Register.Pc] & pcMask) // PC[31..28]
-                | ((uint)j.Immediate << 2));
-        }else if(instruction is Jal jal) {
-            RegisterFile[RegisterFile.Register.Ra] = RegisterFile[RegisterFile.Register.Pc] + (UseBranchDelaySlot ? 8 : 4);
-            uint pcMask = 0xF000_0000;
-            RegisterFile[RegisterFile.Register.Pc] = (int)(
+                | ((uint)j.Immediate << 2);
+        }else if(instruction is Jal jal)
+        {
+            isExecutingBranch = true;
+            const uint pcMask = 0xF000_0000;
+            branchAddress = 
                 ((uint)RegisterFile[RegisterFile.Register.Pc] & pcMask) // PC[31..28]
-                | ((uint)jal.Immediate << 2));
+                | ((uint)jal.Immediate << 2);
+            Link(); 
         }
     }
 }

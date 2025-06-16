@@ -103,6 +103,12 @@ public sealed class Mars : MipsOperatingSystem {
             case 44:
                 RandomDouble();
                 break;
+            case 45:
+                PrintBoolean();
+                break;
+            case 46:
+                ReadBoolean();
+                break;
         }
     }
 
@@ -201,6 +207,17 @@ public sealed class Mars : MipsOperatingSystem {
     private void PrintUnsignedInt() {
         string integer = ((uint)Machine.Registers[RegisterFile.Register.A0]).ToString();
         Machine.StdOut.Write(Encoding.ASCII.GetBytes(integer));
+    }
+    
+    /// <summary>
+    /// Prints an boolean value to the console.
+    /// </summary>
+    /// <remarks>
+    /// $a0 contains the boolean value to print.
+    /// </remarks>
+    private void PrintBoolean() {
+        bool value = Machine.Registers[RegisterFile.Register.A0] != 0;
+        Machine.StdOut.Write(Encoding.ASCII.GetBytes(value ? "true" : "false"));
     }
     
     #endregion
@@ -316,6 +333,35 @@ public sealed class Mars : MipsOperatingSystem {
 
         int c = sr.Read();
         Machine.Registers[RegisterFile.Register.V0] = c == -1 ? int.MinValue : c;
+    }
+
+    /// <summary>
+    /// Reads a boolean value from the console.
+    /// </summary>
+    /// <remarks>
+    /// $v0 returns 1 if true, 0 if false or if error.
+    /// </remarks>
+    private void ReadBoolean()
+    {
+        using var sr = new StreamReader(Machine.StdIn, Encoding.ASCII, leaveOpen: true);
+        string? line = sr.ReadLine();
+        if (line is null) {
+            Machine.Registers[RegisterFile.Register.V0] = 0;
+            return;
+        }
+        
+        // int representation
+        if(int.TryParse(line, out int intValue)) {
+            Machine.Registers[RegisterFile.Register.V0] = intValue != 0 ? 1 : 0;
+            return;
+        }
+        // bool representation
+        line = line.Trim().ToLower();
+        if (line is "true" or "1" or "yes" or "y") {
+            Machine.Registers[RegisterFile.Register.V0] = 1;
+            return;
+        }
+        Machine.Registers[RegisterFile.Register.V0] = 0;
     }
 
     #endregion
