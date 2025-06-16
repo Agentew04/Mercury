@@ -7,15 +7,15 @@ public class MachineBuilder {
     private Memory.Memory? _memory;
     private Monocycle? _cpu;
     private MipsOperatingSystem? _os;
-    private Stream? stdin;
-    private Stream? stdout;
-    private Stream? stderr;
+    private Stream? _stdin;
+    private Stream? _stdout;
+    private Stream? _stderr;
     private const ulong Gb = 1024 * 1024 * 1024;
     
     public MachineBuilder With4GbRam() {
         _memory = new Memory.Memory(new MemoryConfiguration() {
             ColdStoragePath = "memory.bin",
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             ForceColdStorageReset = true,
             PageSize = 4096,
             Size = 4 * Gb,
@@ -36,16 +36,16 @@ public class MachineBuilder {
     }
 
     public MachineBuilder WithInMemoryStdio() {
-        stdin = new MemoryStream();
-        stdout = new MemoryStream();
-        stderr = new MemoryStream();
+        _stdin = new MemoryStream();
+        _stdout = new MemoryStream();
+        _stderr = new MemoryStream();
         return this;
     }
 
     public MachineBuilder WithStdio(Stream stdin, Stream stdout, Stream stderr) {
-        this.stdin = stdin;
-        this.stdout = stdout;
-        this.stderr = stderr;
+        _stdin = stdin;
+        _stdout = stdout;
+        _stderr = stderr;
         return this;
     }
 
@@ -64,9 +64,9 @@ public class MachineBuilder {
             Cpu = _cpu,
             Memory = _memory,
             Os = _os,
-            StdIn = stdin ?? Stream.Null,
-            StdOut = stdout ?? Stream.Null,
-            StdErr = stderr ?? Stream.Null
+            StdIn = _stdin ?? Stream.Null,
+            StdOut = _stdout ?? Stream.Null,
+            StdErr = _stderr ?? Stream.Null
         };
         _cpu.Memory = _memory;
         _os.Machine = machine;

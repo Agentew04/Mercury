@@ -68,11 +68,13 @@ public sealed class Memory : IDisposable, IMemory
         Array.Fill(lastAccessTime, 0);
         pageIndices = new int[totalPageCount];
         Array.Fill(pageIndices, -1);
-        if (config.ColdStorageOptimization) {
-            coldStorage = new OptimizedColdStorage(config);
-        } else {
-            coldStorage = new ColdStorage(config);
-        }
+        coldStorage = config.StorageType switch
+        {
+            StorageType.FileOriginal => new ColdStorage(config),
+            StorageType.FileOptimized => new OptimizedColdStorage(config),
+            StorageType.Volatile => new VolatileStorage(config),
+            _ => throw new ArgumentException("StorageType not supported.", nameof(config))
+        };
     }
 
     public byte ReadByte(ulong address)
@@ -290,7 +292,6 @@ public sealed class Memory : IDisposable, IMemory
         int pageIndex = pageIndices[pageNumber];
         if (pageIndex != -1) return pageIndex;
         
-        Console.Write($"Page fault: {pageNumber}. ");
         // nao esta carregado. acha um slot vazio
         int emptySlotIndex = Array.FindIndex(loadedPages, p => p == null);
         if (emptySlotIndex == -1) {

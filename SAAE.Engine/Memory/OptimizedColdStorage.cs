@@ -27,6 +27,11 @@ internal sealed class OptimizedColdStorage : IStorage {
             throw new ArgumentException("Size must be a multiple of PageSize.");
         }
 
+        if (config.StorageType != StorageType.FileOptimized)
+        {
+            throw new Exception("Error in VirtualMemory logic! OptimizedColdStorage class is not the one that should be used. Check your configuration.");
+        }
+
         if (File.Exists(config.ColdStoragePath)) {
             fs = new FileStream(config.ColdStoragePath, FileMode.Open);
             br = new BinaryReader(fs, Encoding.ASCII, true);
@@ -82,11 +87,11 @@ internal sealed class OptimizedColdStorage : IStorage {
         _registerTable = new byte[(int)Math.Ceiling(_header.PageCount / 8.0)];
         _registerTableAddress = (ulong)fs.Position;
         bw.Write(_registerTable);
-        Console.WriteLine($"RegisterTableAddress: {_regionTableAddress}");
+        //Console.WriteLine($"RegisterTableAddress: {_regionTableAddress}");
         uint regionCount = (uint)MathF.Ceiling(_header.PageCount / (float)PagesPerJumpTable);
         _regionTable = new ulong[regionCount];
         _regionTableAddress = (ulong)fs.Position;
-        Console.WriteLine($"Region count: {regionCount}; RegionTable Address: {_regionTableAddress}");
+        //Console.WriteLine($"Region count: {regionCount}; RegionTable Address: {_regionTableAddress}");
         for (int i = 0; i < regionCount; i++) {
             _regionTable[i] = ulong.MinValue;
             bw.Write(_regionTable[i]);
@@ -172,7 +177,7 @@ internal sealed class OptimizedColdStorage : IStorage {
             fs.Seek(pageNumberOffset * sizeof(ulong), SeekOrigin.Current);
             bw.Write(pageAddress);
             bw.Flush();
-            Console.WriteLine("Registered page {0} at address {1}", page.Number, pageAddress);
+            //Console.WriteLine("Registered page {0} at address {1}", page.Number, pageAddress);
             
             // write page data
             fs.Seek((long)pageAddress, SeekOrigin.Begin);
@@ -192,7 +197,7 @@ internal sealed class OptimizedColdStorage : IStorage {
         uint pageNumberOffset = (uint)pageNumber % PagesPerJumpTable;
         // check if jump table for region exists
         if (_regionTable[regionIndex] == ulong.MinValue) {
-            Console.WriteLine($"Creating jump table for region {regionIndex}");
+            //Console.WriteLine($"Creating jump table for region {regionIndex}");
             // update region table
             _regionTable[regionIndex] = (ulong)fs.Length;
             fs.Seek((long)(_regionTableAddress + regionIndex * sizeof(ulong)), SeekOrigin.Begin);
@@ -222,7 +227,7 @@ internal sealed class OptimizedColdStorage : IStorage {
         }
         else {
             // page does not exist
-            Console.WriteLine($"Page {pageNumber} did not exist, creating");
+            //Console.WriteLine($"Page {pageNumber} did not exist, creating");
             RegisterPage(pageNumber);
             // update jump table
             ulong pageAddress = (ulong)fs.Length;

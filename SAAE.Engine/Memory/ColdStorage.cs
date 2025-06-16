@@ -8,7 +8,7 @@ internal sealed class ColdStorage : IStorage, IDisposable {
     private readonly ulong pageSize;
 
     public ColdStorage(MemoryConfiguration config) {
-        if (config.ColdStorageOptimization) {
+        if (config.StorageType != StorageType.FileOriginal) {
             throw new InvalidOperationException("ColdStorage class is not the optimized one. Error in VirtualMemory logic!");
         }
         if(config.Size % config.PageSize != 0) {
