@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:view="clr-namespace:SAAE.Editor.Views"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+             xmlns:localization="clr-namespace:SAAE.Editor.Localization"
              x:Class="SAAE.Editor.Views.CodeTabView">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -38,7 +39,26 @@
         <GridSplitter Grid.Column="1" Grid.Row="0"
                       ResizeDirection="Columns"/>
         
-        <!-- open files window -->
-        <view:FileEditorView Grid.Column="2" Grid.Row="0"/>
+        <!-- open files window & toolbar -->
+        <DockPanel Grid.Row="0" Grid.Column="2" Background="{StaticResource BackgroundGrey}">
+            <!-- Toolbar -->
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top"
+                        Spacing="5" Margin="5,3">
+                <!-- build -->
+                <Button Padding="5" ToolTip.Tip="{Binding Path=BuildButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}">
+                    <TextBlock FontFamily="{DynamicResource PhosphorFont}"
+                    Text="&#xE80E;" Margin="0"></TextBlock>
+                </Button>
+                <!-- run -->
+                <Button Padding="5" ToolTip.Tip="{Binding Path=RunButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}"
+                        IsEnabled="False">
+                    <TextBlock FontFamily="{DynamicResource PhosphorFont}"
+                               Text="&#xE3D0;" Margin="0"></TextBlock>
+                </Button>
+            </StackPanel>
+            
+            <!-- Open files -->
+            <view:FileEditorView />
+        </DockPanel>
     </Grid>
 </UserControl>

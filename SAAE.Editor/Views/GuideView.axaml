@@ -3,8 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
-             xmlns:avedit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
-             xmlns:model="clr-namespace:SAAE.Editor.Models"
              xmlns:controls="clr-namespace:SAAE.Editor.Controls"
              xmlns:localization="clr-namespace:SAAE.Editor.Localization"
              xmlns:converters="clr-namespace:SAAE.Editor.Converters"

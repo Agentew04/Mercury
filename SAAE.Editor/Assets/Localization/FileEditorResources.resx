@@ -21,4 +21,10 @@
     <data name="EditMessage" xml:space="preserve">
         <value>Editing {0}</value>
     </data>
+    <data name="BuildButtonTooltip" xml:space="preserve">
+        <value>Build</value>
+    </data>
+    <data name="RunButtonTooltip" xml:space="preserve">
+        <value>Run</value>
+    </data>
 </root>
