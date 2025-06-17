@@ -33,16 +33,19 @@ public readonly struct MemoryConfiguration {
     public required string ColdStoragePath { get; init; }
 
     /// <summary>
-    /// If true, only created pages will be stored on the cold storage
-    /// file. If false, all custom file structure will not be used and
+    /// Selects the type of storage that will be used. If <see cref="StorageType.FileOptimized"/>,
+    /// only created pages will be stored on the cold storage file.
+    /// If <see cref="StorageType.FileOriginal"/>, all custom file structure will not be used and
     /// a raw version of the memory will be used.
+    /// If <see cref="StorageType.Volatile"/>, no cold storage will be used and all generated pages
+    /// will be kept on RAM.
     /// </summary>
     /// <remarks>
-    /// Beware of using this option as <see langword="false"/> alongside
+    /// Beware of using this option as <see cref="StorageType.FileOriginal"/> alongside
     /// a big number for <see cref="Size"/> as it will create a file with
     /// the same size.
     /// </remarks>
-    public bool ColdStorageOptimization { get; init; } = true;
+    public StorageType StorageType { get; init; } = StorageType.FileOptimized;
 
     public bool ForceColdStorageReset { get; init; } = false;
     

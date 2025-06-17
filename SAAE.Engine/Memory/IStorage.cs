@@ -22,3 +22,13 @@ internal interface IStorage : IDisposable {
     /// <returns>The page read</returns>
     Page ReadPage(int pageNumber);
 }
+
+/// <summary>
+/// Represents the type of storage that a memory uses.
+/// </summary>
+public enum StorageType
+{
+    FileOriginal,
+    FileOptimized,
+    Volatile
+}
