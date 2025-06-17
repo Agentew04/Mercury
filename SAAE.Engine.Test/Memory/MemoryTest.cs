@@ -18,7 +18,7 @@ public class MemoryTest {
         string tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512
@@ -49,7 +49,7 @@ public class MemoryTest {
         string tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512
@@ -80,7 +80,7 @@ public class MemoryTest {
         string tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512
@@ -109,7 +109,7 @@ public class MemoryTest {
         string tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512
@@ -140,7 +140,7 @@ public class MemoryTest {
         string tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 4,
             PageSize = 4096,
             Size = 64ul*(ulong)mb
@@ -173,7 +173,7 @@ public class MemoryTest {
         string tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 4,
             PageSize = 4096,
             Size = 64ul * (ulong)mb
@@ -206,7 +206,7 @@ public class MemoryTest {
         string tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 4,
             PageSize = 4096,
             Size = 64ul * (ulong)mb
@@ -237,7 +237,7 @@ public class MemoryTest {
         string tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 4,
             PageSize = 4096,
             Size = 64ul * (ulong)mb
@@ -263,7 +263,7 @@ public class MemoryTest {
         string tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512,
@@ -289,7 +289,7 @@ public class MemoryTest {
         string tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512,

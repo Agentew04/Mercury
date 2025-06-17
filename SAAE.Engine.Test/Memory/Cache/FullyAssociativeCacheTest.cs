@@ -12,7 +12,7 @@ public class FullyAssociativeCacheTest
         MemoryConfiguration config = new()
         {
             ColdStoragePath = Path.GetTempFileName(),
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512
@@ -42,7 +42,7 @@ public class FullyAssociativeCacheTest
         MemoryConfiguration config = new()
         {
             ColdStoragePath = Path.GetTempFileName(),
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512
@@ -73,7 +73,7 @@ public class FullyAssociativeCacheTest
         MemoryConfiguration config = new()
         {
             ColdStoragePath = Path.GetTempFileName(),
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512
@@ -104,7 +104,7 @@ public class FullyAssociativeCacheTest
         MemoryConfiguration config = new()
         {
             ColdStoragePath = Path.GetTempFileName(),
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512
@@ -135,7 +135,7 @@ public class FullyAssociativeCacheTest
         MemoryConfiguration config = new()
         {
             ColdStoragePath = Path.GetTempFileName(),
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512
@@ -160,7 +160,7 @@ public class FullyAssociativeCacheTest
         MemoryConfiguration config = new()
         {
             ColdStoragePath = Path.GetTempFileName(),
-            ColdStorageOptimization = true,
+            StorageType = StorageType.Volatile,
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512

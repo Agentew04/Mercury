@@ -10,7 +10,7 @@ public class ColdStorageTest {
         string? tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = false,
+            StorageType = StorageType.FileOriginal,
             Size = 4096,
             PageSize = 256
         };

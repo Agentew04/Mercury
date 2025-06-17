@@ -14,7 +14,7 @@ public class OptimizedColdStorageTest {
         string? tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = false,
+            StorageType = StorageType.FileOriginal,
             Size = 4096,
             PageSize = 256
         };
@@ -73,7 +73,7 @@ public class OptimizedColdStorageTest {
         string? tempPath = Path.GetTempFileName();
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = false,
+            StorageType = StorageType.FileOriginal,
             Size = 4096,
             PageSize = 256
         };
@@ -140,7 +140,7 @@ public class OptimizedColdStorageTest {
         }
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.FileOptimized,
             Size = 64 * MB,
             PageSize = 1024
         };
@@ -185,7 +185,7 @@ public class OptimizedColdStorageTest {
         }
         MemoryConfiguration config = new() {
             ColdStoragePath = tempPath,
-            ColdStorageOptimization = true,
+            StorageType = StorageType.FileOptimized,
             Size = 64 * MB,
             PageSize = 1024
         };
