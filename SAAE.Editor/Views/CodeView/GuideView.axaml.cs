@@ -1,10 +1,9 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.ViewModels;
+using GuideViewModel = SAAE.Editor.ViewModels.Code.GuideViewModel;
 
-namespace SAAE.Editor.Views;
+namespace SAAE.Editor.Views.CodeView;
 
 public partial class GuideView : UserControl {
     public GuideView() {

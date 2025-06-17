@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Markup.Xaml.Templates;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 
-namespace SAAE.Editor.ViewModels;
+namespace SAAE.Editor.ViewModels.Code;
 
 public sealed partial class GuideViewModel : BaseViewModel {
 

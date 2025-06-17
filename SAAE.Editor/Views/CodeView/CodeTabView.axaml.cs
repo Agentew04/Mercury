@@ -1,10 +1,8 @@
 ﻿using System.Globalization;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 
-namespace SAAE.Editor.Views;
+namespace SAAE.Editor.Views.CodeView;
 
 public partial class CodeTabView : UserControl {
     public CodeTabView() {

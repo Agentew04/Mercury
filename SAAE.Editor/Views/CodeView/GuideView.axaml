@@ -6,11 +6,12 @@
              xmlns:controls="clr-namespace:SAAE.Editor.Controls"
              xmlns:localization="clr-namespace:SAAE.Editor.Localization"
              xmlns:converters="clr-namespace:SAAE.Editor.Converters"
+             xmlns:code="clr-namespace:SAAE.Editor.ViewModels.Code"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="800"
-             x:Class="SAAE.Editor.Views.GuideView"
-             x:DataType="vm:GuideViewModel">
+             x:Class="SAAE.Editor.Views.CodeView.GuideView"
+             x:DataType="code:GuideViewModel">
     <Design.DataContext>
-        <vm:GuideViewModel></vm:GuideViewModel>
+        <code:GuideViewModel></code:GuideViewModel>
     </Design.DataContext>
     <UserControl.Resources>
         <converters:IsGuideMenuConverter x:Key="IsGuideMenuConverter"></converters:IsGuideMenuConverter>

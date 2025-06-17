@@ -9,7 +9,7 @@ using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
 using SAAE.Engine;
 
-namespace SAAE.Editor.ViewModels;
+namespace SAAE.Editor.ViewModels.Code;
 
 public sealed partial class ProblemsViewModel : BaseViewModel
 {
@@ -38,7 +38,7 @@ public sealed partial class ProblemsViewModel : BaseViewModel
         Diagnostics.Clear();
         if (lastResult.Diagnostics is not null)
         {
-            Diagnostics.AddRange(lastResult.Diagnostics);
+            ExtensionMethods.AddRange(Diagnostics, lastResult.Diagnostics);
         }
     }
 }

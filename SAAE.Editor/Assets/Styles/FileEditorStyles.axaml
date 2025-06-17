@@ -2,13 +2,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:view="clr-namespace:SAAE.Editor.Views"
         xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
-        xmlns:vm="clr-namespace:SAAE.Editor.ViewModels">
+        xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
+        xmlns:codeView="clr-namespace:SAAE.Editor.Views.CodeView"
+        xmlns:code="clr-namespace:SAAE.Editor.ViewModels.Code">
     <Design.DataContext>
-        <vm:FileEditorViewModel></vm:FileEditorViewModel>
+        <code:FileEditorViewModel></code:FileEditorViewModel>
     </Design.DataContext>
     <Design.PreviewWith>
         <Border Padding="20">
-            <view:FileEditorView></view:FileEditorView>
+            <codeView:FileEditorView></codeView:FileEditorView>
         </Border>
     </Design.PreviewWith>
 

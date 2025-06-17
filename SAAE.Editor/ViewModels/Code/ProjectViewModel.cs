@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -12,7 +10,7 @@ using SAAE.Editor.Models;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
 
-namespace SAAE.Editor.ViewModels;
+namespace SAAE.Editor.ViewModels.Code;
 
 public partial class ProjectViewModel : BaseViewModel {
 

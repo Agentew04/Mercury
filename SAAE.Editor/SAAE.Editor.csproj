@@ -66,10 +66,25 @@
     <AvaloniaResource Include="Assets\Images\*.png"/>
     <None Remove="Assets\Images\*.png" />
   </ItemGroup>
-
   <ItemGroup>
-    <Compile Update="Views\ProjectView.axaml.cs">
-      <DependentUpon>ProjectMenu.axaml</DependentUpon>
+    <Compile Update="Views\CodeView\ProjectView.axaml.cs">
+      <DependentUpon>ProjectView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\CodeView\FileEditorView.axaml.cs">
+      <DependentUpon>FileEditorView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\CodeView\GuideView.axaml.cs">
+      <DependentUpon>GuideView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\CodeView\ProblemsView.axaml.cs">
+      <DependentUpon>ProblemsView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\CodeView\CodeTabView.axaml.cs">
+      <DependentUpon>CodeTabView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

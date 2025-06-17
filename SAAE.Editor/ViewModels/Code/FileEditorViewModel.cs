@@ -14,7 +14,7 @@ using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
 using SAAE.Engine;
 
-namespace SAAE.Editor.ViewModels;
+namespace SAAE.Editor.ViewModels.Code;
 
 public partial class FileEditorViewModel : BaseViewModel {
 
@@ -41,7 +41,7 @@ public partial class FileEditorViewModel : BaseViewModel {
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(EditingNotice))]
     private string filename = "";
-    public string EditingNotice => string.Format(Localization.FileEditorResources.EditMessageValue, Filename);
+    public string EditingNotice => string.Format(Localization.FileEditorResources.EditMessageValue, (object?)Filename);
 
     [ObservableProperty] 
     private bool isReadonlyEditor;

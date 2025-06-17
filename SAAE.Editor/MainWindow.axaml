@@ -5,6 +5,7 @@
         xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
         xmlns:view="clr-namespace:SAAE.Editor.Views"
         xmlns:controls="clr-namespace:SAAE.Editor.Controls"
+        xmlns:codeView="clr-namespace:SAAE.Editor.Views.CodeView"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
         x:Class="SAAE.Editor.MainWindow"
         Title="SAAE.Editor"
@@ -62,7 +63,7 @@
     <TabControl>
       <TabControl.Items>
         <TabItem Header="Code" >
-          <view:CodeTabView></view:CodeTabView>
+          <codeView:CodeTabView></codeView:CodeTabView>
           </TabItem>
         <TabItem Header="Run" />
         <TabItem Header="Design" />

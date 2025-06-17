@@ -6,9 +6,10 @@
              xmlns:model="clr-namespace:SAAE.Editor.Models"
              xmlns:localization="clr-namespace:SAAE.Editor.Localization"
              xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:code="clr-namespace:SAAE.Editor.ViewModels.Code"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="200"
-             x:Class="SAAE.Editor.Views.FileEditorView"
-             x:DataType="vm:FileEditorViewModel"
+             x:Class="SAAE.Editor.Views.CodeView.FileEditorView"
+             x:DataType="code:FileEditorViewModel"
              Background="{DynamicResource BackgroundGrey}">
     <UserControl.Styles>
         <StyleInclude Source="/Assets/Styles/FileEditorStyles.axaml"></StyleInclude>

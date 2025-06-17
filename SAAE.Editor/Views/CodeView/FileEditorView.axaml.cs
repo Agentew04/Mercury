@@ -1,11 +1,9 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.ViewModels;
+using FileEditorViewModel = SAAE.Editor.ViewModels.Code.FileEditorViewModel;
 
-namespace SAAE.Editor.Views;
+namespace SAAE.Editor.Views.CodeView;
 
 public partial class FileEditorView : UserControl {
     public FileEditorView() {

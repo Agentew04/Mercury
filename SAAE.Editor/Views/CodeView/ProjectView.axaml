@@ -7,12 +7,13 @@
              xmlns:conv="clr-namespace:SAAE.Editor.Converters"
              xmlns:model="clr-namespace:SAAE.Editor.Models"
              xmlns:view="clr-namespace:SAAE.Editor.Views"
+             xmlns:code="clr-namespace:SAAE.Editor.ViewModels.Code"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="500"
              Background="{DynamicResource BackgroundGrey}"
-             x:Class="SAAE.Editor.Views.ProjectView"
-             x:DataType="vm:ProjectViewModel">
+             x:Class="SAAE.Editor.Views.CodeView.ProjectView"
+             x:DataType="code:ProjectViewModel">
     <Design.DataContext>
-        <vm:ProjectViewModel></vm:ProjectViewModel>
+        <code:ProjectViewModel></code:ProjectViewModel>
     </Design.DataContext>
     <UserControl.Styles>
         <StyleInclude Source="/Assets/Styles/ProjectViewStyles.axaml"></StyleInclude>

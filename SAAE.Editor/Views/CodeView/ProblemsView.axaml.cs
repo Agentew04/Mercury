@@ -1,10 +1,9 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.ViewModels;
+using ProblemsViewModel = SAAE.Editor.ViewModels.Code.ProblemsViewModel;
 
-namespace SAAE.Editor.Views;
+namespace SAAE.Editor.Views.CodeView;
 
 public partial class ProblemsView : UserControl
 {
