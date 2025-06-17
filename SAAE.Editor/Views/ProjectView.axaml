@@ -19,57 +19,55 @@
     </UserControl.Styles>
     <UserControl.Resources>
     </UserControl.Resources>
-    <Border BorderBrush="Black" BorderThickness="1">
-        <Grid RowDefinitions="Auto,*">
-            <TextBlock Grid.Row="0" Classes="header"
-                Text="{Binding Path=ProjectViewTitle, Source={x:Static localization:ProjectResources.Instance}}"/>
-        
-            <TreeView Grid.Row="1" ItemsSource="{Binding Nodes}"
-                      Classes="projectTree"
-                      Margin="15"
-                      SelectedItem="{Binding SelectedNode}">
-                <TreeView.Resources>
-                    <conv:Converter x:Key="Conv"></conv:Converter>
-                </TreeView.Resources>
-                <TreeView.ItemTemplate>
-                    <TreeDataTemplate ItemsSource="{Binding Children}"
-                                      x:DataType="model:ProjectNode">
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Stretch"
-                                    Background="{Binding $parent[TreeViewItem].Background}">
-                            <StackPanel.ContextMenu>
-                                <ContextMenu ItemsSource="{Binding ContextOptions}"
-                                             IsEnabled="{Binding HasContextMenu}"
-                                             IsVisible="{Binding HasContextMenu}">
-                                    <ContextMenu.ItemTemplate>
-                                        <DataTemplate x:DataType="model:ContextOption">
-                                            <!-- IsEnabled="{Binding IsEnabled}"-->
-                                            <MenuItem IsEnabled="{Binding IsEnabled}"
-                                                      IsVisible="{Binding IsVisible}">
-                                                <MenuItem.Styles>
-                                                    <Style Selector="MenuItem">
-                                                        <Setter Property="Command" Value="{Binding Command}"></Setter>
-                                                        <Setter Property="CommandParameter" Value="{Binding $parent[ContextMenu].DataContext}"></Setter>
-                                                    </Style>
-                                                </MenuItem.Styles>
-                                                <MenuItem.Header>
-                                                    <TextBlock Text="{Binding Name}"></TextBlock>
-                                                </MenuItem.Header>
-                                            </MenuItem>
-                                        </DataTemplate>
-                                    </ContextMenu.ItemTemplate>
-                                </ContextMenu>
-                            </StackPanel.ContextMenu>
-                            <TextBlock Text="{Binding Type, Converter={StaticResource NodeTypeToIcon}}"
-                                       FontFamily="{DynamicResource PhosphorFont}"
-                                       VerticalAlignment="Center"></TextBlock>
-                            <TextBlock Text="{Binding Name}"
-                                Margin="5,0,0,0"
-                                VerticalAlignment="Center"></TextBlock>
-                        </StackPanel>
-                    </TreeDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-        </Grid>
-    </Border>
+    <Grid RowDefinitions="Auto,*" Margin="0">
+        <TextBlock Grid.Row="0" Classes="header"
+            Text="{Binding Path=ProjectViewTitle, Source={x:Static localization:ProjectResources.Instance}}"/>
+    
+        <TreeView Grid.Row="1" ItemsSource="{Binding Nodes}"
+                  Classes="projectTree"
+                  Margin="15"
+                  SelectedItem="{Binding SelectedNode}">
+            <TreeView.Resources>
+                <conv:Converter x:Key="Conv"></conv:Converter>
+            </TreeView.Resources>
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Children}"
+                                  x:DataType="model:ProjectNode">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Stretch"
+                                Background="{Binding $parent[TreeViewItem].Background}">
+                        <StackPanel.ContextMenu>
+                            <ContextMenu ItemsSource="{Binding ContextOptions}"
+                                         IsEnabled="{Binding HasContextMenu}"
+                                         IsVisible="{Binding HasContextMenu}">
+                                <ContextMenu.ItemTemplate>
+                                    <DataTemplate x:DataType="model:ContextOption">
+                                        <!-- IsEnabled="{Binding IsEnabled}"-->
+                                        <MenuItem IsEnabled="{Binding IsEnabled}"
+                                                  IsVisible="{Binding IsVisible}">
+                                            <MenuItem.Styles>
+                                                <Style Selector="MenuItem">
+                                                    <Setter Property="Command" Value="{Binding Command}"></Setter>
+                                                    <Setter Property="CommandParameter" Value="{Binding $parent[ContextMenu].DataContext}"></Setter>
+                                                </Style>
+                                            </MenuItem.Styles>
+                                            <MenuItem.Header>
+                                                <TextBlock Text="{Binding Name}"></TextBlock>
+                                            </MenuItem.Header>
+                                        </MenuItem>
+                                    </DataTemplate>
+                                </ContextMenu.ItemTemplate>
+                            </ContextMenu>
+                        </StackPanel.ContextMenu>
+                        <TextBlock Text="{Binding Type, Converter={StaticResource NodeTypeToIcon}}"
+                                   FontFamily="{DynamicResource PhosphorFont}"
+                                   VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding Name}"
+                            Margin="5,0,0,0"
+                            VerticalAlignment="Center"></TextBlock>
+                    </StackPanel>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </Grid>
 </UserControl>

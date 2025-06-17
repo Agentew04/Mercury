@@ -3,22 +3,42 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:view="clr-namespace:SAAE.Editor.Views"
-             
-             xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="SAAE.Editor.Views.CodeTabView">
-    <DockPanel>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" MaxWidth="500" MinWidth="100"></ColumnDefinition>
+            <ColumnDefinition Width="2"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="2"></ColumnDefinition>
+            <ColumnDefinition Width="300" MaxWidth="500" MinWidth="100"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="2"></RowDefinition>
+            <RowDefinition Height="200" MinHeight="100" MaxHeight="300"></RowDefinition>
+        </Grid.RowDefinitions>
+        
         <!-- guide -->
-        <view:GuideView DockPanel.Dock="Right" Width="300"/>
+        <view:GuideView Grid.Column="4" Grid.Row="0" Grid.RowSpan="3" 
+                        MinWidth="200" MaxWidth="500"/>
+
+        <GridSplitter Grid.Column="3" Grid.Row="0" Grid.RowSpan="3"
+            ResizeDirection="Columns"/>
         
         <!-- problems window -->
-        <view:ProblemsView Height="200" DockPanel.Dock="Bottom"/>
-        <!-- <Border Height="200" DockPanel.Dock="Bottom" Background="Aqua"></Border> -->
+        <view:ProblemsView Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3"/>
+        
+        <GridSplitter Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
+                      ResizeDirection="Rows"/>
         
         <!-- project window -->
-        <view:ProjectView Width="300" DockPanel.Dock="Left"></view:ProjectView>
+        <view:ProjectView Grid.Column="0" Grid.Row="0"/>
+        
+        <GridSplitter Grid.Column="1" Grid.Row="0"
+                      ResizeDirection="Columns"/>
         
         <!-- open files window -->
-        <view:FileEditorView></view:FileEditorView>
-    </DockPanel>
+        <view:FileEditorView Grid.Column="2" Grid.Row="0"/>
+    </Grid>
 </UserControl>

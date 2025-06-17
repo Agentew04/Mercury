@@ -18,21 +18,19 @@
         <converters:IsGuideMenuConverter x:Key="IsGuideMenuConverter"></converters:IsGuideMenuConverter>
         <converters:IsGuideChapterConverter x:Key="IsGuideChapterConverter"></converters:IsGuideChapterConverter>
     </UserControl.Resources>
-    <Border Margin="0" Padding="0" BorderThickness="2" BorderBrush="Black" CornerRadius="0">
-        <ScrollViewer>
-            <StackPanel Orientation="Vertical">
-                <!-- header -->
-                <TextBlock Text="{Binding Source={x:Static localization:GuideResources.Instance}, Path=TitleText}" Margin="15" 
-                           FontSize="24" FontWeight="DemiBold"/>
-                
-                <!-- body -->
-                <controls:GuideMenu Chapters="{Binding GuideChapters}"
-                                    IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideMenuConverter}}"
-                                    OpenGuideCommand="{Binding OpenGuideCommand}"/>
-                <controls:ChapterControl CurrentGuide="{Binding CurrentGuide}"
-                                         GoBack="{Binding GoToMenuCommand}"
-                                         IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideChapterConverter}}"/>
-            </StackPanel>
-        </ScrollViewer>
-    </Border>
+    <ScrollViewer Margin="0" Padding="0">
+        <StackPanel Orientation="Vertical">
+            <!-- header -->
+            <TextBlock Text="{Binding Source={x:Static localization:GuideResources.Instance}, Path=TitleText}" Margin="15" 
+                       FontSize="24" FontWeight="DemiBold"/>
+            
+            <!-- body -->
+            <controls:GuideMenu Chapters="{Binding GuideChapters}"
+                                IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideMenuConverter}}"
+                                OpenGuideCommand="{Binding OpenGuideCommand}"/>
+            <controls:ChapterControl CurrentGuide="{Binding CurrentGuide}"
+                                     GoBack="{Binding GoToMenuCommand}"
+                                     IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideChapterConverter}}"/>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>
