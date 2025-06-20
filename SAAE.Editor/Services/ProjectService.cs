@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Models;
 using SAAE.Editor.ViewModels;
 using SAAE.Engine;
+using SAAE.Engine.Common;
 
 namespace SAAE.Editor.Services;
 

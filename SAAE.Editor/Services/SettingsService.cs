@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using SAAE.Editor.Converters;
 using SAAE.Editor.Models;
@@ -28,24 +28,18 @@ public sealed class SettingsService : IDisposable {
     /// </summary>
     public UserPreferences Preferences { get; set; }
 
-    private readonly JsonSerializerOptions jsonOptions;
-
     public SettingsService() {
         Preferences = null!;
         AppDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".saae");
         ConfigPath = Path.Combine(AppDirectory, "config.json");
-        jsonOptions = new JsonSerializerOptions {
-            WriteIndented = true,
-            Converters = { new CultureJsonConverter() }
-        };
     }
 
     public async Task SaveSettings() {
-        await File.WriteAllTextAsync(ConfigPath, JsonSerializer.Serialize(Preferences, jsonOptions));
+        await File.WriteAllTextAsync(ConfigPath, JsonSerializer.Serialize(Preferences, SettingsSerializerContext.Default.UserPreferences));
     }
 
     public async Task LoadSettings() {
-        Preferences = JsonSerializer.Deserialize<UserPreferences>(await File.ReadAllTextAsync(ConfigPath), jsonOptions)
+        Preferences = JsonSerializer.Deserialize(await File.ReadAllTextAsync(ConfigPath), SettingsSerializerContext.Default.UserPreferences)
             ?? GetDefaultPreferences();
         
         if(UpdatePreferences(Preferences)) {
@@ -56,7 +50,7 @@ public sealed class SettingsService : IDisposable {
     /// <summary>
     /// Returns the default settings and preferences for a fresh installation.
     /// </summary>
-    public UserPreferences GetDefaultPreferences() => new UserPreferences() {
+    public UserPreferences GetDefaultPreferences() => new(){
         CompilerPath = Path.Combine(AppDirectory, "compiler"),
         StdLibPath = Path.Combine(AppDirectory, "stdlib"),
         Language = CultureInfo.CurrentCulture,
@@ -92,7 +86,11 @@ public sealed class SettingsService : IDisposable {
     public void Dispose() {
         // ATENCAO: nao dah pra usar async aqui por algum motivo obscuro.
         // faz escrita blocking
-        File.WriteAllText(ConfigPath, JsonSerializer.Serialize(Preferences, jsonOptions));
+        File.WriteAllText(ConfigPath, JsonSerializer.Serialize(Preferences, SettingsSerializerContext.Default.UserPreferences));
         Console.WriteLine("Saved User Settings");
     }
 }
+
+[JsonSerializable(typeof(UserPreferences))]
+[JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(CultureJsonConverter)])]
+internal partial class SettingsSerializerContext : JsonSerializerContext;

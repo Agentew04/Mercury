@@ -15,6 +15,7 @@ using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 using SAAE.Editor.Views;
 using SAAE.Engine;
+using SAAE.Engine.Common;
 
 namespace SAAE.Editor.ViewModels;
 

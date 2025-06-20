@@ -40,7 +40,6 @@ public partial class SplashScreenViewModel : BaseViewModel {
     public async Task InitializeAsync() {
         Version = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0,0);
         LocalizationManager.CultureChanged += Localize;
-        
         if(!Directory.Exists(settings.AppDirectory) || !File.Exists(settings.ConfigPath)) {
             Directory.CreateDirectory(settings.AppDirectory);
             
@@ -72,9 +71,9 @@ public partial class SplashScreenViewModel : BaseViewModel {
         if (!await CheckStdLib()) {
             await DownloadStdlib();
         }
-        
 
         StatusText = SplashScreenResources.DoneValue;
+        
     }
 
     private void Localize(CultureInfo cultureInfo) {

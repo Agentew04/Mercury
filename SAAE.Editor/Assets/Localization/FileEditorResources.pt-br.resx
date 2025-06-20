@@ -20,4 +20,7 @@
     <data name="RunButtonTooltip" xml:space="preserve">
         <value>Executar</value>
     </data>
+    <data name="SaveButtonTooltip" xml:space="preserve">
+        <value>Salvar arquivo</value>
+    </data>
 </root>

@@ -19,8 +19,9 @@
             <Setter Property="FontFamily" Value="JetBrains Mono"></Setter>
         </Style>
     </Window.Styles>
-    <Border CornerRadius="20" Background="Red">
-        <Grid>
+    <Border CornerRadius="20" ClipToBounds="True">
+        <Grid >
+            <Image Source="avares://SAAE.Editor/Assets/Images/splash-screen-background-480.png"/>
             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top"
                         Margin="30,15" >
                 <!-- titulo do app-->

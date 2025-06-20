@@ -8,6 +8,7 @@
         xmlns:converters="clr-namespace:SAAE.Editor.Converters"
         xmlns:engine="clr-namespace:SAAE.Engine;assembly=SAAE.Engine"
         xmlns:models="clr-namespace:SAAE.Editor.Models"
+        xmlns:common="clr-namespace:SAAE.Engine.Common;assembly=SAAE.Engine"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
         Width="800" Height="500"
         x:Class="SAAE.Editor.Views.ProjectSelectionView"
@@ -192,7 +193,7 @@
                           SelectedIndex="{Binding SelectedOperatingSystemIndex}"
                           IsEnabled="{Binding HasAvailableOperatingSystems}">
                     <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="engine:OperatingSystemType">
+                        <DataTemplate x:DataType="common:OperatingSystemType">
                             <TextBlock Text="{Binding Name}"></TextBlock>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>

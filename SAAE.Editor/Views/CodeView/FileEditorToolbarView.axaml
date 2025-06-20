@@ -7,6 +7,11 @@
              x:Class="SAAE.Editor.Views.CodeView.FileEditorToolbarView">
     <StackPanel Orientation="Horizontal"
                 Spacing="5" Margin="5,3">
+        <!-- save file -->
+        <Button Padding="5" ToolTip.Tip="{Binding Path=SaveButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}">
+            <TextBlock FontFamily="{DynamicResource PhosphorFont}"
+                       Text="&#xE248;" Margin="0"></TextBlock>
+        </Button>
         <!-- build -->
         <Button Padding="5" ToolTip.Tip="{Binding Path=BuildButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}">
             <TextBlock FontFamily="{DynamicResource PhosphorFont}"

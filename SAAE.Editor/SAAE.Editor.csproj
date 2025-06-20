@@ -10,6 +10,7 @@
     <Authors>Rodrigo Appelt</Authors>
     <AssemblyVersion>0.1</AssemblyVersion>
     <NeutralLanguage>en</NeutralLanguage>
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
   
   <!-- fontes -->
