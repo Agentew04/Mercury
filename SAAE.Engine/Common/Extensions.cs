@@ -46,7 +46,7 @@ public static class Extensions {
     /// <returns>The next one or</returns>
     /// <exception cref="InvalidOperationException">If the item is not in the collection or is the last one.</exception>"
     public static T After<T>(this IEnumerable<T> enumerable, T item) {
-        IEnumerator<T>? enumerator = enumerable.GetEnumerator();
+        using IEnumerator<T> enumerator = enumerable.GetEnumerator();
         while (enumerator.MoveNext()) {
             if (EqualityComparer<T>.Default.Equals(enumerator.Current, item) && enumerator.MoveNext()) {
                 return enumerator.Current;
@@ -63,29 +63,29 @@ public static class Extensions {
     /// <param name="item">The current item</param>
     /// <returns>The item before</returns>
     /// <exception cref="InvalidOperationException">If the item is not in the collection or is the first one.</exception>"
-    public static T Before<T>(this IEnumerable<T> enumerable, T item) {
-        if (enumerable == null)
-            throw new ArgumentNullException(nameof(enumerable));
+    public static T? Before<T>(this IEnumerable<T?> enumerable, T item) {
+        ArgumentNullException.ThrowIfNull(enumerable);
 
-        if (!enumerable.Contains(item))
-            throw new InvalidOperationException("The item is not in the collection.");
+        using IEnumerator<T?> enumerator = enumerable.GetEnumerator();
+        T? previous = default;
+        bool isFirstItem = true;
 
-        using (IEnumerator<T>? enumerator = enumerable.GetEnumerator()) {
-            T previous = default;
-            bool isFirstItem = true;
-
-            while (enumerator.MoveNext()) {
-                if (enumerator.Current.Equals(item)) {
-                    if (isFirstItem)
-                        throw new InvalidOperationException("The item is the first in the collection.");
-
-                    return previous;
-                }
-
-                previous = enumerator.Current;
-                isFirstItem = false;
+        while (enumerator.MoveNext()) {
+            T? curr = enumerator.Current;
+            if (curr is null) {
+                continue;
             }
+            if (EqualityComparer<T>.Default.Equals(curr,item)) {
+                if (isFirstItem)
+                    throw new InvalidOperationException("The item is the first in the collection.");
+
+                return previous;
+            }
+
+            previous = enumerator.Current;
+            isFirstItem = false;
         }
+
         throw new InvalidOperationException("The item is not in the collection.");
     }
 }

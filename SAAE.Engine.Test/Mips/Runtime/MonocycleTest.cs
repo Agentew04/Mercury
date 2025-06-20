@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SAAE.Engine.Mips.Runtime;
+using SAAE.Engine.Mips.Runtime.OS;
 
 namespace SAAE.Engine.Test.Mips.Runtime;
 

@@ -1,8 +1,6 @@
 ﻿using System.Text;
-using SAAE.Engine.Mips.Instructions;
-using SAAE.Engine.Mips.Runtime.Simple;
 
-namespace SAAE.Engine.Mips.Runtime;
+namespace SAAE.Engine.Mips.Runtime.OS;
 
 /// <summary>
 /// Operating system that mocks the MARS

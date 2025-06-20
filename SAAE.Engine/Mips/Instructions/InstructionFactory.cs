@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+
 
 namespace SAAE.Engine.Mips.Instructions; 
 public class InstructionFactory {
@@ -18,14 +15,17 @@ public class InstructionFactory {
             throw new Exception("Could not find the disassembly rules file.");
         }
 
-        rules = JsonSerializer.Deserialize<List<Rule>>(s) ?? [];
+        rules = JsonSerializer.Deserialize(s, SerializerContext.Default.RuleList) ?? [];
         if(rules.Count == 0) {
             throw new Exception("No rules read from file!");
         }
     }
 
-    [JsonSerializable(typeof(Rule))]
-    public class Rule {
+    
+    
+    public class RuleList : List<Rule> {}
+    
+    public record Rule {
 
         [JsonPropertyName("mnemonic")]
         [JsonPropertyOrder(0)]
@@ -95,4 +95,10 @@ public class InstructionFactory {
         }
         throw new Exception("No rule matched this instruction!");
     }
+}
+
+[JsonSerializable(typeof(InstructionFactory.Rule))]
+[JsonSerializable(typeof(InstructionFactory.RuleList))]
+public partial class SerializerContext : JsonSerializerContext {
+
 }

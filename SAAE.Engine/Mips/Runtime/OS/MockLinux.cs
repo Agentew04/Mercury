@@ -1,6 +1,4 @@
-﻿using SAAE.Engine.Mips.Runtime.Simple;
-
-namespace SAAE.Engine.Mips.Runtime;
+﻿namespace SAAE.Engine.Mips.Runtime.OS;
 
 /// <summary>
 /// Class that implements basic callbacks to a mock

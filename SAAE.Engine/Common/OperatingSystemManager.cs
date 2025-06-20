@@ -1,4 +1,6 @@
-﻿namespace SAAE.Engine;
+﻿using SAAE.Engine.Mips.Runtime.OS;
+
+namespace SAAE.Engine.Common;
 
 public struct OperatingSystemType {
     
@@ -18,24 +20,20 @@ public static class OperatingSystemManager {
     private static readonly List<OperatingSystemType> AvailableOs = [];
     
     static OperatingSystemManager() {
-        List<Type> availableTypes = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(s => s.GetTypes())
-            .Where(p => typeof(IOperatingSystem).IsAssignableFrom(p) && !p.IsAbstract)
-            .ToList();
+        Register<Mars>();
+        Register<MockLinux>();
+        // Registrar novos sistemas operacionais abaixo
+    }
 
-        foreach (Type type in availableTypes) {
-            if(Activator.CreateInstance(type) is not IOperatingSystem os) {
-                continue;
-            }
-
-            var osType = new OperatingSystemType {
-                OsType = type,
-                Name = os.FriendlyName,
-                CompatibleArchitecture = os.CompatibleArchitecture
-            };
-            AvailableOs.Add(osType);
-            os.Dispose();
-        }
+    private static void Register<T>() where T : IOperatingSystem, new() {
+        T os = new();
+        var osType = new OperatingSystemType {
+            OsType = typeof(T),
+            Name = os.FriendlyName,
+            CompatibleArchitecture = os.CompatibleArchitecture
+        };
+        AvailableOs.Add(osType);
+        os.Dispose();
     }
     
     public static IEnumerable<OperatingSystemType> GetAvailableOperatingSystems() {

@@ -1,7 +1,6 @@
-﻿using SAAE.Engine.Memory;
-using SAAE.Engine.Mips.Runtime.Simple;
+﻿using SAAE.Engine.Mips.Runtime.Simple;
 
-namespace SAAE.Engine.Mips.Runtime;
+namespace SAAE.Engine.Mips.Runtime.OS;
 
 /// <summary>
 /// Common interface all operating systems must implement.

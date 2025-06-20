@@ -2,6 +2,7 @@
 using ELFSharp.ELF.Sections;
 using ELFSharp.ELF.Segments;
 using SAAE.Engine.Memory;
+using SAAE.Engine.Mips.Runtime.OS;
 using SAAE.Engine.Mips.Runtime.Simple;
 
 namespace SAAE.Engine.Mips.Runtime;
