@@ -1,6 +1,9 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 using SAAE.Editor.ViewModels;
@@ -16,7 +19,7 @@ using ProjectViewModel = SAAE.Editor.ViewModels.Code.ProjectViewModel;
 namespace SAAE.Editor;
 
 public static class ServiceCollectionExtensions {
-    public static void AddCommonServices(this IServiceCollection collection) {
+    public static IServiceCollection AddCommonServices(this IServiceCollection collection) {
 
         #region ViewModels
 
@@ -47,5 +50,21 @@ public static class ServiceCollectionExtensions {
         
         #endregion
 
+        return collection;
+    }
+
+    public static IServiceCollection ConfigureLogging(this IServiceCollection collection)
+    {
+        collection.AddLogging(logBuilder =>
+        {
+            logBuilder.AddConsole();
+#if DEBUG
+            logBuilder.SetMinimumLevel(LogLevel.Debug);
+#elif RELEASE
+            logBuilder.SetMinimumLevel(LogLevel.Error);
+#endif
+        });
+
+        return collection;
     }
 }

@@ -117,7 +117,14 @@ public partial class FileEditorViewModel : BaseViewModel {
     [RelayCommand]
     private async Task BuildProject()
     {
-        
+        // salva projeto caso o usuario nao tenha salvo
+        await SaveProject();
+
+        CompilationInput input = fileService.CreateCompilationInput();
+        WeakReferenceMessenger.Default.Send(
+            new CompilationStartedMessage(input.CalculateId(MipsCompiler.EntryPointPreambule)));
+        CompilationResult result = await compilerService.CompileAsync(input);
+        WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result.Id));
     }
 
     [RelayCommand]
@@ -131,6 +138,14 @@ public partial class FileEditorViewModel : BaseViewModel {
         int selectedIndex = SelectedTabIndex;
         int index = OpenFiles.IndexOf(file);
         OpenFiles.Remove(file);
+        
+        // salvar arquivo ao fechar
+        if (!file.IsReadonly)
+        {
+            // salva o conteudo no disco
+            File.WriteAllText(file.Path, file.TextDocument.Text);
+        }
+        
         if (selectedIndex == index)
         {
             // tem que trocar
@@ -152,54 +167,6 @@ public partial class FileEditorViewModel : BaseViewModel {
                 ChangeTab(OpenFiles[index]);
             }
         }
-    }
-
-    private async void OnCompilationTimerTick(object? sender, EventArgs e)
-    {
-        try
-        {
-            // verifica se tem arquivo aberto
-            if (currentPath == "" || Filename == "")
-            {
-                return;
-            }
-            
-            CompilationInput input = fileService.CreateCompilationInput();
-            
-            // verifica se o arquivo foi alterado
-            if (compilationId is null)
-            {
-                // primeira compilacao
-                await Compile(input);
-                return;
-            }
-
-            Guid currentId = input.CalculateId(MipsCompiler.EntryPointPreambule);
-
-            if (currentId == compilationId)
-            {
-                // nao precisa compilar, nada mudou
-                return;
-            }
-            
-            // algo mudou, recompila
-            await Compile(input);
-        }
-        catch (Exception ex)
-        {
-            Debug.Fail("Houve um erro interno na compilacao automatica! " + ex.Message + "; " + ex.StackTrace);
-        }
-    }
-    
-    private async ValueTask Compile(CompilationInput input)
-    {
-        WeakReferenceMessenger.Default.Send(
-            new CompilationStartedMessage(input.CalculateId(MipsCompiler.EntryPointPreambule)));
-        Console.WriteLine("Compiling...");
-        CompilationResult result = await compilerService.CompileAsync(input);
-        Console.WriteLine($"Compilado {(result.IsSuccess ? "com sucesso" : $"com erro ({result.Diagnostics?.Count ?? -1} diagnosticos)")}");
-        compilationId = result.Id;
-        WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result.Id));
     }
 }
 
