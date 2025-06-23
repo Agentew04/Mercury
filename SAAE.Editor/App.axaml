@@ -20,6 +20,7 @@
       
       <FontFamily x:Key="NunitoFont">avares://SAAE.Editor/Assets/Fonts/Nunito#Nunito</FontFamily>
       <FontFamily x:Key="PhosphorFont">avares://SAAE.Editor/Assets/Fonts/Phosphor#Phosphor</FontFamily>
+      <FontFamily x:Key="JetBrainsFont">avares://SAAE.Editor/Assets/Fonts/JetBrainsMono#JetBrains Mono</FontFamily>
       
       <SolidColorBrush x:Key="BackgroundGrey">#1F1F1F</SolidColorBrush>
       <SolidColorBrush x:Key="AlternateGrey" Color="#383838" />

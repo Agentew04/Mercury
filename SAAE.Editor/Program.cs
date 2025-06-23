@@ -1,8 +1,6 @@
 ﻿using Avalonia;
 using System;
-using System.Globalization;
 using Avalonia.Svg;
-using Fonts.Avalonia.JetBrainsMono;
 
 namespace SAAE.Editor {
     internal class Program {
@@ -21,8 +19,7 @@ namespace SAAE.Editor {
             return AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .WithInterFont()
-                .LogToTrace()
-                .WithJetBrainsMonoFont();
+                .LogToTrace();
         }
     }
 }

@@ -47,7 +47,7 @@
     <Style Selector="avaloniaEdit|TextEditor.textEditor">
         <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
         <Setter Property="VerticalAlignment" Value="Stretch"></Setter>
-        <Setter Property="FontFamily" Value="JetBrains mono"></Setter>
+        <Setter Property="FontFamily" Value="{StaticResource JetBrainsFont}"></Setter>
         <Setter Property="HorizontalScrollBarVisibility" Value="Auto"></Setter>
         <Setter Property="VerticalScrollBarVisibility" Value="Auto"></Setter>
         <Setter Property="FontWeight" Value="Light"></Setter>
