@@ -21,29 +21,23 @@
                 <Button Padding="5" ToolTip.Tip="{Binding Path=SaveButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}"
                         Command="{Binding SaveProjectCommand}"
                         HotKey="Ctrl+S">
-                    <TextBlock FontFamily="{DynamicResource PhosphorFont}"
+                    <TextBlock FontFamily="{StaticResource PhosphorFont}"
                                Text="&#xE248;" Margin="0"></TextBlock>
                 </Button>
                 <!-- build -->
                 <Button Padding="5" ToolTip.Tip="{Binding Path=BuildButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}"
                         Command="{Binding BuildProjectCommand}">
-                    <TextBlock FontFamily="{DynamicResource PhosphorFont}"
+                    <TextBlock FontFamily="{StaticResource PhosphorFont}"
                                Text="&#xE80E;" Margin="0"></TextBlock>
                 </Button>
                 <!-- run -->
                 <Button Padding="5" ToolTip.Tip="{Binding Path=RunButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}"
                         Command="{Binding RunProjectCommand}"
                         IsEnabled="False">
-                    <TextBlock FontFamily="{DynamicResource PhosphorFont}"
+                    <TextBlock FontFamily="{StaticResource PhosphorFont}"
                                Text="&#xE3D0;" Margin="0"></TextBlock>
                 </Button>
             </StackPanel>
-            
-            <!-- header -->
-            <!-- <Grid Grid.Row="1" ColumnDefinitions="*,Auto"> -->
-            <!--     <TextBlock Grid.Column="0" Text="{Binding EditingNotice}" -->
-            <!--                Classes="header" /> -->
-            <!-- </Grid> -->
             
             <TabStrip Grid.Row="1" Height="30"
                       SelectedIndex="{Binding SelectedTabIndex, Mode=OneWayToSource}"
@@ -61,7 +55,7 @@
                             </Button>
                             <Rectangle Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                        IsVisible="{Binding IsActive}"
-                                       Fill="{DynamicResource BlueLight}"></Rectangle>
+                                       Fill="{StaticResource Purple1}"></Rectangle>
                         </Grid>
                     </DataTemplate>
                 </TabStrip.ItemTemplate>

@@ -100,10 +100,10 @@ public partial class FileEditorViewModel : BaseViewModel {
     [RelayCommand]
     private async Task SaveProject()
     {
-        Console.WriteLine("Save project");
         // para cada arquivo aberto:
         //   - carrega conteudo
         //   - salva no disco
+        logger.LogInformation("Saving project with {FileCount} open files", OpenFiles.Count);
         foreach(OpenFile file in OpenFiles)
         {
             if (file.IsReadonly)
@@ -120,6 +120,7 @@ public partial class FileEditorViewModel : BaseViewModel {
         // salva projeto caso o usuario nao tenha salvo
         await SaveProject();
 
+        logger.LogInformation("Building project");
         CompilationInput input = fileService.CreateCompilationInput();
         WeakReferenceMessenger.Default.Send(
             new CompilationStartedMessage(input.CalculateId(MipsCompiler.EntryPointPreambule)));
