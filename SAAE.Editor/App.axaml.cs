@@ -20,10 +20,12 @@ namespace SAAE.Editor {
         public static ServiceProvider Services { get; private set; } = null!;
         
         public override async void OnFrameworkInitializationCompleted() {
-            BindingPlugins.DataValidators.RemoveAt(0);
+            // pq essa linha de baixo estava aqui?? esperar algo quebrar pra voltar com ela
+            //BindingPlugins.DataValidators.RemoveAt(0);
             
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddCommonServices();
+            serviceCollection.AddLogging(); // adiciona supporte para o Microsoft.Extensions.Logging
 
             Services = serviceCollection.BuildServiceProvider();
             

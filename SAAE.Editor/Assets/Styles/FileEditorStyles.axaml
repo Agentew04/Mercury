@@ -14,17 +14,36 @@
         </Border>
     </Design.PreviewWith>
 
-    <Style Selector="TabItem">
+    <Style Selector="TabStrip.fileStrip > TabStripItem">
         <Setter Property="Padding" Value="0"></Setter>
-        <Setter Property="Margin" Value="0"></Setter>
-        <Setter Property="MinHeight" Value="0"></Setter>
-    </Style>
-    <Style Selector="TabItem > Border#PART_LayoutRoot">
-        <Setter Property="Padding" Value="0"></Setter>
+        <Setter Property="Margin" Value="0,0,2,0"></Setter>
     </Style>
     
-    <Style Selector="TextBlock.tabheader">
-        <Setter Property="FontSize" Value="18"></Setter>
+    <Style Selector="TextBlock.fileStripTitle">
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="FontSize" Value="13"></Setter>
+        <Setter Property="FontWeight" Value="Bold"></Setter>
+    </Style>
+    
+    <Style Selector="Button.fileStripCloseButton">
+        <Setter Property="Padding" Value="0"></Setter>
+        <Setter Property="Margin" Value="0"></Setter>
+        <Setter Property="Width" Value="15"></Setter>
+        <Setter Property="Height" Value="15"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="CornerRadius" Value="0"></Setter>
+    </Style>
+    <Style Selector="Button.fileStripCloseButton:pointerover">
+        <!-- <Setter Property="Background" Value="Red"></Setter> -->
+    </Style>
+    
+    <Style Selector="Button.fileStripCloseButton TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource PhosphorFont}"></Setter>
+        <Setter Property="Text" Value="&#xE4F6;"></Setter>
+        <Setter Property="FontSize" Value="13"></Setter>
+        <Setter Property="Background" Value="Transparent"></Setter>
     </Style>
     
     <Style Selector="avaloniaEdit|TextEditor.textEditor">

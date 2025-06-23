@@ -5,6 +5,7 @@ using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 using SAAE.Editor.ViewModels;
 using SAAE.Editor.ViewModels.Code;
+using SAAE.Editor.ViewModels.Execute;
 using SAAE.Editor.Views;
 using SAAE.Engine;
 using FileEditorViewModel = SAAE.Editor.ViewModels.Code.FileEditorViewModel;
@@ -25,7 +26,7 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<ProjectViewModel>();
         collection.AddSingleton<FileEditorViewModel>();
         collection.AddSingleton<ProblemsViewModel>();
-        collection.AddSingleton<FileEditorToolbarViewModel>();
+        collection.AddSingleton<RegisterViewModel>();
 
         #endregion
 
@@ -37,12 +38,13 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<ProjectService>();
         collection.AddSingleton<FileService>();
         collection.AddSingleton<GrammarService>();
+        collection.AddSingleton<ExecuteService>();
 
         HttpClient httpClient = new(); // reuse the same instance
         HttpRequestHeaders headers = httpClient.DefaultRequestHeaders;
         headers.UserAgent.ParseAdd("SAAE/" + typeof(App).Assembly.GetName().Version);
         collection.AddSingleton(httpClient);
-
+        
         #endregion
 
     }

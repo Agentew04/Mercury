@@ -6,6 +6,8 @@
         xmlns:view="clr-namespace:SAAE.Editor.Views"
         xmlns:controls="clr-namespace:SAAE.Editor.Controls"
         xmlns:codeView="clr-namespace:SAAE.Editor.Views.CodeView"
+        xmlns:execView="clr-namespace:SAAE.Editor.Views.ExecuteView"
+        xmlns:executeView="clr-namespace:SAAE.Editor.Views.ExecuteView"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
         x:Class="SAAE.Editor.MainWindow"
         Title="SAAE.Editor"
@@ -63,9 +65,11 @@
     <TabControl>
       <TabControl.Items>
         <TabItem Header="Code" >
-          <codeView:CodeTabView></codeView:CodeTabView>
+          <codeView:CodeTabView/>
           </TabItem>
-        <TabItem Header="Run" />
+        <TabItem Header="Run">
+          <executeView:ExecuteView/>
+        </TabItem>
         <TabItem Header="Design" />
       </TabControl.Items>
     </TabControl>
