@@ -22,7 +22,7 @@ public class SimplePipeline : IClockable
 
     /// <summary>
     /// Represents the RAM of this cpu. It is normally
-    /// set from a <see cref="MachineBuilder"/>.
+    /// set from a <see cref="_MachineBuilder"/>.
     /// </summary>
     public Memory.Memory Memory { get; set; } = null!;
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SAAE.Engine.Common.Builders;
 using SAAE.Engine.Mips.Runtime;
 using SAAE.Engine.Mips.Runtime.OS;
 
@@ -13,11 +14,17 @@ namespace SAAE.Engine.Test.Mips.Runtime;
 [TestClass]
 public class MonocycleTest {
     [TestMethod]
-    public void TestBeq() {
+    public void TestBeq()
+    {
         using Machine machine = new MachineBuilder()
-            .WithMarsOs()
-            .With4GbRam()
+            .WithMemory(new MemoryBuilder()
+                .With4Gb()
+                .WithVolatileStorage()
+                .Build())
+            .WithInMemoryStdio()
+            .WithMips()
             .WithMipsMonocycle()
+            .WithMarsOs()
             .Build();
         
         Monocycle cpu = machine.Cpu; 
@@ -55,9 +62,14 @@ public class MonocycleTest {
     [TestMethod]
     public void TestBuilder() {
         using Machine machine = new MachineBuilder()
-            .With4GbRam()
-            .WithMarsOs()
+            .WithMemory(new MemoryBuilder()
+                .With4Gb()
+                .WithVolatileStorage()
+                .Build())
+            .WithInMemoryStdio()
+            .WithMips()
             .WithMipsMonocycle()
+            .WithMarsOs()
             .Build();
         
         Assert.IsNotNull(machine.Memory);
@@ -76,10 +88,16 @@ public class MonocycleTest {
     [TestMethod]
     public void TestFibonacci() {
         using Machine machine = new MachineBuilder()
-            .WithMarsOs()
-            .With4GbRam()
+            .WithMemory(new MemoryBuilder()
+                .With4Gb()
+                .WithVolatileStorage()
+                .Build())
+            .WithInMemoryStdio()
+            .WithMips()
             .WithMipsMonocycle()
+            .WithMarsOs()
             .Build();
+        
         int[] code = [
             0x2004_0000,
             0x0c10_0023,
