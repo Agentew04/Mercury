@@ -33,14 +33,14 @@
                 <!-- run -->
                 <Button Padding="5" ToolTip.Tip="{Binding Path=RunButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}"
                         Command="{Binding RunProjectCommand}"
-                        IsEnabled="False">
+                        IsEnabled="{Binding CanRunProject}">
                     <TextBlock FontFamily="{StaticResource PhosphorFont}"
                                Text="&#xE3D0;" Margin="0"></TextBlock>
                 </Button>
             </StackPanel>
             
             <TabStrip Grid.Row="1" Height="30"
-                      SelectedIndex="{Binding SelectedTabIndex, Mode=OneWayToSource}"
+                      SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
                       ItemsSource="{Binding OpenFiles}"
                       Margin="0" Padding="0"
                       Classes="fileStrip">

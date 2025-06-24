@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
         xmlns:view="clr-namespace:SAAE.Editor.Views"
+        xmlns:local="clr-namespace:SAAE.Editor"
         xmlns:controls="clr-namespace:SAAE.Editor.Controls"
         xmlns:codeView="clr-namespace:SAAE.Editor.Views.CodeView"
         xmlns:execView="clr-namespace:SAAE.Editor.Views.ExecuteView"
@@ -62,15 +63,15 @@
     <view:StatusBar DockPanel.Dock="Bottom" Background="{StaticResource Purple1}"/>
     
     <!-- main view -->
-    <TabControl>
+    <TabControl x:Name="TabControl">
       <TabControl.Items>
-        <TabItem Header="Code" >
+        <TabItem Header="Code" Tag="{x:Static local:NavigationTarget.CodeView}">
           <codeView:CodeTabView/>
           </TabItem>
-        <TabItem Header="Run">
+        <TabItem Header="Run" Tag="{x:Static local:NavigationTarget.ExecuteView}">
           <executeView:ExecuteView/>
         </TabItem>
-        <TabItem Header="Design" />
+        <TabItem Header="Design" Tag="{x:Static local:NavigationTarget.DesignView}"/>
       </TabControl.Items>
     </TabControl>
   </DockPanel>

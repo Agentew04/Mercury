@@ -17,6 +17,7 @@ using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
 using SAAE.Engine;
+using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Editor.ViewModels.Code;
 
@@ -29,11 +30,11 @@ public partial class FileEditorViewModel : BaseViewModel {
     
     public FileEditorViewModel() {
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
-        Localization.LocalizationManager.CultureChanged += _ => {
-            OnPropertyChanged(nameof(EditingNotice));
-        };
+        WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
     }
-    
+
+    #region Editor Properties
+
     [ObservableProperty]
     private ObservableCollection<OpenFile> openFiles = [];
     
@@ -44,17 +45,21 @@ public partial class FileEditorViewModel : BaseViewModel {
     private TextDocument textDocument = new();
  
     [ObservableProperty] 
-    [NotifyPropertyChangedFor(nameof(EditingNotice))]
     private string filename = "";
-    public string EditingNotice => string.Format(Localization.FileEditorResources.EditMessageValue, (object?)Filename);
 
     [ObservableProperty] 
     private bool isReadonlyEditor;
-
-    private string currentPath = "";
-    // private readonly DispatcherTimer compilationTimer;
-    private Guid? compilationId;
     
+    #endregion
+    
+    #region Toolbar Properties
+    
+    [ObservableProperty]
+    private bool canRunProject = false;
+    
+    #endregion
+
+
     private void OnFileOpen(object sender, FileOpenMessage message) {
         // funcao chamada quando o usuario abre um arquivo pela aba do projeto
         string path = fileService.GetAbsolutePath(message.Value.Id);
@@ -62,6 +67,15 @@ public partial class FileEditorViewModel : BaseViewModel {
             logger.LogWarning("Nao foi possivel encontrar o path do arquivo {FileName}/{FileId}", message.Value.Name, message.Value.Id);
             return;
         }
+        
+        // verifica se o arquivo ja esta aberto
+        OpenFile? existingFile = OpenFiles.FirstOrDefault(x => x.Path == path);
+        if (existingFile is not null)
+        {
+            ChangeTab(existingFile);
+            return;
+        }
+        
 
         OpenFile file = new(message.Value.Name, path, CloseTabCommand, message.Value.IsEffectiveReadOnly);
         file.TextDocument.Text = File.ReadAllText(path);
@@ -81,7 +95,14 @@ public partial class FileEditorViewModel : BaseViewModel {
         OpenFile openFile = OpenFiles[value];
         ChangeTab(openFile);
     }
-    
+
+    private void OnProgramLoad(object recipient, ProgramLoadMessage message)
+    {
+        // chamada quando o programa compilado eh carregado em uma maquina
+        logger.LogInformation("Recebi evento de carregamento do programa. Vou habilitar o botao de executar");
+        CanRunProject = true;
+    }
+
     private void ChangeTab(OpenFile openFile)
     {
         logger.LogInformation("Changing tab to {FileName} ({FilePath})", openFile.Filename, openFile.Path);
@@ -92,9 +113,10 @@ public partial class FileEditorViewModel : BaseViewModel {
         }
         // ativa o atual
         openFile.IsActive = true;
-        Console.WriteLine(string.Join(", ", OpenFiles.Select(x => $"{x.Filename} = {x.IsActive}")));
         IsReadonlyEditor = openFile.IsReadonly;
         TextDocument = openFile.TextDocument;
+        logger.LogInformation("Changing tabindex to {Index}", OpenFiles.IndexOf(openFile));
+        SelectedTabIndex = OpenFiles.IndexOf(openFile);
     }
 
     [RelayCommand]
@@ -104,13 +126,20 @@ public partial class FileEditorViewModel : BaseViewModel {
         //   - carrega conteudo
         //   - salva no disco
         logger.LogInformation("Saving project with {FileCount} open files", OpenFiles.Count);
+        int changedFiles = 0;
         foreach(OpenFile file in OpenFiles)
         {
             if (file.IsReadonly)
             {
                 continue;
             }
+            changedFiles++;
             await File.WriteAllTextAsync(file.Path, file.TextDocument.Text);   
+        }
+
+        if (changedFiles > 0)
+        {
+            CanRunProject = false;
         }
     }
 
@@ -131,6 +160,8 @@ public partial class FileEditorViewModel : BaseViewModel {
     [RelayCommand]
     private void RunProject()
     {
+        // navigate automagically to the execution view
+        Navigation.NavigateTo(NavigationTarget.ExecuteView);
     }
 
     [RelayCommand]

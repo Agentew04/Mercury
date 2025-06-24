@@ -82,7 +82,7 @@ public partial class MipsCompiler : ICompilerService {
             }; 
         }
         
-        List<Diagnostic>? diagnostics = ParseDiagnostics(diagMs);
+        List<Diagnostic> diagnostics = ParseDiagnostics(diagMs);
 
         if (commandError == CompilationError.CompilationError)
         {
