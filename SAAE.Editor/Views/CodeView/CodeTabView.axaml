@@ -41,11 +41,6 @@
                       ResizeDirection="Columns"/>
         
         <!-- open files window & toolbar -->
-        <DockPanel Grid.Row="0" Grid.Column="2" Background="{StaticResource BackgroundGrey}">
-            <!-- Toolbar -->
-            <codeView:FileEditorToolbarView DockPanel.Dock="Top"/>
-            <!-- Open files -->
-            <codeView:FileEditorView />
-        </DockPanel>
+        <codeView:FileEditorView Grid.Row="0" Grid.Column="2" Background="{StaticResource BackgroundGrey}"/>
     </Grid>
 </UserControl>

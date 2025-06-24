@@ -1,10 +1,14 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 using SAAE.Editor.ViewModels;
 using SAAE.Editor.ViewModels.Code;
+using SAAE.Editor.ViewModels.Execute;
 using SAAE.Editor.Views;
 using SAAE.Engine;
 using FileEditorViewModel = SAAE.Editor.ViewModels.Code.FileEditorViewModel;
@@ -15,7 +19,7 @@ using ProjectViewModel = SAAE.Editor.ViewModels.Code.ProjectViewModel;
 namespace SAAE.Editor;
 
 public static class ServiceCollectionExtensions {
-    public static void AddCommonServices(this IServiceCollection collection) {
+    public static IServiceCollection AddCommonServices(this IServiceCollection collection) {
 
         #region ViewModels
 
@@ -25,7 +29,7 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<ProjectViewModel>();
         collection.AddSingleton<FileEditorViewModel>();
         collection.AddSingleton<ProblemsViewModel>();
-        collection.AddSingleton<FileEditorToolbarViewModel>();
+        collection.AddSingleton<RegisterViewModel>();
 
         #endregion
 
@@ -37,13 +41,30 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<ProjectService>();
         collection.AddSingleton<FileService>();
         collection.AddSingleton<GrammarService>();
+        collection.AddSingleton<ExecuteService>();
 
         HttpClient httpClient = new(); // reuse the same instance
         HttpRequestHeaders headers = httpClient.DefaultRequestHeaders;
         headers.UserAgent.ParseAdd("SAAE/" + typeof(App).Assembly.GetName().Version);
         collection.AddSingleton(httpClient);
-
+        
         #endregion
 
+        return collection;
+    }
+
+    public static IServiceCollection ConfigureLogging(this IServiceCollection collection)
+    {
+        collection.AddLogging(logBuilder =>
+        {
+            logBuilder.AddConsole();
+#if DEBUG
+            logBuilder.SetMinimumLevel(LogLevel.Debug);
+#elif RELEASE
+            logBuilder.SetMinimumLevel(LogLevel.Error);
+#endif
+        });
+
+        return collection;
     }
 }

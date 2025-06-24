@@ -1,0 +1,22 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:exec="clr-namespace:SAAE.Editor.Views.ExecuteView"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SAAE.Editor.Views.ExecuteView.ExecuteView">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="2"></ColumnDefinition>
+            <ColumnDefinition Width="200" MinWidth="100" MaxWidth="300"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            
+        </Grid.RowDefinitions>
+        
+        <GridSplitter Grid.Column="1" ResizeDirection="Columns">
+        </GridSplitter>
+        <exec:RegisterView Grid.Column="2"></exec:RegisterView>
+    </Grid>
+</UserControl>

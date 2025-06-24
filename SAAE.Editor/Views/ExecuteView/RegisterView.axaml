@@ -1,0 +1,23 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SAAE.Editor.ViewModels.Execute"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SAAE.Editor.Views.ExecuteView.RegisterView"
+             x:DataType="vm:RegisterViewModel">
+    <TabControl Margin="0">
+        <TabItem Header="Registers">
+            <DataGrid
+                CanUserReorderColumns="True" CanUserSortColumns="False" CanUserResizeColumns="True"
+                GridLinesVisibility="Horizontal" IsReadOnly="True"
+                ItemsSource="{Binding Registers}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="Number" Binding="{Binding Index}"/>
+                    <DataGridTextColumn Header="Value" Binding="{Binding Value }"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </TabItem>
+    </TabControl>
+</UserControl>
