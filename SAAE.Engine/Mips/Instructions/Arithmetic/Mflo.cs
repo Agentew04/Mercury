@@ -13,4 +13,6 @@ public partial class Mflo : TypeRInstruction {
 
     [GeneratedRegex(@"^\s*mflo\s+\$(?<rd>\S+?)\s*$")]
     public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}" + FormatTrivia();
 }

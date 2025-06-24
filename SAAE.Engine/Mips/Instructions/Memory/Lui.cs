@@ -11,4 +11,6 @@ public partial class Lui : TypeIInstruction {
 
     [GeneratedRegex(@"^\s*lui\s+\$(?<rt>\S+),\s*(?<immediate>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
     public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rt)}, {Immediate}" + FormatTrivia();
 }

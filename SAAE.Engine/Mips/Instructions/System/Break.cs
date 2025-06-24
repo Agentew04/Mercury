@@ -23,4 +23,6 @@ public partial class Break : TypeRInstruction {
 
     [GeneratedRegex(@"^\s*break\s*$")]
     public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic}" + FormatTrivia();
 }

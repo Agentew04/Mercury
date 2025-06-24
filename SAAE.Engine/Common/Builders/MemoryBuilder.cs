@@ -2,9 +2,12 @@
 
 namespace SAAE.Engine.Common.Builders;
 
-using Memory = Memory.Memory; 
+using Memory = Memory.Memory;
 
-public class MemoryBuilder
+/// <summary>
+/// Builder responsible for a friendly way to create a <see cref="Memory"/> instance.
+/// </summary>
+public class MemoryBuilder : IBuilder<Memory>
 {
     private ulong pageSize = 4096; // Default page size
     private ulong size = 1024ul * 1024 * 1024 * 4; // Default size (4 GB)
@@ -12,12 +15,7 @@ public class MemoryBuilder
     private int pageCapacity = 16;
     private string storagePath = "memory.bin";
     private StorageType storageType;
-    
-    public MemoryBuilder()
-    {
-        
-    }
-    
+
     public MemoryBuilder WithPageSize(ulong pageSize)
     {
         this.pageSize = pageSize;

@@ -12,4 +12,6 @@ public partial class Msub : TypeRInstruction {
 
     [GeneratedRegex(@"^\s*msub\s+\$(?<rs>\S+?)\s*,\s*\$(?<rt>\S+?)\s*$")]
     public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rs)}, ${TranslateRegisterName(Rt)}" + FormatTrivia();
 }

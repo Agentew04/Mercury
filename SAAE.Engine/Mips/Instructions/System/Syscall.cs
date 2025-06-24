@@ -25,4 +25,6 @@ public partial class Syscall : TypeRInstruction {
 
     [GeneratedRegex(@"^\s*syscall\s*$")]
     public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic}" + FormatTrivia();
 }

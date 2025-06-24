@@ -14,4 +14,6 @@ public partial class Clo : TypeRInstruction {
 
     [GeneratedRegex(@"^\s*clo\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*$")]
     public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}, ${TranslateRegisterName(Rs)}" + FormatTrivia();
 }

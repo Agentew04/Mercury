@@ -13,8 +13,6 @@ namespace SAAE.Editor.ViewModels.Code;
 
 public sealed partial class ProblemsViewModel : BaseViewModel
 {
-    private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
-
     public ProblemsViewModel()
     {
         WeakReferenceMessenger.Default.Register<CompilationFinishedMessage>(this, OnCompilationFinished);
@@ -28,17 +26,11 @@ public sealed partial class ProblemsViewModel : BaseViewModel
 
     private void OnCompilationFinished(object sender, CompilationFinishedMessage message)
     {
-        CompilationResult lastResult = compilerService.LastCompilationResult;
-        if (lastResult.Id != message.Value)
-        {
-            Console.WriteLine("Recebi compilacao desatualizada");
-            return;
-        }
-        
+        CompilationResult result = message.Value;
         Diagnostics.Clear();
-        if (lastResult.Diagnostics is not null)
+        if (result.Diagnostics is not null)
         {
-            ExtensionMethods.AddRange(Diagnostics, lastResult.Diagnostics);
+            Diagnostics.AddRange(result.Diagnostics);
         }
     }
 }

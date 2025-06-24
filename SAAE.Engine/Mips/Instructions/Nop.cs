@@ -21,4 +21,6 @@ internal partial class Nop : Instruction {
     public override void PopulateFromLine(string line) {
         // do nothing
     }
+    
+    public override string ToString() => $"{Mnemonic}" + FormatTrivia();
 }

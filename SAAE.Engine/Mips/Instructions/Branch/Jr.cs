@@ -27,4 +27,6 @@ public partial class Jr : TypeRInstruction {
         Match m = GetRegularExpression().Match(line);
         Rs = byte.Parse(m.Groups["rs"].Value);
     }
+    
+    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rs)}" + FormatTrivia();
 }

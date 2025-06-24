@@ -14,4 +14,6 @@ public partial class Clz : TypeRInstruction {
 
     [GeneratedRegex(@"^\s*clz\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*$")]
     public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}, ${TranslateRegisterName(Rs)}" + FormatTrivia();
 }

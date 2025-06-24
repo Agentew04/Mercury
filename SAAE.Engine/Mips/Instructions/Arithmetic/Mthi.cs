@@ -13,4 +13,6 @@ public partial class Mthi : TypeRInstruction {
 
     [GeneratedRegex(@"^\s*mthi\s+\$(?<rs>\S+?)\s*$")]
     public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rs)}" + FormatTrivia();
 }

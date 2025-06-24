@@ -1,10 +1,15 @@
-﻿using SAAE.Engine.Mips.Runtime;
+﻿using SAAE.Engine.Memory;
+using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Engine.Common.Builders;
 
-public class MachineBuilder
+/// <summary>
+/// The standard builder for creating a machine instance. Must be extended for specific machine types because
+/// the <see cref="Build"/> method will throw an exception if not overridden.
+/// </summary>
+public class MachineBuilder : IBuilder<Machine>
 {
-    protected Memory.Memory? Memory { get; private set; }
+    protected IMemory? Memory { get; private set; }
     protected Stream? StdIn { get; private set; }
     protected Stream? StdOut { get; private set; }
     protected Stream? StdErr { get; private set; }
@@ -22,7 +27,7 @@ public class MachineBuilder
         StdErr = m.StdErr;
     }
 
-    public MachineBuilder WithMemory(Memory.Memory memory)
+    public MachineBuilder WithMemory(IMemory memory)
     {
         Memory = memory;
         return this;

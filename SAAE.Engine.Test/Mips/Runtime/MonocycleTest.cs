@@ -80,7 +80,7 @@ public class MonocycleTest {
         Assert.AreSame(machine.Os.Machine, machine);
         
         const ulong gb = 1024 * 1024 * 1024;
-        Assert.AreEqual(4 * gb, machine.Memory.Size);
+        Assert.AreEqual(4 * gb, (machine.Memory as Engine.Memory.Memory)!.Size);
         Assert.IsInstanceOfType<Monocycle>(machine.Cpu);
         Assert.IsInstanceOfType<Mars>(machine.Os);
     }

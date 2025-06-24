@@ -14,4 +14,6 @@ public partial class Jalr2 : TypeRInstruction {
 
     [GeneratedRegex(@"^\s*jalr\s+\$(?<rd>[^\s,]+),\s*\$(?<rs>[^\s,]+)\s*$")]
     public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}, ${TranslateRegisterName(Rs)}" + FormatTrivia();
 }

@@ -13,4 +13,6 @@ public partial class Mtlo : TypeRInstruction {
 
     [GeneratedRegex(@"^\s*mtlo\s+\$(?<rs>\S+?)\s*$")]
     public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rs)}" + FormatTrivia();
 }

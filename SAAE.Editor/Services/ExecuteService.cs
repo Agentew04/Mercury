@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
 using SAAE.Engine;
+using SAAE.Engine.Common.Builders;
 using SAAE.Engine.Mips.Runtime;
 using Machine = SAAE.Engine.Mips.Runtime.Machine;
 
@@ -16,7 +17,7 @@ namespace SAAE.Editor.Services;
 /// Service responsible to enable controls and the application to interact
 /// with the engine to execute code. 
 /// </summary>
-public class ExecuteService
+public sealed class ExecuteService : IDisposable
 {
     private Machine? currentMachine;
     private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
@@ -29,50 +30,49 @@ public class ExecuteService
 
     private void OnCompile(object recipient, CompilationFinishedMessage message)
     {
-        if (message.Value == Guid.Empty)
+        if (message.Value.Id == Guid.Empty 
+            || !message.Value.IsSuccess 
+            || (message.Value.Diagnostics?.Exists(x => x.Type == DiagnosticType.Error) ?? false))
         {
-            // mensagem vazia
-            return;
-        }
-
-        CompilationResult result = compilerService.LastCompilationResult;
-        if (result.Id != message.Value)
-        {
-            // compilou varias vezes?
-            return;
-        }
-
-        if (!result.IsSuccess || (result.Diagnostics?.Exists(x => x.Type == DiagnosticType.Warning) ?? false))
-        {
-            // a compilacao falhou ou tem avisos
             return;
         }
 
         currentMachine?.Dispose();
 
         // criar maquina
-        Machine m = new MachineBuilder()
-            .With4GbRam()
+        currentMachine = new MachineBuilder()
             .WithInMemoryStdio()
+            .WithMemory(new MemoryBuilder()
+                .With4Gb()
+                .WithVolatileStorage()
+                .WithPageCapacity(16)
+                .WithPageSize(4096)
+                .WithLittleEndian()
+                .Build())
+            .WithMips()
             .WithMarsOs()
             .WithMipsMonocycle()
             .Build();
-        currentMachine = m;
-        
-        ELF<uint> elf = ELFReader.Load<uint>(result.OutputPath);
-        m.LoadElf(elf);
+
+        ELF<uint> elf = ELFReader.Load<uint>(message.Value.OutputPath);
+        currentMachine.LoadElf(elf);
 
         // publica evento de carregamento do programa
         ProgramLoadMessage loadMsg = new()
         {
-            Machine = m
+            Machine = currentMachine
         };
-        logger.LogInformation("Programa carregado com sucesso: {ProgramPath}", result.OutputPath);
+        logger.LogInformation("Programa carregado com sucesso: {OutputPath}", message.Value.OutputPath);
         WeakReferenceMessenger.Default.Send(loadMsg);
     }
     
     public Machine GetCurrentMachine()
     {
         return currentMachine!;
+    }
+
+    public void Dispose()
+    {
+        currentMachine?.Dispose();
     }
 }

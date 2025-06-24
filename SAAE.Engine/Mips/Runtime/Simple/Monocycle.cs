@@ -19,7 +19,7 @@ public sealed partial class Monocycle : IClockable {
     /// <summary>
     /// Represents the RAM memory
     /// </summary>
-    public Memory.Memory Memory { get; set; } = null!;
+    public IMemory Memory { get; set; } = null!;
 
     /// <summary>
     /// Structure that holds all the general purpose

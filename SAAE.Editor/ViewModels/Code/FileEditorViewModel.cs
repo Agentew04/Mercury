@@ -154,7 +154,7 @@ public partial class FileEditorViewModel : BaseViewModel {
         WeakReferenceMessenger.Default.Send(
             new CompilationStartedMessage(input.CalculateId(MipsCompiler.EntryPointPreambule)));
         CompilationResult result = await compilerService.CompileAsync(input);
-        WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result.Id));
+        WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result));
     }
 
     [RelayCommand]

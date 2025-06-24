@@ -13,7 +13,7 @@ namespace SAAE.Engine.Mips.Runtime;
 /// </summary>
 public sealed class Machine : IDisposable, IClockable {
 
-    public Memory.Memory Memory { get; init; } = null!;
+    public IMemory Memory { get; init; } = null!;
 
     public Monocycle Cpu { get; init; } = null!;
 
@@ -93,10 +93,10 @@ public sealed class Machine : IDisposable, IClockable {
         return Cpu.IsClockingFinished();
     }
 
-    public event Action<List<RegisterFile.Register>>? OnRegisterChanged = null;
+    public event Action<List<RegisterFile.Register>>? OnRegisterChanged;
 
     public void Dispose() {
-        Memory.Dispose();
+        if(Memory is IDisposable dispMem) dispMem.Dispose();
         Os.Dispose();
         StdIn.Dispose();
         StdOut.Dispose();
