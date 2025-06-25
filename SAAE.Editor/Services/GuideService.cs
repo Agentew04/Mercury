@@ -108,10 +108,10 @@ public sealed partial class GuideService : IDisposable {
                 continue;
             }
             string yaml = yamlBlock.Lines.ToString();
-            IDeserializer deserializer = new DeserializerBuilder()
+            IDeserializer deserializer = new StaticDeserializerBuilder(new YamlStaticContext())
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
-            var metadata = deserializer.Deserialize<GuideMetadata>(yaml);
+            GuideMetadata metadata = deserializer.Deserialize<GuideMetadata>(yaml);
             localizedMetadata.Add(key, metadata);
         }
     }
@@ -288,10 +288,12 @@ public sealed partial class GuideService : IDisposable {
     [GeneratedRegex(@".\w\w-\w\w")]
     private static partial Regex CultureRemoverRegex();
 
-    private class GuideMetadata {
-        public string Title { get; set; } = "";
-    }
+}
+public class GuideMetadata {
+    public string Title { get; set; } = "";
 }
 
-//
+[YamlStaticContext]
+[YamlSerializable(typeof(GuideService))]
+public partial class YamlStaticContext : StaticContext;
 
