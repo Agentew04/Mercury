@@ -294,6 +294,6 @@ public class GuideMetadata {
 }
 
 [YamlStaticContext]
-[YamlSerializable(typeof(GuideService))]
+[YamlSerializable(typeof(GuideMetadata))]
 public partial class YamlStaticContext : StaticContext;
 

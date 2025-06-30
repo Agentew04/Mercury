@@ -4,7 +4,11 @@
     <Design.PreviewWith>
         <Border Background="{DynamicResource BackgroundGrey}"
                 Width="700">
-            <controls:TitleBar></controls:TitleBar>
+            <TabStrip>
+                <TabStripItem>a</TabStripItem>
+                <TabStripItem>a</TabStripItem>
+                <TabStripItem>a</TabStripItem>
+            </TabStrip>
         </Border>
     </Design.PreviewWith>
 
@@ -43,8 +47,7 @@
         <Setter Property="Background" Value="Transparent"></Setter>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
     </Style>
-    
-    
+      
     <Style Selector="Button.titlebarbutton">
         <Setter Property="Margin" Value="0"></Setter>
         <Setter Property="Padding" Value="0"></Setter>
@@ -78,5 +81,36 @@
     
     <Style Selector="Button.notransform">
         <Setter Property="RenderTransform" Value=""></Setter>
+    </Style>
+    
+    <!-- slim tab strip -->
+    <Style Selector="TabStrip.slim > TabStripItem">
+        <Setter Property="Padding" Value="2,1,2,0"></Setter>
+        <Setter Property="Margin" Value="0,0,2,0"></Setter>
+        <Setter Property="FontSize" Value="16"></Setter>
+        <Setter Property="FontWeight" Value="Bold"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+        <Setter Property="MinHeight" Value="10"></Setter>
+    </Style>
+    
+    <!-- <Style Selector="TabStrip.slim TabStripItem:selected"> -->
+    <!--     <Setter Property="Background" Value="{DynamicResource AlternateGrey}"></Setter> -->
+    <!-- </Style> -->
+    <!-- -->
+    <!-- <Style Selector="TabStrip.slim:pointerover TabStripItem:pointerover"> -->
+    <!--     <Setter Property="Background" Value="{DynamicResource AlternateGrey}"></Setter> -->
+    <!-- </Style> -->
+    
+    <Style Selector="TabStrip.slim Panel">
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+    </Style>
+    
+    <Style Selector="TabStrip.slim Border#PART_LayoutRoot">
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+    </Style>
+    
+    <Style Selector="TabStrip.slim Border#PART_SelectedPipe">
+        <Setter Property="Background" Value="{DynamicResource Purple1}"></Setter>
     </Style>
 </Styles>

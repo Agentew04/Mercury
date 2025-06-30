@@ -9,6 +9,7 @@
         <entry key="SAAE.Editor/Assets/Styles/GuideStyles.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Assets/Styles/ProjectSelectionStyles.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Assets/Styles/ProjectViewStyles.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
+        <entry key="SAAE.Editor/Assets/Styles/RegisterViewStyles.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Assets/Styles/VisualStudioDark.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Controls/ChapterControl.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Controls/ChapterMenu.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
