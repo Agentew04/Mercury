@@ -65,7 +65,8 @@
             <avaloniaEdit:TextEditor x:Name="TextEditor" Classes="textEditor"
                                      Grid.Row="2"
                                      Document="{Binding TextDocument}"
-                                     IsReadOnly="{Binding IsReadonlyEditor}"/>
+                                     IsReadOnly="{Binding IsReadonlyEditor}"
+                                     />
         </Grid>
         <!-- Por enquanto vai ser só um arquivo aberto. Fodasse abas -->
         <!-- <TabControl ItemsSource="{Binding OpenFiles}" -->

@@ -50,6 +50,9 @@ public partial class FileEditorViewModel : BaseViewModel {
     [ObservableProperty] 
     private bool isReadonlyEditor;
     
+    [ObservableProperty]
+    private int cursorOffset = 1;
+    
     #endregion
     
     #region Toolbar Properties
@@ -62,26 +65,41 @@ public partial class FileEditorViewModel : BaseViewModel {
 
     private void OnFileOpen(object sender, FileOpenMessage message) {
         // funcao chamada quando o usuario abre um arquivo pela aba do projeto
-        string path = fileService.GetAbsolutePath(message.Value.Id);
-        if (path == "") {
-            logger.LogWarning("Nao foi possivel encontrar o path do arquivo {FileName}/{FileId}", message.Value.Name, message.Value.Id);
-            return;
+        string path;
+        int? line = message.LineNumber;
+        int? column = message.ColumnNumber;
+        if (message.ProjectNode is not null)
+        {
+            // abriu do project view
+            path = fileService.GetAbsolutePath(message.ProjectNode.Id);
+            if (path == string.Empty)
+            {
+                logger.LogWarning("Nao foi possivel encontrar o path do arquivo {FileName}/{FileId}", message.ProjectNode.Name, message.ProjectNode.Id);
+                return;
+            }
+        }
+        else
+        {
+            // abriu do problems view
+            path = Path.Combine(projectService.GetCurrentProject()!., message.Path!);
         }
         
         // verifica se o arquivo ja esta aberto
         OpenFile? existingFile = OpenFiles.FirstOrDefault(x => x.Path == path);
         if (existingFile is not null)
         {
-            ChangeTab(existingFile);
+            ChangeTab(existingFile, line, column);
             return;
         }
         
+        string name = Path.GetFileName(path);
 
-        OpenFile file = new(message.Value.Name, path, CloseTabCommand, message.Value.IsEffectiveReadOnly);
+        // message.ProjectNode?.IsEffectiveReadOnly ?? false pois a stdlib nunca deveria emitir um warning ou erro!!!
+        OpenFile file = new(name, path, CloseTabCommand, message.ProjectNode?.IsEffectiveReadOnly ?? false);
         file.TextDocument.Text = File.ReadAllText(path);
         OpenFiles.Add(file);
         
-        ChangeTab(file);
+        ChangeTab(file, line, column);
     }
 
     partial void OnSelectedTabIndexChanged(int value)
@@ -103,7 +121,7 @@ public partial class FileEditorViewModel : BaseViewModel {
         CanRunProject = true;
     }
 
-    private void ChangeTab(OpenFile openFile)
+    private void ChangeTab(OpenFile openFile, int? line = null, int? column = null)
     {
         logger.LogInformation("Changing tab to {FileName} ({FilePath})", openFile.Filename, openFile.Path);
         // desativa todos
@@ -115,8 +133,35 @@ public partial class FileEditorViewModel : BaseViewModel {
         openFile.IsActive = true;
         IsReadonlyEditor = openFile.IsReadonly;
         TextDocument = openFile.TextDocument;
+        
+        // atualiza o cursor
+        UpdateCursor(line, column);
+        
         logger.LogInformation("Changing tabindex to {Index}", OpenFiles.IndexOf(openFile));
         SelectedTabIndex = OpenFiles.IndexOf(openFile);
+    }
+
+    private void UpdateCursor(int? lineNumber, int? columnNumber)
+    {
+        if (lineNumber is not null && TextDocument.LineCount < lineNumber)
+        {
+            logger.LogWarning("Line number {Line} is out of bounds for the document with {LineCount} lines", lineNumber, TextDocument.LineCount);
+            return;
+        }
+
+        DocumentLine line = lineNumber is not null 
+            ? TextDocument.GetLineByNumber(lineNumber.Value) : 
+            TextDocument.GetLineByOffset(CursorOffset); 
+        
+        int column = columnNumber ?? 1; // se nao tiver coluna, usa a primeira
+        if (line.Length < column)
+        {
+            logger.LogWarning("Column number {Column} is out of bounds for the line with {Length} characters", column, line.Length);
+            column = line.Length; // ajusta para o tamanho da linha
+        }
+        
+        // atualiza o cursor
+        CursorOffset = line.Offset + column - 1; // -1 porque o caret offset eh zero-based
     }
 
     [RelayCommand]

@@ -2,29 +2,41 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
              xmlns:code="clr-namespace:SAAE.Editor.ViewModels.Code"
+             xmlns:conv="clr-namespace:SAAE.Editor.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:diag="clr-namespace:SAAE.Editor.Models.Compilation"
              x:Class="SAAE.Editor.Views.CodeView.ProblemsView"
              x:DataType="code:ProblemsViewModel">
-    <Grid RowDefinitions="Auto,*">
+    <UserControl.Resources>
+        <conv:DiagnosticTypeToIcon x:Key="DiagToIcon"/>
+        <conv:DiagnosticTypeToColor x:Key="DiagToColor"/>
+    </UserControl.Resources>
+    <Grid RowDefinitions="Auto,*" Background="{StaticResource BackgroundGrey}">
         <DataGrid Grid.Row="1" ItemsSource="{Binding Diagnostics}"
                   IsReadOnly="True" GridLinesVisibility="Horizontal"
+                  SelectedIndex="{Binding SelectedIndex, Mode=OneWayToSource}"
                   HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch">
+                  VerticalAlignment="Stretch"
+                  Classes="noselect">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Type" Binding="{Binding Type}"
-                                    />
-                <DataGridTextColumn Header="Message" Binding="{Binding Message}"/>
-                <DataGridTextColumn Header="Line" Binding="{Binding Line}"/>
-                <DataGridTextColumn Header="File" Binding="{Binding FilePath}"/>
+                <DataGridTemplateColumn Header="Type" Width="50">
+                    <DataTemplate x:DataType="diag:Diagnostic">
+                        <TextBlock Text="{Binding Type, Converter={StaticResource DiagToIcon}}"
+                                   Foreground="{Binding Type, Converter={StaticResource DiagToColor}}"
+                                   FontFamily="{StaticResource PhosphorFont}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </DataTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Message" Binding="{Binding Message}"
+                                    Width="*">
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Filename" Binding="{Binding FilePath}"
+                                    Width="150"/>
+                <DataGridTextColumn Header="Line" Binding="{Binding Line}"
+                                    Width="50"/>
             </DataGrid.Columns>
         </DataGrid>
-        <!-- <ScrollViewer Grid.Row="1"> -->
-        <!--     ~1~ <StackPanel> @1@ -->
-        <!--     ~1~     <TextBlock Text="Output: "/> @1@ -->
-        <!--     ~1~     <TextBlock Text="{Binding Output}"/> @1@ -->
-        <!--     ~1~ </StackPanel> @1@ -->
-        <!-- </ScrollViewer> -->
     </Grid>
 </UserControl>

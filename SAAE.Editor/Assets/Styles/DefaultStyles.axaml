@@ -113,4 +113,22 @@
     <Style Selector="TabStrip.slim Border#PART_SelectedPipe">
         <Setter Property="Background" Value="{DynamicResource Purple1}"></Setter>
     </Style>
+    
+    <!-- data grid styles -->
+    <Style Selector="DataGrid.noselect:focus DataGridCell:current /template/ Grid#FocusVisual">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="DataGrid.noselect:focus DataGridCell:focus /template/ Panel#FocusVisual">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="DataGrid.noselect:focus DataGridCell:current /template/ Rectangle#CurrencyVisual">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="DataGrid.noselect DataGridRow:selected Rectangle#BackgroundRectangle">
+        <Setter Property="Fill" Value="Transparent"></Setter>
+    </Style>
+    
+    <Style Selector="DataGrid.headerslim">
+        
+    </Style>
 </Styles>

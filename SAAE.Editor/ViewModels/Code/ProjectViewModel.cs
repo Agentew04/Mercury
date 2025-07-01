@@ -72,7 +72,10 @@ public partial class ProjectViewModel : BaseViewModel {
 
         if (value.Type == ProjectNodeType.AssemblyFile) {
             Console.WriteLine("Abrindo arquivo " + value.Name);
-            WeakReferenceMessenger.Default.Send(new FileOpenMessage(value));
+            WeakReferenceMessenger.Default.Send(new FileOpenMessage
+            {
+                ProjectNode = value
+            });
         }
     }
 

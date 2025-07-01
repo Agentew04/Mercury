@@ -5,7 +5,7 @@ using SAAE.Engine;
 
 namespace SAAE.Editor.Converters;
 
-public class ArchitectureToString : IValueConverter{
+public class ArchitectureToString : IValueConverter {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value is not Architecture architecture) {
             return "WTF";
