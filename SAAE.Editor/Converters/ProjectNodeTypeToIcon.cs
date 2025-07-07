@@ -24,6 +24,6 @@ public class ProjectNodeTypeToIcon : IValueConverter {
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
-        throw new InvalidOperationException();
+        throw new NotSupportedException();
     }
 }

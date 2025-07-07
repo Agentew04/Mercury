@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia.Input;
 using Avalonia.Threading;
+using AvaloniaEdit;
 using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -62,6 +63,8 @@ public partial class FileEditorViewModel : BaseViewModel {
     
     #endregion
 
+    // HACK:
+    public TextEditor? TextEditor { get; set; }
 
     private void OnFileOpen(object sender, FileOpenMessage message) {
         // funcao chamada quando o usuario abre um arquivo pela aba do projeto
@@ -81,7 +84,7 @@ public partial class FileEditorViewModel : BaseViewModel {
         else
         {
             // abriu do problems view
-            path = Path.Combine(projectService.GetCurrentProject()!., message.Path!);
+            path = message.Path!;
         }
         
         // verifica se o arquivo ja esta aberto
@@ -117,13 +120,11 @@ public partial class FileEditorViewModel : BaseViewModel {
     private void OnProgramLoad(object recipient, ProgramLoadMessage message)
     {
         // chamada quando o programa compilado eh carregado em uma maquina
-        logger.LogInformation("Recebi evento de carregamento do programa. Vou habilitar o botao de executar");
         CanRunProject = true;
     }
 
     private void ChangeTab(OpenFile openFile, int? line = null, int? column = null)
     {
-        logger.LogInformation("Changing tab to {FileName} ({FilePath})", openFile.Filename, openFile.Path);
         // desativa todos
         foreach (OpenFile file in OpenFiles)
         {
@@ -137,12 +138,19 @@ public partial class FileEditorViewModel : BaseViewModel {
         // atualiza o cursor
         UpdateCursor(line, column);
         
-        logger.LogInformation("Changing tabindex to {Index}", OpenFiles.IndexOf(openFile));
+        logger.LogInformation("Changing Editor Tab to [{Index}] {FileName} ({FilePath})", 
+            OpenFiles.IndexOf(openFile), 
+            openFile.Filename, 
+            openFile.Path);
         SelectedTabIndex = OpenFiles.IndexOf(openFile);
     }
 
     private void UpdateCursor(int? lineNumber, int? columnNumber)
     {
+        if (lineNumber is null && columnNumber is null) {
+            return;
+        }
+        
         if (lineNumber is not null && TextDocument.LineCount < lineNumber)
         {
             logger.LogWarning("Line number {Line} is out of bounds for the document with {LineCount} lines", lineNumber, TextDocument.LineCount);
@@ -161,7 +169,11 @@ public partial class FileEditorViewModel : BaseViewModel {
         }
         
         // atualiza o cursor
-        CursorOffset = line.Offset + column - 1; // -1 porque o caret offset eh zero-based
+        // por algum motivo o offset do texteditor nao aceita bindings
+        //CursorOffset = line.Offset + column - 1; // -1 porque o caret offset eh zero-based
+        if (TextEditor is not null) {
+            TextEditor.CaretOffset = line.Offset + column - 1;
+        }
     }
 
     [RelayCommand]

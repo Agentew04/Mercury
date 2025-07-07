@@ -8,7 +8,7 @@ public class FileOpenMessage
     public ProjectNode? ProjectNode { get; set; }
     
     /// <summary>
-    /// The path to the file to be opened.
+    /// The absolute path to the file to be opened.
     /// </summary>
     public string? Path { get; set; }
     

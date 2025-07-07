@@ -5,8 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Extensions.DependencyInjection;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
-using SAAE.Editor.ViewModels;
 using SAAE.Engine;
 using SAAE.Engine.Common;
 
@@ -15,20 +15,11 @@ namespace SAAE.Editor.Services;
 /// <summary>
 /// A service to read, write and manage projects.
 /// </summary>
+
 public class ProjectService {
 
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     private ProjectFile? currentProject;
-
-    private static bool PathEquals(string path1, string path2) {
-        StringComparison comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-        return string.Equals(Normalize(path1), Normalize(path2), comparison);
-
-        string Normalize(string p) {
-            return Path.GetFullPath(p)
-                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        }
-    }
     
     /// <summary>
     /// Returns the path to the most recent projects.
@@ -59,6 +50,8 @@ public class ProjectService {
             Async = true
         });
         
+#pragma warning disable IL2026
+
         System.Xml.Serialization.XmlSerializer serializer = new(typeof(ProjectFile));
         ProjectFile? project;
         try {
@@ -75,6 +68,8 @@ public class ProjectService {
             Console.WriteLine("A versao do projeto eh maior que a versao suportada! Atualize o programa.");
             return null;
         }
+        
+        #pragma warning restore IL2026
         
         project.OperatingSystem = OperatingSystemManager.GetAvailableOperatingSystems()
             .First(x => x.Name == project.OperatingSystemName);
@@ -97,8 +92,10 @@ public class ProjectService {
         
         project.OperatingSystemName = project.OperatingSystem.Name;
         
+        #pragma warning disable IL2026
         System.Xml.Serialization.XmlSerializer serializer = new(typeof(ProjectFile));
         serializer.Serialize(writer, project);
+        #pragma warning restore IL2026
     }
     
     public async Task<ProjectFile> CreateProjectAsync(string path, string name, OperatingSystemType os, Architecture isa) {

@@ -28,9 +28,6 @@
                   Classes="projectTree"
                   Margin="15"
                   SelectedItem="{Binding SelectedNode}">
-            <TreeView.Resources>
-                <conv:Converter x:Key="Conv"></conv:Converter>
-            </TreeView.Resources>
             <TreeView.ItemTemplate>
                 <TreeDataTemplate ItemsSource="{Binding Children}"
                                   x:DataType="model:ProjectNode">

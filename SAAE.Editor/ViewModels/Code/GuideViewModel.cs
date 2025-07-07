@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using SAAE.Editor.Extensions;
 
 namespace SAAE.Editor.Models;
 
@@ -39,5 +40,5 @@ public class UserPreferences {
     /// </summary>
     public List<ProjectAccess> RecentProjects { get; set; } = [];
 
-    public record ProjectAccess(string Path, DateTime LastOpen);
+    public record ProjectAccess(PathObject Path, DateTime LastOpen);
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
@@ -11,8 +12,11 @@ namespace SAAE.Editor.Models;
 /// A class that represents a project file 
 /// </summary>
 [XmlRoot("Project")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+// atributo acima eh necessario caso um membro nao seja referenciado. ele vai 
+// ser deletado pelo trimmer.
 public class ProjectFile {
-
+    
     /// <summary>
     /// The latest version available for project files. 
     /// </summary>

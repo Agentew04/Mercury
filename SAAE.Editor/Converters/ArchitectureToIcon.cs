@@ -39,21 +39,3 @@ public class ArchitectureToIconSource : IValueConverter{
         return arch;
     }
 }
-
-public class Converter : IValueConverter {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
-        if (value is null) {
-            return "value is null";
-        }
-        
-        if (value is not ICommand command) {
-            return "N eh cmd";
-        }
-
-        return command.GetType().Name;
-    }
-
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
-        throw new NotImplementedException();
-    }
-}

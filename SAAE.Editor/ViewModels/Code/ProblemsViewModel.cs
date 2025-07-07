@@ -38,11 +38,7 @@ public sealed partial class ProblemsViewModel : BaseViewModel
         Diagnostics.Clear();
         if (result.Diagnostics is not null)
         {
-            Diagnostics.AddRange(result.Diagnostics
-                .Select(x => {
-                    x.FilePath = System.IO.Path.GetFileName(x.FilePath);
-                    return x;
-                }));
+            Diagnostics.AddRange(result.Diagnostics);
         }
     }
 
