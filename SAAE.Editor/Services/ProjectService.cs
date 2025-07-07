@@ -74,12 +74,12 @@ public class ProjectService {
         project.OperatingSystem = OperatingSystemManager.GetAvailableOperatingSystems()
             .First(x => x.Name == project.OperatingSystemName);
 
-        project.ProjectPath = path;
+        project.ProjectPath = path.ToFilePath();
         return project;
     }
     
     private static void WriteProject(ProjectFile project) {
-        if (!project.ProjectPath.EndsWith(".asmproj")) {
+        if (project.ProjectPath.Extension != ".asmproj") {
             throw new ArgumentException("Project path must end with .asmproj");
         }
         if (!Directory.Exists(project.ProjectDirectory)) {
@@ -135,7 +135,7 @@ public class ProjectService {
     private void SetRecentAccess(ProjectFile project) {
         DateTime accessTime = DateTime.Now;
         project.LastAccessed = accessTime;
-        settingsService.Preferences.RecentProjects.RemoveAll(x => PathEquals(x.Path, project.ProjectPath));
+        settingsService.Preferences.RecentProjects.RemoveAll(x => x.Path.ToDirectoryPath().Equals(project.ProjectPath.ToDirectoryPath()));
         settingsService.Preferences.RecentProjects.Add(new UserPreferences.ProjectAccess(project.ProjectPath, accessTime));
     }
 
@@ -148,6 +148,11 @@ public class ProjectService {
             projectFile.OutputPath = "bin/";
             projectFile.OutputFile = "main.exe";
             projectFile.ProjectVersion = 2;
+            Console.WriteLine("Projeto atualizado para versao 2");
+        }
+
+        if (projectFile.ProjectVersion == 2)
+        {
             Console.WriteLine("Projeto atualizado para versao 2");
         }
         // preencher com novas versoes quando houver

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
+using SAAE.Editor.Extensions;
 using SAAE.Engine;
 using SAAE.Engine.Common;
 
@@ -20,7 +21,7 @@ public class ProjectFile {
     /// <summary>
     /// The latest version available for project files. 
     /// </summary>
-    public const int LatestProjectVersion = 2;
+    public const int LatestProjectVersion = 3;
     
     /// <summary>
     /// The project version that this file is using. If
@@ -29,20 +30,26 @@ public class ProjectFile {
     /// </summary>
     [XmlAttribute("Version")]
     public int ProjectVersion { get; set; } = LatestProjectVersion;
-    
+
+    #region Implicit Properties
+
     /// <summary>
     /// The path to the project file. It is understood that
     /// the directory the project path is in is the root directory
     /// of the project.
     /// </summary>
     [XmlIgnore]
-    public string ProjectPath { get; set; } = "";
+    public PathObject ProjectPath { get; set; }
 
     /// <summary>
     /// Returns the base directory of the project.
     /// </summary>
     [XmlIgnore]
-    public string ProjectDirectory => Path.GetDirectoryName(ProjectPath) ?? "";
+    public PathObject ProjectDirectory => ProjectPath.Path();
+
+    #endregion
+
+    #region Project Options
 
     /// <summary>
     /// The user given name for the project.
@@ -74,13 +81,25 @@ public class ProjectFile {
     /// </summary>
     [XmlElement("OperatingSystem")]
     public string OperatingSystemName { get; set; } = "";
+
+    #endregion
+
+    #region Files and Paths
+
+    /// <summary>
+    /// The folder where the source files are located. This is relative to
+    /// <see cref="ProjectDirectory"/>.
+    /// </summary>
+    [XmlElement("SourceDirectory")]
+    public PathObject SourceDirectory { get; set; } = "src/".ToDirectoryPath();
     
     /// <summary>
     /// The main entry point file of the project. It is this file
     /// that will be injected a '__start' label and .globl directive
     /// </summary>
     [XmlElement("EntryFile")]
-    public string EntryFile { get; set; } = "src/main.asm";
+    public PathObject EntryFile { get; set; } = "src/main.asm".ToFilePath();
+    
     
     /// <summary>
     /// A timestamp of when the project was last accessed.
@@ -90,15 +109,20 @@ public class ProjectFile {
     public DateTime LastAccessed { get; set; }
 
     /// <summary>
-    /// The folder where the binaries will be placed.
+    /// The folder where the binaries will be placed. Relative
+    /// to <see cref="ProjectDirectory"/>
     /// </summary>
     [XmlElement("OutputPath")]
-    public string OutputPath { get; set; } = "bin/";
+    public PathObject OutputPath { get; set; } = "bin/".ToDirectoryPath();
     
     /// <summary>
     /// The name of the generated binary file.
     /// </summary>
     /// <remarks>This is relative to <see cref="OutputPath"/>!</remarks>
     [XmlElement("OutputFile")]
-    public string OutputFile { get; set; } = "output.bin";
+    public PathObject OutputFile { get; set; } = "output.bin".ToFilePath();
+    
+    #endregion
+    
+
 }

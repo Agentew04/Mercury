@@ -40,5 +40,5 @@ public class UserPreferences {
     /// </summary>
     public List<ProjectAccess> RecentProjects { get; set; } = [];
 
-    public record ProjectAccess(PathObject Path, DateTime LastOpen);
+    public record ProjectAccess(string Path, DateTime LastOpen);
 }

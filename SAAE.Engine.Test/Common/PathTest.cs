@@ -188,21 +188,61 @@ public class PathTest {
     public void TestDirectorySerialization() {
         using MemoryStream ms = new();
         XmlSerializer serializer = new(typeof(PathObject));
-        string path = "folder1/folder2/file.txt";
-        PathObject obj = path.ToFilePath();
-        serializer.Serialize(ms, obj);
+        string path = "folder1/folder2/";
+        PathObject obj1 = path.ToDirectoryPath();
+        serializer.Serialize(ms, obj1);
 
         ms.Seek(0, SeekOrigin.Begin);
-        using StreamReader sr = new(ms, leaveOpen: true);
-        sr.ReadLine();
-        Console.WriteLine(sr.ReadToEnd());
-        sr.DiscardBufferedData();
+        using StreamReader reader = new(ms, leaveOpen: true);
+        Console.WriteLine(reader.ReadToEnd());
         ms.Seek(0, SeekOrigin.Begin);
-        PathObject? obj2 = (PathObject?)serializer.Deserialize(ms);
-        if (obj2 is null) {
+        PathObject? obj2N = (PathObject?)serializer.Deserialize(ms);
+        if (obj2N is null) {
             Assert.Fail();
             return;
         }
-        Assert.AreEqual(obj,obj2);
+        PathObject obj2 = obj2N.Value;
+        
+        Assert.AreEqual(obj1.IsDirectory, obj2.IsDirectory);
+        Assert.AreEqual(obj1.IsFile, obj2.IsFile);
+        Assert.AreEqual(obj1.IsAbsolute, obj2.IsAbsolute);
+        Assert.AreEqual(obj1.Filename, obj2.Filename);
+        Assert.AreEqual(obj1.Extension, obj2.Extension);
+        CollectionAssert.AreEqual(obj1.Parts.ToArray(), obj2.Parts.ToArray());
+    }
+    
+    [TestMethod]
+    public void TestFileSerialization() {
+        using MemoryStream ms = new();
+        XmlSerializer serializer = new(typeof(PathObject));
+        string path = "folder1/folder2/file.txt";
+        PathObject obj1 = path.ToFilePath();
+        serializer.Serialize(ms, obj1);
+
+        ms.Seek(0, SeekOrigin.Begin);
+        ms.Seek(0, SeekOrigin.Begin);
+        PathObject? obj2N = (PathObject?)serializer.Deserialize(ms);
+        if (obj2N is null) {
+            Assert.Fail();
+            return;
+        }
+        PathObject obj2 = obj2N.Value;
+        
+        Assert.AreEqual(obj1.IsDirectory, obj2.IsDirectory);
+        Assert.AreEqual(obj1.IsFile, obj2.IsFile);
+        Assert.AreEqual(obj1.IsAbsolute, obj2.IsAbsolute);
+        Assert.AreEqual(obj1.Filename, obj2.Filename);
+        Assert.AreEqual(obj1.Extension, obj2.Extension);
+        CollectionAssert.AreEqual(obj1.Parts.ToArray(), obj2.Parts.ToArray());
+    }
+
+    [TestMethod]
+    public void TestFilePath()
+    {
+        string filepath = "folder1/folder2/file.txt";
+        string dirpath = "folder1/folder2";
+        PathObject obj1 = filepath.ToFilePath();
+        PathObject obj2 = dirpath.ToDirectoryPath();
+        Assert.IsTrue(obj1.Path().Equals(obj2));
     }
 }

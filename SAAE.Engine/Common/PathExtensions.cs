@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace SAAE.Editor.Extensions;
 
@@ -46,8 +50,7 @@ public static class PathExtensions {
     }
 }
 
-// [Serializable]
-public readonly struct PathObject : ISerializable {
+public readonly struct PathObject : IXmlSerializable{
     
     /// <summary>
     /// The folder parts of this path.
@@ -88,13 +91,13 @@ public readonly struct PathObject : ISerializable {
         StringBuilder sb = new();
         if (IsAbsolute) {
             if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS()) {
-                sb.Append(Path.DirectorySeparatorChar);
+                sb.Append(System.IO.Path.DirectorySeparatorChar);
             } 
         }
 
         foreach(string part in Parts) {
             sb.Append(part);
-            sb.Append(Path.DirectorySeparatorChar);
+            sb.Append(System.IO.Path.DirectorySeparatorChar);
         }
 
         if (IsFile) {
@@ -104,24 +107,6 @@ public readonly struct PathObject : ISerializable {
         return sb.ToString();
     }
     
-    public PathObject(){}
-    
-    public PathObject(SerializationInfo info, StreamingContext context) : this() {
-        string s = info.GetString("value") ?? "";
-        PathObject o = (info.GetBoolean("dir")) ? s.ToDirectoryPath() : s.ToFilePath();
-        Parts = o.Parts;
-        IsAbsolute = o.IsAbsolute;
-        IsDirectory = o.IsDirectory;
-        IsFile = o.IsFile;
-        Filename = o.Filename;
-        Extension = o.Extension;
-    }
-    
-    public void GetObjectData(SerializationInfo info, StreamingContext context) {
-        info.AddValue("value", ToString());
-        info.AddValue("dir", IsDirectory);
-    }
-
     public bool Equals(PathObject? other) {
         if (other is null) {
             return false;
@@ -133,7 +118,7 @@ public readonly struct PathObject : ISerializable {
         if (o.IsDirectory != IsDirectory) return false;
         if (o.IsFile != IsFile) return false;
         if (IsFile && o.Filename != Filename && o.Extension != Extension) return false;
-        return Parts.Equals(other.Value.Parts);
+        return Parts.SequenceEqual(o.Parts);
     }
 
     public PathObject Folder(string newPart) => Folders(newPart);
@@ -167,7 +152,7 @@ public readonly struct PathObject : ISerializable {
     }
 
     public static PathObject operator +(PathObject lhs, PathObject rhs) => lhs.Append(rhs);
-
+    
     public PathObject File(string filename) {
         if (!IsDirectory || IsFile) {
             throw new NotSupportedException("Cannot append a file to a file path");
@@ -185,5 +170,46 @@ public readonly struct PathObject : ISerializable {
             IsDirectory = false,
             Extension = extension
         };
+    }
+
+    public PathObject Path()
+    {
+        if (IsDirectory || !IsFile)
+        {
+            return this;
+        }
+        if (string.IsNullOrEmpty(Filename))
+        {
+            throw new NotSupportedException("Cannot get path from a file without a name");
+        }
+
+        return new PathObject
+        {
+            IsDirectory = true,
+            IsFile = false,
+            Filename = string.Empty,
+            Extension = string.Empty,
+            IsAbsolute = IsAbsolute,
+            Parts = Parts
+        };
+    }
+
+    public XmlSchema? GetSchema() => null!;
+
+    public void ReadXml(XmlReader reader)
+    {
+        bool isDir = bool.Parse(reader.MoveToAttribute("directory") ? reader.Value : "false");
+        string path = reader.MoveToAttribute("path") ? reader.Value : string.Empty;
+        reader.Skip();
+
+        PathObject obj = isDir ? path.ToDirectoryPath() : path.ToFilePath();
+
+        Unsafe.AsRef(in this) = obj;
+    }
+
+    public void WriteXml(XmlWriter writer)
+    {
+        writer.WriteAttributeString("directory", IsDirectory.ToString());
+        writer.WriteAttributeString("path", ToString());
     }
 } 
