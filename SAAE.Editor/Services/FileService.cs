@@ -6,29 +6,28 @@ using System.IO;
 using System.Linq;
 using AvaloniaEdit.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
 using SAAE.Editor.Models.Compilation;
 
 namespace SAAE.Editor.Services;
 
-public class FileService {
+public class FileService : BaseService<FileService> {
 
     private readonly Guid stdlibCategoryId = Guid.Parse("408494E4-76DD-434C-97FF-6C40A4E9ED27");
     private readonly Guid projectCategoryId = Guid.Parse("C03D266B-3D00-486A-9517-D8A2F3065C53");
     
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
+    private readonly ILogger<FileService> logger = GetLogger();
     
     private readonly Dictionary<Guid, ProjectNodeType> nodeTypes = [];
-    private readonly Dictionary<Guid, string> relativePaths = [];
+    private readonly Dictionary<Guid, PathObject> relativePaths = [];
     private readonly Dictionary<Guid, ProjectNode> nodeAcceleration = [];
     private readonly Dictionary<Guid, bool> isStdlibNode = [];
     private List<ProjectNode> internalTree = [];
     
-    public FileService() {
-        
-    }
-
     private void ResetCache() {
         nodeTypes.Clear();
         relativePaths.Clear();
@@ -51,9 +50,10 @@ public class FileService {
             nodes.Add(GetStdLibNode());
         }
 
-        List<ProjectNode> projectFiles = GetFolderNodes(project.ProjectDirectory);
+        List<ProjectNode> projectFiles = GetFolderNodes(project.ProjectDirectory + project.SourceDirectory, "".ToDirectoryPath());
         // Aviso: a localizacao dos nos de categoria NAO vao ser atualizadas
         // na troca de lingua desse modo!
+        // Resolver: #18
         nodes.Add(new ProjectNode {
             Name = Localization.ProjectResources.ProjectFilesValue,
             Type = ProjectNodeType.Category,
@@ -65,35 +65,27 @@ public class FileService {
         return nodes;
     }
 
-    public string GetRelativePath(Guid nodeId) {
+    public PathObject GetRelativePath(Guid nodeId) {
         if (nodeId == stdlibCategoryId || nodeId == projectCategoryId) {
-            return "";
+            return default;
         }
-        bool result = relativePaths.TryGetValue(nodeId, out string? relativePath);
-        if (!result) {
-            return "";
-        }
-        Debug.Assert(relativePath != null);
-        return relativePath;
+        bool result = relativePaths.TryGetValue(nodeId, out PathObject relativePath);
+        return !result ? default : relativePath;
     }
 
-    public string GetAbsolutePath(Guid nodeId) {
-        string relative = GetRelativePath(nodeId);
+    public PathObject GetAbsolutePath(Guid nodeId) {
+        PathObject relative = GetRelativePath(nodeId);
         ProjectFile? project = projectService.GetCurrentProject();
         if (project is null) {
-            return "";
+            return default;
         }
 
-        // Path.Combine nao junta se o segundo for 'absoluto' (comeca com barra)
-        if (relative.StartsWith('\\') || relative.StartsWith('/')) {
-            relative = relative[1..];
+        if (isStdlibNode[nodeId]) {
+            PathObject stdlib = settingsService.Preferences.StdLibPath.ToDirectoryPath();
+            Debug.Assert(stdlib.IsAbsolute, "Caminho da StdLib nas configs nao era absoluto.");
+            return stdlib + relative;
         }
-
-        if (!isStdlibNode[nodeId]) {
-            return Path.Combine(project.ProjectDirectory, relative);
-        }
-        // eh std lib
-        return Path.Combine(settingsService.Preferences.StdLibPath, relative);
+        return project.ProjectDirectory + project.SourceDirectory + relative;
     }
 
     public void RegisterNode(ProjectNode father, ProjectNode node) {
@@ -101,19 +93,17 @@ public class FileService {
             node.Id = Guid.NewGuid();
         }
         
-        string fatherPath = relativePaths[father.Id];
+        PathObject fatherPath = relativePaths[father.Id];
         if (father.Type == ProjectNodeType.Folder) {
             // node eh subdir de father
-            relativePaths[node.Id] = fatherPath + '/' + node.Name;
+            relativePaths[node.Id] = fatherPath.Folder(node.Name);
         }else if (father.Type == ProjectNodeType.Category) {
             // esta na root do projeto
-            relativePaths[node.Id] = node.Name;
+            relativePaths[node.Id] = node.Name.ToFilePath();
         }
         else{
             // soh eh filho logico, o path de node eh o dir de father
-            string? dir = Path.GetDirectoryName(fatherPath);
-            Debug.Assert(dir != null, "dir != null (RegisterNode)");
-            relativePaths[node.Id] = dir + '/' + node.Name;
+            relativePaths[node.Id] = fatherPath.File(node.Name);
         }
 
         nodeTypes[node.Id] = node.Type;
@@ -142,8 +132,8 @@ public class FileService {
             return new CompilationInput();
         }
         List<CompilationFile> files = [];
-        string entryPoint = project.EntryFile;
-        foreach ((Guid id, string path) in relativePaths)
+        PathObject entryPoint = project.EntryFile;
+        foreach ((Guid id, PathObject path) in relativePaths)
         {
             if (nodeTypes[id] != ProjectNodeType.AssemblyFile)
             {
@@ -152,7 +142,7 @@ public class FileService {
 
             files.Add(new CompilationFile(
                 filepath: GetAbsolutePath(id),
-                entryPoint: path == entryPoint));
+                entryPoint: path.Equals(entryPoint)));
         }
 
         if (!files.Exists(x => x.IsEntryPoint))
@@ -173,7 +163,7 @@ public class FileService {
             IsReadOnly = true
         };
 
-        List<ProjectNode> children = GetFolderNodes(settingsService.Preferences.StdLibPath, isStdLib: true);
+        List<ProjectNode> children = GetFolderNodes(settingsService.Preferences.StdLibPath.ToDirectoryPath(), "".ToDirectoryPath(), isStdLib: true);
         if (children.RemoveAll(x => x.Name == "version.json") != 1) {
             Debug.Fail("StandardLibrary nao tinha arquivo chamado version.json na root!");
         }
@@ -187,9 +177,9 @@ public class FileService {
         return root;
     }
 
-    private List<ProjectNode> GetFolderNodes(string folder, string currentPath = "", ProjectNode parentReference = null!,
+    private List<ProjectNode> GetFolderNodes(PathObject folder, PathObject currentPath, ProjectNode parentReference = null!,
         bool isStdLib = false) {
-        IEnumerable<string> entries = Directory.EnumerateFileSystemEntries(folder);
+        IEnumerable<string> entries = Directory.EnumerateFileSystemEntries(folder.ToString());
         List<ProjectNode> nodes = [];
         foreach (string entry in entries) {
             bool isFile = File.Exists(entry);
@@ -217,7 +207,9 @@ public class FileService {
             }else if(isDirectory) {
                 string folderName = new DirectoryInfo(entry).Name;
 
-                if (currentPath == "" && folderName == projectService.GetCurrentProject()!.OutputPath[..^1])
+                // pula pasta de output bin/
+                // isso n vai funcionar se o user mudar a bin pra uma nested!
+                if (currentPath.Parts.Length == 0 && folderName == projectService.GetCurrentProject()!.OutputPath.Parts[0])
                 {
                     continue;
                 }
@@ -229,8 +221,8 @@ public class FileService {
                     ParentReference = new WeakReference<ProjectNode>(parentReference)
                 };
                 node.Children = new ObservableCollection<ProjectNode>(GetFolderNodes(
-                    folder: entry,
-                    currentPath: currentPath + (currentPath != string.Empty ? '/' : string.Empty) + folderName, 
+                    folder: folder.Folder(Path.GetFileName(entry)),
+                    currentPath: currentPath.Folder(folderName), 
                     parentReference: node,
                     isStdLib: isStdLib));
                 nodes.Add(node);
@@ -243,7 +235,7 @@ public class FileService {
                 continue;
             }
             // cache node info
-            relativePaths[node.Id] = currentPath + (currentPath != string.Empty ? '/' : string.Empty) + node.Name;
+            relativePaths[node.Id] = isFile ? currentPath.File(node.Name) : currentPath.Folder(node.Name);
             nodeTypes[node.Id] = node.Type;
             nodeAcceleration[node.Id] = node;
             isStdlibNode[node.Id] = isStdLib;

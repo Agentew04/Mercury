@@ -12,7 +12,7 @@ using SAAE.Editor.Services;
 
 namespace SAAE.Editor.ViewModels.Code;
 
-public partial class ProjectViewModel : BaseViewModel {
+public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
 
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly FileService fileService = App.Services.GetRequiredService<FileService>();

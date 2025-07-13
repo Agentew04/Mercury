@@ -11,6 +11,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 using SAAE.Editor.Views;
@@ -21,16 +22,16 @@ namespace SAAE.Editor.ViewModels;
 
 public partial class ProjectFileVisualItem : ObservableObject {
 
-    public ProjectFileVisualItem(ProjectFile project, ICommand openCommand) {
+    public ProjectFileVisualItem(ProjectFile project, IRelayCommand<PathObject> openCommand) {
         ProjectFile = project;
         OpenCommand = openCommand;
     }
     
     [ObservableProperty] private ProjectFile projectFile;
-    [ObservableProperty] private ICommand openCommand;
+    [ObservableProperty] private IRelayCommand<PathObject> openCommand;
 }
 
-public partial class ProjectSelectionViewModel : BaseViewModel {
+public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionViewModel> {
 
     public ProjectSelectionView view = null!; // isso eh feio mas nao quero fazer um role pro filepicker
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
@@ -105,7 +106,7 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
         filteredRecentProjects.Clear();
         foreach (ProjectFileVisualItem proj in allRecentProjects) {
             bool nameCheck = proj.ProjectFile.ProjectName.Contains(value, StringComparison.OrdinalIgnoreCase);
-            bool pathCheck = proj.ProjectFile.ProjectPath.Contains(value, StringComparison.OrdinalIgnoreCase);
+            bool pathCheck = proj.ProjectFile.ProjectPath.Parts.Any(x => x.Contains(value, StringComparison.OrdinalIgnoreCase));
             
             if (nameCheck || pathCheck) {
                 filteredRecentProjects.Add(proj);
@@ -191,12 +192,12 @@ public partial class ProjectSelectionViewModel : BaseViewModel {
         }
 
         string path = result[0].Path.AbsolutePath;
-        await OpenProject(path);
+        await OpenProject(path.ToFilePath());
     }
     
     [RelayCommand]
-    private async Task OpenProject(string path) {
-        if (!path.EndsWith(".asmproj")) {
+    private async Task OpenProject(PathObject path) {
+        if (path.Extension != ".asmproj") {
             // esse check nao precisaria, mas melhor garantir
             return;
         }

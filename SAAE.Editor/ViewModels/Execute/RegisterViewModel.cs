@@ -7,13 +7,15 @@ using System.Runtime.CompilerServices;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SAAE.Editor.Services;
 using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Editor.ViewModels.Execute;
 
-public partial class RegisterViewModel : BaseViewModel
-{
+public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
+    
+    private readonly ILogger<RegisterViewModel> logger = GetLogger();
     // private readonly ExecuteService _executeService = App.Services.GetRequiredService<ExecuteService>();
     //
     // public RegisterViewModel()

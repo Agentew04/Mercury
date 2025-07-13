@@ -1,5 +1,5 @@
 ﻿namespace SAAE.Editor.Services;
 
-public class GrammarService {
+public class GrammarService : BaseService<GrammarService> {
     
 }

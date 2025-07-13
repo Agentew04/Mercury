@@ -22,7 +22,7 @@ using MdInline = Markdig.Syntax.Inlines.Inline;
 
 namespace SAAE.Editor.Services;
 
-public sealed partial class GuideService : IDisposable {
+public sealed partial class GuideService : BaseService<GuideService>, IDisposable {
 
     private bool isInitialized = false;
     

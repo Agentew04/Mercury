@@ -20,7 +20,7 @@ using Version = System.Version;
 
 namespace SAAE.Editor.ViewModels;
 
-public partial class SplashScreenViewModel : BaseViewModel {
+public partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel> {
 
     private const string CompilerGithubUrl = "https://github.com/Agentew04/SAAE/raw/refs/heads/clang-bin/";
     private const string StdlibVersionGithubUrl = "https://github.com/Agentew04/SAAE/raw/refs/heads/stdlib/version.json";

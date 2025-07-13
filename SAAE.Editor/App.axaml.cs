@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 using SAAE.Editor.Views;
@@ -55,7 +56,7 @@ public class App : Application {
 
             if (asmProjArg is not null) {
                 var projectService = Services.GetRequiredService<ProjectService>();
-                ProjectFile? project = await projectService.OpenProject(asmProjArg);
+                ProjectFile? project = await projectService.OpenProject(asmProjArg.ToFilePath());
                 if(project is null){
                     asmProjArg = null;
                 }
@@ -72,7 +73,7 @@ public class App : Application {
                     directoryArg = null;
                 }
                 else {
-                    ProjectFile? project = await projectService.OpenProject(file);
+                    ProjectFile? project = await projectService.OpenProject(file.ToFilePath());
                     if(project is null){
                         directoryArg = null;
                     }

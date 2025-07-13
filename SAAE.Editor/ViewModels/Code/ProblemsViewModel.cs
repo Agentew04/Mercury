@@ -14,9 +14,8 @@ using SAAE.Engine;
 
 namespace SAAE.Editor.ViewModels.Code;
 
-public sealed partial class ProblemsViewModel : BaseViewModel
-{   
-    private readonly ILogger<ProblemsViewModel> logger = App.Services.GetRequiredService<ILogger<ProblemsViewModel>>();
+public sealed partial class ProblemsViewModel : BaseViewModel<ProblemsViewModel> {
+    private readonly ILogger<ProblemsViewModel> logger = GetLogger();
     
     public ProblemsViewModel()
     {

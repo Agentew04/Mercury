@@ -17,11 +17,11 @@ namespace SAAE.Editor.Services;
 /// Service responsible to enable controls and the application to interact
 /// with the engine to execute code. 
 /// </summary>
-public sealed class ExecuteService : IDisposable
+public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
 {
     private Machine? currentMachine;
     private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
-    private readonly ILogger<ExecuteService> logger = App.Services.GetRequiredService<ILogger<ExecuteService>>();
+    private readonly ILogger<ExecuteService> logger = GetLogger();
 
     public ExecuteService()
     {

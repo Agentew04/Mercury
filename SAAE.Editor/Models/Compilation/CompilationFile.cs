@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Services;
 
 namespace SAAE.Editor.Models.Compilation;
@@ -16,9 +17,9 @@ public struct CompilationFile
     /// </summary>
     /// <param name="filepath">The path of the file relative to <see cref="ProjectFile.ProjectDirectory"/></param>
     /// <param name="entryPoint">If this file is an entry point for the program.</param>
-    public CompilationFile(string filepath, bool entryPoint = false)
+    public CompilationFile(PathObject filepath, bool entryPoint = false)
     {
-        FullPath = filepath;
+        Path = filepath;
         IsEntryPoint = entryPoint;
     }
     
@@ -26,7 +27,7 @@ public struct CompilationFile
     /// The absolute path of the file to be compiled. Cannot be relative because it can't differentiate
     /// between project files and stdlib files(live in shared directory).
     /// </summary>
-    public string FullPath { get; private set; }
+    public PathObject Path { get; private set; }
 
     /// <summary>
     /// The hash of the contents of this file. It is calculated by
@@ -53,7 +54,7 @@ public struct CompilationFile
             StreamWriter writer = new(ms, leaveOpen: true);
             writer.Write(entryPointPrefix);
             writer.Close();
-            Stream fs = File.OpenRead(FullPath);
+            Stream fs = File.OpenRead(Path.ToString());
             fs.CopyTo(ms);
             fs.Close();
             using var sha256 = System.Security.Cryptography.SHA256.Create();
@@ -64,7 +65,7 @@ public struct CompilationFile
         }
         else
         {
-            using FileStream stream = File.OpenRead(FullPath);
+            using FileStream stream = File.OpenRead(Path.ToString());
             using var sha256 = System.Security.Cryptography.SHA256.Create();
             byte[] hash = sha256.ComputeHash(stream);
             Hash = hash;

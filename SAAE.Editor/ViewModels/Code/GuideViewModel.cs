@@ -8,7 +8,7 @@ using SAAE.Editor.Services;
 
 namespace SAAE.Editor.ViewModels.Code;
 
-public sealed partial class GuideViewModel : BaseViewModel {
+public sealed partial class GuideViewModel : BaseViewModel<GuideViewModel> {
 
     private readonly GuideService _guideService = App.Services.GetService<GuideService>()!;
     

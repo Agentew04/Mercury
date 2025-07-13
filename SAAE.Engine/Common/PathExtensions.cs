@@ -44,8 +44,11 @@ public static class PathExtensions {
         }
         
         int lastIndex = path.LastIndexOfAny([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar]);
-        PathObject folder = path[..lastIndex].ToDirectoryPath();
         string file = Path.GetFileName(path);
+        if (lastIndex == -1) {
+            return "".ToDirectoryPath().File(file);
+        }
+        PathObject folder = path[..lastIndex].ToDirectoryPath();
         return folder.File(file);
     }
 }
@@ -117,7 +120,7 @@ public readonly struct PathObject : IXmlSerializable{
         if (o.IsAbsolute != IsAbsolute) return false;
         if (o.IsDirectory != IsDirectory) return false;
         if (o.IsFile != IsFile) return false;
-        if (IsFile && o.Filename != Filename && o.Extension != Extension) return false;
+        if (IsFile && (o.Filename != Filename || o.Extension != Extension)) return false;
         return Parts.SequenceEqual(o.Parts);
     }
 
@@ -152,6 +155,8 @@ public readonly struct PathObject : IXmlSerializable{
     }
 
     public static PathObject operator +(PathObject lhs, PathObject rhs) => lhs.Append(rhs);
+    public static bool operator ==(PathObject lhs, PathObject rhs) => lhs.Equals(rhs);
+    public static bool operator !=(PathObject lhs, PathObject rhs) => !lhs.Equals(rhs);
     
     public PathObject File(string filename) {
         if (!IsDirectory || IsFile) {

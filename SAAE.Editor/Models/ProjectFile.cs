@@ -95,10 +95,11 @@ public class ProjectFile {
     
     /// <summary>
     /// The main entry point file of the project. It is this file
-    /// that will be injected a '__start' label and .globl directive
+    /// that will be injected a '__start' label and .globl directive.
     /// </summary>
+    /// <remarks>Relative to <see cref="SourceDirectory"/></remarks>
     [XmlElement("EntryFile")]
-    public PathObject EntryFile { get; set; } = "src/main.asm".ToFilePath();
+    public PathObject EntryFile { get; set; } = "main.asm".ToFilePath();
     
     
     /// <summary>

@@ -8,12 +8,13 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
 using SAAE.Editor.Models.Compilation;
 
 namespace SAAE.Editor.Services;
 
-public partial class MipsCompiler : ICompilerService {
+public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService {
 
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
@@ -38,33 +39,33 @@ public partial class MipsCompiler : ICompilerService {
         }
         
         // 1. Calcular onde eh o diretorio de compilacao
-        string compilationDirectory = Path.Combine(project.ProjectDirectory, project.OutputPath);
-        Directory.CreateDirectory(compilationDirectory);
+        PathObject compilationDirectory = project.ProjectDirectory + project.OutputPath;
+        Directory.CreateDirectory(compilationDirectory.ToString());
         
         // 2. Calcular id da compilacao
         Guid compilationId = input.CalculateId(EntryPointPreambule);
 
         // 3. Mover entry point modificado para o diretorio de compilacao
         CompilationFile entryPoint = input.Files.First(x => x.IsEntryPoint);
-        string entryPointPath = Path.Combine(compilationDirectory, Path.GetFileName(entryPoint.FullPath));
+        string entryPointPath = compilationDirectory + entryPoint.Path.FullFileName;
         FileStream fsOut = File.Open(entryPointPath, FileMode.Create, FileAccess.Write);
         // adicionar preambulo do entry point
         StreamWriter swout = new(fsOut, leaveOpen: true);
         await swout.WriteAsync(EntryPointPreambule);
         swout.Close();
         // completa com arquivo original
-        FileStream fsIn = File.Open(entryPoint.FullPath, FileMode.Open, FileAccess.Read);
+        FileStream fsIn = File.Open(entryPoint.Path.ToString(), FileMode.Open, FileAccess.Read);
         await fsIn.CopyToAsync(fsOut);
         fsIn.Close();
         fsOut.Close();
         
         
         // 4. Compilar
-        string exePath = Path.Combine(compilationDirectory, project.OutputFile);
+        PathObject exePath = compilationDirectory + project.OutputFile;
         List<string> paths = input.Files.Where(x => !x.IsEntryPoint)
-            .Select(x => x.FullPath).ToList();
+            .Select(x => x.Path.ToString()).ToList();
         paths.Add(entryPointPath);
-        string command = GenerateCommand(paths, exePath);
+        string command = GenerateCommand(paths, exePath.ToString());
         
         using MemoryStream diagMs = new();
         CompilationError commandError = await RunCommand(command, TimeSpan.FromMilliseconds(1000), diagMs);
@@ -82,7 +83,7 @@ public partial class MipsCompiler : ICompilerService {
             }; 
         }
         
-        List<Diagnostic> diagnostics = ParseDiagnostics(diagMs);
+        List<Diagnostic> diagnostics = ParseDiagnostics(diagMs, entryPointPath, entryPoint.Path.ToString());
 
         if (commandError == CompilationError.CompilationError)
         {
@@ -102,7 +103,7 @@ public partial class MipsCompiler : ICompilerService {
             Id = compilationId,
             Error = CompilationError.None,
             Diagnostics = diagnostics,
-            OutputPath = exePath
+            OutputPath = exePath.ToString()
         };
     }
 
@@ -133,7 +134,7 @@ public partial class MipsCompiler : ICompilerService {
     }
 
     // talvez esse codigo repita para todos os compilers que usem clang!
-    private static List<Diagnostic> ParseDiagnostics(Stream stream) {
+    private static List<Diagnostic> ParseDiagnostics(Stream stream, string generatedEntryPointPath, string originalEntryPointPath) {
         List<Diagnostic> diagnostics = [];
 
         using StreamReader reader = new(stream, leaveOpen: true);
@@ -155,6 +156,10 @@ public partial class MipsCompiler : ICompilerService {
                 continue;
             }
             string path = match.Groups["path"].Value;
+            bool isGen = path == generatedEntryPointPath; 
+            if (isGen) {
+                path = originalEntryPointPath;
+            }
             DiagnosticType type = match.Groups["type"].Value switch {
                 "error" => DiagnosticType.Error,
                 "warning" => DiagnosticType.Warning,
@@ -163,6 +168,10 @@ public partial class MipsCompiler : ICompilerService {
             string message = match.Groups["message"].Value;
             int lineNumber = int.Parse(match.Groups["line"].Value);
             int columnNumber = int.Parse(match.Groups["column"].Value);
+
+            if (isGen) {
+                lineNumber -= EntryPointPreambule.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Length;
+            }
 
             Diagnostic d = new() {
                 FilePath = path,

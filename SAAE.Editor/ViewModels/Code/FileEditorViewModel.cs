@@ -14,6 +14,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
@@ -22,12 +23,12 @@ using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Editor.ViewModels.Code;
 
-public partial class FileEditorViewModel : BaseViewModel {
+public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
 
     private readonly FileService fileService = App.Services.GetRequiredService<FileService>();
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
-    private readonly ILogger<FileEditorViewModel> logger = App.Services.GetRequiredService<ILogger<FileEditorViewModel>>();
+    private readonly ILogger<FileEditorViewModel> logger = GetLogger();
     
     public FileEditorViewModel() {
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
@@ -68,14 +69,14 @@ public partial class FileEditorViewModel : BaseViewModel {
 
     private void OnFileOpen(object sender, FileOpenMessage message) {
         // funcao chamada quando o usuario abre um arquivo pela aba do projeto
-        string path;
+        PathObject path;
         int? line = message.LineNumber;
         int? column = message.ColumnNumber;
         if (message.ProjectNode is not null)
         {
             // abriu do project view
             path = fileService.GetAbsolutePath(message.ProjectNode.Id);
-            if (path == string.Empty)
+            if (path == default)
             {
                 logger.LogWarning("Nao foi possivel encontrar o path do arquivo {FileName}/{FileId}", message.ProjectNode.Name, message.ProjectNode.Id);
                 return;
@@ -84,7 +85,7 @@ public partial class FileEditorViewModel : BaseViewModel {
         else
         {
             // abriu do problems view
-            path = message.Path!;
+            path = message.Path!.ToFilePath();
         }
         
         // verifica se o arquivo ja esta aberto
@@ -95,11 +96,11 @@ public partial class FileEditorViewModel : BaseViewModel {
             return;
         }
         
-        string name = Path.GetFileName(path);
+        string name = path.FullFileName;
 
         // message.ProjectNode?.IsEffectiveReadOnly ?? false pois a stdlib nunca deveria emitir um warning ou erro!!!
         OpenFile file = new(name, path, CloseTabCommand, message.ProjectNode?.IsEffectiveReadOnly ?? false);
-        file.TextDocument.Text = File.ReadAllText(path);
+        file.TextDocument.Text = File.ReadAllText(path.ToString());
         OpenFiles.Add(file);
         
         ChangeTab(file, line, column);
@@ -191,7 +192,7 @@ public partial class FileEditorViewModel : BaseViewModel {
                 continue;
             }
             changedFiles++;
-            await File.WriteAllTextAsync(file.Path, file.TextDocument.Text);   
+            await File.WriteAllTextAsync(file.Path.ToString(), file.TextDocument.Text);   
         }
 
         if (changedFiles > 0)
@@ -232,7 +233,7 @@ public partial class FileEditorViewModel : BaseViewModel {
         if (!file.IsReadonly)
         {
             // salva o conteudo no disco
-            File.WriteAllText(file.Path, file.TextDocument.Text);
+            File.WriteAllText(file.Path.ToString(), file.TextDocument.Text);
         }
         
         if (selectedIndex == index)
@@ -265,7 +266,7 @@ public partial class OpenFile : ObservableObject
     
     [ObservableProperty] private string filename;
 
-    [ObservableProperty] private string path;
+    [ObservableProperty] private PathObject path;
     
     public IRelayCommand<OpenFile> CloseFileCommand { get; init; }
     
@@ -273,7 +274,7 @@ public partial class OpenFile : ObservableObject
 
     [ObservableProperty] private bool isActive;
     
-    public OpenFile(string filename, string path, IRelayCommand<OpenFile> closeFileCommand, bool isReadonly)
+    public OpenFile(string filename, PathObject path, IRelayCommand<OpenFile> closeFileCommand, bool isReadonly)
     {
         this.filename = filename;
         this.path = path;

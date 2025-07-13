@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
 using SAAE.Engine;
@@ -16,10 +17,11 @@ namespace SAAE.Editor.Services;
 /// A service to read, write and manage projects.
 /// </summary>
 
-public class ProjectService {
+public class ProjectService : BaseService<ProjectService> {
 
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     private ProjectFile? currentProject;
+    private readonly ILogger<ProjectService> logger = GetLogger();
     
     /// <summary>
     /// Returns the path to the most recent projects.
@@ -30,24 +32,23 @@ public class ProjectService {
         // usar foreach normal?
         // azar, nao deve ter performance ruim nem rodar toda hora
         return recent
-            .Select(x => (Project: ReadProject(x.Path), LastAccess: x.LastOpen))
+            .Select(x => (Project: ReadProject(x.Path.ToFilePath()), LastAccess: x.LastOpen))
             .Where(x => x.Project is not null)
             .ForEach(x => x.Project!.LastAccessed = x.LastAccess)
             .Select(x => x.Project!)
             .ToList();
     }
 
-    private static ProjectFile? ReadProject(string path) {
-        if (!path.EndsWith(".asmproj")) {
+    private static ProjectFile? ReadProject(PathObject path) {
+        if (path.Extension != ".asmproj") {
             return null;
         }
         
-        if (!File.Exists(path)) {
+        if (!File.Exists(path.ToString())) {
             return null;
         }
         
-        using var reader = XmlReader.Create(path, new XmlReaderSettings {
-            Async = true
+        using var reader = XmlReader.Create(path.ToString(), new XmlReaderSettings {
         });
         
 #pragma warning disable IL2026
@@ -74,7 +75,7 @@ public class ProjectService {
         project.OperatingSystem = OperatingSystemManager.GetAvailableOperatingSystems()
             .First(x => x.Name == project.OperatingSystemName);
 
-        project.ProjectPath = path.ToFilePath();
+        project.ProjectPath = path;
         return project;
     }
     
@@ -82,10 +83,8 @@ public class ProjectService {
         if (project.ProjectPath.Extension != ".asmproj") {
             throw new ArgumentException("Project path must end with .asmproj");
         }
-        if (!Directory.Exists(project.ProjectDirectory)) {
-            Directory.CreateDirectory(project.ProjectDirectory);
-        }
-        using var writer = XmlWriter.Create(project.ProjectPath, new XmlWriterSettings() {
+        Directory.CreateDirectory(project.ProjectDirectory.ToString());
+        using var writer = XmlWriter.Create(project.ProjectPath.ToString(), new XmlWriterSettings() {
             Indent = true,
             IndentChars = "    "
         });
@@ -101,8 +100,11 @@ public class ProjectService {
     public async Task<ProjectFile> CreateProjectAsync(string path, string name, OperatingSystemType os, Architecture isa) {
         ProjectFile project = new() {
             ProjectName = name,
-            ProjectPath = path,
-            EntryFile = "src/main.asm",
+            ProjectPath = path.ToFilePath(),
+            EntryFile = "main.asm".ToFilePath(),
+            SourceDirectory = "src/".ToDirectoryPath(),
+            OutputPath = "bin/".ToDirectoryPath(),
+            OutputFile = $"{name}.elf".ToFilePath(),
             OperatingSystem = os,
             OperatingSystemName = os.Name,
             ProjectVersion = ProjectFile.LatestProjectVersion,
@@ -110,15 +112,22 @@ public class ProjectService {
             Architecture = isa
         };
         WriteProject(project);
-        // get directory from filepath
-        Directory.CreateDirectory(Path.Combine(project.ProjectDirectory, "src"));
-        await File.WriteAllTextAsync(Path.Combine(project.ProjectDirectory, project.EntryFile), "");
+        // create folder structure
+        string srcDir = project.ProjectDirectory.Append(project.SourceDirectory).ToString();
+        string binDir = project.ProjectDirectory.Append(project.OutputPath).ToString();
+        string entryFile = project.ProjectDirectory.Append(project.SourceDirectory).Append(project.EntryFile).ToString();
+        logger.LogInformation("Creating directory: {dir}", srcDir);
+        Directory.CreateDirectory(srcDir);
+        logger.LogInformation("Creating directory: {dir}", binDir);
+        Directory.CreateDirectory(binDir);
+        logger.LogInformation("Creating file: {file}", entryFile);
+        await File.WriteAllTextAsync(entryFile, "");
         SetRecentAccess(project);
         await settingsService.SaveSettings();
         return project;
     }
 
-    public async Task<ProjectFile?> OpenProject(string path) {
+    public async Task<ProjectFile?> OpenProject(PathObject path) {
         ProjectFile? project = ReadProject(path);
         if (project is null) {
             return null;
@@ -135,8 +144,8 @@ public class ProjectService {
     private void SetRecentAccess(ProjectFile project) {
         DateTime accessTime = DateTime.Now;
         project.LastAccessed = accessTime;
-        settingsService.Preferences.RecentProjects.RemoveAll(x => x.Path.ToDirectoryPath().Equals(project.ProjectPath.ToDirectoryPath()));
-        settingsService.Preferences.RecentProjects.Add(new UserPreferences.ProjectAccess(project.ProjectPath, accessTime));
+        settingsService.Preferences.RecentProjects.RemoveAll(x => x.Path.ToFilePath().Equals(project.ProjectPath));
+        settingsService.Preferences.RecentProjects.Add(new UserPreferences.ProjectAccess(project.ProjectPath.ToString(), accessTime));
     }
 
     private bool UpdateProject(ProjectFile projectFile) {
@@ -145,14 +154,14 @@ public class ProjectService {
         }
         
         if(projectFile.ProjectVersion == 1) {
-            projectFile.OutputPath = "bin/";
-            projectFile.OutputFile = "main.exe";
+            projectFile.OutputPath = "bin/".ToDirectoryPath();
+            projectFile.OutputFile = "main.exe".ToFilePath();
             projectFile.ProjectVersion = 2;
             Console.WriteLine("Projeto atualizado para versao 2");
         }
 
-        if (projectFile.ProjectVersion == 2)
-        {
+        if (projectFile.ProjectVersion == 2) {
+            projectFile.SourceDirectory = "src/".ToDirectoryPath();
             Console.WriteLine("Projeto atualizado para versao 2");
         }
         // preencher com novas versoes quando houver
