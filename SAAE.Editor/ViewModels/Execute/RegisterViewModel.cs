@@ -15,7 +15,6 @@ namespace SAAE.Editor.ViewModels.Execute;
 
 public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
     
-    private readonly ILogger<RegisterViewModel> logger = GetLogger();
     // private readonly ExecuteService _executeService = App.Services.GetRequiredService<ExecuteService>();
     //
     // public RegisterViewModel()

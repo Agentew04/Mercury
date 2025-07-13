@@ -13,6 +13,7 @@ using Markdig;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
+using Microsoft.Extensions.Logging;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models;
 using YamlDotNet.Serialization;
@@ -24,17 +25,17 @@ namespace SAAE.Editor.Services;
 
 public sealed partial class GuideService : BaseService<GuideService>, IDisposable {
 
-    private bool isInitialized = false;
+    private bool isInitialized;
     
     private const string GuideNamespace = "SAAE.Editor.Assets.Localization.Guides.";
     private const string GuideExtension = ".md";
     
     public GuideService() {
-        Localization.LocalizationManager.CultureChanged += LocalizeGuides;
+        LocalizationManager.CultureChanged += LocalizeGuides;
     }
 
     public void Dispose() {
-        Localization.LocalizationManager.CultureChanged -= LocalizeGuides;
+        LocalizationManager.CultureChanged -= LocalizeGuides;
     }
     
     private readonly List<string> guideNames = [];
@@ -93,7 +94,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
         foreach (((string name, CultureInfo culture) key, string manifest) in manifestDictionary) {
             await using Stream? s = assembly.GetManifestResourceStream(manifest);
             if (s is null) {
-                Console.WriteLine($"Nao consegui ler manifesto: {manifest}");
+                Logger.LogError("Nao consegui ler manifesto: {manifest}", manifest);
                 continue;
             }
 
@@ -104,7 +105,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
             MarkdownDocument markdownDocument = Markdig.Markdown.Parse(await sr.ReadToEndAsync(), pipeline);
             YamlFrontMatterBlock? yamlBlock = markdownDocument.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
             if (yamlBlock is null) {
-                Console.WriteLine("Nao achei yaml front matter no markdown");
+                Logger.LogError("Nao achei Yaml Front Matter no markdown: {name}/{lang}", key.name, key.culture);
                 continue;
             }
             string yaml = yamlBlock.Lines.ToString();
@@ -135,7 +136,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
     }
 
     private string GetLocalizedGuideContent(string guideName) {
-        CultureInfo culture = Localization.LocalizationManager.CurrentCulture;
+        CultureInfo culture = LocalizationManager.CurrentCulture;
         string manifest = manifestDictionary[(guideName, culture)];
         using Stream? s = assembly.GetManifestResourceStream(manifest);
         if (s is null) {
@@ -172,7 +173,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                     textblock.Classes.Add("paragraph");
                     
                     if (paragraphBlock.Inline is null) {
-                        Console.WriteLine("Paragrafo sem inline");
+                        Logger.LogWarning("Achei paragrafo sem inline");
                         break;
                     }
 
@@ -188,7 +189,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                     var header = new TextBlock();
                     int level = headingBlock.Level;
                     if (level > 3) {
-                        Console.WriteLine("Nao sei processar titulo maior que 3. Defaultando p/ 3");
+                        Logger.LogInformation("Nao sei processar titulo maior que 3. Defaultando p/ 3");
                         level = 3;
                     }
                     header.Classes.Add("headerh"+level);
@@ -201,8 +202,9 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                 case CodeBlock codeBlock: {
                     Border border = new();
                     border.Classes.Add("codeblock");
-                    SelectableTextBlock textblock = new();
-                    textblock.Text = codeBlock.Lines.ToString();
+                    SelectableTextBlock textblock = new() {
+                        Text = codeBlock.Lines.ToString()
+                    };
                     textblock.Classes.Add("mono");
                     border.Child = textblock;
                     controls.Add(border);
@@ -213,7 +215,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                     textblock.Classes.Add("quote");
                     foreach (Block quoteContent in quoteBlock) {
                         if (quoteContent is not ParagraphBlock paragraph) {
-                            Console.WriteLine("Nao sei processar bloco dentro de quote: "+quoteContent.GetType().FullName);
+                            Logger.LogWarning("Nao sei processar bloco dentro de quote: {type}", quoteContent.GetType().FullName);
                             continue;
                         }
                         List<Inline> inlines = ParseInlines(paragraph.Inline!);
@@ -229,7 +231,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                     // Ignora, nao nos interessa. Queremos avisos importantes apenas
                     continue;
                 default:
-                    Console.WriteLine("Nao sei processar bloco do tipo: "+block.GetType().FullName);
+                    Logger.LogWarning("Nao sei processar bloco do tipo: {type}", block.GetType().FullName);
                     break;
             }
         }
@@ -237,7 +239,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
         return controls;
     }
 
-    private static List<Inline> ParseInlines(ContainerInline container) {
+    private List<Inline> ParseInlines(ContainerInline container) {
         List<Inline> result = [];
         foreach (MdInline inline in container) {
             switch (inline) {
@@ -278,7 +280,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                     // nao fica bonito, entao ignoramos
                     break;
                 default:
-                    Console.WriteLine("Nao sei processar Inline do tipo: "+inline.GetType().FullName);
+                    Logger.LogWarning("Nao sei processar Inline do tipo: {type}", inline.GetType().FullName);
                     break;
             }
         }
@@ -295,5 +297,5 @@ public class GuideMetadata {
 
 [YamlStaticContext]
 [YamlSerializable(typeof(GuideMetadata))]
-public partial class YamlStaticContext : StaticContext;
+public partial class YamlStaticContext;
 

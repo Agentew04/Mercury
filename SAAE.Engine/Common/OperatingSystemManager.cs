@@ -1,4 +1,5 @@
-﻿using SAAE.Engine.Mips.Runtime.OS;
+﻿using System.Diagnostics.CodeAnalysis;
+using SAAE.Engine.Mips.Runtime.OS;
 
 namespace SAAE.Engine.Common;
 
@@ -9,6 +10,15 @@ public struct OperatingSystemType {
     public string Name { get; set; }
     
     public Architecture CompatibleArchitecture { get; set; }
+
+    public override bool Equals([NotNullWhen(true)] object? obj) {
+        if (obj is not OperatingSystemType type) {
+            return false;
+        }
+
+        return Name == type.Name && CompatibleArchitecture == type.CompatibleArchitecture
+                                 && OsType.Name == type.OsType.Name;
+    }
 }
 
 /// <summary>

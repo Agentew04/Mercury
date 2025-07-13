@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using Avalonia.Controls.Shapes;
+﻿using System.Collections.ObjectModel;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
-using SAAE.Editor.Services;
-using SAAE.Engine;
 
 namespace SAAE.Editor.ViewModels.Code;
 
 public sealed partial class ProblemsViewModel : BaseViewModel<ProblemsViewModel> {
-    private readonly ILogger<ProblemsViewModel> logger = GetLogger();
     
     public ProblemsViewModel()
     {
@@ -44,7 +37,7 @@ public sealed partial class ProblemsViewModel : BaseViewModel<ProblemsViewModel>
     partial void OnSelectedIndexChanged(int value)
     {
         Diagnostic diag = Diagnostics[value];
-        logger.LogInformation("Opening file from problems view: {FilePath} at line {Line}, column {Column}", diag.FilePath, diag.Line, diag.Column);
+        Logger.LogInformation("Opening file from problems view: {FilePath} at line {Line}, column {Column}", diag.FilePath, diag.Line, diag.Column);
         WeakReferenceMessenger.Default.Send(new FileOpenMessage
         {
             LineNumber = diag.Line,

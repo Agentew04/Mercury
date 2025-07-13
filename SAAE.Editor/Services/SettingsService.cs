@@ -4,12 +4,13 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using SAAE.Editor.Converters;
 using SAAE.Editor.Models;
 
 namespace SAAE.Editor.Services;
 
-public sealed class SettingsService : IDisposable {
+public sealed class SettingsService : BaseService<SettingsService>, IDisposable {
     
     /// <summary>
     /// The directory where the application stores its configuration files
@@ -65,19 +66,19 @@ public sealed class SettingsService : IDisposable {
         if (preferences.ConfigVersion == 1) {
             preferences.ConfigVersion = 2;
             preferences.Language = CultureInfo.CurrentCulture;
-            Console.WriteLine("Atualizada a versão de configuração para 2");
+            Logger.LogInformation("Atualizada a versão de configuração para 2");
         }
 
         if (preferences.ConfigVersion == 2) {
             preferences.ConfigVersion = 3;
             preferences.RecentProjects = [];
-            Console.WriteLine("Atualizada a versão de configuração para 3");    
+            Logger.LogInformation("Atualizada a versao de configuracao para 3");   
         }
 
         if (preferences.ConfigVersion == 3) {
             preferences.ConfigVersion = 4;
             preferences.StdLibPath = Path.Combine(AppDirectory, "stdlib");
-            Console.WriteLine("Atualizada a versão de configuração para 4");
+            Logger.LogInformation("Atualizada a versao de configuracao para 4");
         }
         // ir adicionando novos updates aqui abaixo
         return true;
@@ -87,7 +88,7 @@ public sealed class SettingsService : IDisposable {
         // ATENCAO: nao dah pra usar async aqui por algum motivo obscuro.
         // faz escrita blocking
         File.WriteAllText(ConfigPath, JsonSerializer.Serialize(Preferences, SettingsSerializerContext.Default.UserPreferences));
-        Console.WriteLine("Saved User Settings");
+        Logger.LogInformation("Saved User Settings");
     }
 }
 

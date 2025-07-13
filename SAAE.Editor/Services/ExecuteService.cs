@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using CommunityToolkit.Mvvm.Messaging;
 using ELFSharp.ELF;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +7,6 @@ using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
 using SAAE.Engine;
 using SAAE.Engine.Common.Builders;
-using SAAE.Engine.Mips.Runtime;
 using Machine = SAAE.Engine.Mips.Runtime.Machine;
 
 namespace SAAE.Editor.Services;
@@ -21,7 +19,6 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
 {
     private Machine? currentMachine;
     private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
-    private readonly ILogger<ExecuteService> logger = GetLogger();
 
     public ExecuteService()
     {
@@ -62,7 +59,7 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
         {
             Machine = currentMachine
         };
-        logger.LogInformation("Programa carregado com sucesso: {OutputPath}", message.Value.OutputPath);
+        Logger.LogInformation("Programa carregado com sucesso: {OutputPath}", message.Value.OutputPath);
         WeakReferenceMessenger.Default.Send(loadMsg);
     }
     

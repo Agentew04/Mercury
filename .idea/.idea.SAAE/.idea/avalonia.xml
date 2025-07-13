@@ -32,6 +32,7 @@
         <entry key="SAAE.Editor/Views/GuideTemplates.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/GuideView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/ProblemsView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
+        <entry key="SAAE.Editor/Views/ProjectConfiguration.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/ProjectSelectionView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/ProjectView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/SpashScreen.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using Avalonia.Input;
-using Avalonia.Threading;
 using AvaloniaEdit;
 using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -19,7 +14,6 @@ using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
 using SAAE.Engine;
-using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Editor.ViewModels.Code;
 
@@ -28,7 +22,6 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     private readonly FileService fileService = App.Services.GetRequiredService<FileService>();
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
-    private readonly ILogger<FileEditorViewModel> logger = GetLogger();
     
     public FileEditorViewModel() {
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
@@ -78,7 +71,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
             path = fileService.GetAbsolutePath(message.ProjectNode.Id);
             if (path == default)
             {
-                logger.LogWarning("Nao foi possivel encontrar o path do arquivo {FileName}/{FileId}", message.ProjectNode.Name, message.ProjectNode.Id);
+                Logger.LogWarning("Nao foi possivel encontrar o path do arquivo {FileName}/{FileId}", message.ProjectNode.Name, message.ProjectNode.Id);
                 return;
             }
         }
@@ -139,7 +132,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         // atualiza o cursor
         UpdateCursor(line, column);
         
-        logger.LogInformation("Changing Editor Tab to [{Index}] {FileName} ({FilePath})", 
+        Logger.LogInformation("Changing Editor Tab to [{Index}] {FileName} ({FilePath})", 
             OpenFiles.IndexOf(openFile), 
             openFile.Filename, 
             openFile.Path);
@@ -154,7 +147,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         
         if (lineNumber is not null && TextDocument.LineCount < lineNumber)
         {
-            logger.LogWarning("Line number {Line} is out of bounds for the document with {LineCount} lines", lineNumber, TextDocument.LineCount);
+            Logger.LogWarning("Line number {Line} is out of bounds for the document with {LineCount} lines", lineNumber, TextDocument.LineCount);
             return;
         }
 
@@ -165,7 +158,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         int column = columnNumber ?? 1; // se nao tiver coluna, usa a primeira
         if (line.Length < column)
         {
-            logger.LogWarning("Column number {Column} is out of bounds for the line with {Length} characters", column, line.Length);
+            Logger.LogWarning("Column number {Column} is out of bounds for the line with {Length} characters", column, line.Length);
             column = line.Length; // ajusta para o tamanho da linha
         }
         
@@ -183,7 +176,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         // para cada arquivo aberto:
         //   - carrega conteudo
         //   - salva no disco
-        logger.LogInformation("Saving project with {FileCount} open files", OpenFiles.Count);
+        Logger.LogInformation("Saving project with {FileCount} open files", OpenFiles.Count);
         int changedFiles = 0;
         foreach(OpenFile file in OpenFiles)
         {
@@ -207,7 +200,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         // salva projeto caso o usuario nao tenha salvo
         await SaveProject();
 
-        logger.LogInformation("Building project");
+        Logger.LogInformation("Building project");
         CompilationInput input = fileService.CreateCompilationInput();
         WeakReferenceMessenger.Default.Send(
             new CompilationStartedMessage(input.CalculateId(MipsCompiler.EntryPointPreambule)));

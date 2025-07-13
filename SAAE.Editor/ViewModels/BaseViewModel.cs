@@ -9,7 +9,10 @@ public class BaseViewModel<T> : ObservableObject{
     // TODO: estudar um codegen, partial e essa funcao para automaticamente chamar localizacao de elementos calculados
     // protected virtual void Localize(){}
 
-    protected static ILogger<T> GetLogger() {
-        return App.Services.GetRequiredService<ILogger<T>>();
-    }
+    private ILogger<T>? logger;
+
+    /// <summary>
+    /// Gets the class internal logging instance.
+    /// </summary>
+    protected ILogger<T> Logger => logger ??= App.Services.GetRequiredService<ILogger<T>>();
 }

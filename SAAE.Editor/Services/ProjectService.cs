@@ -21,7 +21,6 @@ public class ProjectService : BaseService<ProjectService> {
 
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     private ProjectFile? currentProject;
-    private readonly ILogger<ProjectService> logger = GetLogger();
     
     /// <summary>
     /// Returns the path to the most recent projects.
@@ -39,7 +38,7 @@ public class ProjectService : BaseService<ProjectService> {
             .ToList();
     }
 
-    private static ProjectFile? ReadProject(PathObject path) {
+    private ProjectFile? ReadProject(PathObject path) {
         if (path.Extension != ".asmproj") {
             return null;
         }
@@ -48,8 +47,7 @@ public class ProjectService : BaseService<ProjectService> {
             return null;
         }
         
-        using var reader = XmlReader.Create(path.ToString(), new XmlReaderSettings {
-        });
+        using var reader = XmlReader.Create(path.ToString(), new XmlReaderSettings());
         
 #pragma warning disable IL2026
 
@@ -66,7 +64,7 @@ public class ProjectService : BaseService<ProjectService> {
             return null;
         }
         if (project.ProjectVersion > ProjectFile.LatestProjectVersion) {
-            Console.WriteLine("A versao do projeto eh maior que a versao suportada! Atualize o programa.");
+            Logger.LogError("A versao do projeto eh maior que a versao suportada! Atualize o programa.");
             return null;
         }
         
@@ -116,11 +114,11 @@ public class ProjectService : BaseService<ProjectService> {
         string srcDir = project.ProjectDirectory.Append(project.SourceDirectory).ToString();
         string binDir = project.ProjectDirectory.Append(project.OutputPath).ToString();
         string entryFile = project.ProjectDirectory.Append(project.SourceDirectory).Append(project.EntryFile).ToString();
-        logger.LogInformation("Creating directory: {dir}", srcDir);
+        Logger.LogInformation("Creating directory: {dir}", srcDir);
         Directory.CreateDirectory(srcDir);
-        logger.LogInformation("Creating directory: {dir}", binDir);
+        Logger.LogInformation("Creating directory: {dir}", binDir);
         Directory.CreateDirectory(binDir);
-        logger.LogInformation("Creating file: {file}", entryFile);
+        Logger.LogInformation("Creating file: {file}", entryFile);
         await File.WriteAllTextAsync(entryFile, "");
         SetRecentAccess(project);
         await settingsService.SaveSettings();
@@ -157,12 +155,12 @@ public class ProjectService : BaseService<ProjectService> {
             projectFile.OutputPath = "bin/".ToDirectoryPath();
             projectFile.OutputFile = "main.exe".ToFilePath();
             projectFile.ProjectVersion = 2;
-            Console.WriteLine("Projeto atualizado para versao 2");
+            Logger.LogInformation("Projeto atualizado para versao 2");
         }
 
         if (projectFile.ProjectVersion == 2) {
             projectFile.SourceDirectory = "src/".ToDirectoryPath();
-            Console.WriteLine("Projeto atualizado para versao 2");
+            Logger.LogInformation("Projeto atualizado para versao 3");
         }
         // preencher com novas versoes quando houver
         return true;

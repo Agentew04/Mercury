@@ -21,6 +21,7 @@ public class ResxGenerator : IIncrementalGenerator {
         """
         using System;
         using System.Globalization;
+        using System.Collections.Generic;
         
         #nullable enable
         
@@ -29,6 +30,10 @@ public class ResxGenerator : IIncrementalGenerator {
         public static class LocalizationManager
         {
             private static CultureInfo currentCulture = new("pt-BR");
+            
+            /// <summary>
+            /// Gets or sets the current culture.
+            /// </summary>
             public static CultureInfo CurrentCulture {
                 get => currentCulture;
                 set {
@@ -39,7 +44,17 @@ public class ResxGenerator : IIncrementalGenerator {
                 }
             }
             
+            /// <summary>
+            /// An event that is invoked every time the culture changes.
+            /// </summary>
             public static event Action<CultureInfo>? CultureChanged = null;
+            
+            private static List<CultureInfo> availableCultures = [ 
+        {cultures}    ];
+            /// <summary>
+            /// Returns a list with all the available cultures.
+            /// </summary>
+            public static IReadOnlyList<CultureInfo> AvailableCultures => availableCultures.AsReadOnly();
         }
         """;
     
@@ -55,8 +70,23 @@ public class ResxGenerator : IIncrementalGenerator {
                 .Select(file => Path.GetFileNameWithoutExtension(file.Path)) // Remove .resx
                 .Select<string,string>(name => Regex.Replace(name, @"\.[a-zA-Z]{2}(-[A-Za-z]{2})?$", "")) // Remove cultura
                 .Distinct();
+
+            Regex cultureRegex = new(@".+\.(?<culture>[a-zA-Z]{2}-[a-zA-Z]{2})");
+            IEnumerable<string> cultures = files
+                .Select(file => Path.GetFileNameWithoutExtension(file.Path))
+                .Select(name => cultureRegex.Match(name).Groups["culture"].Value)
+                .Select(x => string.IsNullOrWhiteSpace(x) ? "en-US" : x) // neutral assembly
+                .Distinct();
+
+            StringBuilder cultureSb = new();
+            foreach (string culture in cultures) {
+                cultureSb.AppendLine($"        new(\"{culture}\"),");
+            }
             
-            spc.AddSource("SAAE.Editor.Localization.LocalizationManager.g.cs", SourceText.From(LocalizationManagerCode, Encoding.UTF8));
+            spc.AddSource("SAAE.Editor.Localization.LocalizationManager.g.cs", 
+                SourceText.From(
+                    LocalizationManagerCode.Replace("{cultures}", cultureSb.ToString()),
+                    Encoding.UTF8));
             
             foreach (string? module in uniqueModules)
             {

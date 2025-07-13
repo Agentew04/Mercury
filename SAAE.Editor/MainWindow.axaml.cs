@@ -1,6 +1,8 @@
 using Avalonia.Controls;
 using System;
+using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using SAAE.Editor.Views;
 
 namespace SAAE.Editor {
     public partial class MainWindow : Window {
@@ -11,5 +13,10 @@ namespace SAAE.Editor {
         }
 
         private readonly Navigation nav;
+
+        private void OpenConfiguration(object? sender, RoutedEventArgs e) {
+            ProjectConfiguration config = new();
+            config.ShowDialog(this);
+        }
     }
 }

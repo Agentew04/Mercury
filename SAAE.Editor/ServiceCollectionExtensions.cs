@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<FileEditorViewModel>();
         collection.AddSingleton<ProblemsViewModel>();
         collection.AddSingleton<RegisterViewModel>();
+        collection.AddTransient<ProjectConfigurationViewModel>(); // transient pq nos deletamos a window ao aplicar
 
         #endregion
 

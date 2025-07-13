@@ -1,0 +1,111 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="clr-namespace:SAAE.Editor.Localization"
+        xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
+        xmlns:cv="clr-namespace:SAAE.Editor.Converters"
+        xmlns:common="clr-namespace:SAAE.Engine.Common;assembly=SAAE.Engine"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="SAAE.Editor.Views.ProjectConfiguration"
+        x:DataType="vm:ProjectConfigurationViewModel"
+        Title="Project Configuration"
+        Background="{StaticResource BackgroundGrey}"
+        Width="500"
+        Height="700"
+        Loaded="OnWindowLoad">
+    <Grid RowDefinitions="*,Auto">
+        <TabControl Grid.Row="0" TabStripPlacement="Left">
+            <!-- project -->
+            <TabItem Header="{Binding Path=TabProject, Source={x:Static loc:ProjectConfigurationResources.Instance}}">
+                <ScrollViewer HorizontalAlignment="Stretch"
+                              Margin="50,0">
+                    
+                    <StackPanel Spacing="5" >
+                        <StackPanel>
+                            <Label Target="NameTextBox"
+                                   Content="{Binding Path=NameLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
+                                   ></Label>
+                            <TextBox x:Name="NameTextBox" Text="{Binding ProjectName}"></TextBox>
+                        </StackPanel>
+                        <StackPanel>
+                            <Label Target="IncludeStdLibCheckBox"
+                                   Content="{Binding Path=IncludeStdLibLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
+                                   ></Label>
+                            <CheckBox x:Name="IncludeStdLibCheckBox" IsChecked="{Binding IncludeStdlib}"></CheckBox>
+                        </StackPanel>
+                        <StackPanel>
+                            <Label Target="ArchitectureComboBox"
+                                   Content="{Binding Path=ArchLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
+                                   ></Label>
+                            <ComboBox x:Name="ArchitectureComboBox" ItemsSource="{Binding AvailableArchs, Mode=OneTime}"
+                                      SelectedIndex="{Binding SelectedArchIndex}"></ComboBox>
+                        </StackPanel>
+                        <StackPanel>
+                            <Label Target="OperatingSystemComboBox"
+                                   Content="{Binding Path=OsLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
+                                   ></Label>
+                            <ComboBox x:Name="OperatingSystemComboBox" ItemsSource="{Binding AvailableOperatingSystems}"
+                                      SelectedIndex="{Binding SelectedOsIndex, Mode=TwoWay}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="common:OperatingSystemType">
+                                        <TextBlock Text="{Binding Name}"></TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>    
+                        </StackPanel>
+                        <StackPanel>
+                            <Label Target="SourceDirectoryTextBox"
+                                   Content="{Binding Path=SrcDirLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
+                                   ></Label>
+                            <TextBox x:Name="SourceDirectoryTextBox" Text="{Binding SrcDir}"></TextBox>    
+                        </StackPanel>
+                        <StackPanel>
+                            <Label Target="EntryFileTextBox"
+                                   Content="{Binding Path=EntryFileLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
+                                   ></Label>
+                            <TextBox x:Name="EntryFileTextBox" Text="{Binding EntryFile}"></TextBox>    
+                        </StackPanel>
+                        <StackPanel>
+                            <Label Target="OutputPathTextBox"
+                                   Content="{Binding Path=OutputPathLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
+                                   ></Label>
+                            <TextBox x:Name="OutputPathTextBox" Text="{Binding OutputDir}"></TextBox>    
+                        </StackPanel>
+                        <StackPanel>
+                            <Label Target="OutputFileTextBox"
+                                   Content="{Binding Path=OutputFileLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
+                                   ></Label>
+                            <TextBox x:Name="OutputFileTextBox" Text="{Binding OutputFile}"></TextBox>    
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- prefs -->
+            <TabItem Header="{Binding Path=TabPreferences, Source={x:Static loc:ProjectConfigurationResources.Instance}}">
+                <ScrollViewer HorizontalAlignment="Stretch"
+                              Margin="50,0">
+                    <StackPanel Spacing="5">
+                        <StackPanel>
+                            <Label Target="LanguageCombobox" 
+                                   Content="{Binding Path=LanguageLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
+                                   ></Label>
+                            <ComboBox x:Name="LanguageCombobox" ItemsSource="{Binding AvailableLanguages}"
+                                      SelectedIndex="{Binding SelectedLanguageIndex}"></ComboBox>
+                        </StackPanel>        
+                    </StackPanel>
+                </ScrollViewer>
+                
+                
+            </TabItem>
+        </TabControl>
+    
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="{Binding Path=ApplyButton,Source={x:Static loc:ProjectConfigurationResources.Instance}}"
+                    Background="{StaticResource Purple1}"
+                    Command="{Binding ApplyCommand}"
+                    Margin="15"></Button>
+        </StackPanel>
+    </Grid>
+</Window>

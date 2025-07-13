@@ -20,7 +20,6 @@ public class FileService : BaseService<FileService> {
     
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
-    private readonly ILogger<FileService> logger = GetLogger();
     
     private readonly Dictionary<Guid, ProjectNodeType> nodeTypes = [];
     private readonly Dictionary<Guid, PathObject> relativePaths = [];
