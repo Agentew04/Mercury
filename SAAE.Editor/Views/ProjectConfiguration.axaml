@@ -46,12 +46,7 @@
                                    Content="{Binding Path=OsLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
                                    ></Label>
                             <ComboBox x:Name="OperatingSystemComboBox" ItemsSource="{Binding AvailableOperatingSystems}"
-                                      SelectedIndex="{Binding SelectedOsIndex, Mode=TwoWay}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate x:DataType="common:OperatingSystemType">
-                                        <TextBlock Text="{Binding Name}"></TextBlock>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
+                                      SelectedIndex="{Binding SelectedOsIndex}">
                             </ComboBox>    
                         </StackPanel>
                         <StackPanel>
