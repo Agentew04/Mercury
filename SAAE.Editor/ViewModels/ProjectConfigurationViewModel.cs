@@ -30,7 +30,7 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
     public List<Architecture> AvailableArchs { get; } = [Architecture.Mips, Architecture.RiscV, Architecture.Arm];
     [ObservableProperty, NotifyCanExecuteChangedFor(nameof(ApplyCommand))] private int selectedArchIndex;
     [ObservableProperty, NotifyCanExecuteChangedFor(nameof(ApplyCommand))] private ObservableCollection<string> availableOperatingSystems = [];
-    [ObservableProperty, NotifyCanExecuteChangedFor(nameof(ApplyCommand))] private int selectedOsIndex;
+    [ObservableProperty, NotifyCanExecuteChangedFor(nameof(ApplyCommand))] private string selectedOs = string.Empty;
     [ObservableProperty] private string srcDir = string.Empty;
     [ObservableProperty] private string outputDir = string.Empty;
     [ObservableProperty] private string outputFile = string.Empty;
@@ -46,7 +46,7 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
             return;
         }
 
-        canChangeOs = false;
+        // canChangeOs = false;
         ProjectName = project.ProjectName;
         IncludeStdlib = project.IncludeStandardLibrary;
         SelectedArchIndex = AvailableArchs.IndexOf(project.Architecture);
@@ -56,15 +56,8 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
                     .Where(x => x.CompatibleArchitecture == project.Architecture)
                     .Select(x => x.Name)
             );
-        SelectedOsIndex = AvailableOperatingSystems.IndexOf(project.OperatingSystem.Name);
-        if (SelectedOsIndex == -1) {
-            Logger.LogError("SO do projeto carregado não foi encontrado! Actual: {so}, Expected: [{soList}]",
-                project.OperatingSystem.Name,
-                string.Join(", ", AvailableOperatingSystems));
-        }
-
-        canChangeOs = true;
-        Logger.LogInformation("Starting with OS index: {idx} ({os})", SelectedOsIndex, AvailableOperatingSystems[SelectedOsIndex]);
+        Logger.LogInformation("Count: {cnt} OS", AvailableOperatingSystems.Count);
+        SelectedOs = project.OperatingSystem.Name;
         SrcDir = project.SourceDirectory.ToString();
         OutputDir = project.OutputPath.ToString();
         OutputFile = project.OutputFile.ToString();
@@ -83,13 +76,13 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
                 .Where(x => x.CompatibleArchitecture == AvailableArchs[value])
                 .Select(x => x.Name)
         );
-        Logger.LogInformation("Clearing OS. Arch: {arch}, New: {oslist}",
-            AvailableArchs[value],
-            string.Join(", ",AvailableOperatingSystems)
-            );
-        if (canChangeOs) {
-            SelectedOsIndex = AvailableOperatingSystems.Count > 0 ? 0 : -1;
+        try {
+            SelectedOs = AvailableOperatingSystems[0];
         }
+        catch (Exception) {
+            SelectedOs = string.Empty;
+        }
+        Logger.LogInformation("Arch: {arch}; SO Count: {cnt}; Selected: {sel}", AvailableArchs[value], AvailableOperatingSystems.Count, SelectedOs);
     }
 
     [RelayCommand(CanExecute = nameof(CanApply))]
@@ -100,11 +93,11 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
     }
 
     public bool CanApply() {
-        Logger.LogInformation("Can Apply? {res}. SelectedOSIdx: {os}. OS: {oslist}", 
-            AvailableOperatingSystems.Count > 0 && SelectedOsIndex != -1,
-            SelectedOsIndex,
-            string.Join(", ", AvailableOperatingSystems));
-        return AvailableOperatingSystems.Count > 0 && SelectedOsIndex != -1;
+        // Logger.LogInformation("Can Apply? {res}. SelectedOSIdx: {os}. OS: {oslist}", 
+        //     AvailableOperatingSystems.Count > 0 && SelectedOsIndex != -1,
+        //     SelectedOsIndex,
+        //     string.Join(", ", AvailableOperatingSystems));
+        return AvailableOperatingSystems.Count > 0 && SelectedOs != string.Empty; //SelectedOsIndex != -1;
     }
 
     private void ApplyProject() {
@@ -119,7 +112,7 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
         try {
             project.OperatingSystem = OperatingSystemManager.GetAvailableOperatingSystems()
                 .Where(x => x.CompatibleArchitecture == project.Architecture)
-                .First(x => x.Name == AvailableOperatingSystems[SelectedOsIndex]);
+                .First(x => x.Name == SelectedOs /*AvailableOperatingSystems[SelectedOsIndex]*/);
             project.OperatingSystemName = project.OperatingSystem.Name;
         }
         catch (InvalidOperationException) {

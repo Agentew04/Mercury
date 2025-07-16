@@ -38,7 +38,7 @@
                             <Label Target="ArchitectureComboBox"
                                    Content="{Binding Path=ArchLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
                                    ></Label>
-                            <ComboBox x:Name="ArchitectureComboBox" ItemsSource="{Binding AvailableArchs, Mode=OneTime}"
+                            <ComboBox x:Name="ArchitectureComboBox" ItemsSource="{Binding AvailableArchs}"
                                       SelectedIndex="{Binding SelectedArchIndex}"></ComboBox>
                         </StackPanel>
                         <StackPanel>
@@ -46,7 +46,7 @@
                                    Content="{Binding Path=OsLabel, Source={x:Static loc:ProjectConfigurationResources.Instance}}"
                                    ></Label>
                             <ComboBox x:Name="OperatingSystemComboBox" ItemsSource="{Binding AvailableOperatingSystems}"
-                                      SelectedIndex="{Binding SelectedOsIndex}">
+                                      SelectedItem="{Binding SelectedOs}">
                             </ComboBox>    
                         </StackPanel>
                         <StackPanel>
