@@ -14,7 +14,7 @@ public sealed class MockLinux : MipsOperatingSystem {
 
     public override string FriendlyName => "Linux 1.0";
 
-    protected override void OnSyscall(uint code) {
+    protected override ValueTask OnSyscall(uint code) {
         switch (code) {
             case 0:
                 Exit();
@@ -35,6 +35,7 @@ public sealed class MockLinux : MipsOperatingSystem {
                 Close();
                 break;
         }
+        return ValueTask.CompletedTask;
     }
 
     public override void Dispose() {
@@ -42,26 +43,26 @@ public sealed class MockLinux : MipsOperatingSystem {
     }
 
     private void Exit() {
-        throw new InvalidOperationException();
+        throw new NotImplementedException();
     }
 
     private void Fork() {
-        throw new InvalidOperationException();
+        throw new NotImplementedException();
     }
 
     private void Read() {
-        throw new InvalidOperationException();
+        throw new NotImplementedException();
     }
 
     private void Write() {
-        throw new InvalidOperationException();
+        throw new NotImplementedException();
     }
 
     private void Open() {
-        throw new InvalidOperationException();
+        throw new NotImplementedException();
     }
 
     private void Close() {
-        throw new InvalidOperationException();
+        throw new NotImplementedException();
     }
 }

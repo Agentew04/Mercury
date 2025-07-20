@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using SAAE.Engine.Common;
 
 namespace SAAE.Engine.Mips.Runtime.OS;
 
@@ -10,10 +11,10 @@ public sealed class Mars : MipsOperatingSystem {
 
     public override string FriendlyName => "Mars 4.5 Runtime";
 
-    protected override void OnSyscall(uint code) {
+    protected override async ValueTask OnSyscall(uint code) {
         switch (code) {
             case 1:
-                PrintInteger();
+                await PrintInteger();
                 break;
             case 2:
                 PrintFloat();
@@ -22,19 +23,19 @@ public sealed class Mars : MipsOperatingSystem {
                 PrintDouble();
                 break;
             case 4:
-                PrintString();
+                await PrintString();
                 break;
             case 5:
-                ReadInteger();
+                await ReadInteger();
                 break;
             case 6:
-                ReadFloat();
+                await ReadFloat();
                 break;
             case 7:
                 ReadDouble();
                 break;
             case 8:
-                ReadString();
+                await ReadString();
                 break;
             case 9:
                 Sbrk();
@@ -43,10 +44,10 @@ public sealed class Mars : MipsOperatingSystem {
                 Exit();
                 break;
             case 11:
-                PrintCharacter();
+                await PrintCharacter();
                 break;
             case 12:
-                ReadCharacter();
+                await ReadCharacter();
                 break;
             case 13:
                 OpenFile();
@@ -78,13 +79,13 @@ public sealed class Mars : MipsOperatingSystem {
                 MidiOutSync();
                 break;
             case 34:
-                PrintIntHex();
+                await PrintIntHex();
                 break;
             case 35:
-                PrintIntBinary();
+                await PrintIntBinary();
                 break;
             case 36:
-                PrintUnsignedInt();
+                await PrintUnsignedInt();
                 break;
             case 40:
                 SetRandomSeed();
@@ -102,10 +103,10 @@ public sealed class Mars : MipsOperatingSystem {
                 RandomDouble();
                 break;
             case 45:
-                PrintBoolean();
+                await PrintBoolean();
                 break;
             case 46:
-                ReadBoolean();
+                await ReadBoolean();
                 break;
         }
     }
@@ -118,9 +119,9 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $a0 contains the integer to be printed.
     /// </remarks>
-    private void PrintInteger() {
+    private ValueTask PrintInteger() {
         string integer = Machine.Registers[RegisterFile.Register.A0].ToString();
-        Machine.StdOut.Write(Encoding.ASCII.GetBytes(integer));
+        return Print(integer);
     }
 
     /// <summary>
@@ -151,14 +152,14 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the base address of the string to print.
     /// Must end with a null character. 
     /// </remarks>
-    private void PrintString() {
+    private ValueTask PrintString() {
         StringBuilder sb = new();
         uint address = (uint)Machine.Registers[RegisterFile.Register.A0];
         byte current;
         while ((current = Machine.Memory.ReadByte(address++)) != 0) {
             sb.Append((char)current);
         }
-        Machine.StdOut.Write(Encoding.ASCII.GetBytes(sb.ToString()));
+        return Print(sb.ToString());
     }
 
     /// <summary>
@@ -167,9 +168,11 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $a0 contains the character to print.
     /// </remarks>
-    private void PrintCharacter() {
+    private async ValueTask PrintCharacter() {
         byte character = (byte)Machine.Registers[RegisterFile.Register.A0];
-        Machine.StdOut.Write(new byte[] { character });
+        if (Machine.StdOut is not null) {
+            await Machine.StdOut.Writer.WriteAsync(Convert.ToChar(character));
+        }
     }
 
     /// <summary>
@@ -179,9 +182,9 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $a0 contains the integer to print.
     /// </remarks>
-    private void PrintIntHex() {
+    private ValueTask PrintIntHex() {
         string integer = Machine.Registers[RegisterFile.Register.A0].ToString("X8");
-        Machine.StdOut.Write(Encoding.ASCII.GetBytes(integer));
+        return Print(integer);
     }
 
     /// <summary>
@@ -191,9 +194,9 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $a0 contains the integer to print.
     /// </remarks>
-    private void PrintIntBinary() {
+    private ValueTask PrintIntBinary() {
         string integer = Machine.Registers[RegisterFile.Register.A0].ToString("b32");
-        Machine.StdOut.Write(Encoding.ASCII.GetBytes(integer));
+        return Print(integer);
     }
 
     /// <summary>
@@ -202,20 +205,20 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $a0 contains the integer to print.
     /// </remarks>
-    private void PrintUnsignedInt() {
+    private ValueTask PrintUnsignedInt() {
         string integer = ((uint)Machine.Registers[RegisterFile.Register.A0]).ToString();
-        Machine.StdOut.Write(Encoding.ASCII.GetBytes(integer));
+        return Print(integer);
     }
-    
+
     /// <summary>
     /// Prints an boolean value to the console.
     /// </summary>
     /// <remarks>
     /// $a0 contains the boolean value to print.
     /// </remarks>
-    private void PrintBoolean() {
+    private ValueTask PrintBoolean() {
         bool value = Machine.Registers[RegisterFile.Register.A0] != 0;
-        Machine.StdOut.Write(Encoding.ASCII.GetBytes(value ? "true" : "false"));
+        return Print(value ? "true" : "false");
     }
     
     #endregion
@@ -228,19 +231,16 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $v0 returns the integer read.
     /// </remarks>
-    private void ReadInteger() {
-        using var sr = new StreamReader(Machine.StdIn, Encoding.ASCII, leaveOpen: true);
-        string? line = sr.ReadLine();
-        if (line is null) {
-            Machine.Registers[RegisterFile.Register.V0] = int.MinValue;
+    private async ValueTask ReadInteger() {
+        if (Machine.StdIn is null) {
             return;
         }
+        string line = await Machine.StdIn.Reader.ReadLine(); // blocking ateh achar \n
         
         if (!int.TryParse(line, out int value)) {
             Machine.Registers[RegisterFile.Register.V0] = int.MinValue;
             return;
         }
-        
         Machine.Registers[RegisterFile.Register.V0] = value;
     }
     
@@ -250,21 +250,19 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $f0 returns the float read.
     /// </remarks>
-    private void ReadFloat() {
-        using var sr = new StreamReader(Machine.StdIn, Encoding.ASCII, leaveOpen: true);
-        string? line = sr.ReadLine();
-        if (line is null) {
-            Machine.Registers[RegisterFile.Register.V0] = BitConverter.SingleToInt32Bits(float.NaN);
+    private async ValueTask ReadFloat() {
+        if (Machine.StdIn is null) {
             return;
         }
-        
+
+        throw new NotImplementedException();
+        string line = await Machine.StdIn.Reader.ReadLine();
         if (!float.TryParse(line, out float value)) {
             Machine.Registers[RegisterFile.Register.V0] = BitConverter.SingleToInt32Bits(float.NaN);
             return;
         }
         
         //Machine.Registers[RegisterFile.Register.V0] = BitConverter.SingleToInt32Bits(value);
-        throw new NotImplementedException();
     }
     
     /// <summary>
@@ -287,7 +285,11 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the address of the input buffer.<br/>
     /// $a1 contains the maximum number of characters to read
     /// </remarks>
-    private void ReadString() {
+    private async ValueTask ReadString() {
+        if (Machine.StdIn is null) {
+            return;
+        }
+        
         int n = Machine.Registers[RegisterFile.Register.A1];
         uint address = (uint)Machine.Registers[RegisterFile.Register.A0];
 
@@ -297,14 +299,8 @@ public sealed class Mars : MipsOperatingSystem {
             Machine.Memory.WriteByte(address, 0);
             return;
         }
-        
-        using var sr = new StreamReader(Machine.StdIn, Encoding.ASCII, leaveOpen: true);
-        string? line = sr.ReadLine();
-        if (line is null) {
-            Machine.Memory.WriteByte(address, 0);
-            return;
-        }
-        
+
+        string line = await Machine.StdIn.Reader.ReadLine();
         if(line.Length > n - 1) {
             line = line[..(n - 1)];
         }
@@ -326,11 +322,13 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $v0 returns the character read.
     /// </remarks>
-    private void ReadCharacter() {
-        using var sr = new StreamReader(Machine.StdIn, Encoding.ASCII, leaveOpen: true);
+    private async ValueTask ReadCharacter() {
+        if (Machine.StdIn is null) {
+            return;
+        }
 
-        int c = sr.Read();
-        Machine.Registers[RegisterFile.Register.V0] = c == -1 ? int.MinValue : c;
+        char c = await Machine.StdIn.Reader.ReadAsync();
+        Machine.Registers[RegisterFile.Register.V0] = c;
     }
 
     /// <summary>
@@ -339,14 +337,13 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $v0 returns 1 if true, 0 if false or if error.
     /// </remarks>
-    private void ReadBoolean()
+    private async ValueTask ReadBoolean()
     {
-        using var sr = new StreamReader(Machine.StdIn, Encoding.ASCII, leaveOpen: true);
-        string? line = sr.ReadLine();
-        if (line is null) {
-            Machine.Registers[RegisterFile.Register.V0] = 0;
+        if (Machine.StdIn is null) {
             return;
         }
+
+        string line = await Machine.StdIn.Reader.ReadLine();
         
         // int representation
         if(int.TryParse(line, out int intValue)) {
@@ -448,7 +445,7 @@ public sealed class Mars : MipsOperatingSystem {
     
     #region File
 
-    private readonly Dictionary<int, Stream> fileDescriptors = [];
+    private readonly Dictionary<int, Stream?> fileDescriptors = [];
     
     /// <summary>
     /// Opens a handle to a file in the host's physical filesystem.
@@ -461,9 +458,9 @@ public sealed class Mars : MipsOperatingSystem {
     /// </remarks>
     private void OpenFile() {
         if (fileDescriptors.Count == 0) {
-            fileDescriptors[0] = Machine.StdIn;
-            fileDescriptors[1] = Machine.StdOut;
-            fileDescriptors[2] = Machine.StdErr;
+            fileDescriptors[0] = Machine.StdIn != null ? new ChannelStream(Machine.StdIn) : null;
+            fileDescriptors[1] = Machine.StdOut != null ? new ChannelStream(Machine.StdOut) : null;
+            fileDescriptors[2] = Machine.StdErr != null ? new ChannelStream(Machine.StdErr) : null;
         }
 
         StringBuilder sb = new();
@@ -514,9 +511,9 @@ public sealed class Mars : MipsOperatingSystem {
     /// </remarks>
     private void ReadFromFile() {
         if (fileDescriptors.Count == 0) {
-            fileDescriptors[0] = Machine.StdIn;
-            fileDescriptors[1] = Machine.StdOut;
-            fileDescriptors[2] = Machine.StdErr;
+            fileDescriptors[0] = Machine.StdIn != null ? new ChannelStream(Machine.StdIn) : null;
+            fileDescriptors[1] = Machine.StdOut != null ? new ChannelStream(Machine.StdOut) : null;
+            fileDescriptors[2] = Machine.StdErr != null ? new ChannelStream(Machine.StdErr) : null;
         }
         
         int fileDescriptor = Machine.Registers[RegisterFile.Register.A0];
@@ -525,6 +522,11 @@ public sealed class Mars : MipsOperatingSystem {
         
         if (!fileDescriptors.TryGetValue(fileDescriptor, out Stream? stream)) {
             Machine.Registers[RegisterFile.Register.V0] = -1;
+            return;
+        }
+
+        if (stream is null) {
+            // fail silently. stdin/out/err is not defined. let that slide B)
             return;
         }
 
@@ -557,17 +559,22 @@ public sealed class Mars : MipsOperatingSystem {
     /// </remarks>
     private void WriteToFile() {
         if (fileDescriptors.Count == 0) {
-            fileDescriptors[0] = Machine.StdIn;
-            fileDescriptors[1] = Machine.StdOut;
-            fileDescriptors[2] = Machine.StdErr;
+            fileDescriptors[0] = Machine.StdIn != null ? new ChannelStream(Machine.StdIn) : null;
+            fileDescriptors[1] = Machine.StdOut != null ? new ChannelStream(Machine.StdOut) : null;
+            fileDescriptors[2] = Machine.StdErr != null ? new ChannelStream(Machine.StdErr) : null;
         }
-        
+
         int fileDescriptor = Machine.Registers[RegisterFile.Register.A0];
         int address = Machine.Registers[RegisterFile.Register.A1];
         int n = Machine.Registers[RegisterFile.Register.A2];
         
         if (!fileDescriptors.TryGetValue(fileDescriptor, out Stream? stream)) {
             Machine.Registers[RegisterFile.Register.V0] = -1;
+            return;
+        }
+
+        if (stream is null) {
+            // fail silently. stdin/out/err is not defined.
             return;
         }
         
@@ -596,7 +603,7 @@ public sealed class Mars : MipsOperatingSystem {
         if (!fileDescriptors.TryGetValue(fileDescriptor, out Stream? stream)) {
             return;
         } 
-        stream.Dispose();
+        stream!.Dispose();
         fileDescriptors.Remove(fileDescriptor);
     }
 
@@ -627,11 +634,15 @@ public sealed class Mars : MipsOperatingSystem {
     #endregion
     
     public override void Dispose() {
-        foreach ((int descriptor, Stream stream) in fileDescriptors) {
+        foreach ((int descriptor, Stream? stream) in fileDescriptors) {
             if (descriptor <= 2) {
                 continue;
             }
-            stream.Dispose();
+            stream?.Dispose();
         }
+    }
+
+    private ValueTask Print(string s) {
+        return Machine.StdOut is not null ? Machine.StdOut.Writer.WriteAsync(s) : ValueTask.CompletedTask;
     }
 }

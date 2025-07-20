@@ -1,4 +1,6 @@
-﻿namespace SAAE.Engine.Test;
+﻿using SAAE.Engine.Common;
+
+namespace SAAE.Engine.Test;
 
 [TestClass]
 public class ExtensionsTest {

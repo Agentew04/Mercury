@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace SAAE.Engine; 
+namespace SAAE.Engine.Common; 
 public static class Extensions {
 
     public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> collection, T splitter) {
@@ -87,5 +88,31 @@ public static class Extensions {
         }
 
         throw new InvalidOperationException("The item is not in the collection.");
+    }
+    
+    /// <summary>
+    /// Extension method to easily write a string to a <see cref="Channel"/> with T being <see cref="char"/>.
+    /// </summary>
+    /// <param name="writer">The channel writer</param>
+    /// <param name="value">The string to write to the channel</param>
+    /// <param name="cancellationToken">An optional cancellation token to cancel de method</param>
+    public static async ValueTask WriteAsync(this ChannelWriter<char> writer, string value, CancellationToken cancellationToken = default) {
+        for (int i = 0; i < value.Length && !cancellationToken.IsCancellationRequested; i++) {
+            await writer.WriteAsync(value[i], cancellationToken);
+        }
+    }
+
+    public static async ValueTask<string> ReadLine(this ChannelReader<char> reader,
+        CancellationToken cancellationToken = default) {
+        await reader.WaitToReadAsync(cancellationToken);
+        // ok, agora tem valores para ler
+        StringBuilder sb = new();
+        char read = await reader.ReadAsync(cancellationToken);
+        sb.Append(read != (char)0x1A ? read : '\0'); // if first char is eof, append end of string
+        while (read != '\n' && read != (char)0x1A/*EOF*/) {
+            read = await reader.ReadAsync(cancellationToken);
+            sb.Append(read);
+        }
+        return sb.ToString();
     }
 }

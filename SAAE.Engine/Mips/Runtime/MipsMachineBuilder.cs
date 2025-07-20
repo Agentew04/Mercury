@@ -1,4 +1,5 @@
-﻿using SAAE.Engine.Common.Builders;
+﻿using System.Threading.Channels;
+using SAAE.Engine.Common.Builders;
 using SAAE.Engine.Mips.Runtime.OS;
 using SAAE.Engine.Mips.Runtime.Simple;
 
@@ -55,17 +56,17 @@ public class MipsMachineBuilder : MachineBuilder
             Cpu = _cpu,
             Memory = Memory,
             Os = _os,
-            StdIn = StdIn ?? Stream.Null,
-            StdOut = StdOut ?? Stream.Null,
-            StdErr = StdErr ?? Stream.Null,
+            StdIn = StdIn,
+            StdOut = StdOut,
+            StdErr = StdErr,
             Architecture = Architecture.Mips
         };
         
         // realiza links de hardware
         _cpu.Memory = Memory;
         _os.Machine = machine;
-        _cpu.OnSignalException += (_, e) => {
-            _os.OnSignalBreak(e);
+        _cpu.OnSignalException += async (_, e) => {
+            await _os.OnSignalBreak(e);
         };
         return machine;
     }

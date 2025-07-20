@@ -10,6 +10,7 @@
     <Grid RowDefinitions="*,Auto">
         <!-- output box -->
         <TextBox Grid.Row="0"
+                 x:Name="OutputTextBox"
                  Text="{Binding Text}"
                  IsReadOnly="True" Margin="5"></TextBox>
         
@@ -17,11 +18,18 @@
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto" Margin="5">
             <!-- textbox -->
             <TextBox Grid.Column="0" 
-                     Margin="0,0,5,0"></TextBox>
+                     x:Name="InputTextBox"
+                     Margin="0,0,5,0"
+                     Text="{Binding InputText}">
+                <TextBox.KeyBindings>
+                    <KeyBinding Command="{Binding SendCommand}" Gesture="Enter"></KeyBinding>
+                </TextBox.KeyBindings>
+            </TextBox>
             <!-- send button -->
             <Button Grid.Column="1"
                     Content="{Binding Path=SendButton, Source={x:Static loc:OutputResources.Instance}}"
-                    Command="{Binding SendCommand}"/>
+                    Command="{Binding SendCommand}"
+                    Click="OnSend"/>
             <!-- clear -->
             <Button Grid.Column="2" Margin="5,0,0,0"
                     Content="{Binding Path=ClearButton, Source={x:Static loc:OutputResources.Instance}}"

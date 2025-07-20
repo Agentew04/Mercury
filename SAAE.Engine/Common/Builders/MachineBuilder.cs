@@ -1,4 +1,5 @@
-﻿using SAAE.Engine.Memory;
+﻿using System.Threading.Channels;
+using SAAE.Engine.Memory;
 using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Engine.Common.Builders;
@@ -10,9 +11,9 @@ namespace SAAE.Engine.Common.Builders;
 public class MachineBuilder : IBuilder<Machine>
 {
     protected IMemory? Memory { get; private set; }
-    protected Stream? StdIn { get; private set; }
-    protected Stream? StdOut { get; private set; }
-    protected Stream? StdErr { get; private set; }
+    protected Channel<char>? StdIn { get; private set; }
+    protected Channel<char>? StdOut { get; private set; }
+    protected Channel<char>? StdErr { get; private set; }
 
     public MachineBuilder()
     {
@@ -33,15 +34,14 @@ public class MachineBuilder : IBuilder<Machine>
         return this;
     }
 
-    public MachineBuilder WithInMemoryStdio()
-    {
-        StdIn = new MemoryStream();
-        StdOut = new MemoryStream();
-        StdErr = new MemoryStream();
+    public MachineBuilder WithInMemoryStdio() {
+        StdIn = Channel.CreateUnbounded<char>();
+        StdOut = Channel.CreateUnbounded<char>();
+        StdErr = Channel.CreateUnbounded<char>();
         return this;
     }
     
-    public MachineBuilder WithStdio(Stream stdin, Stream stdout, Stream stderr)
+    public MachineBuilder WithStdio(Channel<char> stdin, Channel<char> stdout, Channel<char> stderr)
     {
         StdIn = stdin;
         StdOut = stdout;

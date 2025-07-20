@@ -13,7 +13,7 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
     public Architecture CompatibleArchitecture => Architecture.Mips;
     public abstract string FriendlyName { get; }
 
-    public void OnSignalBreak(Monocycle.SignalExceptionEventArgs eventArgs) {
+    public async Task OnSignalBreak(Monocycle.SignalExceptionEventArgs eventArgs) {
         if (eventArgs.Signal != Monocycle.SignalExceptionEventArgs.SignalType.SystemCall) {
             return;
         }
@@ -23,12 +23,12 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
         // used when: 'syscall 5'
         uint instructionSignal = (uint)eventArgs.Instruction & mask;
         if (instructionSignal != 0) {
-            OnSyscall(instructionSignal);
+            await OnSyscall(instructionSignal);
         }
         else {
             // this is normally used on mips
             uint registerSignal = (uint)Machine.Registers[RegisterFile.Register.V0];
-            OnSyscall(registerSignal);
+            await OnSyscall(registerSignal);
         }
     }
 
@@ -36,7 +36,7 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
     /// Function that will be called when a syscall is executed.
     /// </summary>
     /// <param name="code"></param>
-    protected abstract void OnSyscall(uint code);
+    protected abstract ValueTask OnSyscall(uint code);
 
     public abstract void Dispose();
     

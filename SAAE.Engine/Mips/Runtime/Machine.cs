@@ -1,4 +1,5 @@
-﻿using ELFSharp.ELF;
+﻿using System.Threading.Channels;
+using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
 using ELFSharp.ELF.Segments;
 using SAAE.Engine.Memory;
@@ -21,13 +22,15 @@ public sealed class Machine : IDisposable, IClockable {
 
     public MipsOperatingSystem Os { get; init; } = null!;
 
-    public Stream StdIn { get; init; } = null!;
+    public Channel<char>? StdIn { get; init; } = null;
     
-    public Stream StdOut { get; init; } = null!;
+    public Channel<char>? StdOut { get; init; } = null;
     
-    public Stream StdErr { get; init; } = null!;
+    public Channel<char>? StdErr { get; init; } = null;
 
     public Architecture Architecture { get; init; } = Architecture.Unknown;
+
+    public bool IsDisposed { get; private set; }
     
     public void LoadElf(ELF<uint> elf) {
         Section<uint>? textSection = elf.GetSection(".text");
@@ -98,10 +101,8 @@ public sealed class Machine : IDisposable, IClockable {
     public event Action<List<RegisterFile.Register>>? OnRegisterChanged;
 
     public void Dispose() {
+        IsDisposed = true;
         if(Memory is IDisposable dispMem) dispMem.Dispose();
         Os.Dispose();
-        StdIn.Dispose();
-        StdOut.Dispose();
-        StdErr.Dispose();
     }
 }
