@@ -66,10 +66,6 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
     }
 
     partial void OnSelectedArchIndexChanged(int value) {
-    //     // if (oldValue == newValue) {
-    //     //     return; 
-    //     // }
-    //     //
         AvailableOperatingSystems.Clear();
         AvailableOperatingSystems.AddRange(
             OperatingSystemManager.GetAvailableOperatingSystems()

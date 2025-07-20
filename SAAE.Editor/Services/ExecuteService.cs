@@ -22,6 +22,7 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
 
     public ExecuteService()
     {
+        Logger.LogInformation("Initializing ExecutionService");
         WeakReferenceMessenger.Default.Register<CompilationFinishedMessage>(this, OnCompile);
     }
 

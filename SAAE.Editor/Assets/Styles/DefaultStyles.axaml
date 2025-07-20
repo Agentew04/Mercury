@@ -128,7 +128,16 @@
         <Setter Property="Fill" Value="Transparent"></Setter>
     </Style>
     
-    <Style Selector="DataGrid.headerslim">
-        
+    <Style Selector="DataGrid.headerslim DataGridColumnHeadersPresenter DataGridColumnHeader">
+        <Setter Property="Padding" Value="7,0,0,0"></Setter>
+        <Setter Property="MinHeight" Value="0"></Setter>
+    </Style>
+    <Style Selector="DataGrid.headerslim DataGridColumnHeadersPresenter DataGridColumnHeader Grid#PART_ColumnHeaderRoot Panel">
+        <Setter Property="Margin" Value="3"></Setter>
+        <Setter Property="VerticalAlignment" Value="Stretch"></Setter>
+    </Style>
+    <Style Selector="DataGrid.headerslim DataGridColumnHeadersPresenter DataGridColumnHeader Grid#PART_ColumnHeaderRoot ContentPresenter">
+        <Setter Property="Grid.ColumnSpan" Value="2"></Setter>
+        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
     </Style>
 </Styles>

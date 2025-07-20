@@ -19,7 +19,7 @@
                   SelectedIndex="{Binding SelectedIndex, Mode=OneWayToSource}"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
-                  Classes="noselect">
+                  Classes="noselect headerslim">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Type" Width="50">
                     <DataTemplate x:DataType="diag:Diagnostic">

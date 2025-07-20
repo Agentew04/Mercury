@@ -26,6 +26,8 @@ public sealed class Machine : IDisposable, IClockable {
     public Stream StdOut { get; init; } = null!;
     
     public Stream StdErr { get; init; } = null!;
+
+    public Architecture Architecture { get; init; } = Architecture.Unknown;
     
     public void LoadElf(ELF<uint> elf) {
         Section<uint>? textSection = elf.GetSection(".text");

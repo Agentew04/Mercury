@@ -57,7 +57,8 @@ public class MipsMachineBuilder : MachineBuilder
             Os = _os,
             StdIn = StdIn ?? Stream.Null,
             StdOut = StdOut ?? Stream.Null,
-            StdErr = StdErr ?? Stream.Null
+            StdErr = StdErr ?? Stream.Null,
+            Architecture = Architecture.Mips
         };
         
         // realiza links de hardware

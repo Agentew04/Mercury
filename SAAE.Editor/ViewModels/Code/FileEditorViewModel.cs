@@ -206,6 +206,10 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
             new CompilationStartedMessage(input.CalculateId(MipsCompiler.EntryPointPreambule)));
         CompilationResult result = await compilerService.CompileAsync(input);
         WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result));
+        Logger.LogInformation("Compilation Finished. sucess? {res}", result.IsSuccess);
+        if (result.IsSuccess) {
+            CanRunProject = true;
+        }
     }
 
     [RelayCommand]
