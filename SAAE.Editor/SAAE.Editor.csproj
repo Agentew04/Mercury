@@ -61,7 +61,7 @@
     <None Remove="Assets\Localization\Guides\*.md" />
     <EmbeddedResource Include="Assets\Localization\Guides\*.md"  WithCulture="false"/>
   </ItemGroup>
-  
+
   <!-- imagens -->
   <ItemGroup>
     <AvaloniaResource Include="Assets\Images\*.png"/>
@@ -69,7 +69,8 @@
     <AvaloniaResource Include="Assets\Images\*.svg" />
     <None Remove="Assets\Images\*.svg" />
   </ItemGroup>
-  
+
+  <!-- ainda nao sei se isso serve pra alguma coisa... -->
   <ItemGroup>
     <Compile Update="Views\CodeView\ProjectView.axaml.cs">
       <DependentUpon>ProjectView.axaml</DependentUpon>

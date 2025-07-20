@@ -38,21 +38,21 @@ public partial class StatusBar : UserControl, IDisposable
         StatusText.Text = StatusBarResources.ReadyValue;
     }
     
-    private void Started(object sender, CompilationStartedMessage msg)
+    private static void Started(object sender, CompilationStartedMessage msg)
     {
-        StatusText.Text = StatusBarResources.CompilationStartedValue;
+        (sender as StatusBar)!.StatusText.Text = StatusBarResources.CompilationStartedValue;
     }
     
-    private void Finished(object sender, CompilationFinishedMessage msg)
-    {
-        if (compilerService.Value.LastCompilationResult.IsSuccess)
+    private static void Finished(object sender, CompilationFinishedMessage msg) {
+        StatusBar bar = (StatusBar)sender;
+        if (bar.compilerService.Value.LastCompilationResult.IsSuccess)
         {
-            StatusText.Text = StatusBarResources.CompilationEndedValue;
+            bar.StatusText.Text = StatusBarResources.CompilationEndedValue;
         }
         else
         {
-            StatusText.Text = string.Format(StatusBarResources.CompilationEndedFailureValue, 
-                compilerService.Value.LastCompilationResult.Diagnostics?.Count(x => x.Type == DiagnosticType.Error));
+            bar.StatusText.Text = string.Format(StatusBarResources.CompilationEndedFailureValue, 
+                bar.compilerService.Value.LastCompilationResult.Diagnostics?.Count(x => x.Type == DiagnosticType.Error));
         }
     }
 

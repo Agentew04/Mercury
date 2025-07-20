@@ -15,9 +15,10 @@ public partial class FileEditorView : UserControl {
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
     }
 
-    private void OnFileOpen(object recipient, FileOpenMessage message) {
+    private static void OnFileOpen(object recipient, FileOpenMessage message) {
+        FileEditorView view = (FileEditorView)recipient;
         // autofocus text editor
-        TextEditor.Focus();
+        view.TextEditor.Focus();
     }
 
     public FileEditorViewModel ViewModel { get; set; }

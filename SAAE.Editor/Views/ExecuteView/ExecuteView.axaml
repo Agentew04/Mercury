@@ -12,11 +12,15 @@
             <ColumnDefinition Width="200" MinWidth="100" MaxWidth="300"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="2"/>
+            <RowDefinition Height="200" MinHeight="100" MaxHeight="500"/>
         </Grid.RowDefinitions>
         
-        <GridSplitter Grid.Column="1" ResizeDirection="Columns">
-        </GridSplitter>
-        <exec:RegisterView Grid.Column="2"></exec:RegisterView>
+        <GridSplitter Grid.Row="1" Grid.Column="0" ResizeDirection="Rows"/>
+        <exec:OutputView Grid.Row="2" Grid.Column="0"/>
+        
+        <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" ResizeDirection="Columns"/>
+        <exec:RegisterView Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"/>
     </Grid>
 </UserControl>

@@ -60,7 +60,8 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     // HACK:
     public TextEditor? TextEditor { get; set; }
 
-    private void OnFileOpen(object sender, FileOpenMessage message) {
+    private static void OnFileOpen(object sender, FileOpenMessage message) {
+        FileEditorViewModel vm = (FileEditorViewModel)sender;
         // funcao chamada quando o usuario abre um arquivo pela aba do projeto
         PathObject path;
         int? line = message.LineNumber;
@@ -68,10 +69,10 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         if (message.ProjectNode is not null)
         {
             // abriu do project view
-            path = fileService.GetAbsolutePath(message.ProjectNode.Id);
+            path = vm.fileService.GetAbsolutePath(message.ProjectNode.Id);
             if (path == default)
             {
-                Logger.LogWarning("Nao foi possivel encontrar o path do arquivo {FileName}/{FileId}", message.ProjectNode.Name, message.ProjectNode.Id);
+                vm.Logger.LogWarning("Nao foi possivel encontrar o path do arquivo {FileName}/{FileId}", message.ProjectNode.Name, message.ProjectNode.Id);
                 return;
             }
         }
@@ -82,21 +83,21 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         }
         
         // verifica se o arquivo ja esta aberto
-        OpenFile? existingFile = OpenFiles.FirstOrDefault(x => x.Path == path);
+        OpenFile? existingFile = vm.OpenFiles.FirstOrDefault(x => x.Path == path);
         if (existingFile is not null)
         {
-            ChangeTab(existingFile, line, column);
+            vm.ChangeTab(existingFile, line, column);
             return;
         }
         
         string name = path.FullFileName;
 
         // message.ProjectNode?.IsEffectiveReadOnly ?? false pois a stdlib nunca deveria emitir um warning ou erro!!!
-        OpenFile file = new(name, path, CloseTabCommand, message.ProjectNode?.IsEffectiveReadOnly ?? false);
+        OpenFile file = new(name, path, vm.CloseTabCommand, message.ProjectNode?.IsEffectiveReadOnly ?? false);
         file.TextDocument.Text = File.ReadAllText(path.ToString());
-        OpenFiles.Add(file);
+        vm.OpenFiles.Add(file);
         
-        ChangeTab(file, line, column);
+        vm.ChangeTab(file, line, column);
     }
 
     partial void OnSelectedTabIndexChanged(int value)
@@ -111,10 +112,10 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         ChangeTab(openFile);
     }
 
-    private void OnProgramLoad(object recipient, ProgramLoadMessage message)
+    private static void OnProgramLoad(object recipient, ProgramLoadMessage message)
     {
         // chamada quando o programa compilado eh carregado em uma maquina
-        CanRunProject = true;
+        (recipient as FileEditorViewModel)!.CanRunProject = true;
     }
 
     private void ChangeTab(OpenFile openFile, int? line = null, int? column = null)

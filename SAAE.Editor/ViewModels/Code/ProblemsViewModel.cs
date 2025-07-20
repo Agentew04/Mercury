@@ -24,13 +24,14 @@ public sealed partial class ProblemsViewModel : BaseViewModel<ProblemsViewModel>
     [ObservableProperty] 
     private ObservableCollection<Diagnostic> diagnostics = [];
 
-    private void OnCompilationFinished(object sender, CompilationFinishedMessage message)
-    {
+    private static void OnCompilationFinished(object sender, CompilationFinishedMessage message) {
+        
+        ProblemsViewModel vm = (ProblemsViewModel)sender;
         CompilationResult result = message.Value;
-        Diagnostics.Clear();
+        vm.Diagnostics.Clear();
         if (result.Diagnostics is not null)
         {
-            Diagnostics.AddRange(result.Diagnostics);
+            vm.Diagnostics.AddRange(result.Diagnostics);
         }
     }
 

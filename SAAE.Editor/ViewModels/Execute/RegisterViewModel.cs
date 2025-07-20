@@ -33,26 +33,29 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
         WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoaded);
     }
 
-    private void OnProgramLoaded(object? sender, ProgramLoadMessage msg) {
-        machine = msg.Machine;
-        architectureMetadata = ArchitectureManager.GetArchitectureMetadata(msg.Machine.Architecture);
-        ProcessorNames = new ObservableCollection<string>(
-            architectureMetadata.Processors
+    private static void OnProgramLoaded(object sender, ProgramLoadMessage msg) {
+        RegisterViewModel vm = (RegisterViewModel)sender;
+        vm.machine = msg.Machine;
+        vm.architectureMetadata = ArchitectureManager.GetArchitectureMetadata(msg.Machine.Architecture);
+        vm.ProcessorNames = new ObservableCollection<string>(
+            vm.architectureMetadata.Processors
                 .Select(x => x.Name)
                 .ToList());
-        LoadRegisters(SelectedProcessorIndex);
-        machine.OnRegisterChanged += list =>
+        vm.LoadRegisters(vm.SelectedProcessorIndex);
+        vm.machine.OnRegisterChanged += list =>
         {
             foreach (RegisterFile.Register reg in list) {
-                int index = Registers.IndexOf(x => x.Index == (int)reg);
+                int index = vm.Registers.IndexOf(x => x.Index == (int)reg);
                 if (index >= 0)
                 {
-                    Registers[index].Value = machine.Registers[reg];
+                    vm.Registers[index].Value = vm.machine.Registers[reg];
                 }
             }
-            Logger.LogInformation("Updated value of {count} registers", list.Count);
+            vm.Logger.LogInformation("Updated value of {count} registers", list.Count);
         };
-        Logger.LogInformation("Initialized register view with {registers} and {processors}", Registers.Count, architectureMetadata.Processors.Length);
+        vm.Logger.LogInformation("Initialized register view with {registers} and {processors}", 
+            vm.Registers.Count, 
+            vm.architectureMetadata.Processors.Length);
     }
 
     private void LoadRegisters(int processorIndex) {

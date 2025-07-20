@@ -18,7 +18,6 @@ namespace SAAE.Editor.Services;
 public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
 {
     private Machine? currentMachine;
-    private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
 
     public ExecuteService()
     {
@@ -26,8 +25,8 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
         WeakReferenceMessenger.Default.Register<CompilationFinishedMessage>(this, OnCompile);
     }
 
-    private void OnCompile(object recipient, CompilationFinishedMessage message)
-    {
+    private static void OnCompile(object recipient, CompilationFinishedMessage message) {
+        ExecuteService service = (ExecuteService)recipient;
         if (message.Value.Id == Guid.Empty 
             || !message.Value.IsSuccess 
             || (message.Value.Diagnostics?.Exists(x => x.Type == DiagnosticType.Error) ?? false))
@@ -35,10 +34,10 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
             return;
         }
 
-        currentMachine?.Dispose();
+        service.currentMachine?.Dispose();
 
         // criar maquina
-        currentMachine = new MachineBuilder()
+        service.currentMachine = new MachineBuilder()
             .WithInMemoryStdio()
             .WithMemory(new MemoryBuilder()
                 .With4Gb()
@@ -53,14 +52,14 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
             .Build();
 
         ELF<uint> elf = ELFReader.Load<uint>(message.Value.OutputPath);
-        currentMachine.LoadElf(elf);
+        service.currentMachine.LoadElf(elf);
 
         // publica evento de carregamento do programa
         ProgramLoadMessage loadMsg = new()
         {
-            Machine = currentMachine
+            Machine = service.currentMachine
         };
-        Logger.LogInformation("Programa carregado com sucesso: {OutputPath}", message.Value.OutputPath);
+        service.Logger.LogInformation("Programa carregado com sucesso: {OutputPath}", message.Value.OutputPath);
         WeakReferenceMessenger.Default.Send(loadMsg);
     }
     
