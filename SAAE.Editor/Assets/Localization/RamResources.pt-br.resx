@@ -23,4 +23,13 @@
     <data name="RamSegmentsText" xml:space="preserve">
         <value>Segmentos:</value>
     </data>
+    <data name="RamDecMode" xml:space="preserve">
+        <value>Decimal</value>
+    </data>
+    <data name="RamHexMode" xml:space="preserve">
+        <value>Hexadecimal</value>
+    </data>
+    <data name="RamTextMode" xml:space="preserve">
+        <value>ASCII</value>
+    </data>
 </root>

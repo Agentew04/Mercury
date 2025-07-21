@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
+using Avalonia.Data.Converters;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -9,20 +12,31 @@ using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
 using ELFSharp.ELF.Segments;
 using Microsoft.Extensions.Logging;
+using SAAE.Editor.Localization;
 using SAAE.Editor.Models.Messages;
 
 namespace SAAE.Editor.ViewModels.Execute;
 
-public partial class RamViewModel : BaseViewModel<RamViewModel> {
+public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
 
     [ObservableProperty]
     private ObservableCollection<Location> locations = [];
 
     [ObservableProperty]
     private int selectedSectionIndex = 0;
+
+    public ObservableCollection<RamVisualization> AvailableVisualizationModes { get; private set; } = [];
+
+    [ObservableProperty] private int selectedModeIndex = 0;
     
     public RamViewModel() {
         WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
+        LocalizationManager.CultureChanged += OnLocalize;
+    }
+
+    private void OnLocalize(CultureInfo cultureInfo) {
+        //CreateModeList();
+        OnPropertyChanged(nameof(AvailableVisualizationModes));
     }
 
     private static void OnProgramLoad(object recipient, ProgramLoadMessage msg) {
@@ -54,11 +68,48 @@ public partial class RamViewModel : BaseViewModel<RamViewModel> {
         }
         vm.SelectedSectionIndex = -1;
         vm.SelectedSectionIndex = 0;
-        //vm.OnPropertyChanged(new PropertyChangedEventArgs(nameof(SelectedSectionIndex)));
+        vm.CreateModeList();
+        vm.SelectedModeIndex = -1;
+        vm.SelectedModeIndex = 0;
+    }
+
+    private void CreateModeList() {
+        AvailableVisualizationModes.Clear();
+        AvailableVisualizationModes.AddRange(
+            [RamVisualization.Hexadecimal, RamVisualization.Decimal, RamVisualization.Ascii ]
+            );
+    }
+
+    public void Dispose() {
+        LocalizationManager.CultureChanged -= OnLocalize;
     }
 }
 
 public class Location {
     public string Name { get; set; }
     public uint LoadAddress { get; set; }
+}
+
+public enum RamVisualization {
+    Hexadecimal,
+    Decimal,
+    Ascii
+}
+
+public class RamVisualizationConverter : IValueConverter {
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        if (value is not RamVisualization visu) {
+            return null;
+        }
+        return visu switch {
+            RamVisualization.Decimal => RamResources.RamDecModeValue,
+            RamVisualization.Ascii => RamResources.RamTextModeValue,
+            RamVisualization.Hexadecimal => RamResources.RamHexModeValue,
+            _ => throw new NotSupportedException()
+        };
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        throw new NotSupportedException();
+    }
 }

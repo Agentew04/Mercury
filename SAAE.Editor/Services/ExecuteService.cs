@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using CommunityToolkit.Mvvm.Messaging;
 using ELFSharp.ELF;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +23,6 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
 
     public ExecuteService()
     {
-        Logger.LogInformation("Initializing ExecutionService");
         WeakReferenceMessenger.Default.Register<CompilationFinishedMessage>(this, OnCompile);
     }
 
@@ -53,9 +53,10 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
             .WithMipsMonocycle()
             .Build();
 
-        
-        service.currentElf = ELFReader.Load<uint>(message.Value.OutputPath);
+        FileStream elfFs = File.OpenRead(message.Value.OutputPath!);
+        service.currentElf = ELFReader.Load<uint>(elfFs, false);
         service.currentMachine.LoadElf(service.currentElf);
+        elfFs.Close();
 
         // publica evento de carregamento do programa
         ProgramLoadMessage loadMsg = new()
@@ -66,7 +67,7 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
         service.Logger.LogInformation("Programa carregado com sucesso: {OutputPath}", message.Value.OutputPath);
         WeakReferenceMessenger.Default.Send(loadMsg);
     }
-    
+
     public Machine GetCurrentMachine()
     {
         return currentMachine!;

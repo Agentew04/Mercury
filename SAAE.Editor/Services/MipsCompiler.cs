@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
 using SAAE.Editor.Models.Compilation;
@@ -70,6 +71,10 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         using MemoryStream diagMs = new();
         CompilationError commandError = await RunCommand(command, TimeSpan.FromMilliseconds(1000), diagMs);
         diagMs.Seek(0, SeekOrigin.Begin);
+
+        if (commandError != CompilationError.None) {
+            Logger.LogWarning("Error compiling. Type: {type}", commandError);
+        }
 
         if (commandError != CompilationError.None && commandError != CompilationError.CompilationError)
         {
@@ -230,6 +235,11 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
             await process.WaitForExitAsync(processCts.Token);
         }
         catch (TaskCanceledException) {
+            // possivelmente permission denied. arquivo .elf esta
+            // sendo usado por outro processo!
+            Logger.LogError("StdOut: {out}; StdErr: {err}",
+                await process.StandardOutput.ReadToEndAsync(),
+                await process.StandardError.ReadToEndAsync());
             process.Kill();
             process.Close();
             return CompilationError.TimeoutError;

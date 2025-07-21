@@ -33,7 +33,7 @@
                 <DataGridTextColumn Header="Message" Binding="{Binding Message}"
                                     Width="*">
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Filename" Binding="{Binding FilePath, Converter={StaticResource FilenameConverter}}"
+                <DataGridTextColumn Header="Filename" Binding="{Binding FilePath, Mode=OneWay,Converter={StaticResource FilenameConverter}}"
                                     Width="150"/>
                 <DataGridTextColumn Header="Line" Binding="{Binding Line}"
                                     Width="50"/>

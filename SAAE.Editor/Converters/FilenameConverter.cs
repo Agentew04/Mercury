@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 using SAAE.Editor.Extensions;
 
@@ -19,6 +20,7 @@ public class FilenameConverter : IValueConverter {
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        //return BindingNotification.
         throw new NotSupportedException();
     }
 }

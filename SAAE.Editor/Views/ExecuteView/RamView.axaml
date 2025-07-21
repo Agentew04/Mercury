@@ -10,6 +10,7 @@
              x:Class="SAAE.Editor.Views.ExecuteView.RamView">
     <UserControl.Resources>
         <conv:HexadecimalConverter x:Key="HexConverter"></conv:HexadecimalConverter>
+        <exec:RamVisualizationConverter x:Key="RamVisualizationConverter"></exec:RamVisualizationConverter>
     </UserControl.Resources>
     <DockPanel Margin="5">
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top"
@@ -69,12 +70,14 @@
                    FontSize="16">
                 Modo
             </Label>
-            <ComboBox x:Name="DataModeComboBox">
-                <ComboBox.Items>
-                    <ComboBoxItem>Decimal</ComboBoxItem>
-                    <ComboBoxItem>Hexadecimal</ComboBoxItem>
-                    <ComboBoxItem>ASCII</ComboBoxItem>
-                </ComboBox.Items>
+            <ComboBox x:Name="DataModeComboBox"
+                      ItemsSource="{Binding AvailableVisualizationModes, Mode=OneWay}"
+                      SelectedIndex="{Binding SelectedModeIndex}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="exec:RamVisualization">
+                        <TextBlock Text="{Binding ., Converter={StaticResource RamVisualizationConverter}}"></TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
             </ComboBox>
         </StackPanel>
         
