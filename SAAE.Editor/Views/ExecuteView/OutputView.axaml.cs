@@ -22,7 +22,9 @@ public partial class OutputView : UserControl {
         ViewModel.OutputScroller = OutputTextBox.GetVisualDescendants()
             .OfType<ScrollViewer>()
             .FirstOrDefault();
-        logger.LogWarning("OutputTextBox ScrollView not found! Can't auto scroll to end!");
+        if (ViewModel.OutputScroller is null) {
+            logger.LogWarning("OutputTextBox ScrollView not found! Can't auto scroll to end!");
+        }
     }
 
 

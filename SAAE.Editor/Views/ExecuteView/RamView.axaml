@@ -1,0 +1,83 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:exec="clr-namespace:SAAE.Editor.ViewModels.Execute"
+             xmlns:conv="clr-namespace:SAAE.Editor.Converters"
+             xmlns:loc="clr-namespace:SAAE.Editor.Localization"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="exec:RamViewModel"
+             x:Class="SAAE.Editor.Views.ExecuteView.RamView">
+    <UserControl.Resources>
+        <conv:HexadecimalConverter x:Key="HexConverter"></conv:HexadecimalConverter>
+    </UserControl.Resources>
+    <DockPanel Margin="5">
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top"
+                    Spacing="15">
+            <TextBlock Classes="minorheader"
+                       Text="{Binding Path=RamTitleText, Source={x:Static loc:RamResources.Instance}}"/>
+            
+            <Label Margin="10,0,0,0"
+                   VerticalContentAlignment="Center"
+                   FontSize="16"
+                   Target="LocationComboBox"
+                   Content="{Binding Path=RamSegmentsText, Source={x:Static loc:RamResources.Instance}}"/>
+            
+            <!-- section combo box -->
+            <ComboBox ItemsSource="{Binding Locations, Mode=OneWay}"
+                      SelectedIndex="{Binding SelectedSectionIndex}"
+                      x:Name="LocationComboBox">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate DataType="exec:Location">
+                        <TextBlock>
+                            <!-- comentarios para tirar o \n que eh traduzido como whitespace na UI -->
+                            <Run Text="0x"/><!--
+                            --><Run Text="{Binding LoadAddress, Converter={StaticResource HexConverter}}"/>
+                            <Run Text=" (" FontWeight="Bold"/><!--
+                            --><Run Text="{Binding Name}" FontWeight="Bold"/><!--
+                            --><Run Text=")" FontWeight="Bold"/>
+                        </TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+                <ComboBox.SelectionBoxItemTemplate>
+                    <DataTemplate DataType="exec:Location">
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold"></TextBlock>
+                    </DataTemplate>
+                </ComboBox.SelectionBoxItemTemplate>
+            </ComboBox>
+            
+            <Button>
+                <TextBlock
+                    FontFamily="{StaticResource PhosphorFont}"
+                    Text="&#xE138;"
+                    ToolTip.Tip="{Binding Path=RamPageLeftTooltip, Source={x:Static loc:RamResources.Instance}}"
+                    ></TextBlock>
+            </Button>
+            <Button>
+                <TextBlock
+                    FontFamily="{StaticResource PhosphorFont}"
+                    Text="&#xE13A;"
+                    ToolTip.Tip="{Binding Path=RamPageRightTooltip, Source={x:Static loc:RamResources.Instance}}"
+                ></TextBlock>
+            </Button>
+
+            <!-- divider -->
+            <Rectangle Width="1" Fill="{StaticResource AlternateGrey}"/>
+            
+            <Label Target="DataModeComboBox"
+                   VerticalAlignment="Center"
+                   FontSize="16">
+                Modo
+            </Label>
+            <ComboBox x:Name="DataModeComboBox">
+                <ComboBox.Items>
+                    <ComboBoxItem>Decimal</ComboBoxItem>
+                    <ComboBoxItem>Hexadecimal</ComboBoxItem>
+                    <ComboBoxItem>ASCII</ComboBoxItem>
+                </ComboBox.Items>
+            </ComboBox>
+        </StackPanel>
+        
+        <DataGrid></DataGrid>
+    </DockPanel>
+</UserControl>

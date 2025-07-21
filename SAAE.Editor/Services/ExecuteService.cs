@@ -18,6 +18,7 @@ namespace SAAE.Editor.Services;
 public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
 {
     private Machine? currentMachine;
+    private ELF<uint>? currentElf;
 
     public ExecuteService()
     {
@@ -35,6 +36,7 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
         }
 
         service.currentMachine?.Dispose();
+        service.currentElf?.Dispose();
 
         // criar maquina
         service.currentMachine = new MachineBuilder()
@@ -51,13 +53,15 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
             .WithMipsMonocycle()
             .Build();
 
-        ELF<uint> elf = ELFReader.Load<uint>(message.Value.OutputPath);
-        service.currentMachine.LoadElf(elf);
+        
+        service.currentElf = ELFReader.Load<uint>(message.Value.OutputPath);
+        service.currentMachine.LoadElf(service.currentElf);
 
         // publica evento de carregamento do programa
         ProgramLoadMessage loadMsg = new()
         {
-            Machine = service.currentMachine
+            Machine = service.currentMachine,
+            Elf = service.currentElf
         };
         service.Logger.LogInformation("Programa carregado com sucesso: {OutputPath}", message.Value.OutputPath);
         WeakReferenceMessenger.Default.Send(loadMsg);
