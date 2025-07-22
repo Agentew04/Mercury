@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Avalonia.Data.Converters;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
@@ -14,6 +17,8 @@ using ELFSharp.ELF.Segments;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models.Messages;
+using SAAE.Engine.Memory;
+using Machine = SAAE.Engine.Mips.Runtime.Machine;
 
 namespace SAAE.Editor.ViewModels.Execute;
 
@@ -22,13 +27,20 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
     [ObservableProperty]
     private ObservableCollection<Location> locations = [];
 
-    [ObservableProperty]
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(Rows))]
     private int selectedSectionIndex = 0;
 
     public ObservableCollection<RamVisualization> AvailableVisualizationModes { get; private set; } = [];
 
-    [ObservableProperty] private int selectedModeIndex = 0;
-    
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(Rows))] private int selectedModeIndex = 0;
+
+    private Machine? currentMachine;
+
+    [ObservableProperty]
+    private ObservableCollection<RamRow> rows = [];
+
+    private int currentPage = 0;
+
     public RamViewModel() {
         WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
         LocalizationManager.CultureChanged += OnLocalize;
@@ -42,12 +54,20 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
     private static void OnProgramLoad(object recipient, ProgramLoadMessage msg) {
         RamViewModel vm = (RamViewModel)recipient;
         // load sectors from elf
-        vm.Locations.Clear();
+        vm.PopulateLocations(msg.Elf);
+        vm.currentMachine = msg.Machine;
+        vm.PopulateRam();
+        vm.DisplayRam();
+        vm.NextPageCommand.NotifyCanExecuteChanged();
+        vm.PreviousPageCommand.NotifyCanExecuteChanged();
+    }
+
+    private void PopulateLocations(ELF<uint> elf) {
+        Locations.Clear();
         // isolar localizacoes que nos importam
-        ELF<uint> elf = msg.Elf;
         List<Segment<uint>> segments = elf.Segments
-                .Where(x => x.Type == SegmentType.Load)
-                .ToList(); 
+            .Where(x => x.Type == SegmentType.Load)
+            .ToList(); 
         List<Section<uint>> sections = elf.Sections
             .Where(x => x.Type == SectionType.ProgBits)
             .ToList();
@@ -64,13 +84,13 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
                 LoadAddress = segment.Address,
                 Name = name ?? string.Empty
             };
-            vm.Locations.Add(loc);
+            Locations.Add(loc);
         }
-        vm.SelectedSectionIndex = -1;
-        vm.SelectedSectionIndex = 0;
-        vm.CreateModeList();
-        vm.SelectedModeIndex = -1;
-        vm.SelectedModeIndex = 0;
+        SelectedSectionIndex = -1;
+        SelectedSectionIndex = 0;
+        CreateModeList();
+        SelectedModeIndex = -1;
+        SelectedModeIndex = 0;
     }
 
     private void CreateModeList() {
@@ -80,6 +100,123 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
             );
     }
 
+    private void PopulateRam() {
+        Location loc = Locations[SelectedSectionIndex];
+        long addr = loc.LoadAddress;
+        const uint bytesPerPage = 256;
+        const uint bytesPerRow = 16;
+        const int rowCount = 16;
+        if (addr < bytesPerPage * currentPage) {
+            addr = 0;
+        }
+        else {
+            addr += bytesPerPage * currentPage;
+        }
+
+        Rows.Clear();
+        if (currentMachine is null) {
+            return;
+        }
+        for (uint i = 0; i < rowCount; i++) {
+            uint offset = (uint)(addr + i * bytesPerRow);
+            RamRow row = new() {
+                RowAddress = offset,
+                Data0 = currentMachine.Memory.ReadWord(offset + 0x0),
+                Data4 = currentMachine.Memory.ReadWord(offset + 0x4),
+                Data8 = currentMachine.Memory.ReadWord(offset + 0x8),
+                DataC = currentMachine.Memory.ReadWord(offset + 0xC)
+            };
+            Rows.Add(row);
+        }
+    }
+
+    // calcula o modo de exibicao correto dos dados do visualizador
+    private void DisplayRam() {
+        if (currentMachine is null) {
+            return;
+        }
+        foreach (RamRow row in Rows) {
+            row.Data0String = Display(row.Data0);
+            row.Data4String = Display(row.Data4);
+            row.Data8String = Display(row.Data8);
+            row.DataCString = Display(row.DataC);
+        }
+        //OnPropertyChanged(nameof(Rows));
+        return;
+
+        string DisplayChar(char c) {
+            if (char.IsControl(c)) {
+                return c switch {
+                    '\0' => "\\0",
+                    '\b' => "\\b",
+                    '\t' => "\\t",
+                    '\n' => "\\n",
+                    '\r' => "\\r",
+                    _ => $"\\x{(int)c:X2}" // ex: \x1B
+                };
+            }
+            else {
+                return c.ToString();
+            }
+        }
+        
+        string Display(int data) {
+            switch (AvailableVisualizationModes[SelectedModeIndex]) {
+                case RamVisualization.Hexadecimal:
+                    return "0x" + data.ToString("x8");
+                case RamVisualization.Decimal:
+                    return data.ToString();
+                case RamVisualization.Ascii:
+                    Span<byte> bytes = stackalloc byte[4];
+                    Span<char> chars = stackalloc char[4];
+                    switch (currentMachine!.Memory.Endianess) {
+                        case Endianess.LittleEndian:
+                            BinaryPrimitives.WriteInt32LittleEndian(bytes, data);
+                            break;
+                        case Endianess.BigEndian:
+                            BinaryPrimitives.WriteInt32BigEndian(bytes, data);
+                            break;
+                        default:
+                            throw new NotSupportedException();
+                    }
+                    Encoding.ASCII.GetChars(bytes, chars);
+                    return $"{DisplayChar(chars[0])} {DisplayChar(chars[1])} {DisplayChar(chars[2])} {DisplayChar(chars[3])}";
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
+
+    partial void OnSelectedModeIndexChanged(int value) {
+        DisplayRam();
+    }
+
+    partial void OnSelectedSectionIndexChanged(int value) {
+        if (value == -1) {
+            return;
+        }
+        PopulateRam();
+        DisplayRam();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanNavigate))]
+    private void NextPage() {
+        currentPage++;
+        PopulateRam();
+        DisplayRam();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanNavigate))]
+    private void PreviousPage() {
+        currentPage--;
+        PopulateRam();
+        DisplayRam();
+    }
+
+    private bool CanNavigate() {
+        return currentMachine is not null;
+    }
+    
     public void Dispose() {
         LocalizationManager.CultureChanged -= OnLocalize;
     }
@@ -112,4 +249,24 @@ public class RamVisualizationConverter : IValueConverter {
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         throw new NotSupportedException();
     }
+}
+
+public partial class RamRow : ObservableObject {
+    public uint RowAddress { get; set; }
+
+    public int Data0 { get; set; }
+
+    [ObservableProperty] private string data0String = string.Empty;
+
+    public int Data4 { get; set; }
+
+    [ObservableProperty] private string data4String = string.Empty;
+
+    public int Data8 { get; set; }
+
+    [ObservableProperty] private string data8String = string.Empty;
+
+    public int DataC { get; set; }
+
+    [ObservableProperty] private string dataCString = string.Empty;
 }

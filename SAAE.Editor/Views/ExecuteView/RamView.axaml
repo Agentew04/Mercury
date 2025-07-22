@@ -17,7 +17,7 @@
                     Spacing="15">
             <TextBlock Classes="minorheader"
                        Text="{Binding Path=RamTitleText, Source={x:Static loc:RamResources.Instance}}"/>
-            
+
             <Label Margin="10,0,0,0"
                    VerticalContentAlignment="Center"
                    FontSize="16"
@@ -47,14 +47,14 @@
                 </ComboBox.SelectionBoxItemTemplate>
             </ComboBox>
             
-            <Button>
+            <Button Command="{Binding PreviousPageCommand}">
                 <TextBlock
                     FontFamily="{StaticResource PhosphorFont}"
                     Text="&#xE138;"
                     ToolTip.Tip="{Binding Path=RamPageLeftTooltip, Source={x:Static loc:RamResources.Instance}}"
                     ></TextBlock>
             </Button>
-            <Button>
+            <Button Command="{Binding NextPageCommand}">
                 <TextBlock
                     FontFamily="{StaticResource PhosphorFont}"
                     Text="&#xE13A;"
@@ -81,6 +81,25 @@
             </ComboBox>
         </StackPanel>
         
-        <DataGrid></DataGrid>
+        <DataGrid ItemsSource="{Binding Rows, Mode=OneWay}"
+                  Classes="headerslim"
+                  CanUserReorderColumns="False" CanUserSortColumns="False"
+                  CanUserResizeColumns="False"
+                  IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="Auto" Header="Address"
+                                    Binding="{Binding RowAddress, Mode=OneWay, Converter={StaticResource HexConverter},
+                                    StringFormat='0x{0}'}">
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="+0x0" Width="*"
+                                    Binding="{Binding Data0String, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="+0x4" Width="*"
+                                    Binding="{Binding Data4String, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="+0x8" Width="*"
+                                    Binding="{Binding Data8String, Mode=OneWay}"></DataGridTextColumn>
+                <DataGridTextColumn Header="+0xC" Width="*"
+                                    Binding="{Binding DataCString, Mode=OneWay}"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
     </DockPanel>
 </UserControl>
