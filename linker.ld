@@ -11,5 +11,10 @@ SECTIONS
     }
 
     . = ALIGN(4K);                   /* Align to page size */
-    _end = .;                        /* Mark the end of the program */
+    __end = .;                        /* Mark the end of the program */
+
+    metadata 0 : 
+    {
+        KEEP(*(metadata))
+    }
 }
