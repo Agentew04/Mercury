@@ -257,6 +257,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         catch (NotSupportedException) {
             outputFilepath = binDirectory.Folder("stdlib") + (input.Path - stdlibDirectory);
         }
+        Directory.CreateDirectory(outputFilepath.Path().ToString());
 
         await using FileStream fsIn = File.OpenRead(input.Path.ToString());
         await using FileStream fsOut = File.Open(outputFilepath.ToString(), FileMode.Create, FileAccess.Write);
@@ -267,8 +268,8 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         await sw.WriteLineAsync("__filestart: # comeca com __, vai ser ignorado pelo aplicativo.");
         await sw.WriteLineAsync("# se vc eh um usuario lendo isso, nao use __ nas suas labels :)");
         await sw.WriteLineAsync(".section metadata, \"\", @progbits # define secao de metadados que guarda onde no elf esse arquivo comeca");
-        await sw.WriteLineAsync(".asciiz \"helloworld.s\"");
-        await sw.WriteLineAsync(".quad filestart");
+        await sw.WriteLineAsync($".asciiz \"{input.Path.ToString().Replace("\\","/")}\"");
+        await sw.WriteLineAsync(".quad __filestart");
         await sw.WriteLineAsync(".text");
         injected+=8;
         if (input.IsEntryPoint) {

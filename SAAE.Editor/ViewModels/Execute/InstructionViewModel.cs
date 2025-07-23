@@ -12,6 +12,54 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel> 
 
     public InstructionViewModel() {
         WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
+        Instructions.Add(new DisassemblyRow() {
+            Address = 0x0040_0000,
+            Binary = 0x1234_5678,
+            Disassembly = "add $t0, $t1, $t2",
+            Source = new SourceInstruction() {
+                File = "main.asm",
+                IsPadding = false,
+                Generated = false,
+                LineContent = "add $t0, $t1, $t2",
+                LineNumber = 5
+            }
+        });
+        Instructions.Add(new DisassemblyRow() {
+            Address = 0x0040_0004,
+            Binary = 0x1234_5678,
+            Disassembly = "add $t0, $t1, $t2",
+            Source = new SourceInstruction() {
+                File = "main.asm",
+                IsPadding = false,
+                Generated = true,
+                LineContent = "add $t0, $t1, $t2",
+                LineNumber = 10
+            }
+        });
+        Instructions.Add(new DisassemblyRow() {
+            Address = 0x0040_0008,
+            Binary = 0x1234_5678,
+            Disassembly = "add $t0, $t1, $t2",
+            Source = new SourceInstruction() {
+                File = "main.asm",
+                IsPadding = true,
+                Generated = false,
+                LineContent = "add $t0, $t1, $t2",
+                LineNumber = 15
+            }
+        });
+        Instructions.Add(new DisassemblyRow() {
+            Address = 0x0040_000C,
+            Binary = 0x1234_5678,
+            Disassembly = "add $t0, $t1, $t2",
+            Source = new SourceInstruction() {
+                File = "main.asm",
+                IsPadding = true,
+                Generated = true,
+                LineContent = "add $t0, $t1, $t2",
+                LineNumber = 20
+            }
+        });
     }
 
     private static void OnProgramLoad(object recipient, ProgramLoadMessage msg) {

@@ -53,7 +53,12 @@ public static class PathExtensions {
     }
 }
 
-public readonly struct PathObject : IXmlSerializable{
+/// <summary>
+/// Object that represents a path. Can be a file or a directory.
+/// </summary>
+/// <remarks>Normally you create one with <see cref="PathExtensions.ToDirectoryPath"/>
+/// or <see cref="PathExtensions.ToFilePath"/>.</remarks>
+public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
     
     /// <summary>
     /// The folder parts of this path.
@@ -90,6 +95,12 @@ public readonly struct PathObject : IXmlSerializable{
     /// </summary>
     public string FullFileName => Filename + Extension;
 
+    /// <summary>
+    /// Returns the string representation of this path.
+    /// </summary>
+    /// <remarks>On relative paths: if the platform is linux, adds a preceding <see cref="System.IO.Path.DirectorySeparatorChar"/>.
+    /// On Windows it does not because first elemento of <see cref="Parts"/> is a drive letter.</remarks>
+    /// <returns></returns>
     public override string ToString() {
         StringBuilder sb = new();
         if (IsAbsolute) {
@@ -111,21 +122,23 @@ public readonly struct PathObject : IXmlSerializable{
     }
     
     public bool Equals(PathObject? other) {
-        if (other is null) {
-            return false;
-        }
-
-        PathObject o = other.Value;
-
-        if (o.IsAbsolute != IsAbsolute) return false;
-        if (o.IsDirectory != IsDirectory) return false;
-        if (o.IsFile != IsFile) return false;
-        if (IsFile && (o.Filename != Filename || o.Extension != Extension)) return false;
-        return Parts.SequenceEqual(o.Parts);
+        return other is not null && Equals(other.Value);
     }
 
+    /// <summary>
+    /// Creates a new path with a folder appended at the end.
+    /// </summary>
+    /// <param name="newPart">The name of the new folder</param>
+    /// <returns>The new path</returns>
+    /// <exception cref="NotSupportedException">Thrown if the current path is a file</exception>
     public PathObject Folder(string newPart) => Folders(newPart);
     
+    /// <summary>
+    /// Appends an ordered collection of new folders. 
+    /// </summary>
+    /// <param name="newParts">The folders to append</param>
+    /// <returns>The new path</returns>
+    /// <exception cref="NotSupportedException">Thrown if the current path is a file</exception>
     public PathObject Folders(params string[] newParts) {
         if (!IsDirectory || IsFile) {
             throw new NotSupportedException("Cannot append new folder on a file");
@@ -141,6 +154,12 @@ public readonly struct PathObject : IXmlSerializable{
         };
     }
 
+    /// <summary>
+    /// Appends two paths together.
+    /// </summary>
+    /// <param name="other">The path to append to the right side</param>
+    /// <returns>The new path</returns>
+    /// <exception cref="NotSupportedException">Thrown if the left side is a file or the right side is absolute.</exception>
     public PathObject Append(PathObject other) {
         if (other.IsAbsolute) {
             throw new NotSupportedException("Cannot append a rooted path to another");
@@ -154,6 +173,9 @@ public readonly struct PathObject : IXmlSerializable{
         return other.IsFile ? newfolder.File(other.FullFileName) : newfolder;
     }
 
+    /// <summary>
+    /// Appends two files.
+    /// </summary>
     public static PathObject operator +(PathObject lhs, PathObject rhs) => lhs.Append(rhs);
     public static bool operator ==(PathObject lhs, PathObject rhs) => lhs.Equals(rhs);
     public static bool operator !=(PathObject lhs, PathObject rhs) => !lhs.Equals(rhs);
@@ -161,6 +183,12 @@ public readonly struct PathObject : IXmlSerializable{
     public static PathObject operator -(PathObject lhs, PathObject rhs) => lhs.Relativize(rhs);
     //public void operator -=(PathObject other) => only on C# 14
     
+    /// <summary>
+    /// Creates a new file on the given path.
+    /// </summary>
+    /// <param name="filename">The complete name of the file</param>
+    /// <returns>The path to the file</returns>
+    /// <exception cref="NotSupportedException">If the current path is already an file</exception>
     public PathObject File(string filename) {
         if (!IsDirectory || IsFile) {
             throw new NotSupportedException("Cannot append a file to a file path");
@@ -180,6 +208,12 @@ public readonly struct PathObject : IXmlSerializable{
         };
     }
 
+    /// <summary>
+    /// Returns the path of the current path. If this is a directory, returns itself. If it's
+    /// a file, returns the folder containing this file.
+    /// </summary>
+    /// <returns>A folder path</returns>
+    /// <exception cref="NotSupportedException">Thrown if the path is a file and the filename is empty</exception>
     public PathObject Path()
     {
         if (IsDirectory || !IsFile)
@@ -202,6 +236,13 @@ public readonly struct PathObject : IXmlSerializable{
         };
     }
 
+    /// <summary>
+    /// Subtracts one path from another. Useful to extract a relative path and place on another root.
+    /// </summary>
+    /// <param name="root">The root to remove from the current path</param>
+    /// <returns>The new relative path</returns>
+    /// <exception cref="NotSupportedException">Thrown if <see cref="root"/> has incompatible parts with
+    /// the current, or it's not a folder</exception>
     public PathObject Relativize(PathObject root) {
         if (root.Parts.Length > Parts.Length) {
             throw new NotSupportedException("Root path cannot contain more parts than fullpath");
@@ -236,5 +277,23 @@ public readonly struct PathObject : IXmlSerializable{
     {
         writer.WriteAttributeString("directory", IsDirectory.ToString());
         writer.WriteAttributeString("path", ToString());
+    }
+
+    public bool Equals(PathObject other) {
+        if (other.Parts.IsDefault || Parts.IsDefault) return false;
+        if (other.Parts.Length != Parts.Length) return false;
+        if (other.IsAbsolute != IsAbsolute) return false;
+        if (other.IsDirectory != IsDirectory) return false;
+        if (other.IsFile != IsFile) return false;
+        if (IsFile && (other.Filename != Filename || other.Extension != Extension)) return false;
+        return Parts.SequenceEqual(other.Parts);
+    }
+
+    public override bool Equals(object? obj) {
+        return obj is PathObject other && Equals(other);
+    }
+
+    public override int GetHashCode() {
+        return HashCode.Combine(Parts, IsAbsolute, IsDirectory, IsFile, Filename, Extension);
     }
 } 

@@ -26,7 +26,7 @@ public readonly struct CompilationInput
         hashes.Add(entryPoint.Hash);
         hashes.AddRange(Files
             .Where(x => !x.IsEntryPoint)
-            .OrderBy(file => file.Path)
+            .OrderBy(file => file.Path.ToString())
             .Select(x => {
             if (x.Hash.Length > 0)
             {

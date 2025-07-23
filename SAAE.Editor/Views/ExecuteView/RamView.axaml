@@ -67,8 +67,8 @@
             
             <Label Target="DataModeComboBox"
                    VerticalAlignment="Center"
-                   FontSize="16">
-                Modo
+                   FontSize="16"
+                   Content="{Binding Path=RamModeTitleText, Source={x:Static loc:RamResources.Instance}}">
             </Label>
             <ComboBox x:Name="DataModeComboBox"
                       ItemsSource="{Binding AvailableVisualizationModes, Mode=OneWay}"

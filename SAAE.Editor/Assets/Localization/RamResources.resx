@@ -54,4 +54,7 @@
     <data name="RamHeaderValueC" xml:space="preserve">
         <value>Value + 0xC</value>
     </data>
+    <data name="RamModeTitleText" xml:space="preserve">
+        <value>Mode</value>
+    </data>
 </root>
