@@ -87,17 +87,22 @@
                   CanUserResizeColumns="False"
                   IsReadOnly="True">
             <DataGrid.Columns>
-                <DataGridTextColumn Width="Auto" Header="Address"
+                <DataGridTextColumn Width="Auto" 
+                                    Header="{Binding Path=RamHeaderAddress, Source={x:Static loc:RamResources.Instance}}"
                                     Binding="{Binding RowAddress, Mode=OneWay, Converter={StaticResource HexConverter},
                                     StringFormat='0x{0}'}">
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="+0x0" Width="*"
+                <DataGridTextColumn Width="*"
+                                    Header="{Binding Path=RamHeaderValue0, Source={x:Static loc:RamResources.Instance}}"
                                     Binding="{Binding Data0String, Mode=OneWay}"></DataGridTextColumn>
-                <DataGridTextColumn Header="+0x4" Width="*"
+                <DataGridTextColumn Width="*"
+                                    Header="{Binding Path=RamHeaderValue4, Source={x:Static loc:RamResources.Instance}}"
                                     Binding="{Binding Data4String, Mode=OneWay}"></DataGridTextColumn>
-                <DataGridTextColumn Header="+0x8" Width="*"
+                <DataGridTextColumn Width="*"
+                                    Header="{Binding Path=RamHeaderValue8, Source={x:Static loc:RamResources.Instance}}"
                                     Binding="{Binding Data8String, Mode=OneWay}"></DataGridTextColumn>
-                <DataGridTextColumn Header="+0xC" Width="*"
+                <DataGridTextColumn Width="*"
+                                    Header="{Binding Path=RamHeaderValueC, Source={x:Static loc:RamResources.Instance}}"
                                     Binding="{Binding DataCString, Mode=OneWay}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>

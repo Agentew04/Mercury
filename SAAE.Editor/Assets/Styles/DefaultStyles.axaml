@@ -140,4 +140,11 @@
         <Setter Property="Grid.ColumnSpan" Value="2"></Setter>
         <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
     </Style>
+    
+    <Style Selector="DataGrid.static">
+        <Setter Property="CanUserReorderColumns" Value="False"></Setter>
+        <Setter Property="CanUserResizeColumns" Value="False"></Setter>
+        <Setter Property="CanUserSortColumns" Value="False"></Setter>
+        <Setter Property="IsReadOnly" Value="True"></Setter>
+    </Style>
 </Styles>

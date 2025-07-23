@@ -39,4 +39,19 @@
     <data name="RamTextMode" xml:space="preserve">
         <value>ASCII</value>
     </data>
+    <data name="RamHeaderAddress" xml:space="preserve">
+        <value>Address</value>
+    </data>
+    <data name="RamHeaderValue0" xml:space="preserve">
+        <value>Value + 0x0</value>
+    </data>
+    <data name="RamHeaderValue4" xml:space="preserve">
+        <value>Value + 0x4</value>
+    </data>
+    <data name="RamHeaderValue8" xml:space="preserve">
+        <value>Value + 0x8</value>
+    </data>
+    <data name="RamHeaderValueC" xml:space="preserve">
+        <value>Value + 0xC</value>
+    </data>
 </root>

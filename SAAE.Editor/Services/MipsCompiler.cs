@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using ELFSharp.ELF;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
@@ -30,44 +31,45 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
          * 1. Calcular onde eh o diretorio de compilacao
          * 2. Calcular id da compilacao
          * 3. Mover entry point modificado para o diretorio de compilacao
-         * 4. Compilar 
+         * 4. Salvar relacao paths antigos e novos
+         * 5. Compilar 
          */
         ProjectFile project = projectService.GetCurrentProject()!;
-        
         if (input.Files.Count(x => x.IsEntryPoint) > 1)
         {
             throw new Exception("Only one entry point is allowed.");
         }
-        
+
         // 1. Calcular onde eh o diretorio de compilacao
         PathObject compilationDirectory = project.ProjectDirectory + project.OutputPath;
         Directory.CreateDirectory(compilationDirectory.ToString());
         
         // 2. Calcular id da compilacao
-        Guid compilationId = input.CalculateId(EntryPointPreambule);
+        Guid compilationId = input.CalculateId();
 
-        // 3. Mover entry point modificado para o diretorio de compilacao
-        CompilationFile entryPoint = input.Files.First(x => x.IsEntryPoint);
-        string entryPointPath = compilationDirectory + entryPoint.Path.FullFileName;
-        FileStream fsOut = File.Open(entryPointPath, FileMode.Create, FileAccess.Write);
-        // adicionar preambulo do entry point
-        StreamWriter swout = new(fsOut, leaveOpen: true);
-        await swout.WriteAsync(EntryPointPreambule);
-        swout.Close();
-        // completa com arquivo original
-        FileStream fsIn = File.Open(entryPoint.Path.ToString(), FileMode.Open, FileAccess.Read);
-        await fsIn.CopyToAsync(fsOut);
-        fsIn.Close();
-        fsOut.Close();
+        // 3. Mover todos os arquivos modificados para o diretorio de compilacao
+        List<Task<(PathObject Old, PathObject New, int injectedLines)>> moveTasks = input.Files.Select(x =>
+            MoveToBinAsync(
+                input: x,
+                srcDirectory: project.ProjectDirectory + project.SourceDirectory,
+                binDirectory: compilationDirectory,
+                stdlibDirectory: settingsService.Preferences.StdLibPath.ToDirectoryPath()))
+            .ToList();
+        await Task.WhenAll(moveTasks);
         
+        // 4. construir dicionarios
+        Dictionary<string, PathObject> pathMapping = [];
+        Dictionary<string, int> injectedLinesMapping = [];
+        foreach ((PathObject Old, PathObject New, int injectedLines) in moveTasks.Select(x => x.Result)) {
+            string key = New.ToString();
+            pathMapping[key] = Old;
+            injectedLinesMapping[key] = injectedLines;
+        }
         
-        // 4. Compilar
+        // 5. Compilar
         PathObject exePath = compilationDirectory + project.OutputFile;
-        List<string> paths = input.Files.Where(x => !x.IsEntryPoint)
-            .Select(x => x.Path.ToString()).ToList();
-        paths.Add(entryPointPath);
+        List<string> paths = pathMapping.Keys.ToList();
         string command = GenerateCommand(paths, exePath.ToString());
-        
         using MemoryStream diagMs = new();
         CompilationError commandError = await RunCommand(command, TimeSpan.FromMilliseconds(1000), diagMs);
         diagMs.Seek(0, SeekOrigin.Begin);
@@ -88,7 +90,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
             }; 
         }
         
-        List<Diagnostic> diagnostics = ParseDiagnostics(diagMs, entryPointPath, entryPoint.Path.ToString());
+        List<Diagnostic> diagnostics = ParseDiagnostics(diagMs, pathMapping, injectedLinesMapping);
 
         if (commandError == CompilationError.CompilationError)
         {
@@ -139,7 +141,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
     }
 
     // talvez esse codigo repita para todos os compilers que usem clang!
-    private static List<Diagnostic> ParseDiagnostics(Stream stream, string generatedEntryPointPath, string originalEntryPointPath) {
+    private static List<Diagnostic> ParseDiagnostics(Stream stream, Dictionary<string, PathObject> pathMapping, Dictionary<string, int> injectedLinesMapping) {
         List<Diagnostic> diagnostics = [];
 
         using StreamReader reader = new(stream, leaveOpen: true);
@@ -161,25 +163,18 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
                 continue;
             }
             string path = match.Groups["path"].Value;
-            bool isGen = path == generatedEntryPointPath; 
-            if (isGen) {
-                path = originalEntryPointPath;
-            }
+            PathObject originalPath = pathMapping[path];
             DiagnosticType type = match.Groups["type"].Value switch {
                 "error" => DiagnosticType.Error,
                 "warning" => DiagnosticType.Warning,
                 _ => DiagnosticType.Unknown
             };
             string message = match.Groups["message"].Value;
-            int lineNumber = int.Parse(match.Groups["line"].Value);
+            int lineNumber = int.Parse(match.Groups["line"].Value) - injectedLinesMapping[path];
             int columnNumber = int.Parse(match.Groups["column"].Value);
 
-            if (isGen) {
-                lineNumber -= EntryPointPreambule.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Length;
-            }
-
             Diagnostic d = new() {
-                FilePath = path,
+                FilePath = originalPath,
                 Line = lineNumber,
                 Column = columnNumber,
                 Type = type,
@@ -252,5 +247,42 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         CompilationError error = process.ExitCode == 0 ? CompilationError.None : CompilationError.CompilationError;
         process.Close();
         return error;
+    }
+
+    private static async Task<(PathObject Old, PathObject New, int injectedLines)> MoveToBinAsync(CompilationFile input, PathObject srcDirectory, PathObject binDirectory, PathObject stdlibDirectory) {
+        PathObject outputFilepath;
+        try {
+            outputFilepath = binDirectory.Folder("src") + (input.Path - srcDirectory);
+        }
+        catch (NotSupportedException) {
+            outputFilepath = binDirectory.Folder("stdlib") + (input.Path - stdlibDirectory);
+        }
+
+        await using FileStream fsIn = File.OpenRead(input.Path.ToString());
+        await using FileStream fsOut = File.Open(outputFilepath.ToString(), FileMode.Create, FileAccess.Write);
+        int injected = 0;
+        StreamWriter sw = new(fsOut, leaveOpen: true);
+        await sw.WriteLineAsync(".text");
+        await sw.WriteLineAsync(".hidden __filestart");
+        await sw.WriteLineAsync("__filestart: # comeca com __, vai ser ignorado pelo aplicativo.");
+        await sw.WriteLineAsync("# se vc eh um usuario lendo isso, nao use __ nas suas labels :)");
+        await sw.WriteLineAsync(".section metadata, \"\", @progbits # define secao de metadados que guarda onde no elf esse arquivo comeca");
+        await sw.WriteLineAsync(".asciiz \"helloworld.s\"");
+        await sw.WriteLineAsync(".quad filestart");
+        await sw.WriteLineAsync(".text");
+        injected+=8;
+        if (input.IsEntryPoint) {
+            await sw.WriteAsync(EntryPointPreambule);
+            injected+=2;
+        }
+        await sw.FlushAsync();
+        await fsIn.CopyToAsync(fsOut);
+        if (input.IsEntryPoint) {
+            await sw.WriteLineAsync("j __end # prevenir execucao de padding. simulador le __end do elf e seta como endereco de dropoff");
+            // nao incrementa injected pois esta no final
+        }
+        sw.Close();
+        
+        return (input.Path, outputFilepath, injected);
     }
 }

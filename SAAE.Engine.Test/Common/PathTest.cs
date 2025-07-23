@@ -245,4 +245,29 @@ public class PathTest {
         PathObject obj2 = dirpath.ToDirectoryPath();
         Assert.IsTrue(obj1.Path().Equals(obj2));
     }
+
+    [TestMethod]
+    public void TestRelativizeDirectory() {
+        PathObject full = "/testone/test2/inner/moreone".ToDirectoryPath();
+        PathObject root = "/testone/test2".ToDirectoryPath();
+        PathObject result = full.Relativize(root);
+        
+        Assert.IsTrue(result.IsDirectory);
+        Assert.IsFalse(result.IsAbsolute);
+        Assert.IsFalse(result.IsFile);
+        CollectionAssert.AreEqual(new[]{"inner", "moreone"}, result.Parts);
+    }
+    
+    [TestMethod]
+    public void TestRelativizeFile() {
+        PathObject full = "testone/test2/inner/file.bin".ToFilePath();
+        PathObject root = "testone/test2".ToDirectoryPath();
+        PathObject result = full.Relativize(root);
+        
+        Assert.IsFalse(result.IsDirectory);
+        Assert.IsFalse(result.IsAbsolute);
+        Assert.IsTrue(result.IsFile);
+        CollectionAssert.AreEqual(new[]{"inner"}, result.Parts);
+        Assert.AreEqual("file.bin", result.FullFileName);
+    }
 }

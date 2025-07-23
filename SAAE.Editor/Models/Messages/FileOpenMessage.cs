@@ -1,4 +1,6 @@
-﻿namespace SAAE.Editor.Models.Messages;
+﻿using SAAE.Editor.Extensions;
+
+namespace SAAE.Editor.Models.Messages;
 
 public class FileOpenMessage
 {
@@ -10,7 +12,7 @@ public class FileOpenMessage
     /// <summary>
     /// The absolute path to the file to be opened.
     /// </summary>
-    public string? Path { get; set; }
+    public PathObject? Path { get; set; }
     
     /// <summary>
     /// The line number to navigate to when the file is opened.

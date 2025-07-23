@@ -19,17 +19,22 @@ public readonly struct CompilationInput
     /// Calculates a unique id from an ordered set of hashes.
     /// </summary>
     /// <returns>A unique identifier of this collection of hashes</returns>
-    public Guid CalculateId(string? entryPointPrefix)
-    {
-        List<byte[]> hashes = Files.Select(x =>
-        {
+    public Guid CalculateId() {
+        List<byte[]> hashes = [];
+        CompilationFile entryPoint = Files.Find(x => x.IsEntryPoint);
+        entryPoint.CalculateHash();
+        hashes.Add(entryPoint.Hash);
+        hashes.AddRange(Files
+            .Where(x => !x.IsEntryPoint)
+            .OrderBy(file => file.Path)
+            .Select(x => {
             if (x.Hash.Length > 0)
             {
                 return x.Hash;
             }
-            x.CalculateHash(entryPointPrefix);
+            x.CalculateHash();
             return x.Hash;
-        }).ToList();
+        }));
         
         using var sha256 = System.Security.Cryptography.SHA256.Create();
         using var ms = new MemoryStream();

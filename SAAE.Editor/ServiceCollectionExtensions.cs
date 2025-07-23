@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions {
         collection.AddTransient<ProjectConfigurationViewModel>(); // transient pq nos deletamos a window ao aplicar
         collection.AddSingleton<OutputViewModel>();
         collection.AddSingleton<RamViewModel>();
+        collection.AddSingleton<InstructionViewModel>();
 
         #endregion
 

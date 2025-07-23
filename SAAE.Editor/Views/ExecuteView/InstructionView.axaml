@@ -1,0 +1,93 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:exec="clr-namespace:SAAE.Editor.ViewModels.Execute"
+             xmlns:loc="clr-namespace:SAAE.Editor.Localization"
+             xmlns:conv="clr-namespace:SAAE.Editor.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="exec:InstructionViewModel"
+             x:Class="SAAE.Editor.Views.ExecuteView.InstructionView">
+    <UserControl.Resources>
+        <conv:HexadecimalConverter x:Key="HexadecimalConverter"></conv:HexadecimalConverter>
+    </UserControl.Resources>
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Top"
+                   Text="{Binding Path=Title, Source={x:Static loc:InstructionResources.Instance}}"
+                   Classes="minorheader">
+        </TextBlock>
+
+        <DataGrid x:Name="InstructionDataGrid"
+                  Classes="headerslim static"
+                  SelectionMode="Single"
+                  ItemsSource="{Binding Instructions, Mode=OneWay}"
+                  SelectedIndex="{Binding SelectedInstructionIndex}"
+                  SelectionChanged="DataGrid_OnSelectionChanged"
+                  PointerPressed="InstructionDataGrid_OnPointerPressed">
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="Auto" 
+                                    Header="{Binding Path=AddressHeader, 
+                                        Source={x:Static loc:InstructionResources.Instance}}"
+                                    Binding="{Binding Address, 
+                                        Converter={StaticResource HexadecimalConverter},
+                                        StringFormat='0x{0}',
+                                        Mode=OneWay}"
+                                    ></DataGridTextColumn>
+                <DataGridTextColumn Width="Auto" 
+                                    Header="{Binding Path=BinaryHeader, 
+                                        Source={x:Static loc:InstructionResources.Instance}}"
+                                    Binding="{Binding Binary,
+                                        Converter={StaticResource HexadecimalConverter},
+                                        StringFormat='0x{0}',
+                                        Mode=OneWay}"
+                                    ></DataGridTextColumn>
+                <DataGridTextColumn Width="Auto"
+                                    Header="{Binding Path=DisassemblyHeader, 
+                                        Source={x:Static loc:InstructionResources.Instance}}"
+                                    Binding="{Binding Disassembly, Mode=OneWay}"
+                                    ></DataGridTextColumn>
+                <DataGridTemplateColumn Width="*"
+                                    Header="{Binding Path=SourceHeader, Source={x:Static loc:InstructionResources.Instance}}"
+                                    >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="exec:DisassemblyRow">
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="12,0,12,0">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                                            VerticalAlignment="Center" Spacing="5">
+                                    <TextBlock Text="{Binding Source.File, Mode=OneTime}"
+                                               Foreground="{StaticResource SecondaryForeground}"
+                                               VerticalAlignment="Center"></TextBlock>
+                                    <!-- gear icon -->
+                                    <TextBlock Text="&#xE272;"
+                                               IsVisible="{Binding Source.Generated, Mode=OneTime}"
+                                               FontFamily="{StaticResource PhosphorFont}"
+                                               ToolTip.Tip="{Binding Path=GeneratedTooltip, 
+                                                   Source={x:Static loc:InstructionResources.Instance}}"
+                                               VerticalAlignment="Center"></TextBlock>
+                                    <!-- lego icon -->
+                                    <TextBlock Text="&#xE8C6;"
+                                               IsVisible="{Binding Source.IsPadding, Mode=OneTime}"
+                                               FontFamily="{StaticResource PhosphorFont}"
+                                               ToolTip.Tip="{Binding Path=PaddingTooltip, 
+                                                   Source={x:Static loc:InstructionResources.Instance}}"
+                                               VerticalAlignment="Center"></TextBlock>
+                                </StackPanel>
+                                
+                                <!-- overlap intencional -->
+                                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">
+                                    <TextBlock.Inlines>
+                                        <Run Text="{Binding Source.LineNumber, Mode=OneTime}"
+                                             FontWeight="Bold"></Run>
+                                        <Run Text=": "
+                                             FontWeight="Bold"></Run>
+                                        <Run Text="{Binding Source.LineContent, Mode=OneTime}"></Run>
+                                    </TextBlock.Inlines>
+                                </TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

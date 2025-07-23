@@ -9,6 +9,8 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="2"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="2"></ColumnDefinition>
             <ColumnDefinition Width="300" MinWidth="100" MaxWidth="400"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -19,13 +21,20 @@
             <RowDefinition Height="200" MinHeight="100" MaxHeight="500"/>
         </Grid.RowDefinitions>
 
-        <GridSplitter Grid.Row="1" Grid.Column="0" ResizeDirection="Rows"/>
-        <exec:RamView Grid.Row="2" Grid.Column="0"></exec:RamView>
+        <GridSplitter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
+                      ResizeDirection="Rows"/>
+        <exec:RamView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"/>
 
-        <GridSplitter Grid.Row="3" Grid.Column="0" ResizeDirection="Rows"/>
-        <exec:OutputView Grid.Row="4" Grid.Column="0"/>
+        <GridSplitter Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" 
+                      ResizeDirection="Rows"/>
+        <exec:OutputView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" />
 
-        <GridSplitter Grid.Row="0" Grid.RowSpan="5" Grid.Column="1" ResizeDirection="Columns"/>
-        <exec:RegisterView Grid.Row="0" Grid.RowSpan="5" Grid.Column="2"/>
+        <GridSplitter Grid.Row="0" Grid.RowSpan="5" Grid.Column="3"
+                      ResizeDirection="Columns"/>
+        <exec:RegisterView Grid.Row="0" Grid.RowSpan="5" Grid.Column="4"/>
+        
+        <GridSplitter Grid.Column="1" Grid.Row="0"
+                      ResizeDirection="Columns"></GridSplitter>
+        <exec:InstructionView Grid.Column="0" Grid.Row="0"></exec:InstructionView>
     </Grid>
 </UserControl>

@@ -1,8 +1,10 @@
-﻿namespace SAAE.Editor.Models.Compilation;
+﻿using SAAE.Editor.Extensions;
+
+namespace SAAE.Editor.Models.Compilation;
 
 public record struct Diagnostic {
     
-    public string FilePath { get; set; }
+    public PathObject FilePath { get; set; }
     
     public int Line { get; set; }
     

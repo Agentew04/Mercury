@@ -43,32 +43,11 @@ public struct CompilationFile
     /// <summary>
     /// Calculates the hash of the contents of this file.
     /// </summary>
-    /// <param name="entryPointPrefix"></param>
-    public void CalculateHash(string? entryPointPrefix)
+    public void CalculateHash()
     {
-        if (IsEntryPoint)
-        {
-            ArgumentNullException.ThrowIfNull(entryPointPrefix);
-            
-            using MemoryStream ms = new();
-            StreamWriter writer = new(ms, leaveOpen: true);
-            writer.Write(entryPointPrefix);
-            writer.Close();
-            Stream fs = File.OpenRead(Path.ToString());
-            fs.CopyTo(ms);
-            fs.Close();
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-            ms.Seek(0, SeekOrigin.Begin);
-            byte[] hash = sha256.ComputeHash(ms);
-            ms.Close();
-            Hash = hash;
-        }
-        else
-        {
-            using FileStream stream = File.OpenRead(Path.ToString());
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-            byte[] hash = sha256.ComputeHash(stream);
-            Hash = hash;
-        }   
+        using FileStream stream = File.OpenRead(Path.ToString());
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        byte[] hash = sha256.ComputeHash(stream);
+        Hash = hash;
     }
 }

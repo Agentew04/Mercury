@@ -157,6 +157,9 @@ public readonly struct PathObject : IXmlSerializable{
     public static PathObject operator +(PathObject lhs, PathObject rhs) => lhs.Append(rhs);
     public static bool operator ==(PathObject lhs, PathObject rhs) => lhs.Equals(rhs);
     public static bool operator !=(PathObject lhs, PathObject rhs) => !lhs.Equals(rhs);
+
+    public static PathObject operator -(PathObject lhs, PathObject rhs) => lhs.Relativize(rhs);
+    //public void operator -=(PathObject other) => only on C# 14
     
     public PathObject File(string filename) {
         if (!IsDirectory || IsFile) {
@@ -197,6 +200,23 @@ public readonly struct PathObject : IXmlSerializable{
             IsAbsolute = IsAbsolute,
             Parts = Parts
         };
+    }
+
+    public PathObject Relativize(PathObject root) {
+        if (root.Parts.Length > Parts.Length) {
+            throw new NotSupportedException("Root path cannot contain more parts than fullpath");
+        }
+
+        if (root.IsFile || !root.IsDirectory) {
+            throw new NotSupportedException("Root path must be a folder");
+        }
+        for (int i = 0; i < root.Parts.Length; i++) {
+            if (Parts[i] != root.Parts[i]) {
+                throw new NotSupportedException(
+                    $"On of the prefix parts doesn't match! Expected: {Parts[i]} on {nameof(root)}. Got: {root.Parts[i]}");
+            }
+        }
+        return this with { IsAbsolute = false, Parts = Parts[root.Parts.Length..] };
     }
 
     public XmlSchema? GetSchema() => null!;

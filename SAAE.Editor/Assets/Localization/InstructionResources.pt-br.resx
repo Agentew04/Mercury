@@ -1,0 +1,35 @@
+﻿<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="Title" xml:space="preserve">
+        <value>Instruções</value>
+    </data>
+    <data name="AddressHeader" xml:space="preserve">
+        <value>Endereço</value>
+    </data>
+    <data name="BinaryHeader" xml:space="preserve">
+        <value>Binário</value>
+    </data>
+    <data name="DisassemblyHeader" xml:space="preserve">
+        <value>Desconstrução</value>
+    </data>
+    <data name="SourceHeader" xml:space="preserve">
+        <value>Fonte</value>
+    </data>
+    <data name="GeneratedTooltip" xml:space="preserve">
+        <value>Essa instrução foi possivelmente gerada pelo compilador e não tem correspondência ao código original</value>
+    </data>
+    <data name="PaddingTooltip" xml:space="preserve">
+        <value>Essa instrução é inválida e possivelmente foi inserida pelo compilador como preenchimento para alinhamento</value>
+    </data>
+</root>

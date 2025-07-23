@@ -79,7 +79,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         else
         {
             // abriu do problems view
-            path = message.Path!.ToFilePath();
+            path = message.Path!.Value;
         }
         
         // verifica se o arquivo ja esta aberto
@@ -204,7 +204,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         Logger.LogInformation("Building project");
         CompilationInput input = fileService.CreateCompilationInput();
         WeakReferenceMessenger.Default.Send(
-            new CompilationStartedMessage(input.CalculateId(MipsCompiler.EntryPointPreambule)));
+            new CompilationStartedMessage(input.CalculateId()));
         CompilationResult result = await compilerService.CompileAsync(input);
         WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result));
         Logger.LogInformation("Compilation Finished. sucess? {res}", result.IsSuccess);
