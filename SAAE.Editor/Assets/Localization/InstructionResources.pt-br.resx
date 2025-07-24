@@ -32,4 +32,16 @@
     <data name="PaddingTooltip" xml:space="preserve">
         <value>Essa instrução é inválida e possivelmente foi inserida pelo compilador como preenchimento para alinhamento</value>
     </data>
+    <data name="StepTooltip" xml:space="preserve">
+        <value>Avança uma instrução</value>
+    </data>
+    <data name="StopExecutionTooltip" xml:space="preserve">
+        <value>Pausa a execução</value>
+    </data>
+    <data name="ExecuteTooltip" xml:space="preserve">
+        <value>Executar programa</value>
+    </data>
+    <data name="ExecuteSpeedTooltip" xml:space="preserve">
+        <value>Controla a velocidade que as instruções são executadas. Medido em milissegundos</value>
+    </data>
 </root>

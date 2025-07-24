@@ -39,4 +39,16 @@
     <data name="PaddingTooltip" xml:space="preserve">
         <value>This instruction is invalid and possibly was inserted by the compiler as alignment padding</value>
     </data>
+    <data name="StepTooltip" xml:space="preserve">
+        <value>Step one instruction</value>
+    </data>
+    <data name="ExecuteTooltip" xml:space="preserve">
+        <value>Execute program</value>
+    </data>
+    <data name="StopExecutionTooltip" xml:space="preserve">
+        <value>Pause the execution</value>
+    </data>
+    <data name="ExecuteSpeedTooltip" xml:space="preserve">
+        <value>Controls the speed in which the instructions are executed. Measured in miliseconds</value>
+    </data>
 </root>

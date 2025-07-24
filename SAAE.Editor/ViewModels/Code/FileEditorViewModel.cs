@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
+using SAAE.Editor.Models;
 using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
@@ -26,6 +27,17 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     public FileEditorViewModel() {
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
         WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
+
+        ProjectFile? project = projectService.GetCurrentProject();
+        if (project is null) {
+            Logger.LogWarning("Ordem errada! project service not initialized");
+            return;
+        }
+        OnFileOpen(this, new FileOpenMessage() {
+            Path = project.ProjectDirectory + project.SourceDirectory + project.EntryFile,
+            LineNumber = 1,
+            ColumnNumber = 1
+        });
     }
 
     #region Editor Properties
@@ -60,8 +72,8 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     // HACK:
     public TextEditor? TextEditor { get; set; }
 
-    private static void OnFileOpen(object sender, FileOpenMessage message) {
-        FileEditorViewModel vm = (FileEditorViewModel)sender;
+    private static void OnFileOpen(object recipient, FileOpenMessage message) {
+        FileEditorViewModel vm = (FileEditorViewModel)recipient;
         // funcao chamada quando o usuario abre um arquivo pela aba do projeto
         PathObject path;
         int? line = message.LineNumber;

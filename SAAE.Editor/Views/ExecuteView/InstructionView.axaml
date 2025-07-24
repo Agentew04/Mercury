@@ -13,11 +13,36 @@
         <conv:HexadecimalConverter x:Key="HexadecimalConverter"></conv:HexadecimalConverter>
         <avconv:EnumToBoolConverter x:Key="EnumToBoolConverter"></avconv:EnumToBoolConverter>
     </UserControl.Resources>
-    <DockPanel>
-        <TextBlock DockPanel.Dock="Top"
-                   Text="{Binding Path=Title, Source={x:Static loc:InstructionResources.Instance}}"
-                   Classes="minorheader">
-        </TextBlock>
+    <DockPanel Margin="5">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,3,5,3" Spacing="5">
+            <TextBlock Text="{Binding Path=Title, Source={x:Static loc:InstructionResources.Instance}}"
+                       VerticalAlignment="Center"
+                       Classes="minorheader">
+            </TextBlock>
+            
+            <!-- step  -->
+            <Button Padding="5" ToolTip.Tip="{Binding Path=StepTooltip, Source={x:Static loc:InstructionResources.Instance}}"
+                    Command="{Binding StepCommand}"
+                    Margin="10,0,0,0">
+                <TextBlock FontFamily="{StaticResource PhosphorFont}"
+                           Text="&#xE3D0;" Margin="0"></TextBlock>
+            </Button>
+            
+            <!-- execute  -->
+            <Button Padding="5" ToolTip.Tip="{Binding Path=ExecuteTooltip, Source={x:Static loc:InstructionResources.Instance}}"
+                    Command="{Binding ExecuteCommand}">
+                <TextBlock FontFamily="{StaticResource PhosphorFont}"
+                           Text="&#xE6A6;" Margin="0"></TextBlock>
+            </Button>
+            
+            <!-- stop  -->
+            <Button Padding="5" ToolTip.Tip="{Binding Path=StopExecutionTooltip, Source={x:Static loc:InstructionResources.Instance}}"
+                    Command="{Binding StopCommand}">
+                <TextBlock FontFamily="{StaticResource PhosphorFont}"
+                           Text="&#xE39E;" Margin="0"></TextBlock>
+            </Button>
+            
+        </StackPanel>
 
         <DataGrid x:Name="InstructionDataGrid"
                   Classes="headerslim static"

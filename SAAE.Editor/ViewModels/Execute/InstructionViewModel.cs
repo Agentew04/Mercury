@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Data;
-using Avalonia.Data.Converters;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using SAAE.Editor.Extensions;
 using SAAE.Editor.Models.Messages;
-using SAAE.Editor.Services;
-using SAAE.Engine.Common;
 using SAAE.Engine.Memory;
 using SAAE.Engine.Mips.Instructions;
 
@@ -28,6 +22,8 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel> 
         WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
     }
 
+    #region Loading
+
     private static void OnProgramLoad(object recipient, ProgramLoadMessage msg) {
         InstructionViewModel vm = (InstructionViewModel)recipient;
         ProgramMetadata meta = msg.Metadata;
@@ -40,7 +36,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel> 
         }
     }
 
-    private async Task ProcessFile(ProgramMetadata meta, ObjectFile file, uint startAddress, uint endAddress, 
+    private void ProcessFile(ProgramMetadata meta, ObjectFile file, uint startAddress, uint endAddress, 
         IMemory memory, InstructionFactory factory) {
         IEnumerable<(Symbol x, int)> lineLabels = meta.Symbols
             .Where(x => x.Name.StartsWith("L."))
@@ -54,7 +50,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel> 
         using IEnumerator<(Symbol x, int)> lineEnumerator = lineLabels.GetEnumerator();
 
         // faz um array com todas as linhas
-        string fileContent = await File.ReadAllTextAsync(file.Path.ToString());
+        string fileContent = File.ReadAllText(file.Path.ToString());
         string[] splittedLines = fileContent.ReplaceLineEndings().Split(Environment.NewLine);
         
         uint address = startAddress;
@@ -62,7 +58,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel> 
         Symbol previousSymbol = new("",0);
         int previousLine = 0;
         
-        lineEnumerator.MoveNext();
+        bool hasSymbols = lineEnumerator.MoveNext();
         (Symbol nextSymbol, int nextLine) = lineEnumerator.Current;
         
         while (address < endAddress) {
@@ -129,20 +125,42 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel> 
                 Disassembly = instruction?.ToString() ?? "its joever",
                 Source = new SourceInstruction() {
                     File = file.Path.FullFileName,
-                    Type = InstructionType.Mapped,
+                    Type = !hasSymbols ? InstructionType.Generated : InstructionType.Mapped,
                     LineNumber = nextLine,
-                    LineContent = splittedLines[nextLine-1]
+                    LineContent = nextLine == 0 ? "" : splittedLines[nextLine-1]
                 }
             });
             previousLine = nextLine;
             previousSymbol = nextSymbol;
-            lineEnumerator.MoveNext();
+            hasSymbols = lineEnumerator.MoveNext();
             (nextSymbol, nextLine) = lineEnumerator.Current;
             address += 4;
         }
     }
+
+    #endregion
+
+    #region Execution
+
+    // em milissegundos
+    [ObservableProperty] private int executionSpeed = 100;
+
+    [RelayCommand]
+    private void Step() {
+        
+    }
+
+    [RelayCommand]
+    private void Execute() {
+        
+    }
+
+    [RelayCommand]
+    private void Stop() {
+        
+    }
     
-    
+    #endregion
 }
 
 public partial class DisassemblyRow : ObservableObject {
