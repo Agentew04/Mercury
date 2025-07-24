@@ -1,5 +1,7 @@
-﻿using CommunityToolkit.Mvvm.Messaging.Messages;
+﻿using System.Collections.Generic;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using ELFSharp.ELF;
+using SAAE.Editor.Extensions;
 using Machine = SAAE.Engine.Mips.Runtime.Machine;
 
 namespace SAAE.Editor.Models.Messages;
@@ -9,4 +11,15 @@ public class ProgramLoadMessage
     public required Machine Machine { get; init; }
     
     public required ELF<uint> Elf { get; init; }
+    public required ProgramMetadata Metadata { get; init; }
 }
+
+public class ProgramMetadata {
+
+    public required IReadOnlyList<Symbol> Symbols { get; init; }
+    
+    public required IReadOnlyList<ObjectFile> Files { get; init; }
+}
+
+public record struct Symbol(string Name, uint Address);
+public record struct ObjectFile(PathObject Path, uint StartAddress, int Index);

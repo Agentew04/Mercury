@@ -48,8 +48,9 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         Guid compilationId = input.CalculateId();
 
         // 3. Mover todos os arquivos modificados para o diretorio de compilacao
-        List<Task<(PathObject Old, PathObject New, int injectedLines)>> moveTasks = input.Files.Select(x =>
+        List<Task<(PathObject Old, PathObject New, int injectedLines)>> moveTasks = input.Files.Select((x,i) =>
             MoveToBinAsync(
+                index: i,
                 input: x,
                 srcDirectory: project.ProjectDirectory + project.SourceDirectory,
                 binDirectory: compilationDirectory,
@@ -249,7 +250,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         return error;
     }
 
-    private static async Task<(PathObject Old, PathObject New, int injectedLines)> MoveToBinAsync(CompilationFile input, PathObject srcDirectory, PathObject binDirectory, PathObject stdlibDirectory) {
+    private static async Task<(PathObject Old, PathObject New, int injectedLines)> MoveToBinAsync(int index, CompilationFile input, PathObject srcDirectory, PathObject binDirectory, PathObject stdlibDirectory) {
         PathObject outputFilepath;
         try {
             outputFilepath = binDirectory.Folder("src") + (input.Path - srcDirectory);
@@ -260,9 +261,10 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         Directory.CreateDirectory(outputFilepath.Path().ToString());
 
         await using FileStream fsIn = File.OpenRead(input.Path.ToString());
+        using StreamReader sr = new(fsIn);
         await using FileStream fsOut = File.Open(outputFilepath.ToString(), FileMode.Create, FileAccess.Write);
         int injected = 0;
-        StreamWriter sw = new(fsOut, leaveOpen: true);
+        await using StreamWriter sw = new(fsOut);
         await sw.WriteLineAsync(".text");
         await sw.WriteLineAsync(".hidden __filestart");
         await sw.WriteLineAsync("__filestart: # comeca com __, vai ser ignorado pelo aplicativo.");
@@ -270,20 +272,61 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         await sw.WriteLineAsync(".section metadata, \"\", @progbits # define secao de metadados que guarda onde no elf esse arquivo comeca");
         await sw.WriteLineAsync($".asciiz \"{input.Path.ToString().Replace("\\","/")}\"");
         await sw.WriteLineAsync(".quad __filestart");
+        await sw.WriteLineAsync($".word {index}");
         await sw.WriteLineAsync(".text");
-        injected+=8;
+        injected+=9;
         if (input.IsEntryPoint) {
             await sw.WriteAsync(EntryPointPreambule);
             injected+=2;
         }
         await sw.FlushAsync();
-        await fsIn.CopyToAsync(fsOut);
+        
+        // preambulo injetado
+        // agora prefixa todas linhas de codigo com a linha original
+        string? line = await sr.ReadLineAsync();
+        bool inTextSection = true;
+        for (int lineIndex = 1; line is not null; lineIndex++) {
+            // remove possivel comentario
+            string processed = line;
+            int commentIndex = line.IndexOf('#');
+            if(commentIndex != -1) {
+                // remove comentario
+                processed = line[..commentIndex];
+            }
+            int lastColonIndex = line.LastIndexOf(':');
+            if (lastColonIndex != -1) {
+                // remove labels
+                processed = line[lastColonIndex..];
+            }
+
+            if (processed.StartsWith('.')) {
+                // eh uma diretiva
+                if (processed.StartsWith(".rodata")
+                    || processed.StartsWith(".data")
+                    || processed.StartsWith(".bss")
+                    || processed.StartsWith(".org")
+                    || processed.StartsWith(".section")
+                    || processed.StartsWith(".pushsection")
+                    || processed.StartsWith(".popsection")) {
+                    inTextSection = false;
+                }
+
+                if (processed.StartsWith(".text")) {
+                    inTextSection = true;
+                }
+            }
+
+            if (inTextSection && !string.IsNullOrWhiteSpace(processed) && processed.Trim() != ".text") {
+                await sw.WriteAsync($"L.{index}.{lineIndex}: ");
+            }
+            await sw.WriteLineAsync(line);
+            line = await sr.ReadLineAsync();
+        }
+        
         if (input.IsEntryPoint) {
             await sw.WriteLineAsync("j __end # prevenir execucao de padding. simulador le __end do elf e seta como endereco de dropoff");
             // nao incrementa injected pois esta no final
         }
-        sw.Close();
-        
         return (input.Path, outputFilepath, injected);
     }
 }

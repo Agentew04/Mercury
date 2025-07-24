@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
@@ -19,8 +20,7 @@ public partial class InstructionView : UserControl {
     private void DataGrid_OnSelectionChanged(object? sender, SelectionChangedEventArgs e) {
         InstructionDataGrid.ScrollIntoView(InstructionDataGrid.SelectedItem, null);
     }
-
-    private void InstructionDataGrid_OnPointerPressed(object? sender, PointerPressedEventArgs e) {
-        e.PreventGestureRecognition();
+    private void InstructionDataGrid_OnCellPointerPressed(object? sender, DataGridCellPointerPressedEventArgs e) {
+        e.PointerPressedEventArgs.Handled = true;
     }
 }

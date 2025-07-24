@@ -33,6 +33,9 @@ public sealed partial class Monocycle : IClockable {
     /// </summary>
     private readonly InstructionFactory instructionFactory = new();
 
+    /// <inheritdoc cref="instructionFactory"/>
+    public InstructionFactory InstructionFactory => instructionFactory;
+
     // TODO: remover isso, monociclo nao tem branch delay slot
     public bool UseBranchDelaySlot { get; set; } = false;
     

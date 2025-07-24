@@ -50,6 +50,14 @@ public class MemoryBuilder : IBuilder<Memory>
         return this;
     }
 
+    public MemoryBuilder WithEndianess(Endianess endianess) {
+        return endianess switch {
+            Endianess.BigEndian => WithBigEndian(),
+            Endianess.LittleEndian => WithLittleEndian(),
+            _ => throw new NotSupportedException("Endianness not supported")
+        };
+    }
+
     public MemoryBuilder With4Gb() => WithSize(1024ul * 1024 * 1024 * 4);
 
     public MemoryBuilder WithFileStorage(string path, bool optimized = true)

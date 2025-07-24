@@ -9,32 +9,44 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="2"></ColumnDefinition>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-            <ColumnDefinition Width="2"></ColumnDefinition>
             <ColumnDefinition Width="300" MinWidth="100" MaxWidth="400"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="2"/>
-            <RowDefinition Height="*" MinHeight="100"/>
-            <RowDefinition Height="2"/>
-            <RowDefinition Height="200" MinHeight="100" MaxHeight="500"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
 
-        <GridSplitter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
-                      ResizeDirection="Rows"/>
-        <exec:RamView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"/>
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="2"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
 
-        <GridSplitter Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" 
-                      ResizeDirection="Rows"/>
-        <exec:OutputView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" />
-
-        <GridSplitter Grid.Row="0" Grid.RowSpan="5" Grid.Column="3"
-                      ResizeDirection="Columns"/>
-        <exec:RegisterView Grid.Row="0" Grid.RowSpan="5" Grid.Column="4"/>
+            <exec:InstructionView Grid.Column="0"/>
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+            <!-- label view -->
+        </Grid>
         
-        <GridSplitter Grid.Column="1" Grid.Row="0"
-                      ResizeDirection="Columns"></GridSplitter>
-        <exec:InstructionView Grid.Column="0" Grid.Row="0"></exec:InstructionView>
+        <GridSplitter Grid.Row="1" Grid.Column="0" 
+                      ResizeDirection="Rows"/>
+        
+        <Grid Grid.Row="2" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" MinHeight="100"/>
+                <RowDefinition Height="2"/>
+                <RowDefinition Height="200" MinHeight="100" MaxHeight="500"/>
+            </Grid.RowDefinitions>
+            <exec:RamView Grid.Row="0"/>
+            <GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
+            <exec:OutputView Grid.Row="2"/>
+        </Grid>
+
+        <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1"
+                      ResizeDirection="Columns"/>
+        <exec:RegisterView Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"/>
+        
+        
     </Grid>
 </UserControl>

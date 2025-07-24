@@ -22,8 +22,9 @@
                   SelectionMode="Single"
                   ItemsSource="{Binding Instructions, Mode=OneWay}"
                   SelectedIndex="{Binding SelectedInstructionIndex}"
+                  CellPointerPressed="InstructionDataGrid_OnCellPointerPressed"
                   SelectionChanged="DataGrid_OnSelectionChanged"
-                  PointerPressed="InstructionDataGrid_OnPointerPressed">
+                  >
             <DataGrid.Columns>
                 <DataGridTextColumn Width="Auto" 
                                     Header="{Binding Path=AddressHeader, 
@@ -59,14 +60,14 @@
                                                VerticalAlignment="Center"></TextBlock>
                                     <!-- gear icon -->
                                     <TextBlock Text="&#xE272;"
-                                               IsVisible="{Binding Source.Generated, Mode=OneTime}"
+                                               IsVisible="{Binding Source.Generated, Mode=OneWay}"
                                                FontFamily="{StaticResource PhosphorFont}"
                                                ToolTip.Tip="{Binding Path=GeneratedTooltip, 
                                                    Source={x:Static loc:InstructionResources.Instance}}"
                                                VerticalAlignment="Center"></TextBlock>
                                     <!-- lego icon -->
                                     <TextBlock Text="&#xE8C6;"
-                                               IsVisible="{Binding Source.IsPadding, Mode=OneTime}"
+                                               IsVisible="{Binding Source.IsPadding, Mode=OneWay}"
                                                FontFamily="{StaticResource PhosphorFont}"
                                                ToolTip.Tip="{Binding Path=PaddingTooltip, 
                                                    Source={x:Static loc:InstructionResources.Instance}}"
@@ -76,11 +77,11 @@
                                 <!-- overlap intencional -->
                                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">
                                     <TextBlock.Inlines>
-                                        <Run Text="{Binding Source.LineNumber, Mode=OneTime}"
+                                        <Run Text="{Binding Source.LineNumber, Mode=OneWay}"
                                              FontWeight="Bold"></Run>
                                         <Run Text=": "
                                              FontWeight="Bold"></Run>
-                                        <Run Text="{Binding Source.LineContent, Mode=OneTime}"></Run>
+                                        <Run Text="{Binding Source.LineContent, Mode=OneWay}"></Run>
                                     </TextBlock.Inlines>
                                 </TextBlock>
                             </Grid>

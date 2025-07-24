@@ -19,7 +19,6 @@
     <Style Selector="TextBlock.header">
         <Setter Property="FontSize" Value="24"></Setter>
         <Setter Property="Margin" Value="10,5,0,5"></Setter>
-        <Setter Property="FontWeight" Value="SemiBold"></Setter>
     </Style>
     
     <Style Selector="TextBlock.minorheader">

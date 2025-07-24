@@ -36,8 +36,9 @@ public sealed class Machine : IDisposable, IClockable {
         Section<uint>? textSection = elf.GetSection(".text");
         uint textStart = textSection!.LoadAddress;
         uint textLength = textSection.Size;
-        Cpu.DropoffAddress = textStart + textLength;
-        
+        SymbolTable<uint>? symbolTable = elf.GetSections<SymbolTable<uint>>().First();
+        Cpu.DropoffAddress = symbolTable?.Entries?.First(x => x.Name == "__end")?.Value ?? textStart + textLength;
+
         // use segments to load data into memory
         foreach (Segment<uint>? segment in elf.Segments) {
             if (segment.Type != SegmentType.Load) {
