@@ -5,11 +5,13 @@
              xmlns:exec="clr-namespace:SAAE.Editor.ViewModels.Execute"
              xmlns:loc="clr-namespace:SAAE.Editor.Localization"
              xmlns:conv="clr-namespace:SAAE.Editor.Converters"
+             xmlns:avconv="clr-namespace:Avalonia.Controls.Converters;assembly=Avalonia.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="exec:InstructionViewModel"
              x:Class="SAAE.Editor.Views.ExecuteView.InstructionView">
     <UserControl.Resources>
         <conv:HexadecimalConverter x:Key="HexadecimalConverter"></conv:HexadecimalConverter>
+        <avconv:EnumToBoolConverter x:Key="EnumToBoolConverter"></avconv:EnumToBoolConverter>
     </UserControl.Resources>
     <DockPanel>
         <TextBlock DockPanel.Dock="Top"
@@ -55,19 +57,23 @@
                             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="12,0,12,0">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
                                             VerticalAlignment="Center" Spacing="5">
-                                    <TextBlock Text="{Binding Source.File, Mode=OneTime}"
+                                    <TextBlock Text="{Binding Source.File, Mode=OneWay}"
                                                Foreground="{StaticResource SecondaryForeground}"
                                                VerticalAlignment="Center"></TextBlock>
                                     <!-- gear icon -->
                                     <TextBlock Text="&#xE272;"
-                                               IsVisible="{Binding Source.Generated, Mode=OneWay}"
+                                               IsVisible="{Binding Source.Type, Mode=OneWay,
+                                               Converter={StaticResource EnumToBoolConverter},
+                                               ConverterParameter={x:Static exec:InstructionType.Generated}}"
                                                FontFamily="{StaticResource PhosphorFont}"
                                                ToolTip.Tip="{Binding Path=GeneratedTooltip, 
                                                    Source={x:Static loc:InstructionResources.Instance}}"
                                                VerticalAlignment="Center"></TextBlock>
                                     <!-- lego icon -->
                                     <TextBlock Text="&#xE8C6;"
-                                               IsVisible="{Binding Source.IsPadding, Mode=OneWay}"
+                                               IsVisible="{Binding Source.Type, Mode=OneWay,
+                                               Converter={StaticResource EnumToBoolConverter},
+                                               ConverterParameter={x:Static exec:InstructionType.Padding}}"
                                                FontFamily="{StaticResource PhosphorFont}"
                                                ToolTip.Tip="{Binding Path=PaddingTooltip, 
                                                    Source={x:Static loc:InstructionResources.Instance}}"
@@ -75,7 +81,10 @@
                                 </StackPanel>
                                 
                                 <!-- overlap intencional -->
-                                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left">
+                                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left"
+                                           IsVisible="{Binding Source.Type, Mode=OneWay,
+                                           ConverterParameter={x:Static exec:InstructionType.Mapped}, 
+                                           Converter={StaticResource EnumToBoolConverter}}">
                                     <TextBlock.Inlines>
                                         <Run Text="{Binding Source.LineNumber, Mode=OneWay}"
                                              FontWeight="Bold"></Run>

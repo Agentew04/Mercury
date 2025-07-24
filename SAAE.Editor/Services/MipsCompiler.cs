@@ -316,7 +316,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
                 }
             }
 
-            if (inTextSection && !string.IsNullOrWhiteSpace(processed) && processed.Trim() != ".text") {
+            if (inTextSection && !processed.StartsWith(':') && !string.IsNullOrWhiteSpace(processed) && processed.Trim() != ".text") {
                 await sw.WriteAsync($"L.{index}.{lineIndex}: ");
             }
             await sw.WriteLineAsync(line);

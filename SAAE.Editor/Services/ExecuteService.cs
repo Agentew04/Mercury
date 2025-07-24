@@ -90,7 +90,9 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
                 }
                 // le endereco de inicio
                 ms.ReadExactly(labelBuffer);
-                ulong highRangeAddress = BitConverter.ToUInt64(labelBuffer);
+                ulong highRangeAddress = service.currentElf.Endianess == Endianess.BigEndian
+                    ? BinaryPrimitives.ReadUInt64BigEndian(labelBuffer)
+                    : BinaryPrimitives.ReadUInt64LittleEndian(labelBuffer);
                 uint lowRangeAddress = (uint)highRangeAddress;
                 // le indice do arquivo
                 ms.ReadExactly(indexBuffer);

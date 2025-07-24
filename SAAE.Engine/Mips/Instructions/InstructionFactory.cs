@@ -37,6 +37,10 @@ public class InstructionFactory {
     }
 
     public Instruction Disassemble(uint binary) {
+        if (binary == 0) {
+            return new Nop();
+        }
+        
         uint opcode = binary >> 26;
         IEnumerable<Rule>? oprules = rules.Where(x => x.Constraints.ContainsKey("opcode") && x.Constraints["opcode"] == opcode);
         foreach(Rule? rule in oprules) {
