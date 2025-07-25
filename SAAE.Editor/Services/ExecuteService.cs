@@ -24,30 +24,28 @@ namespace SAAE.Editor.Services;
 /// Service responsible to enable controls and the application to interact
 /// with the engine to execute code. 
 /// </summary>
-public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
-{
+public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable {
+    private readonly ICompilerService compilerService =
+        App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
+    
     private Machine? currentMachine;
     private ELF<uint>? currentElf;
 
-    public ExecuteService()
-    {
-        WeakReferenceMessenger.Default.Register<CompilationFinishedMessage>(this, OnCompile);
-    }
-
-    private static void OnCompile(object recipient, CompilationFinishedMessage message) {
-        ExecuteService service = (ExecuteService)recipient;
-        if (message.Value.Id == Guid.Empty 
-            || !message.Value.IsSuccess 
-            || (message.Value.Diagnostics?.Exists(x => x.Type == DiagnosticType.Error) ?? false))
+    public void LoadProgram() {
+        CompilationResult result = compilerService.LastCompilationResult;
+        
+        if (result.Id == Guid.Empty 
+            || !result.IsSuccess 
+            || (result.Diagnostics?.Exists(x => x.Type == DiagnosticType.Error) ?? false))
         {
             return;
         }
 
-        service.currentMachine?.Dispose();
-        service.currentElf?.Dispose();
+        currentMachine?.Dispose();
+        currentElf?.Dispose();
 
-        FileStream elfFs = File.OpenRead(message.Value.OutputPath!);
-        service.currentElf = ELFReader.Load<uint>(elfFs, false);
+        FileStream elfFs = File.OpenRead(result.OutputPath!);
+        currentElf = ELFReader.Load<uint>(elfFs, false);
 
         // cria memoria
         MemoryBuilder memoryBuilder = new MemoryBuilder()
@@ -55,12 +53,12 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
             .WithVolatileStorage()
             .WithPageCapacity(16)
             .WithPageSize(4096)
-            .WithEndianess(service.currentElf.Endianess == Endianess.BigEndian
+            .WithEndianess(currentElf.Endianess == Endianess.BigEndian
                 ? Engine.Memory.Endianess.BigEndian
                 : Engine.Memory.Endianess.LittleEndian);
 
         // criar maquina
-        service.currentMachine = new MachineBuilder()
+        currentMachine = new MachineBuilder()
             .WithInMemoryStdio()
             .WithMemory(memoryBuilder
                 .Build())
@@ -69,13 +67,13 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
             .WithMipsMonocycle()
             .Build();
 
-        service.currentMachine.LoadElf(service.currentElf);
+        currentMachine.LoadElf(currentElf);
         
         // load symbols
-        SymbolTable<uint> symbol = (SymbolTable<uint>)service.currentElf.Sections.First(x => x.Type == SectionType.SymbolTable);
+        SymbolTable<uint> symbol = (SymbolTable<uint>)currentElf.Sections.First(x => x.Type == SectionType.SymbolTable);
         // load metadata of program starts
         List<ObjectFile> objFiles = [];
-        Section<uint>? metadataSection = service.currentElf.GetSection("metadata");
+        Section<uint>? metadataSection = currentElf.GetSection("metadata");
         byte[]? contents = metadataSection?.GetContents();
         if (contents is not null) {
             Span<byte> labelBuffer = stackalloc byte[8];
@@ -90,13 +88,13 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
                 }
                 // le endereco de inicio
                 ms.ReadExactly(labelBuffer);
-                ulong highRangeAddress = service.currentElf.Endianess == Endianess.BigEndian
+                ulong highRangeAddress = currentElf.Endianess == Endianess.BigEndian
                     ? BinaryPrimitives.ReadUInt64BigEndian(labelBuffer)
                     : BinaryPrimitives.ReadUInt64LittleEndian(labelBuffer);
                 uint lowRangeAddress = (uint)highRangeAddress;
                 // le indice do arquivo
                 ms.ReadExactly(indexBuffer);
-                int fileIndex = service.currentElf.Endianess == Endianess.BigEndian 
+                int fileIndex = currentElf.Endianess == Endianess.BigEndian 
                     ? BinaryPrimitives.ReadInt32BigEndian(indexBuffer) 
                     : BinaryPrimitives.ReadInt32LittleEndian(indexBuffer);
                 objFiles.Add(new ObjectFile(sb.ToString().ToFilePath(), lowRangeAddress, fileIndex));
@@ -107,7 +105,7 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
             Symbols = symbol.Entries.Select(x => new Symbol(x.Name, x.Value)).ToList(),
             Files = objFiles
         };
-        service.Logger.LogInformation("ELF has {startCount} files and {symbolCount} symbols.",
+        Logger.LogInformation("ELF has {startCount} files and {symbolCount} symbols.",
             objFiles.Count,
             meta.Symbols.Count);
         
@@ -116,11 +114,11 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable
         // publica evento de carregamento do programa
         ProgramLoadMessage loadMsg = new()
         {
-            Machine = service.currentMachine,
-            Elf = service.currentElf,
+            Machine = currentMachine,
+            Elf = currentElf,
             Metadata = meta
         };
-        service.Logger.LogInformation("Programa carregado com sucesso: {OutputPath}", message.Value.OutputPath);
+        Logger.LogInformation("Programa carregado com sucesso: {OutputPath}", result.OutputPath);
         WeakReferenceMessenger.Default.Send(loadMsg);
     }
 

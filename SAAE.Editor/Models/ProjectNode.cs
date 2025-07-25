@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace SAAE.Editor.Models;
 
@@ -54,20 +55,14 @@ public partial class ContextOption : ObservableObject {
 
     [ObservableProperty]
     private string name = "ERRO";
-    
-    public bool IsEnabled => Command.CanExecute((nodeReference.TryGetTarget(out ProjectNode? target) ? target : null)!);
 
     [ObservableProperty]
     private bool isVisible = true;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsEnabled))]
-    private ICommand command = null!;
+    private IRelayCommand<ProjectNode> command = null!;
 
-    private WeakReference<ProjectNode> nodeReference;
-    
-    public ContextOption(ProjectNode node) {
-        nodeReference = new WeakReference<ProjectNode>(node);
+    public ContextOption() {
     }
 }
 

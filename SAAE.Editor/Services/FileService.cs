@@ -15,8 +15,8 @@ namespace SAAE.Editor.Services;
 
 public class FileService : BaseService<FileService> {
 
-    private readonly Guid stdlibCategoryId = Guid.Parse("408494E4-76DD-434C-97FF-6C40A4E9ED27");
-    private readonly Guid projectCategoryId = Guid.Parse("C03D266B-3D00-486A-9517-D8A2F3065C53");
+    public Guid StdLibCategoryId => Guid.Parse("408494E4-76DD-434C-97FF-6C40A4E9ED27");
+    public Guid ProjectCategoryId => Guid.Parse("C03D266B-3D00-486A-9517-D8A2F3065C53");
     
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
@@ -57,15 +57,18 @@ public class FileService : BaseService<FileService> {
             Name = Localization.ProjectResources.ProjectFilesValue,
             Type = ProjectNodeType.Category,
             Children = new ObservableCollection<ProjectNode>(projectFiles),
-            Id = projectCategoryId
+            Id = ProjectCategoryId
         });
+
+        relativePaths[StdLibCategoryId] = settingsService.Preferences.StdLibPath.ToDirectoryPath();
+        relativePaths[ProjectCategoryId] = project.ProjectDirectory + project.SourceDirectory;
 
         internalTree = nodes;
         return nodes;
     }
 
     public PathObject GetRelativePath(Guid nodeId) {
-        if (nodeId == stdlibCategoryId || nodeId == projectCategoryId) {
+        if (nodeId == StdLibCategoryId || nodeId == ProjectCategoryId) {
             return default;
         }
         bool result = relativePaths.TryGetValue(nodeId, out PathObject relativePath);
@@ -157,7 +160,7 @@ public class FileService : BaseService<FileService> {
     private ProjectNode GetStdLibNode() {
         var root = new ProjectNode {
             Name = Localization.ProjectResources.StdLibValue,
-            Id = stdlibCategoryId,
+            Id = StdLibCategoryId,
             Type = ProjectNodeType.Category,
             IsReadOnly = true
         };

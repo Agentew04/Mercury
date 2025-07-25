@@ -61,10 +61,32 @@
         <Setter Property="Background" Value="{DynamicResource AlternateGreyLight}"></Setter>
     </Style>
     
-    <Style Selector="MenuItem:pointerover > Panel > Border#PART_LayoutRoot">
-        <Setter Property="Background" Value="red"></Setter>
+    <Style Selector="FlyoutPresenter.menuflyoutslim">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="CornerRadius" Value="3"></Setter>
+        <Setter Property="MinWidth" Value="0"></Setter>
+        <Setter Property="MinHeight" Value="0"></Setter>
     </Style>
-    <Style Selector="MenuItem:selected > Panel > Border#PART_LayoutRoot">
-        <Setter Property="Background" Value="blue"></Setter>
+    
+    <Style Selector="Button.contextmenuitem">
+        <Setter Property="Padding" Value="5,2,5,2"></Setter>
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+        <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Margin" Value="3,0"></Setter>
+        <Setter Property="CornerRadius" Value="0"></Setter>
     </Style>
+    
+    <Style Selector="Button.contextmenuitem:pressed">
+        <Setter Property="RenderTransform" Value=""></Setter>
+    </Style>
+    
+    <Style Selector="Button.contextmenuitem:disabled">
+        <Setter Property="Cursor" Value=""></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForeground}"></Setter>
+    </Style>
+    <Style Selector="Button.contextmenuitem:disabled ContentPresenter">
+        <Setter Property="Background" Value="Transparent"></Setter>
+    </Style>
+    
 </Styles>

@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SAAE.Editor.Models;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
@@ -29,14 +30,20 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
     private void SetCommands(ProjectNode node) {
         switch (node.Type) {
             case ProjectNodeType.Category:
+                node.ContextOptions = [
+                    new ContextOption {
+                        Name = "New File",
+                        Command = AddFileCommand
+                    }
+                ];
                 break;
             case ProjectNodeType.Folder:
                 node.ContextOptions = [
-                    new ContextOption(node) {
+                    new ContextOption {
                         Name = "New Folder",
                         Command = AddFolderCommand
                     },
-                    new ContextOption(node) {
+                    new ContextOption {
                         Name = "New File",
                         Command = AddFileCommand
                     }
@@ -44,7 +51,7 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
                 break;
             case ProjectNodeType.AssemblyFile:
                 node.ContextOptions = [
-                    new ContextOption(node) {
+                    new ContextOption {
                         Name = "Set Entry Point",
                         Command = SetEntryPointCommand
                     }
@@ -68,10 +75,10 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
     [ObservableProperty] private ProjectNode selectedNode = null!;
 
     partial void OnSelectedNodeChanged(ProjectNode value) {
-        Console.WriteLine($"Selected node: {value.Name}. Type: {value.Type}");
+        Logger.LogInformation($"Selected node: {value.Name}. Type: {value.Type}");
 
         if (value.Type == ProjectNodeType.AssemblyFile) {
-            Console.WriteLine("Abrindo arquivo " + value.Name);
+            Logger.LogInformation("Abrindo arquivo " + value.Name);
             WeakReferenceMessenger.Default.Send(new FileOpenMessage
             {
                 ProjectNode = value
@@ -80,7 +87,8 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
     }
 
     [RelayCommand(CanExecute = nameof(CanAddFolder))]
-    private void AddFolder(ProjectNode node) {
+    private void AddFolder(ProjectNode? node) {
+        if(node is null) return;
         ProjectNode folder = new() {
             Name = "folder",
             Children = [],
@@ -91,14 +99,17 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
         SetCommands(folder);
     }
 
-    private bool CanAddFolder(ProjectNode node) {
+    private bool CanAddFolder(ProjectNode? node) {
+        if (node is null) return false;
         return !node.IsEffectiveReadOnly;
     }
 
     [RelayCommand(CanExecute = nameof(CanAddFile))]
-    private void AddFile(ProjectNode node) {
-
-        if (node.Type != ProjectNodeType.Folder) {
+    private void AddFile(ProjectNode? node) {
+        if (node is null) {
+            return;
+        }
+        if (node.Type != ProjectNodeType.Folder && node.Type != ProjectNodeType.Category) {
             return;
         }
         
@@ -112,26 +123,36 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
         SetCommands(file);
     }
 
-    private bool CanAddFile(ProjectNode node) {
+    private bool CanAddFile(ProjectNode? node) {
+        if (node is null) return false;
+        if (node.Type == ProjectNodeType.Category && node.Id != fileService.ProjectCategoryId) {
+            return true;
+        }
+        
         return !node.IsEffectiveReadOnly;
     }
 
     [RelayCommand(CanExecute = nameof(CanSetEntryPoint))]
-    private void SetEntryPoint(ProjectNode node) {
+    private void SetEntryPoint(ProjectNode? node) {
+        if (node is null) {
+            return;
+        }
         ProjectFile? project = projectService.GetCurrentProject();
         Debug.Assert(project != null, "project != null (SetEntryPoint)");
         project.EntryFile = fileService.GetRelativePath(node.Id);
         projectService.SaveProject();
     }
 
-    private bool CanSetEntryPoint(ProjectNode node) {
-        Console.WriteLine("CanSetEntryPoint = "+!node.IsEffectiveReadOnly);
+    private bool CanSetEntryPoint(ProjectNode? node) {
+        if (node is null) {
+            return false;
+        }
         return !node.IsEffectiveReadOnly;
     }
     
     [RelayCommand]
-    private void RemoveNode(ProjectNode node) {
-        
+    private void RemoveNode(ProjectNode? node) {
+        if(node is null) return;
     }
 }
 

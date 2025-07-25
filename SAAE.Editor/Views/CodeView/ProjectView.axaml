@@ -31,32 +31,30 @@
             <TreeView.ItemTemplate>
                 <TreeDataTemplate ItemsSource="{Binding Children}"
                                   x:DataType="model:ProjectNode">
+                    
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Stretch"
                                 Background="{Binding $parent[TreeViewItem].Background}">
-                        <StackPanel.ContextMenu>
-                            <ContextMenu ItemsSource="{Binding ContextOptions}"
-                                         IsEnabled="{Binding HasContextMenu}"
-                                         IsVisible="{Binding HasContextMenu}">
-                                <ContextMenu.ItemTemplate>
-                                    <DataTemplate x:DataType="model:ContextOption">
-                                        <!-- IsEnabled="{Binding IsEnabled}"-->
-                                        <MenuItem IsEnabled="{Binding IsEnabled}"
-                                                  IsVisible="{Binding IsVisible}">
-                                            <MenuItem.Styles>
-                                                <Style Selector="MenuItem">
-                                                    <Setter Property="Command" Value="{Binding Command}"></Setter>
-                                                    <Setter Property="CommandParameter" Value="{Binding $parent[ContextMenu].DataContext}"></Setter>
-                                                </Style>
-                                            </MenuItem.Styles>
-                                            <MenuItem.Header>
-                                                <TextBlock Text="{Binding Name}"></TextBlock>
-                                            </MenuItem.Header>
-                                        </MenuItem>
-                                    </DataTemplate>
-                                </ContextMenu.ItemTemplate>
-                            </ContextMenu>
-                        </StackPanel.ContextMenu>
+                        <StackPanel.ContextFlyout>
+                            <Flyout FlyoutPresenterClasses="menuflyoutslim">
+                                <ItemsControl ItemsSource="{Binding ContextOptions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="model:ContextOption">
+                                            <Button Classes="contextmenuitem"
+                                                    IsVisible="{Binding IsVisible}"
+                                                    Command="{Binding Command}"
+                                                    CommandParameter="{Binding $parent[TreeViewItem].DataContext}">
+                                                <TextBlock Text="{Binding Name}"
+                                                           HorizontalAlignment="Left"
+                                                           Margin="0"
+                                                           Padding="0"
+                                                           VerticalAlignment="Center"></TextBlock>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Flyout>
+                        </StackPanel.ContextFlyout>
                         <TextBlock Text="{Binding Type, Converter={StaticResource NodeTypeToIcon}}"
                                    FontFamily="{DynamicResource PhosphorFont}"
                                    VerticalAlignment="Center"></TextBlock>

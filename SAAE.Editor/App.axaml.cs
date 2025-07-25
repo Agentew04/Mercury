@@ -100,6 +100,7 @@ public class App : Application {
             var main = new MainWindow();
             desktop.MainWindow = main;
             main.Show();
+            splash.Close();
             projectSelection?.Close();
         }
 

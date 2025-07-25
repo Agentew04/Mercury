@@ -23,6 +23,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     private readonly FileService fileService = App.Services.GetRequiredService<FileService>();
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
+    private readonly ExecuteService executeService = App.Services.GetRequiredService<ExecuteService>();
     
     public FileEditorViewModel() {
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
@@ -228,6 +229,9 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     [RelayCommand]
     private void RunProject()
     {
+        // load program
+        executeService.LoadProgram();
+        
         // navigate automagically to the execution view
         Navigation.NavigateTo(NavigationTarget.ExecuteView);
     }
