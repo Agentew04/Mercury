@@ -42,6 +42,6 @@
         <value>Executar programa</value>
     </data>
     <data name="ExecuteSpeedTooltip" xml:space="preserve">
-        <value>Controla a velocidade que as instruções são executadas. Medido em milissegundos</value>
+        <value>Controla a velocidade que as instruções são executadas. Instruções por segundo: {0}. Tempo entre instruções: {1}ms.</value>
     </data>
 </root>

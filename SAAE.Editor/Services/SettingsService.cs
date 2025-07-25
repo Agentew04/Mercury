@@ -88,7 +88,6 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
         // ATENCAO: nao dah pra usar async aqui por algum motivo obscuro.
         // faz escrita blocking
         File.WriteAllText(ConfigPath, JsonSerializer.Serialize(Preferences, SettingsSerializerContext.Default.UserPreferences));
-        Logger.LogInformation("Saved User Settings");
     }
 }
 

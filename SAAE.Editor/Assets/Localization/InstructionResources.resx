@@ -49,6 +49,6 @@
         <value>Pause the execution</value>
     </data>
     <data name="ExecuteSpeedTooltip" xml:space="preserve">
-        <value>Controls the speed in which the instructions are executed. Measured in miliseconds</value>
+        <value>Controls the speed in which the instructions are executed. Instructions per second: {0}. Delay between instructions: {1}.</value>
     </data>
 </root>

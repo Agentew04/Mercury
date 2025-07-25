@@ -19,14 +19,15 @@
 
         <Grid Grid.Row="0" Grid.Column="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="2*"></ColumnDefinition>
                 <ColumnDefinition Width="2"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
             <exec:InstructionView Grid.Column="0"/>
             <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
             <!-- label view -->
+            <exec:LabelView Grid.Column="2"/>
         </Grid>
         
         <GridSplitter Grid.Row="1" Grid.Column="0" 

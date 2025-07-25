@@ -28,6 +28,7 @@
         <entry key="SAAE.Editor/Views/CodeView/ProjectView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/ExecuteView/ExecuteView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/ExecuteView/InstructionView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
+        <entry key="SAAE.Editor/Views/ExecuteView/LabelView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/ExecuteView/OutputView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/ExecuteView/RamView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/ExecuteView/RegisterView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />

@@ -1,32 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using SAAE.Editor.Extensions;
+using SAAE.Editor.Localization;
 using SAAE.Editor.Models.Messages;
 using SAAE.Engine.Memory;
 using SAAE.Engine.Mips.Instructions;
+using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Editor.ViewModels.Execute;
 
-public partial class InstructionViewModel : BaseViewModel<InstructionViewModel> {
+public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>, IDisposable {
 
     [ObservableProperty] private ObservableCollection<DisassemblyRow> instructions = [];
     [ObservableProperty] private int selectedInstructionIndex = -1;
-
+    
     public InstructionViewModel() {
         WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
+        LocalizationManager.CultureChanged += OnLocalize;
     }
+
+    private void OnLocalize(CultureInfo _) {
+        OnPropertyChanged(nameof(ExecuteSpeedTooltip));
+    }
+
+    public void Dispose() {
+        LocalizationManager.CultureChanged -= OnLocalize;
+    }
+
+    public string ExecuteSpeedTooltip => string.Format(InstructionResources.ExecuteSpeedTooltipValue,
+        /*I/s*/ExecutionSpeed.ToString("F1"),
+        /*ms/I*/(1000.0f/ExecutionSpeed).ToString("F1")
+    );
 
     #region Loading
 
     private static void OnProgramLoad(object recipient, ProgramLoadMessage msg) {
         InstructionViewModel vm = (InstructionViewModel)recipient;
         ProgramMetadata meta = msg.Metadata;
+        vm.machine = msg.Machine;
+        vm.StepCommand.NotifyCanExecuteChanged();
+        vm.ExecuteCommand.NotifyCanExecuteChanged();
+        vm.StopCommand.NotifyCanExecuteChanged();
+        vm.IsExecuting = false;
 
         vm.Instructions.Clear();
         for (int i = 0; i < meta.Files.Count; i++) {
@@ -55,7 +79,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel> 
         
         uint address = startAddress;
         
-        Symbol previousSymbol = new("",0);
+        // Symbol previousSymbol = new("",0);
         int previousLine = 0;
         
         bool hasSymbols = lineEnumerator.MoveNext();
@@ -131,7 +155,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel> 
                 }
             });
             previousLine = nextLine;
-            previousSymbol = nextSymbol;
+            // previousSymbol = nextSymbol;
             hasSymbols = lineEnumerator.MoveNext();
             (nextSymbol, nextLine) = lineEnumerator.Current;
             address += 4;
@@ -142,24 +166,77 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel> 
 
     #region Execution
 
-    // em milissegundos
-    [ObservableProperty] private int executionSpeed = 100;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ExecuteSpeedTooltip))]
+    private float executionSpeed = 5; // 5 IPS
+    private Machine? machine = null;
 
-    [RelayCommand]
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(StopCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ExecuteCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StepCommand))]
+    private bool isExecuting = false;
+
+    public bool IsExecutionFinished => machine?.IsClockingFinished() ?? false;
+
+    private PeriodicTimer? executionTimer;
+    private CancellationTokenSource executionCts;
+
+    [RelayCommand(CanExecute = nameof(CanStep))]
     private void Step() {
-        
+        machine!.Clock();
+        int pc = machine!.Registers[RegisterFile.Register.Pc];
+        int index = Instructions.IndexOf(x => x.Address == pc);
+        SelectedInstructionIndex = index;
+        OnPropertyChanged(nameof(IsExecutionFinished));
+        StepCommand.NotifyCanExecuteChanged();
+        ExecuteCommand.NotifyCanExecuteChanged();
+        StopCommand.NotifyCanExecuteChanged();
     }
 
-    [RelayCommand]
+    private bool CanStep() {
+        return machine is not null && !IsExecuting && !IsExecutionFinished;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanExecute))]
     private void Execute() {
-        
+        IsExecuting = true;
+        executionCts = new CancellationTokenSource();
+        executionTimer ??= new PeriodicTimer(TimeSpan.FromMilliseconds(1000.0f / ExecutionSpeed));
+        _ = ExecuteTask();
     }
 
-    [RelayCommand]
-    private void Stop() {
-        
+    private bool CanExecute() {
+        return machine is not null && !IsExecuting && !IsExecutionFinished;
     }
-    
+
+    [RelayCommand(CanExecute = nameof(CanStop))]
+    private void Stop() {
+        IsExecuting = false;
+        executionCts.Cancel();
+    }
+
+    private bool CanStop() {
+        return machine is not null && IsExecuting && IsExecutionFinished;
+    }
+
+    partial void OnExecutionSpeedChanged(float value) {
+        float delay = 1000.0f / value;
+        executionTimer?.Dispose();
+        executionTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(delay));
+    }
+
+    private async Task ExecuteTask() {
+        while (!executionCts.IsCancellationRequested
+            && await executionTimer!.WaitForNextTickAsync()){
+            Step();
+            if (!IsExecutionFinished) continue;
+            IsExecuting = false;
+            await executionCts.CancelAsync();
+            break;
+        }
+    }
+
     #endregion
 }
 

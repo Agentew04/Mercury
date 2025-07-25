@@ -41,6 +41,14 @@
                 <TextBlock FontFamily="{StaticResource PhosphorFont}"
                            Text="&#xE39E;" Margin="0"></TextBlock>
             </Button>
+
+            <!-- talvez add um header para velocidade? -->
+            <Slider Width="150"
+                    IsEnabled="{Binding !IsExecuting}"
+                    Value="{Binding ExecutionSpeed}"
+                    Minimum="1"
+                    Maximum="10"
+                    ToolTip.Tip="{Binding ExecuteSpeedTooltip}"/>
             
         </StackPanel>
 

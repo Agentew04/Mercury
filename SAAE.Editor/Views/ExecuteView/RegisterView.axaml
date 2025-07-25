@@ -10,7 +10,7 @@
     <UserControl.Styles>
         <StyleInclude Source="avares://SAAE.Editor/Assets/Styles/RegisterViewStyles.axaml"></StyleInclude>
     </UserControl.Styles>
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*" Margin="5">
         <TabStrip Grid.Row="0" Classes="slim" Margin="5,0,5,0"
                   SelectedIndex="{Binding SelectedProcessorIndex}"
                   ItemsSource="{Binding ProcessorNames}"/>

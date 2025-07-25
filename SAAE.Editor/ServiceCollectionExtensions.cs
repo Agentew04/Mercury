@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<OutputViewModel>();
         collection.AddSingleton<RamViewModel>();
         collection.AddSingleton<InstructionViewModel>();
+        collection.AddSingleton<LabelViewModel>();
 
         #endregion
 
