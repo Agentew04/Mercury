@@ -85,6 +85,7 @@
                   Classes="headerslim"
                   CanUserReorderColumns="False" CanUserSortColumns="False"
                   CanUserResizeColumns="False"
+                  SelectedIndex="{Binding SelectedRowIndex, Mode=TwoWay}"
                   IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Width="Auto" 

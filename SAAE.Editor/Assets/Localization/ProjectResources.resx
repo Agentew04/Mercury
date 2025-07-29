@@ -78,4 +78,10 @@
     <data name="GoBack" xml:space="preserve">
         <value>Return</value>
     </data>
+    <data name="NewFileModalTitle" xml:space="preserve">
+        <value>File name</value>
+    </data>
+    <data name="NewFileModalWatermark" xml:space="preserve">
+        <value>file.asm</value>
+    </data>
 </root>

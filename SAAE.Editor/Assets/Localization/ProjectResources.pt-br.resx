@@ -71,4 +71,10 @@
     <data name="GoBack" xml:space="preserve">
         <value>Voltar</value>
     </data>
+    <data name="NewFileModalTitle" xml:space="preserve">
+        <value>Nome do arquivo</value>
+    </data>
+    <data name="NewFileModalWatermark" xml:space="preserve">
+        <value>arquivo.asm</value>
+    </data>
 </root>

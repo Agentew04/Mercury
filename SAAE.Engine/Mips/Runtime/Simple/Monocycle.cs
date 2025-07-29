@@ -21,6 +21,8 @@ public sealed partial class Monocycle : IClockable {
     /// </summary>
     public IMemory Memory { get; set; } = null!;
 
+    public Machine Machine { get; set; } = null!;
+
     /// <summary>
     /// Structure that holds all the general purpose
     /// registers of the CPU.

@@ -69,8 +69,20 @@ public partial class Monocycle {
             RegisterFile[xori.Rt] = RegisterFile[xori.Rs] ^ ZeroExtend(xori.Immediate);
         } else if(instruction is Lb lb) {
             RegisterFile[lb.Rt] = (sbyte)Memory.ReadByte((ulong)(RegisterFile[lb.Rs] + lb.Immediate));
+            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+                Address = (ulong)(RegisterFile[lb.Rs] + lb.Immediate),
+                Size = 1,
+                Mode = MemoryAccessMode.Read,
+                Source = MemoryAccessSource.Instruction
+            });
         } else if(instruction is Lbu lbu) {
             RegisterFile[lbu.Rt] = Memory.ReadByte((ulong)(RegisterFile[lbu.Rs] + lbu.Immediate));
+            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+                Address = (ulong)(RegisterFile[lbu.Rs] + lbu.Immediate),
+                Size = 1,
+                Mode = MemoryAccessMode.Read,
+                Source = MemoryAccessSource.Instruction
+            });
         }else if(instruction is Lh lh) {
             int address = RegisterFile[lh.Rs] + lh.Immediate;
             if (address % 2 != 0) {
@@ -82,6 +94,12 @@ public partial class Monocycle {
                 return;
             }
             RegisterFile[lh.Rt] = (short)(Memory.ReadWord((ulong)address) & 0xFFFF);
+            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+                Address = (ulong)address,
+                Size = 2,
+                Mode = MemoryAccessMode.Read,
+                Source = MemoryAccessSource.Instruction
+            });
         } else if(instruction is Lhu lhu) {
             int address = RegisterFile[lhu.Rs] + lhu.Immediate;
             if (address % 2 != 0) {
@@ -93,6 +111,12 @@ public partial class Monocycle {
                 return;
             }
             RegisterFile[lhu.Rt] = (ushort)(Memory.ReadWord((ulong)address) & 0xFFFF);
+            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+                Address = (ulong)address,
+                Size = 2,
+                Mode = MemoryAccessMode.Read,
+                Source = MemoryAccessSource.Instruction
+            });
         } else if(instruction is Lui lui) {
             RegisterFile[lui.Rt] = lui.Immediate << 16;
         } else if(instruction is Lw lw) {
@@ -106,8 +130,20 @@ public partial class Monocycle {
                 return;
             }
             RegisterFile[lw.Rt] = Memory.ReadWord((ulong)address);
+            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+                Address = (ulong)address,
+                Size = 4,
+                Mode = MemoryAccessMode.Read,
+                Source = MemoryAccessSource.Instruction
+            });
         } else if(instruction is Sb sb) {
             Memory.WriteByte((ulong)(RegisterFile[sb.Rs] + sb.Immediate), (byte)RegisterFile[sb.Rt]);
+            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+                Address = (ulong)(RegisterFile[sb.Rs] + sb.Immediate),
+                Size = 1,
+                Mode = MemoryAccessMode.Write,
+                Source = MemoryAccessSource.Instruction
+            });
         } else if(instruction is Sh sh) {
             int address = RegisterFile[sh.Rs] + sh.Immediate;
             if((address & 0b1) != 0){
@@ -121,6 +157,12 @@ public partial class Monocycle {
             // write two bytes
             Memory.WriteByte((ulong)address, (byte)(RegisterFile[sh.Rt] >> 8));
             Memory.WriteByte((ulong)(address + 1), (byte)(RegisterFile[sh.Rt] & 0xFF));
+            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+                Address = (ulong)address,
+                Size = 2,
+                Mode = MemoryAccessMode.Write,
+                Source = MemoryAccessSource.Instruction
+            });
         } else if(instruction is Sw sw) {
             int address = RegisterFile[sw.Rs] + sw.Immediate;
             if ((address & 0b11) != 0) {
@@ -132,6 +174,12 @@ public partial class Monocycle {
                 return;
             }
             Memory.WriteWord((ulong)address, RegisterFile[sw.Rt]);
+            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+                Address = (ulong)address,
+                Size = 4,
+                Mode = MemoryAccessMode.Write,
+                Source = MemoryAccessSource.Instruction
+            });
         } else if(instruction is Teqi teqi) {
             if (RegisterFile[teqi.Rs] == teqi.Immediate) {
                 OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {

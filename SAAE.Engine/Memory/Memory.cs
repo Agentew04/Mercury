@@ -53,7 +53,6 @@ public sealed class Memory : IDisposable, IMemory
     
     private readonly IStorage coldStorage;
 
-    
 
     public Memory(MemoryConfiguration config)
     {

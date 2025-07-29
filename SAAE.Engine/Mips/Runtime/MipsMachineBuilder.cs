@@ -64,6 +64,7 @@ public class MipsMachineBuilder : MachineBuilder
         
         // realiza links de hardware
         _cpu.Memory = Memory;
+        _cpu.Machine = machine;
         _os.Machine = machine;
         _cpu.OnSignalException += async (_, e) => {
             await _os.OnSignalBreak(e);

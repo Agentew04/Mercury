@@ -31,51 +31,53 @@
     </Style>
   </Window.Styles>
 
-  <DockPanel Background="{StaticResource BackgroundGrey1}"
-             Margin="{Binding $parent[Window].OffScreenMargin}">
-    <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto, *" Background="{x:Null}">
-      <controls:TitleBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TitleBar"/>
-      
-      <!-- icon -->
-      <Image Grid.Column="0" Source="avares://SAAE.Editor/Assets/Images/book.png"
-             Stretch="Uniform"
-             Width="25" Margin="10,0,10,0"/>
-      
-      <!-- menu -->
-      <Menu Grid.Column="1" Background="{x:Null}">
-        <MenuItem Header="_File">
-          <MenuItem Header="_New"/>
-          <MenuItem Header="_Open"/>
-          <MenuItem Header="_Recent"/>
-          <MenuItem Header="_Save"/>
-          <MenuItem Header="Save _As"/>
-        </MenuItem>
-        <MenuItem Header="_Edit">
+  <Grid>
+    <DockPanel Background="{StaticResource BackgroundGrey1}"
+               Margin="{Binding $parent[Window].OffScreenMargin}">
+      <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto, *" Background="{x:Null}">
+        <controls:TitleBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TitleBar"/>
+        
+        <!-- icon -->
+        <Image Grid.Column="0" Source="avares://SAAE.Editor/Assets/Images/book.png"
+               Stretch="Uniform"
+               Width="25" Margin="10,0,10,0"/>
+        
+        <!-- menu -->
+        <Menu Grid.Column="1" Background="{x:Null}">
+          <MenuItem Header="_File">
+            <MenuItem Header="_New"/>
+            <MenuItem Header="_Open"/>
+            <MenuItem Header="_Recent"/>
+            <MenuItem Header="_Save"/>
+            <MenuItem Header="Save _As"/>
+          </MenuItem>
+          <MenuItem Header="_Edit">
 
-        </MenuItem>
-        <MenuItem Header="_View">
+          </MenuItem>
+          <MenuItem Header="_View">
 
-        </MenuItem>
-        <MenuItem Header="_Configuration"
-                  Click="OpenConfiguration"/>
-      </Menu>
-    </Grid>
-    
-    <!-- status bar -->
-    <view:StatusBar DockPanel.Dock="Bottom" Background="{StaticResource Purple1}"/>
-    
-    <!-- main view -->
-    <TabControl x:Name="TabControl">
-      <TabControl.Items>
-        <TabItem Header="Code" Tag="{x:Static local:NavigationTarget.CodeView}">
-          <codeView:CodeTabView/>
+          </MenuItem>
+          <MenuItem Header="_Configuration"
+                    Click="OpenConfiguration"/>
+        </Menu>
+      </Grid>
+      
+      <!-- status bar -->
+      <view:StatusBar DockPanel.Dock="Bottom" Background="{StaticResource Purple1}"/>
+      
+      <!-- main view -->
+      <TabControl x:Name="TabControl">
+        <TabControl.Items>
+          <TabItem Header="Code" Tag="{x:Static local:NavigationTarget.CodeView}">
+            <codeView:CodeTabView/>
+            </TabItem>
+          <TabItem Header="Run" Tag="{x:Static local:NavigationTarget.ExecuteView}">
+            <executeView:ExecuteView/>
           </TabItem>
-        <TabItem Header="Run" Tag="{x:Static local:NavigationTarget.ExecuteView}">
-          <executeView:ExecuteView/>
-        </TabItem>
-        <TabItem Header="Design" Tag="{x:Static local:NavigationTarget.DesignView}"/>
-      </TabControl.Items>
-    </TabControl>
-  </DockPanel>
-    
+          <TabItem Header="Design" Tag="{x:Static local:NavigationTarget.DesignView}"/>
+        </TabControl.Items>
+      </TabControl>
+    </DockPanel>
+    <controls:TextPopup IsVisible="False" x:Name="TextPopup"/>
+  </Grid>
 </Window>

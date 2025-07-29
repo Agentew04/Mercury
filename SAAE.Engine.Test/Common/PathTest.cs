@@ -1,5 +1,5 @@
-﻿using System.Xml.Serialization;
-using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+﻿using System.Text.Json;
+using System.Xml.Serialization;
 using SAAE.Editor.Extensions;
 
 namespace SAAE.Engine.Test.Common;
@@ -269,5 +269,56 @@ public class PathTest {
         Assert.IsTrue(result.IsFile);
         CollectionAssert.AreEqual(new[]{"inner"}, result.Parts);
         Assert.AreEqual("file.bin", result.FullFileName);
+    }
+
+    [TestMethod]
+    public void TestDirectoryJsonSerialization() {
+        PathObject a = "test/test2/folder".ToDirectoryPath();
+
+        JsonSerializerOptions opt = new JsonSerializerOptions() {
+            Converters = { new PathJsonConverter() }
+        };
+        
+        string result = JsonSerializer.Serialize(a, opt);
+
+        PathObject b = JsonSerializer.Deserialize<PathObject>(result, opt);
+        
+        Assert.AreEqual(a,b);
+    }
+    
+    [TestMethod]
+    public void TestFileJsonSerialization() {
+        PathObject a = "test/test2/folder/file.text".ToFilePath();
+
+        JsonSerializerOptions opt = new JsonSerializerOptions() {
+            Converters = { new PathJsonConverter() }
+        };
+        
+        string result = JsonSerializer.Serialize(a, opt);
+
+        PathObject b = JsonSerializer.Deserialize<PathObject>(result, opt);
+        
+        Assert.AreEqual(a,b);
+    }
+
+    [TestMethod]
+    public void TestReorderedJsonSerialization() {
+        string json =
+            """
+            {
+                "isDirectory": false,
+                "path": "folder/folder/file.bin"
+            }
+            """;
+        JsonSerializerOptions opt = new JsonSerializerOptions() {
+            Converters = { new PathJsonConverter() }
+        };
+        PathObject a = JsonSerializer.Deserialize<PathObject>(json, opt);
+        
+        Assert.IsFalse(a.IsDirectory);
+        Assert.IsTrue(a.IsFile);
+        CollectionAssert.AreEqual(new[]{"folder", "folder"}, a.Parts);
+        Assert.AreEqual("file", a.Filename);
+        Assert.AreEqual(".bin", a.Extension);
     }
 }

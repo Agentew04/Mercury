@@ -17,6 +17,7 @@
         <entry key="SAAE.Editor/Controls/GuideMenu.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Controls/IconButton.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Controls/ProjectMenu.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
+        <entry key="SAAE.Editor/Controls/TextPopup.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Controls/TitleBar.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/MainWindow.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/CodeTabView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />

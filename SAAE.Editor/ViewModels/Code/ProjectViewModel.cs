@@ -2,14 +2,21 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using Avalonia.Controls.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SAAE.Editor.Extensions;
+using SAAE.Editor.Localization;
 using SAAE.Editor.Models;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
+using SAAE.Engine.Common;
 
 namespace SAAE.Editor.ViewModels.Code;
 
@@ -105,30 +112,44 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
     }
 
     [RelayCommand(CanExecute = nameof(CanAddFile))]
-    private void AddFile(ProjectNode? node) {
+    private async Task AddFile(ProjectNode? node) {
         if (node is null) {
             return;
         }
         if (node.Type != ProjectNodeType.Folder && node.Type != ProjectNodeType.Category) {
             return;
         }
-        
+
+        TextPopupResult result = await WeakReferenceMessenger.Default.Send(new RequestTextPopupMessage() {
+            Title = ProjectResources.NewFileModalTitleValue,
+            IsCancellable = true,
+            Watermark = ProjectResources.NewFileModalWatermarkValue
+        });
+        if (result.IsCancelled) {
+            return;
+        }
+        string ext = System.IO.Path.GetExtension(result.Result);
         ProjectNode file = new() {
-            Name = "file.asm",
+            Name = result.Result,
             Children = [],
-            Type = ProjectNodeType.AssemblyFile,
+            Type = ext is ".asm" or ".s" ? ProjectNodeType.AssemblyFile : ProjectNodeType.UnknownFile,
             Id = Guid.NewGuid()
         };
         fileService.RegisterNode(node,file);
         SetCommands(file);
+        PathObject path = fileService.GetAbsolutePath(file.Id);
+        await File.WriteAllTextAsync(path.ToString(), "");
     }
 
     private bool CanAddFile(ProjectNode? node) {
         if (node is null) return false;
-        if (node.Type == ProjectNodeType.Category && node.Id != fileService.ProjectCategoryId) {
+        if (node.Type == ProjectNodeType.Category && node.Id == fileService.ProjectCategoryId) {
             return true;
         }
-        
+        if (node.Type == ProjectNodeType.Category) {
+            return false;
+        }
+
         return !node.IsEffectiveReadOnly;
     }
 

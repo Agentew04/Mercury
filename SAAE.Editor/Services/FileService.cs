@@ -62,6 +62,8 @@ public class FileService : BaseService<FileService> {
 
         relativePaths[StdLibCategoryId] = settingsService.Preferences.StdLibPath.ToDirectoryPath();
         relativePaths[ProjectCategoryId] = project.ProjectDirectory + project.SourceDirectory;
+        nodeTypes[StdLibCategoryId] = ProjectNodeType.Category;
+        nodeTypes[ProjectCategoryId] = ProjectNodeType.Category;
 
         internalTree = nodes;
         return nodes;
@@ -109,6 +111,7 @@ public class FileService : BaseService<FileService> {
         }
 
         nodeTypes[node.Id] = node.Type;
+        isStdlibNode[node.Id] = false;
 
         node.ParentReference = new WeakReference<ProjectNode>(father);
         father.Children.Add(node);

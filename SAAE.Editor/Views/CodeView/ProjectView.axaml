@@ -18,11 +18,9 @@
     <UserControl.Styles>
         <StyleInclude Source="/Assets/Styles/ProjectViewStyles.axaml"></StyleInclude>
     </UserControl.Styles>
-    <UserControl.Resources>
-    </UserControl.Resources>
     <Grid RowDefinitions="Auto,*" Margin="0">
         <TextBlock Grid.Row="0" Classes="header"
-            Text="{Binding Path=ProjectViewTitle, Source={x:Static localization:ProjectResources.Instance}}"/>
+                   Text="{Binding Path=ProjectViewTitle, Source={x:Static localization:ProjectResources.Instance}}"/>
     
         <TreeView Grid.Row="1" ItemsSource="{Binding Nodes}"
                   Classes="projectTree"

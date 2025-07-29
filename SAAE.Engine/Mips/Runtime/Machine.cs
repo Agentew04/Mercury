@@ -36,6 +36,7 @@ public sealed class Machine : IDisposable, IClockable {
         Section<uint>? textSection = elf.GetSection(".text");
         uint textStart = textSection!.LoadAddress;
         uint textLength = textSection.Size;
+        Cpu.RegisterFile[RegisterFile.Register.Pc] = (int)elf.EntryPoint;
         SymbolTable<uint>? symbolTable = elf.GetSections<SymbolTable<uint>>().First();
         Cpu.DropoffAddress = symbolTable?.Entries?.First(x => x.Name == "__end")?.Value ?? textStart + textLength;
 
@@ -100,10 +101,36 @@ public sealed class Machine : IDisposable, IClockable {
     }
 
     public event Action<List<RegisterFile.Register>>? OnRegisterChanged;
+    
+    /// <summary>
+    /// Event fired when any access to the memory is made.
+    /// </summary>
+    public event EventHandler<MemoryAccessEventArgs>? OnMemoryAccess;
+
+    public void InvokeMemoryAccess(MemoryAccessEventArgs e) => OnMemoryAccess?.Invoke(this, e);
 
     public void Dispose() {
         IsDisposed = true;
+        Cpu.Machine = null!;
+        Os.Machine = null!;
         if(Memory is IDisposable dispMem) dispMem.Dispose();
         Os.Dispose();
     }
+}
+
+public class MemoryAccessEventArgs : EventArgs {
+    public required ulong Address { get; init; }
+    public required int Size { get; init; }
+    public required MemoryAccessMode Mode { get; init; }
+    public required MemoryAccessSource Source { get; init; }
+}
+
+public enum MemoryAccessMode {
+    Read,
+    Write
+}
+
+public enum MemoryAccessSource {
+    Code,
+    Instruction
 }

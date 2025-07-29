@@ -10,6 +10,7 @@ public interface IMemory {
     /// ordered in a word.
     /// </summary>
     public Endianess Endianess { get; }
+
     
     #region Single Value Methods
 
@@ -40,3 +41,4 @@ public interface IMemory {
     #endregion
 
 }
+

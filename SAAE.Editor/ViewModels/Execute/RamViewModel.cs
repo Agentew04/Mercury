@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models.Messages;
 using SAAE.Engine.Memory;
+using SAAE.Engine.Mips.Runtime;
 using Machine = SAAE.Engine.Mips.Runtime.Machine;
 
 namespace SAAE.Editor.ViewModels.Execute;
@@ -28,18 +29,21 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
     private ObservableCollection<Location> locations = [];
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Rows))]
-    private int selectedSectionIndex = 0;
+    private int selectedSectionIndex;
 
     public ObservableCollection<RamVisualization> AvailableVisualizationModes { get; private set; } = [];
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(Rows))] private int selectedModeIndex = 0;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(Rows))] private int selectedModeIndex;
 
     private Machine? currentMachine;
 
     [ObservableProperty]
     private ObservableCollection<RamRow> rows = [];
 
-    private int currentPage = 0;
+    [ObservableProperty] private int selectedRowIndex = -1;
+
+    private int currentPage;
+    private ulong currentMemoryAccess = 0;
 
     public RamViewModel() {
         WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
@@ -47,7 +51,6 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
     }
 
     private void OnLocalize(CultureInfo cultureInfo) {
-        //CreateModeList();
         OnPropertyChanged(nameof(AvailableVisualizationModes));
     }
 
@@ -55,11 +58,33 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
         RamViewModel vm = (RamViewModel)recipient;
         // load sectors from elf
         vm.PopulateLocations(msg.Elf);
+        if(vm.currentMachine is not null) {
+            // desinscreve do evento de acesso de memoria da maquina antiga
+            vm.currentMachine.OnMemoryAccess -= vm.OnMemoryAccess;
+        }
         vm.currentMachine = msg.Machine;
+        vm.currentMachine.OnMemoryAccess += vm.OnMemoryAccess;
         vm.PopulateRam();
         vm.DisplayRam();
+        vm.SelectedRowIndex = -1;
         vm.NextPageCommand.NotifyCanExecuteChanged();
         vm.PreviousPageCommand.NotifyCanExecuteChanged();
+    }
+
+    private void OnMemoryAccess(object? sender, MemoryAccessEventArgs e) {
+        currentMemoryAccess = e.Address;
+        HighlightRow(currentMemoryAccess);
+    }
+
+    private void HighlightRow(ulong address) {
+        if (address >= Rows[0].RowAddress && address <= Rows[^1].RowAddress + 16) {
+            ulong addr = (address - Rows[0].RowAddress) / 16;
+            SelectedRowIndex = (int)addr;
+            Logger.LogInformation("Highlighting row {row}", SelectedRowIndex);
+        }
+        else {
+            SelectedRowIndex = -1;
+        }
     }
 
     private void PopulateLocations(ELF<uint> elf) {
@@ -128,6 +153,7 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
             };
             Rows.Add(row);
         }
+        HighlightRow(currentMemoryAccess);
     }
 
     // calcula o modo de exibicao correto dos dados do visualizador

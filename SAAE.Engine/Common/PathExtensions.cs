@@ -4,6 +4,8 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -296,4 +298,81 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
     public override int GetHashCode() {
         return HashCode.Combine(Parts, IsAbsolute, IsDirectory, IsFile, Filename, Extension);
     }
-} 
+}
+
+public class PathJsonConverter : JsonConverter<PathObject> {
+    public override PathObject Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+        if (reader.TokenType != JsonTokenType.StartObject) {
+            throw new JsonException();
+        }
+        reader.Read();
+
+        bool foundPath = false;
+        string? path = "";
+        bool foundDir = false;
+        bool dir = false;
+        
+        if (reader.TokenType != JsonTokenType.PropertyName) {
+            throw new JsonException();
+        }
+        string? propName = reader.GetString();
+
+        reader.Read();
+        switch (propName) {
+            case "path":
+                foundPath = true;
+                path = reader.GetString() ?? throw new JsonException();
+                break;
+            case "isDirectory":
+                foundDir = true;
+                dir = reader.GetBoolean();
+                break;
+            default:
+                throw new JsonException();
+        }
+        
+        reader.Read();
+        if (reader.TokenType != JsonTokenType.PropertyName) {
+            throw new JsonException();
+        }
+
+        propName = reader.GetString();
+        reader.Read();
+        switch (propName) {
+            case "path":
+                foundPath = true;
+                path = reader.GetString() ?? throw new JsonException();
+                break;
+            case "isDirectory":
+                foundDir = true;
+                dir = reader.GetBoolean();
+                break;
+            default:
+                throw new JsonException();
+        }
+
+        reader.Read();
+        if (reader.TokenType != JsonTokenType.EndObject) {
+            throw new JsonException();
+        }
+
+        if (!foundDir || !foundPath) {
+            throw new JsonException();
+        }
+
+        if (path is null) {
+            throw new JsonException();
+        }
+
+        return dir ? path.ToDirectoryPath() : path.ToFilePath();
+    }
+
+    public override void Write(Utf8JsonWriter writer, PathObject value, JsonSerializerOptions options) {
+        writer.WriteStartObject();
+        writer.WritePropertyName("path");
+        writer.WriteStringValue(value.ToString());
+        writer.WritePropertyName("isDirectory");
+        writer.WriteBooleanValue(value.IsDirectory);
+        writer.WriteEndObject();
+    }
+}

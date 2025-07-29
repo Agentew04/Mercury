@@ -82,6 +82,27 @@
         <Setter Property="RenderTransform" Value=""></Setter>
     </Style>
     
+    <Style Selector="Button.primary">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+        <Setter Property="FontWeight" Value="Bold"></Setter>
+    </Style>
+    
+    <Style Selector="Button.primary ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Purple1}"></Setter>
+    </Style>
+    
+    <Style Selector="Button.primary:pointerover ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Purple2}"></Setter>
+    </Style>
+    
+    <Style Selector="Button.primary:pressed">
+        <Setter Property="RenderTransform" Value=""></Setter>
+    </Style>
+    
+    <Style Selector="Button.primary:pressed ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Purple3}"></Setter>
+    </Style>
+    
     <!-- slim tab strip -->
     <Style Selector="TabStrip.slim > TabStripItem">
         <Setter Property="Padding" Value="2,1,2,0"></Setter>
