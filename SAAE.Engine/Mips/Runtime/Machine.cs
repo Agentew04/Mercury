@@ -94,13 +94,16 @@ public sealed class Machine : IDisposable, IClockable {
         if(regChanged.Count > 0) {
             OnRegisterChanged?.Invoke(regChanged);
         }
+        else {
+            OnRegisterChanged?.Invoke(null);
+        }
     }
     
     public bool IsClockingFinished() {
         return Cpu.IsClockingFinished();
     }
 
-    public event Action<List<RegisterFile.Register>>? OnRegisterChanged;
+    public event Action<List<RegisterFile.Register>?>? OnRegisterChanged;
     
     /// <summary>
     /// Event fired when any access to the memory is made.

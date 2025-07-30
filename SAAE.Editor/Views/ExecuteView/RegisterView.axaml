@@ -19,6 +19,7 @@
             GridLinesVisibility="Horizontal" IsReadOnly="True"
             ItemsSource="{Binding Registers}"
             HorizontalAlignment="Stretch"
+            SelectedIndex="{Binding SelectedRegisterIndex}"
             Classes="headerslim">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{Binding Path=NameText, Source={x:Static loc:RegisterResources.Instance}}" 

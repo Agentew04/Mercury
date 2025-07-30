@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -24,6 +25,9 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
 
     [ObservableProperty] private ObservableCollection<string> processorNames = [];
 
+    [ObservableProperty] private int selectedRegisterIndex = -1;
+    private int  lastChangedRegisterIndex;
+
     private ArchitectureMetadata architectureMetadata;
 
     private Machine machine = null!;
@@ -35,6 +39,9 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
 
     private static void OnProgramLoaded(object sender, ProgramLoadMessage msg) {
         RegisterViewModel vm = (RegisterViewModel)sender;
+        if (vm.machine is not null) {
+            vm.machine.OnRegisterChanged -= vm.OnRegisterChange;
+        }
         vm.machine = msg.Machine;
         vm.architectureMetadata = ArchitectureManager.GetArchitectureMetadata(msg.Machine.Architecture);
         vm.ProcessorNames = new ObservableCollection<string>(
@@ -42,20 +49,35 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
                 .Select(x => x.Name)
                 .ToList());
         vm.LoadRegisters(vm.SelectedProcessorIndex);
-        vm.machine.OnRegisterChanged += list =>
-        {
-            foreach (RegisterFile.Register reg in list) {
-                int index = vm.Registers.IndexOf(x => x.Index == (int)reg);
-                if (index >= 0)
-                {
-                    vm.Registers[index].Value = vm.machine.Registers[reg];
-                }
-            }
-            vm.Logger.LogInformation("Updated value of {count} registers", list.Count);
-        };
+        vm.machine.OnRegisterChanged += vm.OnRegisterChange;
         vm.Logger.LogInformation("Initialized register view with {registers} and {processors}", 
             vm.Registers.Count, 
             vm.architectureMetadata.Processors.Length);
+    }
+
+    private void OnRegisterChange(List<RegisterFile.Register>? regs) {
+        if (regs is null) {
+            lastChangedRegisterIndex = -1;
+            return;
+        }
+        foreach (RegisterFile.Register reg in regs) {
+            int index = Registers.IndexOf(x => x.Index == (int)reg);
+            if (index >= 0)
+            {
+                Registers[index].Value = machine.Registers[reg];
+            }
+            lastChangedRegisterIndex = index;
+        }
+        Logger.LogInformation("Updated value of {count} registers", regs.Count);
+        Highlight();
+    }
+
+    private void Highlight() {
+        if (SelectedProcessorIndex != 0) {
+            SelectedRegisterIndex = -1;
+            return;
+        }
+        SelectedRegisterIndex = lastChangedRegisterIndex;
     }
 
     private void LoadRegisters(int processorIndex) {
@@ -77,6 +99,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
 
     partial void OnSelectedProcessorIndexChanged(int value) {
         LoadRegisters(value);
+        Highlight();
     }
 }
 
