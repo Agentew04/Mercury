@@ -141,10 +141,10 @@
                                            Converter={StaticResource EnumToBoolConverter}}">
                                     <TextBlock.Inlines>
                                         <Run Text="{Binding Source.LineNumber, Mode=OneWay}"
-                                             FontWeight="Bold"></Run>
-                                        <Run Text=": "
-                                             FontWeight="Bold"></Run>
-                                        <Run Text="{Binding Source.LineContent, Mode=OneWay}"></Run>
+                                             FontWeight="Bold"></Run><!--
+                                        --><Run Text=": "
+                                             FontWeight="Bold"></Run><!--
+                                        --><Run Text="{Binding Source.LineContent, Mode=OneWay}"></Run>
                                     </TextBlock.Inlines>
                                 </TextBlock>
                             </Grid>

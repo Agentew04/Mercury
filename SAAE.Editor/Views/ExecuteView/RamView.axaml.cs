@@ -13,4 +13,8 @@ public partial class RamView : UserControl {
     }
     
     public RamViewModel ViewModel { get; private set; }
+
+    private void DataGrid_OnCellPointerPressed(object? sender, DataGridCellPointerPressedEventArgs e) {
+        e.PointerPressedEventArgs.Handled = true;
+    }
 }

@@ -15,4 +15,8 @@ public partial class RegisterView : UserControl
     }
 
     private RegisterViewModel viewModel;
+
+    private void DataGrid_OnCellPointerPressed(object? sender, DataGridCellPointerPressedEventArgs e) {
+        e.PointerPressedEventArgs.Handled = true;
+    }
 }

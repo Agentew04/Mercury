@@ -20,7 +20,8 @@
             ItemsSource="{Binding Registers}"
             HorizontalAlignment="Stretch"
             SelectedIndex="{Binding SelectedRegisterIndex}"
-            Classes="headerslim">
+            CellPointerPressed="DataGrid_OnCellPointerPressed"
+            Classes="headerslim static">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{Binding Path=NameText, Source={x:Static loc:RegisterResources.Instance}}" 
                                     Binding="{Binding Name}" Width="Auto"/>

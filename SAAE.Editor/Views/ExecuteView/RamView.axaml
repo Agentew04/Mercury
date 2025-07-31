@@ -86,6 +86,7 @@
                   CanUserReorderColumns="False" CanUserSortColumns="False"
                   CanUserResizeColumns="False"
                   SelectedIndex="{Binding SelectedRowIndex, Mode=TwoWay}"
+                  CellPointerPressed="DataGrid_OnCellPointerPressed"
                   IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Width="Auto" 

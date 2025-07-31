@@ -59,16 +59,16 @@ public partial class OutputViewModel : BaseViewModel<OutputViewModel> {
         _ = vm.ReadStdOut(vm.cts.Token);
         _ = vm.ReadStdErr(vm.cts.Token);
 
-        _ = Task.Run(async () => {
-            ChannelWriter<char> writer = msg.Machine.StdOut!.Writer;
-            for (int i = 0; i < 100;i++) {
-                await writer.WriteAsync(i + ".");
-                await Task.Delay(1000);
-                await writer.WriteAsync("\n");
-                await Task.Delay(1000);
-                vm.Logger.LogInformation("Writing to stdout");
-            }
-        });
+        // _ = Task.Run(async () => {
+        //     ChannelWriter<char> writer = msg.Machine.StdOut!.Writer;
+        //     for (int i = 0; i < 100;i++) {
+        //         await writer.WriteAsync(i + ".");
+        //         await Task.Delay(1000);
+        //         await writer.WriteAsync("\n");
+        //         await Task.Delay(1000);
+        //         vm.Logger.LogInformation("Writing to stdout");
+        //     }
+        // });
     }
     
     private async Task ReadStdOut(CancellationToken token) {
