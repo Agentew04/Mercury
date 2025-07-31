@@ -25,14 +25,18 @@
         <TreeView Grid.Row="1" ItemsSource="{Binding Nodes}"
                   Classes="projectTree"
                   Margin="15"
+                  DragDrop.AllowDrop="True"
                   SelectedItem="{Binding SelectedNode}">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate ItemsSource="{Binding Children}"
                                   x:DataType="model:ProjectNode">
-                    
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Stretch"
-                                Background="{Binding $parent[TreeViewItem].Background}">
+                                Background="{Binding $parent[TreeViewItem].Background}"
+                                PointerPressed="ProjectNode_OnPointerPressed"
+                                PointerMoved="InputElement_OnPointerMoved"
+                                PointerReleased="ProjectNode_OnPointerReleased"
+                                PointerExited="InputElement_OnPointerExited">
                         <StackPanel.ContextFlyout>
                             <Flyout FlyoutPresenterClasses="menuflyoutslim">
                                 <ItemsControl ItemsSource="{Binding ContextOptions}">
@@ -42,7 +46,7 @@
                                                     IsVisible="{Binding IsVisible}"
                                                     Command="{Binding Command}"
                                                     CommandParameter="{Binding $parent[TreeViewItem].DataContext}">
-                                                <TextBlock Text="{Binding Name}"
+                                                <TextBlock Text="{Binding Name, Mode=OneWay}"
                                                            HorizontalAlignment="Left"
                                                            Margin="0"
                                                            Padding="0"
@@ -55,13 +59,26 @@
                         </StackPanel.ContextFlyout>
                         <TextBlock Text="{Binding Type, Converter={StaticResource NodeTypeToIcon}}"
                                    FontFamily="{DynamicResource PhosphorFont}"
+                                   DragDrop.AllowDrop="True"
                                    VerticalAlignment="Center"></TextBlock>
                         <TextBlock Text="{Binding Name}"
                             Margin="5,0,0,0"
+                            DragDrop.AllowDrop="True"
                             VerticalAlignment="Center"></TextBlock>
                     </StackPanel>
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
+        
+        <Border Padding="3,1" x:Name="GhostBorder"
+                Grid.Row="1"
+                IsVisible="True"
+                Background="#771F1F1F"
+                BorderBrush="#77383838"
+                BorderThickness="1"
+                CornerRadius="0">
+            <TextBlock x:Name="GhostTextBlock"
+                    VerticalAlignment="Center"></TextBlock>
+        </Border>
     </Grid>
 </UserControl>

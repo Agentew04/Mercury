@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 using AvaloniaEdit;
 using AvaloniaEdit.Document;
@@ -26,15 +27,17 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     private readonly ExecuteService executeService = App.Services.GetRequiredService<ExecuteService>();
     
     public FileEditorViewModel() {
-        WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
-        WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
+        WeakReferenceMessenger.Default.Register<FileEditorViewModel,FileOpenMessage>(this, OnFileOpen);
+        WeakReferenceMessenger.Default.Register<FileEditorViewModel,ProgramLoadMessage>(this, OnProgramLoad);
+        WeakReferenceMessenger.Default.Register<FileEditorViewModel,FileDeleteMessage>(this, OnFileDelete);
+        WeakReferenceMessenger.Default.Register<FileEditorViewModel,FileMoveMessage>(this, OnFileMove);
 
         ProjectFile? project = projectService.GetCurrentProject();
         if (project is null) {
             Logger.LogWarning("Ordem errada! project service not initialized");
             return;
         }
-        OnFileOpen(this, new FileOpenMessage() {
+        OnFileOpen(this, new FileOpenMessage {
             Path = project.ProjectDirectory + project.SourceDirectory + project.EntryFile,
             LineNumber = 1,
             ColumnNumber = 1
@@ -47,20 +50,14 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     private ObservableCollection<OpenFile> openFiles = [];
     
     [ObservableProperty]
-    private int selectedTabIndex = 0;
+    private int selectedTabIndex;
     
     [ObservableProperty]
     private TextDocument textDocument = new();
- 
-    [ObservableProperty] 
-    private string filename = "";
-
+    
     [ObservableProperty] 
     private bool isReadonlyEditor;
-    
-    [ObservableProperty]
-    private int cursorOffset = 1;
-    
+
     #endregion
     
     #region Toolbar Properties
@@ -73,8 +70,26 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     // HACK:
     public TextEditor? TextEditor { get; set; }
 
-    private static void OnFileOpen(object recipient, FileOpenMessage message) {
-        FileEditorViewModel vm = (FileEditorViewModel)recipient;
+    private static void OnFileDelete(FileEditorViewModel recipient, FileDeleteMessage msg) {
+        OpenFile? file = recipient.OpenFiles
+            .FirstOrDefault(x =>
+                x.Path == recipient.fileService.GetAbsolutePath(msg.ProjectNode.Id));
+        if (file is null) {
+            return;
+        }
+        recipient.CloseTab(file);
+    }
+
+    private static void OnFileMove(FileEditorViewModel vm, FileMoveMessage msg) {
+        foreach (OpenFile file in vm.OpenFiles) {
+            if (file.Path != msg.OldPath) {
+                continue;
+            }
+            file.Path = msg.NewPath;
+        }
+    }
+
+    private static void OnFileOpen(FileEditorViewModel vm, FileOpenMessage message) {
         // funcao chamada quando o usuario abre um arquivo pela aba do projeto
         PathObject path;
         int? line = message.LineNumber;
@@ -125,10 +140,10 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         ChangeTab(openFile);
     }
 
-    private static void OnProgramLoad(object recipient, ProgramLoadMessage message)
+    private static void OnProgramLoad(FileEditorViewModel recipient, ProgramLoadMessage message)
     {
         // chamada quando o programa compilado eh carregado em uma maquina
-        (recipient as FileEditorViewModel)!.CanRunProject = true;
+        recipient.CanRunProject = true;
     }
 
     private void ChangeTab(OpenFile openFile, int? line = null, int? column = null)
@@ -167,7 +182,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
 
         DocumentLine line = lineNumber is not null 
             ? TextDocument.GetLineByNumber(lineNumber.Value) : 
-            TextDocument.GetLineByOffset(CursorOffset); 
+            TextDocument.GetLineByOffset(TextEditor!.CaretOffset); 
         
         int column = columnNumber ?? 1; // se nao tiver coluna, usa a primeira
         if (line.Length < column)
@@ -246,8 +261,10 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         // salvar arquivo ao fechar
         if (!file.IsReadonly)
         {
-            // salva o conteudo no disco
-            File.WriteAllText(file.Path.ToString(), file.TextDocument.Text);
+            // salva o conteudo no disco se o arquivo ainda existe
+            if (File.Exists(file.Path.ToString())) {
+                File.WriteAllText(file.Path.ToString(), file.TextDocument.Text);
+            }
         }
         
         if (selectedIndex == index)

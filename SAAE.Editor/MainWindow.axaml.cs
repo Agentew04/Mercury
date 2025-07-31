@@ -23,6 +23,15 @@ namespace SAAE.Editor {
                         IsCancelled = r.Result is null
                 }));
             });
+            WeakReferenceMessenger.Default.Register<MainWindow, RequestBoolPopupMessage>(this,
+                static (recipient, msg) => {
+                    msg.Reply(recipient.BoolPopup
+                        .Request(msg.Title, msg.IsCancellable)
+                        .ContinueWith(r => new BoolPopupResult {
+                            Result = r.Result ??false,
+                            IsCancelled = r.Result is null
+                        }));
+                });
         }
 
         private readonly Navigation nav;

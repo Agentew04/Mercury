@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows.Input;
 using Avalonia;
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -12,7 +13,7 @@ namespace SAAE.Editor.Converters;
 public class ArchitectureToIconSource : IValueConverter{
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value is not Architecture architecture) {
-            return null;
+            return BindingNotification.Null;
         }
 
         string uri =  architecture switch {
@@ -27,7 +28,7 @@ public class ArchitectureToIconSource : IValueConverter{
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value is not string iconSource) {
-            return null;
+            return BindingNotification.Null;
         }
 
         Architecture arch = iconSource switch {

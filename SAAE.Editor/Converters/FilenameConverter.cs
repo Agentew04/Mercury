@@ -15,12 +15,11 @@ public class FilenameConverter : IValueConverter {
         return value switch {
             string strPath => Path.GetFileName(strPath),
             PathObject objPath => objPath.FullFileName,
-            _ => null
+            _ => BindingNotification.Null
         };
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
-        //return BindingNotification.
-        throw new NotSupportedException();
+        return BindingNotification.Null;
     }
 }

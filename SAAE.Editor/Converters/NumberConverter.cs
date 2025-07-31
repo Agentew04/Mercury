@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Numerics;
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 
 namespace SAAE.Editor.Converters;
@@ -19,11 +20,11 @@ public class HexadecimalConverter : IValueConverter {
             return s8.ToString("X2");
         }
 
-        return "unkn num";
+        return BindingNotification.Null;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
-        throw new NotSupportedException();
+        return BindingNotification.Null;
         // if (value is not string s) {
         //     return 0;
         // }

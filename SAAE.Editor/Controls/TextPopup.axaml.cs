@@ -26,6 +26,7 @@ public partial class TextPopup : UserControl {
         TextBox.Text = string.Empty;
         TextBox.Watermark = watermark;
         TextBox.Focus();
+        CancelButton.IsVisible = isCancellable;
         tcs = new TaskCompletionSource<string?>();
         return tcs.Task;
     }
@@ -37,8 +38,14 @@ public partial class TextPopup : UserControl {
         tcs?.SetResult(input); // Finaliza a Task
     }
 
+    [RelayCommand]
+    private void Cancel() {
+        IsVisible = false;
+        tcs?.SetResult(null);
+    }
+
     private void InputElement_OnKeyDown(object? sender, KeyEventArgs e) {
-        if (e.Key != Key.Escape || !isCancellable) {
+        if (e.Key != Key.Escape || !isCancellable || !IsVisible) {
             return;
         }
         e.Handled = true;
@@ -48,7 +55,7 @@ public partial class TextPopup : UserControl {
 
     private void Dismiss_OnPointerPressed(object? sender, PointerPressedEventArgs e) {
         // Se o clique foi fora do popup interno
-        if (!isCancellable) {
+        if (!isCancellable || !IsVisible) {
             return;
         }
         if (e.Source == DismissBorder)

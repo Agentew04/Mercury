@@ -6,8 +6,8 @@
              xmlns:loc="clr-namespace:SAAE.Editor.Localization"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              IsHitTestVisible="{Binding IsVisible, RelativeSource={RelativeSource Self}}"
-             x:Class="SAAE.Editor.Controls.TextPopup"
-             x:DataType="controls:TextPopup">
+             x:Class="SAAE.Editor.Controls.BoolPopup"
+             x:DataType="controls:BoolPopup">
     <Border Background="#80000000" 
             KeyDown="InputElement_OnKeyDown"
             x:Name="DismissBorder"
@@ -17,36 +17,28 @@
                 Background="{StaticResource AlternateGrey}"
                 Padding="15,10"
                 CornerRadius="3">
-            <Grid RowDefinitions="Auto,*,Auto">
+            <Grid RowDefinitions="Auto,Auto">
                 <TextBlock Grid.Row="0" x:Name="PopupTitle"
                            HorizontalAlignment="Left"
                            Margin="0,0,0,5"
                            Classes="minorheader"></TextBlock>
-                <TextBox Grid.Row="1" x:Name="TextBox"
-                         Width="200"
-                         Margin="0,0,0,5">
-                    <TextBox.KeyBindings>
-                        <KeyBinding Command="{Binding EnterCommand}" Gesture="Enter"></KeyBinding>
-                    </TextBox.KeyBindings>
-                </TextBox>
-                <StackPanel Grid.Row="2"
+                <StackPanel Grid.Row="1"
                             HorizontalAlignment="Right"
                             Orientation="Horizontal"
                             Margin="0"
                             Spacing="5">
                     <Button Classes="primary cancel"
-                            x:Name="CancelButton"
                             Content="{Binding Path=CancelPopupText, Source={x:Static loc:FileEditorResources.Instance}}"
                             Padding="7,3"
                             Margin="0"
                             FontSize="14"
-                            Command="{Binding CancelCommand}"/>
+                            Command="{Binding DenyCommand}"/>
                     <Button Classes="primary"
                             Content="{Binding Path=ConfirmPopupText, Source={x:Static loc:FileEditorResources.Instance}}"
                             Padding="7,3"
                             Margin="0"
                             FontSize="14"
-                            Command="{Binding EnterCommand}"/>
+                            Command="{Binding ConfirmCommand}"/>
                 </StackPanel>
             </Grid>
         </Border>

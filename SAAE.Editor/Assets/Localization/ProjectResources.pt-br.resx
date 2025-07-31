@@ -77,4 +77,31 @@
     <data name="NewFileModalWatermark" xml:space="preserve">
         <value>arquivo.asm</value>
     </data>
+    <data name="NewFolderModalTitle" xml:space="preserve">
+        <value>Nome da Pasta</value>
+    </data>
+    <data name="NewFolderModalWatermark" xml:space="preserve">
+        <value>nomedapasta</value>
+    </data>
+    <data name="NewFileContextMenu" xml:space="preserve">
+        <value>Novo arquivo</value>
+    </data>
+    <data name="NewFolderContextMenu" xml:space="preserve">
+        <value>Nova pasta</value>
+    </data>
+    <data name="SetEntryPointContextMenu" xml:space="preserve">
+        <value>Definir como Ponto de Entrada</value>
+    </data>
+    <data name="DeleteFileContextMenu" xml:space="preserve">
+        <value>Excluir arquivo</value>
+    </data>
+    <data name="DeleteFolderContextMenu" xml:space="preserve">
+        <value>Excluir pasta</value>
+    </data>
+    <data name="DeleteFolderConfirmModal" xml:space="preserve">
+        <value>Excluir pasta {0} e seus conteúdos?</value>
+    </data>
+    <data name="DeleteFileConfirmModal" xml:space="preserve">
+        <value>Excluir arquivo {0}?</value>
+    </data>
 </root>

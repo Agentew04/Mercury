@@ -12,6 +12,7 @@
     <UserControl.Resources>
         <conv:HexadecimalConverter x:Key="HexadecimalConverter"></conv:HexadecimalConverter>
         <avconv:EnumToBoolConverter x:Key="EnumToBoolConverter"></avconv:EnumToBoolConverter>
+        <exec:StringFormatConverter x:Key="StringFormatConverter"></exec:StringFormatConverter>
     </UserControl.Resources>
     <DockPanel Margin="5">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,3,5,3" Spacing="5">
@@ -93,6 +94,26 @@
                                     <TextBlock Text="{Binding Source.File, Mode=OneWay}"
                                                Foreground="{StaticResource SecondaryForeground}"
                                                VerticalAlignment="Center"></TextBlock>
+                                    <!-- entry point icon -->
+                                    <TextBlock Text="&#xE428;"
+                                               IsVisible="{Binding Source.IsEntryPoint, Mode=OneWay}"
+                                               FontFamily="{StaticResource PhosphorFont}"
+                                               ToolTip.Tip="{Binding Path=EntryPointTooltip, 
+                                                   Source={x:Static loc:InstructionResources.Instance}}"
+                                               VerticalAlignment="Center"/>
+                                    <!-- labels icon -->
+                                    <TextBlock Text="&#xE478;"
+                                               IsVisible="{Binding Source.HasLabels, Mode=OneWay}"
+                                               FontFamily="{StaticResource PhosphorFont}"
+                                               VerticalAlignment="Center">
+                                        <ToolTip.Tip>
+                                            <MultiBinding Converter="{StaticResource StringFormatConverter}">
+                                                <Binding Path="LinkedLabelTooltip"
+                                                         Source="{x:Static loc:InstructionResources.Instance}"></Binding>
+                                                <Binding Path="Source.Labels"></Binding>
+                                            </MultiBinding>
+                                        </ToolTip.Tip>
+                                    </TextBlock>
                                     <!-- gear icon -->
                                     <TextBlock Text="&#xE272;"
                                                IsVisible="{Binding Source.Type, Mode=OneWay,

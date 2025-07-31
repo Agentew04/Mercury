@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows.Input;
 using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SAAE.Editor.Localization;
 
 namespace SAAE.Editor.Models;
 
 /// <summary>
 /// Os tipos que um nó na arvore de projeto pode ser. 
 /// </summary>
+[Flags]
 public enum ProjectNodeType {
-    None,
-    Category,
-    Folder,
-    AssemblyFile,
-    UnknownFile
+    None = 0,
+    Category = 1,
+    Folder = 2,
+    AssemblyFile = 4,
+    UnknownFile = 8,
+    Files = AssemblyFile | UnknownFile
 }
 
 /// <summary>
@@ -51,10 +55,11 @@ public partial class ProjectNode : ObservableObject {
 /// <summary>
 /// Representa uma opcao de contexto para um nó na árvore de arquivos do projeto.
 /// </summary>
-public partial class ContextOption : ObservableObject {
+public sealed partial class ContextOption : ObservableObject, IDisposable {
 
-    [ObservableProperty]
-    private string name = "ERRO";
+    public string Name => Resource.Invoke();
+
+    public required Func<string> Resource { get; init; }
 
     [ObservableProperty]
     private bool isVisible = true;
@@ -63,6 +68,15 @@ public partial class ContextOption : ObservableObject {
     private IRelayCommand<ProjectNode> command = null!;
 
     public ContextOption() {
+        LocalizationManager.CultureChanged += OnLocalize;
+    }
+
+    private void OnLocalize(CultureInfo info) {
+        OnPropertyChanged(nameof(Name));
+    }
+
+    public void Dispose() {
+        LocalizationManager.CultureChanged -= OnLocalize;
     }
 }
 

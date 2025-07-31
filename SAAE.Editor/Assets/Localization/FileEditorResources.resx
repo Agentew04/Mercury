@@ -30,4 +30,10 @@
     <data name="SaveButtonTooltip" xml:space="preserve">
         <value>Save File</value>
     </data>
+    <data name="ConfirmPopupText" xml:space="preserve">
+        <value>Confirm</value>
+    </data>
+    <data name="CancelPopupText" xml:space="preserve">
+        <value>Cancel</value>
+    </data>
 </root>

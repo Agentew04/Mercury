@@ -4,12 +4,15 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using AvaloniaEdit.Utils;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
 using SAAE.Editor.Models.Compilation;
+using SAAE.Editor.Models.Messages;
 
 namespace SAAE.Editor.Services;
 
@@ -25,7 +28,6 @@ public class FileService : BaseService<FileService> {
     private readonly Dictionary<Guid, PathObject> relativePaths = [];
     private readonly Dictionary<Guid, ProjectNode> nodeAcceleration = [];
     private readonly Dictionary<Guid, bool> isStdlibNode = [];
-    private List<ProjectNode> internalTree = [];
     
     private void ResetCache() {
         nodeTypes.Clear();
@@ -50,22 +52,25 @@ public class FileService : BaseService<FileService> {
         }
 
         List<ProjectNode> projectFiles = GetFolderNodes(project.ProjectDirectory + project.SourceDirectory, "".ToDirectoryPath());
-        // Aviso: a localizacao dos nos de categoria NAO vao ser atualizadas
-        // na troca de lingua desse modo!
-        // Resolver: #18
-        nodes.Add(new ProjectNode {
+        ProjectNode projectCategoryNode = new() {
             Name = Localization.ProjectResources.ProjectFilesValue,
             Type = ProjectNodeType.Category,
             Children = new ObservableCollection<ProjectNode>(projectFiles),
             Id = ProjectCategoryId
-        });
+        };
+        foreach (ProjectNode file in projectFiles) {
+            file.ParentReference = new WeakReference<ProjectNode>(projectCategoryNode);
+        }
+        // Aviso: a localizacao dos nos de categoria NAO vao ser atualizadas
+        // na troca de lingua desse modo!
+        // Resolver: #18
+        nodes.Add(projectCategoryNode);
 
         relativePaths[StdLibCategoryId] = settingsService.Preferences.StdLibPath.ToDirectoryPath();
         relativePaths[ProjectCategoryId] = project.ProjectDirectory + project.SourceDirectory;
         nodeTypes[StdLibCategoryId] = ProjectNodeType.Category;
         nodeTypes[ProjectCategoryId] = ProjectNodeType.Category;
 
-        internalTree = nodes;
         return nodes;
     }
 
@@ -100,14 +105,25 @@ public class FileService : BaseService<FileService> {
         PathObject fatherPath = relativePaths[father.Id];
         if (father.Type == ProjectNodeType.Folder) {
             // node eh subdir de father
-            relativePaths[node.Id] = fatherPath.Folder(node.Name);
+            if (node.Type == ProjectNodeType.Folder) {
+                relativePaths[node.Id] = fatherPath.Folder(node.Name);
+            }else if (node.Type == ProjectNodeType.AssemblyFile) {
+                relativePaths[node.Id] = fatherPath.File(node.Name);
+            }
         }else if (father.Type == ProjectNodeType.Category) {
             // esta na root do projeto
-            relativePaths[node.Id] = node.Name.ToFilePath();
+            if (node.Type == ProjectNodeType.AssemblyFile) {
+                relativePaths[node.Id] = node.Name.ToFilePath();
+            }else if (node.Type == ProjectNodeType.Folder) {
+                relativePaths[node.Id] = node.Name.ToDirectoryPath();
+            }
         }
         else{
             // soh eh filho logico, o path de node eh o dir de father
-            relativePaths[node.Id] = fatherPath.File(node.Name);
+            if (father.ParentReference.TryGetTarget(out ProjectNode? grandfather)) {
+                relativePaths[node.Id] = grandfather.Type is ProjectNodeType.Folder or ProjectNodeType.Category ?
+                    relativePaths[grandfather.Id].Folder(node.Name) : relativePaths[grandfather.Id].File(node.Name);
+            }
         }
 
         nodeTypes[node.Id] = node.Type;
@@ -115,9 +131,94 @@ public class FileService : BaseService<FileService> {
 
         node.ParentReference = new WeakReference<ProjectNode>(father);
         father.Children.Add(node);
-        
+
         // ordenar filhos por ordem alfabetica
         father.Children = new ObservableCollection<ProjectNode>(father.Children.OrderBy(x => x.Name));
+    }
+
+    public void UnregisterNode(ProjectNode node, bool first = true) {
+        if (node.Id == Guid.Empty) {
+            return;
+        }
+
+        relativePaths.Remove(node.Id);
+        nodeTypes.Remove(node.Id);
+        isStdlibNode.Remove(node.Id);
+        nodeAcceleration.Remove(node.Id);
+        foreach (ContextOption nodeContextOption in node.ContextOptions) {
+            nodeContextOption.Dispose();
+        }
+        node.ContextOptions.Clear();
+
+        if (node.ParentReference is not null && first) {
+            if (node.ParentReference.TryGetTarget(out ProjectNode? parent)) {
+                parent.Children.Remove(node);
+            }else {
+                Logger.LogWarning("Couldn't get reference to parent of {node} when deleting", node.Name);
+            }
+        }
+
+        foreach (ProjectNode child in node.Children) {
+            UnregisterNode(child, false);
+        }
+        node.Children.Clear();
+    }
+
+    public void MoveNode(ProjectNode node, ProjectNode newFather) {
+        if (node.ParentReference.TryGetTarget(out ProjectNode? oldFather)) {
+            oldFather.Children.Remove(node);
+        }
+        else {
+            return;
+        }
+        newFather.Children.Add(node);
+        newFather.Children = new ObservableCollection<ProjectNode>(newFather.Children.OrderBy(x => x.Name));
+        RecomputeRelativePaths(node, newFather);
+        node.ParentReference = new WeakReference<ProjectNode>(newFather);
+    }
+
+    private void RecomputeRelativePaths(ProjectNode node, ProjectNode newFather) {
+        PathObject old = GetAbsolutePath(node.Id);
+        PathObject fatherPath = relativePaths[newFather.Id];
+        if (newFather.Type == ProjectNodeType.Folder) {
+            // node eh subdir de father
+            if (node.Type == ProjectNodeType.Folder) {
+                relativePaths[node.Id] = fatherPath.Folder(node.Name);
+            }else if (node.Type == ProjectNodeType.AssemblyFile) {
+                relativePaths[node.Id] = fatherPath.File(node.Name);
+            }
+        }else if (newFather.Type == ProjectNodeType.Category) {
+            // esta na root do projeto
+            if (node.Type == ProjectNodeType.AssemblyFile) {
+                relativePaths[node.Id] = node.Name.ToFilePath();
+            }else if (node.Type == ProjectNodeType.Folder) {
+                relativePaths[node.Id] = node.Name.ToDirectoryPath();
+            }
+        }
+        else{
+            // soh eh filho logico, o path de node eh o dir de father
+            if (newFather.ParentReference.TryGetTarget(out ProjectNode? grandfather)) {
+                relativePaths[node.Id] = grandfather.Type is ProjectNodeType.Folder or ProjectNodeType.Category ?
+                relativePaths[grandfather.Id].Folder(node.Name) : relativePaths[grandfather.Id].File(node.Name);
+            }
+        }
+
+        PathObject newPath = GetAbsolutePath(node.Id);
+        WeakReferenceMessenger.Default.Send(new FileMoveMessage {
+            OldPath = old,
+            NewPath = newPath
+        });
+
+        foreach (ProjectNode child in node.Children) {
+            RecomputeRelativePaths(child, node);
+        }
+    }
+
+    public bool IsEntryPoint(Guid nodeId) {
+        PathObject path = GetAbsolutePath(nodeId);
+        ProjectFile? proj = projectService.GetCurrentProject();
+        if (proj is null) return false;
+        return path == proj.ProjectDirectory + proj.SourceDirectory + proj.EntryFile;
     }
 
     public ProjectNode? GetNode(Guid nodeId)
@@ -176,7 +277,7 @@ public class FileService : BaseService<FileService> {
             child.ParentReference = new WeakReference<ProjectNode>(root);
             child.IsReadOnly = true;
         }
-        root.Children.AddRange(children);
+        root.Children.AddRange(children.OrderBy(x => x.Name));
         // TODO: contabilizar outras arquiteturas
 
         return root;

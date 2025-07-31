@@ -44,4 +44,11 @@
     <data name="ExecuteSpeedTooltip" xml:space="preserve">
         <value>Controla a velocidade que as instruções são executadas. Instruções por segundo: {0}. Tempo entre instruções: {1}ms.</value>
     </data>
+    <data name="EntryPointTooltip" xml:space="preserve">
+        <value>Esta instrução é a primeira a ser executada. O registrador PC é inicializado com este endereço.</value>
+    </data>
+    <data name="LinkedLabelTooltip" xml:space="preserve">
+        <value>Este endereço é referenciado pelos seguintes rótulos: 
+{0}</value>
+    </data>
 </root>

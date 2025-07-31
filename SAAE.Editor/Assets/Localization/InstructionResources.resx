@@ -51,4 +51,11 @@
     <data name="ExecuteSpeedTooltip" xml:space="preserve">
         <value>Controls the speed in which the instructions are executed. Instructions per second: {0}. Delay between instructions: {1}.</value>
     </data>
+    <data name="EntryPointTooltip" xml:space="preserve">
+        <value>This instruction is the first to be executed. The PC register is initialized with this address.</value>
+    </data>
+    <data name="LinkedLabelTooltip" xml:space="preserve">
+        <value>This address is referenced by the following labels: 
+{0}</value>
+    </data>
 </root>

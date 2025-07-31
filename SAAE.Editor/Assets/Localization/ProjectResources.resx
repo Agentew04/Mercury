@@ -84,4 +84,31 @@
     <data name="NewFileModalWatermark" xml:space="preserve">
         <value>file.asm</value>
     </data>
+    <data name="NewFolderModalTitle" xml:space="preserve">
+        <value>Folder name</value>
+    </data>
+    <data name="NewFolderModalWatermark" xml:space="preserve">
+        <value>foldername</value>
+    </data>
+    <data name="NewFileContextMenu" xml:space="preserve">
+        <value>New file</value>
+    </data>
+    <data name="NewFolderContextMenu" xml:space="preserve">
+        <value>New folder</value>
+    </data>
+    <data name="SetEntryPointContextMenu" xml:space="preserve">
+        <value>Set as Entry Point</value>
+    </data>
+    <data name="DeleteFileContextMenu" xml:space="preserve">
+        <value>Delete file</value>
+    </data>
+    <data name="DeleteFolderContextMenu" xml:space="preserve">
+        <value>Delete folder</value>
+    </data>
+    <data name="DeleteFileConfirmModal" xml:space="preserve">
+        <value>Delete file {0}?</value>
+    </data>
+    <data name="DeleteFolderConfirmModal" xml:space="preserve">
+        <value>Delete folder {0} and its contents?</value>
+    </data>
 </root>

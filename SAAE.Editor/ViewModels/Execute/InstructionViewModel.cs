@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Data.Converters;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -37,8 +38,8 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
     }
 
     public string ExecuteSpeedTooltip => string.Format(InstructionResources.ExecuteSpeedTooltipValue,
-        /*I/s*/ExecutionSpeed.ToString("F1"),
-        /*ms/I*/(1000.0f/ExecutionSpeed).ToString("F1")
+        /* I/s  */ExecutionSpeed.ToString("F1"),
+        /* ms/I */(1000.0f/ExecutionSpeed).ToString("F1")
     );
 
     #region Loading
@@ -52,16 +53,20 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
         vm.StopCommand.NotifyCanExecuteChanged();
         vm.IsExecuting = false;
 
+        List<Symbol> userLabels = meta.GetUserDefinedSymbols().ToList();
+        
         vm.Instructions.Clear();
         for (int i = 0; i < meta.Files.Count; i++) {
             uint start = meta.Files[i].StartAddress;
             uint end = i < meta.Files.Count-1 ? meta.Files[i + 1].StartAddress : msg.Machine.Cpu.DropoffAddress;
-            vm.ProcessFile(meta, meta.Files[i], start, end, msg.Machine.Memory, msg.Machine.Cpu.InstructionFactory);
+            vm.ProcessFile(meta, meta.Files[i], start, end, msg.Machine.Memory, msg.Machine.Cpu.InstructionFactory, msg.Elf.EntryPoint, userLabels);
         }
+        int index = vm.Instructions.IndexOf(x => x.Address == msg.Elf.EntryPoint);
+        vm.SelectedInstructionIndex = index;
     }
 
     private void ProcessFile(ProgramMetadata meta, ObjectFile file, uint startAddress, uint endAddress, 
-        IMemory memory, InstructionFactory factory) {
+        IMemory memory, InstructionFactory factory, uint entryPointAddress, List<Symbol> symbols) {
         IEnumerable<(Symbol x, int)> lineLabels = meta.Symbols
             .Where(x => x.Name.StartsWith("L."))
             .Select(x => {
@@ -84,7 +89,8 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
         
         bool hasSymbols = lineEnumerator.MoveNext();
         (Symbol nextSymbol, int nextLine) = lineEnumerator.Current;
-        
+
+        List<string> labels;
         while (address < endAddress) {
             // pega instrucao atual
             // se eh invalida:
@@ -104,6 +110,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
             }
 
             if (instruction is null) {
+                labels = symbols.Where(x => x.Address == address).Select(x => x.Name).ToList();
                 Instructions.Add(new DisassemblyRow() {
                     Address = address,
                     Binary = instructionBinary,
@@ -112,7 +119,9 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
                         File = file.Path.FullFileName,
                         Type = InstructionType.Padding,
                         LineContent = "",
-                        LineNumber = previousLine
+                        LineNumber = previousLine,
+                        IsEntryPoint = address == entryPointAddress,
+                        Labels = (labels.Count>0 ? "- " : string.Empty) + string.Join("\n- ", labels)
                     }
                 });
                 address += 4;
@@ -122,6 +131,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
             // enquanto ainda nao chegou
             while (address < nextSymbol.Address && address < endAddress) {
                 // fala que eh do anterior gerado
+                labels = symbols.Where(x => x.Address == address).Select(x => x.Name).ToList();
                 Instructions.Add(new DisassemblyRow() {
                     Address = address,
                     Binary = instructionBinary,
@@ -130,7 +140,9 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
                         File = file.Path.FullFileName,
                         Type = instruction is not null ? InstructionType.Generated : InstructionType.Padding,
                         LineContent = "",
-                        LineNumber = -1
+                        LineNumber = -1,
+                        IsEntryPoint = address == entryPointAddress,
+                        Labels = (labels.Count>0 ? "- " : string.Empty) + string.Join("\n- ", labels)
                     }
                 });
                 address += 4;
@@ -143,6 +155,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
                 }
             }
             
+            labels = symbols.Where(x => x.Address == address).Select(x => x.Name).ToList();
             Instructions.Add(new DisassemblyRow() {
                 Address = address,
                 Binary = instructionBinary,
@@ -151,7 +164,9 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
                     File = file.Path.FullFileName,
                     Type = !hasSymbols ? InstructionType.Generated : InstructionType.Mapped,
                     LineNumber = nextLine,
-                    LineContent = nextLine == 0 ? "" : splittedLines[nextLine-1]
+                    LineContent = nextLine == 0 ? "" : splittedLines[nextLine-1],
+                    IsEntryPoint = address == entryPointAddress,
+                    Labels = (labels.Count>0 ? "- " : string.Empty) + string.Join("\n- ", labels)
                 }
             });
             previousLine = nextLine;
@@ -252,11 +267,35 @@ public partial class SourceInstruction : ObservableObject {
     [ObservableProperty] private string lineContent = string.Empty;
     [ObservableProperty] private int lineNumber;
     [ObservableProperty] private string file = string.Empty;
+    [ObservableProperty] private bool isEntryPoint;
+    public bool HasLabels => Labels != string.Empty;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasLabels))]
+    private string labels = string.Empty;
 }
 
 public enum InstructionType {
     Unknown,
     Mapped,
     Generated,
-    Padding
+    Padding,
+}
+
+public class StringFormatConverter : IMultiValueConverter {
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture) {
+        if (values.Count < 2) return null;
+
+        string fmt = values[0] as string ?? "{0}";
+        object? arg0 = values[1];
+
+        try
+        {
+            return string.Format(culture, fmt, arg0);
+        }
+        catch
+        {
+            // fallback se o formato tiver errado
+            return fmt;
+        }
+    }
 }

@@ -22,9 +22,7 @@ public partial class LabelViewModel : BaseViewModel<LabelViewModel> {
     private static void OnProgramLoad(object recipient, ProgramLoadMessage msg) {
         LabelViewModel vm = (LabelViewModel)recipient;
 
-        vm.allSymbols = msg.Metadata.Symbols
-            .Where(x => !x.Name.StartsWith("__") && !x.Name.StartsWith("L.") && x.Name != "_gp")
-            .ToList();
+        vm.allSymbols = msg.Metadata.GetUserDefinedSymbols().ToList();
         vm.FilterSymbols();
     }
 

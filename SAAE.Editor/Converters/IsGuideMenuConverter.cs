@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 using SAAE.Editor.Models;
 
@@ -11,7 +12,7 @@ public class IsGuideMenuConverter : IValueConverter{
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
-        throw new NotSupportedException();
+        return BindingNotification.Null;
     }
 }
 
@@ -21,6 +22,6 @@ public class IsGuideChapterConverter : IValueConverter {
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
-        throw new NotSupportedException();
+        return BindingNotification.Null;
     }
 }

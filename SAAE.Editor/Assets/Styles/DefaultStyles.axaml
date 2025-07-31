@@ -103,6 +103,10 @@
         <Setter Property="Background" Value="{DynamicResource Purple3}"></Setter>
     </Style>
     
+    <Style Selector="Button.cancel ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource CloseRed}"></Setter>
+    </Style>
+    
     <!-- slim tab strip -->
     <Style Selector="TabStrip.slim > TabStripItem">
         <Setter Property="Padding" Value="2,1,2,0"></Setter>

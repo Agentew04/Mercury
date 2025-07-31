@@ -79,5 +79,6 @@
       </TabControl>
     </DockPanel>
     <controls:TextPopup IsVisible="False" x:Name="TextPopup"/>
+    <controls:BoolPopup IsVisible="False" x:Name="BoolPopup"></controls:BoolPopup>
   </Grid>
 </Window>
