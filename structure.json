@@ -1,0 +1,60 @@
+{
+    "guides":{
+        "version": 1,
+        "common": "/guides/common",
+        "architectures": [
+            {
+                "arch": "mips",
+                "path": "/guides/mips",
+                "os": [
+                    {
+                        "name": "mars",
+                        "path": "/guides/mips/os/mars"
+                    },
+                    {
+                        "name": "linux",
+                        "path": "/guides/mips/os/linux"
+                    }
+                ]
+            },
+            {
+                "arch": "riscv",
+                "path": "/guides/riscv",
+                "os": [
+                    {
+                        "name": "linux",
+                        "path": "/guides/riscv/os/linux"
+                    }
+                ]
+            },
+            {
+                "arch": "arm",
+                "path": "/guides/arm",
+                "os": [
+                    {
+                        "name": "linux",
+                        "path": "/guides/arm/os/linux"
+                    }
+                ]
+            }
+        ]
+
+    },
+    "stdlib":[
+        {
+            "arch": "mips",
+            "path": "/stdlib/mips",
+            "version": 1
+        },
+        {
+            "arch": "riscv",
+            "path": "/stdlib/riscv",
+            "version": 0
+        },
+        {
+            "arch": "arm",
+            "path": "/stdlib/arm",
+            "version": 0
+        }
+    ]
+}
