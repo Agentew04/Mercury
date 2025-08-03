@@ -43,16 +43,19 @@
     "stdlib":[
         {
             "arch": "mips",
+            "os": "mars",
             "path": "/stdlib/mips",
             "version": 1
         },
         {
             "arch": "riscv",
+            "os": "undefined",
             "path": "/stdlib/riscv",
             "version": 0
         },
         {
             "arch": "arm",
+            "os": "undefined",
             "path": "/stdlib/arm",
             "version": 0
         }

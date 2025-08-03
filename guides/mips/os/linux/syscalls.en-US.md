@@ -4,7 +4,7 @@ title: System Calls
 
 # System Calls
 
-This document lists all the available system calls and their usage for the **Mars** operating system targeting the **MIPS** architecture.
+This document lists all the available system calls and their usage for the **Linux 1.0** operating system targeting the **MIPS** architecture.
 
 
 | Name | Number | Description |
