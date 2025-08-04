@@ -135,7 +135,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
                 Instructions.Add(new DisassemblyRow() {
                     Address = address,
                     Binary = instructionBinary,
-                    Disassembly = instruction?.ToString() ?? "",
+                    Disassembly = GetDisassembly(address, instruction),
                     Source = new SourceInstruction() {
                         File = file.Path.FullFileName,
                         Type = instruction is not null ? InstructionType.Generated : InstructionType.Padding,
@@ -159,7 +159,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
             Instructions.Add(new DisassemblyRow() {
                 Address = address,
                 Binary = instructionBinary,
-                Disassembly = instruction?.ToString() ?? "its joever",
+                Disassembly = GetDisassembly(address, instruction),
                 Source = new SourceInstruction() {
                     File = file.Path.FullFileName,
                     Type = !hasSymbols ? InstructionType.Generated : InstructionType.Mapped,
@@ -175,6 +175,19 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
             (nextSymbol, nextLine) = lineEnumerator.Current;
             address += 4;
         }
+    }
+    
+    private string GetDisassembly(ulong instructionAddress, Instruction? instruction) {
+        if (instruction is null)
+        {
+            return string.Empty;
+        }
+        if (instruction is TypeJInstruction j)
+        {
+            byte highOrderPc = (byte)(instructionAddress >> 26);
+            return j.ToString(highOrderPc);
+        }
+        return instruction.ToString();
     }
 
     #endregion
@@ -232,7 +245,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
     }
 
     private bool CanStop() {
-        return machine is not null && IsExecuting && IsExecutionFinished;
+        return machine is not null && IsExecuting && !IsExecutionFinished;
     }
 
     partial void OnExecutionSpeedChanged(float value) {

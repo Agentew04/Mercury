@@ -37,4 +37,8 @@ public abstract class TypeJInstruction : Instruction{
         Match? match = GetRegularExpression().Match(line);
         Immediate = ParseImmediate(match.Groups["target"].Value);
     }
+
+    public abstract string ToString(byte highOrderPc);
+
+    public override string ToString() => ToString(0);
 }

@@ -78,7 +78,8 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         diagMs.Seek(0, SeekOrigin.Begin);
 
         if (commandError != CompilationError.None) {
-            Logger.LogWarning("Error compiling. Type: {type}", commandError);
+            using StreamReader sr = new(diagMs, leaveOpen: true);
+            Logger.LogWarning("Error compiling. Type: {type}. Out: {out}", commandError, await sr.ReadToEndAsync());
         }
 
         if (commandError != CompilationError.None && commandError != CompilationError.CompilationError)

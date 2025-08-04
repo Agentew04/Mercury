@@ -44,11 +44,11 @@
             </Button>
 
             <!-- talvez add um header para velocidade? -->
-            <Slider Width="150"
+            <Slider Width="175"
                     IsEnabled="{Binding !IsExecuting}"
                     Value="{Binding ExecutionSpeed}"
                     Minimum="1"
-                    Maximum="10"
+                    Maximum="20"
                     ToolTip.Tip="{Binding ExecuteSpeedTooltip}"/>
             
         </StackPanel>

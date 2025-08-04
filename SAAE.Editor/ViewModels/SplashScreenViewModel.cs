@@ -6,9 +6,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Resources;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,6 @@ using SAAE.Editor.Extensions;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
-using YamlDotNet.Core;
 using Version = System.Version;
 
 namespace SAAE.Editor.ViewModels;
@@ -24,8 +24,6 @@ namespace SAAE.Editor.ViewModels;
 public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel>, IDisposable {
 
     private const string CompilerGithubUrl = "https://github.com/Agentew04/SAAE/raw/refs/heads/clang-bin/";
-    private const string StdlibVersionGithubUrl = "https://github.com/Agentew04/SAAE/raw/refs/heads/stdlib/version.json";
-
     private const string ResourcesStructureUrl =
         "https://github.com/Agentew04/SAAE/raw/refs/heads/stdlib/structure.json";
     private const string ResourcesDownloadUrl = "https://api.github.com/repos/Agentew04/SAAE/zipball/stdlib";
@@ -38,10 +36,13 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VersionText))]
-    private Version? version = null;
+    private Version? version;
     public string VersionText => $"{SplashScreenResources.VersionTextValue}: {Version?.Major ?? 0}.{Version?.Minor ?? 0}";
 
     private TaskCompletionSource? downloadResourcesTask;
+
+    [ObservableProperty]
+    private string percentageText = string.Empty;
     
     
     public async Task InitializeAsync() {
@@ -51,8 +52,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         Directory.CreateDirectory(settings.AppDirectory);
         
         await settings.LoadSettings();
-        if(!File.Exists(settings.PreferencesPath)
-           || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.PreferencesPath))) {
+        if(!File.Exists(settings.PreferencesPath) || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.PreferencesPath))) {
             // write default configuration
             StatusText = SplashScreenResources.StdSettingsDefineValue;
             settings.Preferences = settings.GetDefaultPreferences();
@@ -89,6 +89,8 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         
 
         await Task.WhenAll(tasks);
+        
+        PercentageText = string.Empty;
         await settings.SaveSettings();
         
         StatusText = SplashScreenResources.DoneValue;
@@ -171,19 +173,33 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             
             StatusText = SplashScreenResources.DownloadingResourcesTextValue;
 
-            MemoryStream ms = new();
+            using MemoryStream zipStream = new();
+            using HttpRequestMessage requestMessage = new(HttpMethod.Get, compilerPath);
             using HttpResponseMessage response =
-                await http.GetAsync(compilerPath, HttpCompletionOption.ResponseHeadersRead);
-            await response.Content.CopyToAsync(ms);
+                await http.SendAsync(requestMessage);
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogError("Failed to download compiler. Error code: {err} ({reason})", response.StatusCode,
+                    response.ReasonPhrase);
+                return;
+            }
+            
+            Logger.LogInformation("Downloading compiler from {compilerPath}", compilerPath);
+            Logger.LogInformation("Compiler download size: {size}", response.Content.Headers.ContentLength);
+            await using Stream contentStream = await response.Content.ReadAsStreamAsync();
+            await contentStream.CopyToAsync(zipStream);
+            Logger.LogInformation("Download complete");
+            
 
-            ms.Seek(0, SeekOrigin.Begin);
-            using ZipArchive archive = new(ms, ZipArchiveMode.Read);
+            zipStream.Seek(0, SeekOrigin.Begin);
+            using ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
             ZipArchiveEntry? entry = archive.GetEntry("clang.exe");
             if (entry is null) {
                 return;
             }
 
             await using Stream entryStream = entry.Open();
+            // progress?.AddNewQuota((ulong)entryStream.Length);
             await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"),
                 FileMode.OpenOrCreate);
             await entryStream.CopyToAsync(fs);
@@ -194,13 +210,24 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             }
             StatusText = SplashScreenResources.DownloadingResourcesTextValue;
             
-            using MemoryStream ms = new();
+            using MemoryStream zipStream = new();
+            using HttpRequestMessage requestMessage = new(HttpMethod.Get, linkerPath);
             using HttpResponseMessage response =
-                await http.GetAsync(linkerPath, HttpCompletionOption.ResponseHeadersRead);
-            await response.Content.CopyToAsync(ms);
+                await http.SendAsync(requestMessage);
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogError("Failed to download linker. Error code: {err} ({reason})", response.StatusCode,
+                    response.ReasonPhrase);
+                return;
+            }
+            
+            Logger.LogInformation("Downloading linker from {linkerPath}. Size: {size}", linkerPath, response.Content.Headers.ContentLength);
+            await using Stream contentStream = await response.Content.ReadAsStreamAsync();
+            await contentStream.CopyToAsync(zipStream);
+            Logger.LogInformation("Linker download completed, extracting...");
 
-            ms.Seek(0, SeekOrigin.Begin);
-            using ZipArchive archive = new(ms, ZipArchiveMode.Read);
+            zipStream.Seek(0, SeekOrigin.Begin);
+            using ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
             ZipArchiveEntry? entry = archive.GetEntry("ld.lld.exe");
             if (entry is null) {
                 return;
@@ -209,6 +236,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             await using Stream entryStream = entry.Open();
             await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"),
                 FileMode.OpenOrCreate);
+            //progress?.AddNewQuota((ulong)entryStream.Length);
             await entryStream.CopyToAsync(fs);
         });
         Task scriptTask = Task.Run(async () => {
@@ -216,12 +244,21 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
                 return;
             }
             StatusText = SplashScreenResources.DownloadingResourcesTextValue;
+            using HttpRequestMessage request = new(HttpMethod.Get, scriptPath);
             using HttpResponseMessage response =
-                await http.GetAsync(scriptPath, HttpCompletionOption.ResponseContentRead);
-            await using Stream download = await response.Content.ReadAsStreamAsync(default);
+                await http.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogError("Failed to download script. Error code: {err}", response.StatusCode);
+                return;
+            }
+                
+            Logger.LogInformation("Downloading linker script from {scriptPath}", scriptPath);
+            await using Stream download = await response.Content.ReadAsStreamAsync();
             await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "linker.ld"),
                 FileMode.OpenOrCreate);
             await download.CopyToAsync(fs);
+            Logger.LogInformation("Linker script downloaded successfully");
         });  
 
         await Task.WhenAll(compilerTask, linkerTask, scriptTask);
@@ -260,7 +297,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             return;
         }
 
-        await DownloadResources();
+        await RequestDownload();
         
         // update current guide settings with modified paths from new guide settings
         settings.GuideSettings.Version = guideSettings.Version;
@@ -314,7 +351,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             return;
         }
 
-        await DownloadResources();
+        await RequestDownload();
         
         // atualiza settings com as novas versoes
         settings.StdLibSettings.AvailableLibraries = libs.ForEachExt(x => {
@@ -322,52 +359,100 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         }).ToList();
     }
 
-    private async Task DownloadResources() {
-        if (downloadResourcesTask is not null) {
-            await downloadResourcesTask.Task;
-            return;
+    private Task RequestDownload()
+    {
+        if (downloadResourcesTask is not null)
+        {
+            return downloadResourcesTask.Task;
         }
-
-        StatusText = SplashScreenResources.DownloadingResourcesTextValue;
         
         downloadResourcesTask = new TaskCompletionSource();
-        Logger.LogInformation("Downloading new resources");
-        HttpResponseMessage response = await http.GetAsync(ResourcesDownloadUrl);
-        if (!response.IsSuccessStatusCode) {
-            Logger.LogError("Failed to fetch new resources. Error code: {err} ({reason})", response.StatusCode, response.ReasonPhrase);
-            downloadResourcesTask.SetCanceled();
-            return;
-        }
-        
-        
-        // before extracting, delete old resources
-        Directory.Delete(settings.ResourcesDirectory.ToString(), true);
+        DownloadResources().ContinueWith(t =>
+        {
+            if (t.Result)
+            {
+                downloadResourcesTask!.SetResult();
+            }
+            else
+            {
+                downloadResourcesTask!.SetCanceled();
+            }
+        });
+        return downloadResourcesTask.Task;
+    }
 
-        MemoryStream ms = new();
-        await response.Content.CopyToAsync(ms);
-        ms.Seek(0, SeekOrigin.Begin);
-        ZipArchive zip = new(ms, ZipArchiveMode.Read);
-        await Parallel.ForEachAsync(zip.Entries, async (entry, c) => {
-            string name = entry.FullName;
-            string[] parts = name.Split('/');
-            parts = parts.Skip(1).ToArray();
-            // eh pasta, cria uma
-            if (entry.FullName.EndsWith('/')) {
-                Directory.CreateDirectory(settings.ResourcesDirectory.Folders(parts).ToString());
-                Logger.LogInformation("Creating Folder {folder}", settings.ResourcesDirectory.Folders(parts).ToString());
-                return;
+    private async Task<bool> DownloadResources()
+    {
+        StatusText = SplashScreenResources.DownloadingResourcesTextValue;
+
+
+        Logger.LogInformation("Downloading new resources from {url}", ResourcesDownloadUrl);
+        using HttpRequestMessage request = new(HttpMethod.Get, ResourcesDownloadUrl);
+        using HttpResponseMessage response = await http.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+        {
+            Logger.LogError("Failed to fetch new resources. Error code: {err} ({reason})", response.StatusCode,
+                response.ReasonPhrase);
+            return false;
+        }
+
+
+        // before extracting, delete old resources
+        if (Directory.Exists(settings.ResourcesDirectory.ToString()))
+        {
+            Directory.Delete(settings.ResourcesDirectory.ToString(), true);
+        }
+
+        using MemoryStream zipStream = new();
+        await using Stream contentStream = await response.Content.ReadAsStreamAsync();
+        await contentStream.CopyToAsync(zipStream);
+        zipStream.Seek(0, SeekOrigin.Begin);
+        try
+        {
+            using ZipArchive zip = new(zipStream, ZipArchiveMode.Read);
+            Logger.LogInformation("Extracting resources from zip archive");
+            foreach (ZipArchiveEntry entry in zip.Entries)
+            {
+                string name = entry.FullName;
+                string[] parts = name.Split('/',
+                    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                parts = parts.Skip(1).ToArray();
+                // eh pasta, cria uma
+                if (entry.FullName.EndsWith('/'))
+                {
+                    Directory.CreateDirectory(settings.ResourcesDirectory.Folders(parts).ToString());
+                    Logger.LogInformation("Creating Folder {folder}",
+                        settings.ResourcesDirectory.Folders(parts).ToString());
+                    continue;
+                }
+
+                // eh arquivo, extrai arquivo
+                PathObject filePath = settings.ResourcesDirectory.Folders(parts[..^1]).File(parts[^1]);
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath.ToString())!);
+
+                // extrai o arquivo
+                Logger.LogInformation("Extracting file {file}", filePath.ToString());
+                try
+                {
+                    await using Stream entryStream = entry.Open();
+                    await using FileStream fs = new(filePath.ToString(), FileMode.OpenOrCreate);
+                    await entryStream.CopyToAsync(fs);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("Cannot extract entry {entry.FullName} from zip archive: {error}.", entry.FullName,
+                        e.Message);
+                }
             }
 
-            // eh arquivo, extrai arquivo
-            PathObject filePath = settings.ResourcesDirectory.Folders(parts[..^1]).File(parts[^1]);
-            Directory.CreateDirectory(Path.GetDirectoryName(filePath.ToString())!);
+            Logger.LogInformation("Resources downloaded and extracted successfully");
+            return true;
+        }
+        catch (Exception e)
+        {
+            Logger.LogError("Error downloading and extracting zip. Error: {error}. StackTrace: {stack}", e.Message, e.StackTrace);
+            return false;
+        }
 
-            // extrai o arquivo
-            Logger.LogInformation("Extracting file {file}", filePath.ToString());
-            await using Stream entryStream = entry.Open();
-            await using var fs = new FileStream(filePath.ToString(), FileMode.OpenOrCreate);
-            await entryStream.CopyToAsync(fs, c);
-        });
-        downloadResourcesTask.SetResult();
     }
 }

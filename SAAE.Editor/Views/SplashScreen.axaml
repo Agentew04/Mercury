@@ -30,7 +30,10 @@
                 </Label>
                 
                 <Label FontSize="15" Content="{Binding Source={x:Static localization:SplashScreenResources.Instance}, Path=InitializingText}"/>
-                <Label FontSize="11" Content="{Binding StatusText}"/>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock FontSize="11" Text="{Binding StatusText}"/>
+                    <TextBlock FontSize="11" Text="{Binding PercentageText}"></TextBlock>
+                </StackPanel>
             </StackPanel>
             <Label HorizontalAlignment="Left" VerticalAlignment="Bottom"
                    Margin="15" 

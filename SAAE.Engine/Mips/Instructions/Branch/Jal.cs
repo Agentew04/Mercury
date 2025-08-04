@@ -14,5 +14,5 @@ public partial class Jal : TypeJInstruction {
     [GeneratedRegex(@"^\s*jal\s+(?<target>(0x|0X)?[0-9A-Fa-f]+)\s*$")]
     public override partial Regex GetRegularExpression();
     
-    public override string ToString() => $"{Mnemonic} {Immediate}" + FormatTrivia();
+    public override string ToString(byte highOrderPc) => $"{Mnemonic} 0x{(highOrderPc << 26) | (Immediate << 2):X7}" + FormatTrivia();
 }
