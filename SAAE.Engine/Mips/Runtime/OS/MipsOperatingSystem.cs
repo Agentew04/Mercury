@@ -11,7 +11,10 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
     public Machine Machine { get; set; } = null!;
 
     public Architecture CompatibleArchitecture => Architecture.Mips;
+    
     public abstract string FriendlyName { get; }
+    
+    public abstract string Identifier { get; }
 
     public async Task OnSignalBreak(Monocycle.SignalExceptionEventArgs eventArgs) {
         if (eventArgs.Signal != Monocycle.SignalExceptionEventArgs.SignalType.SystemCall) {

@@ -33,7 +33,7 @@ public class ProjectService : BaseService<ProjectService> {
         return recent
             .Select(x => (Project: ReadProject(x.Path.ToFilePath()), LastAccess: x.LastOpen))
             .Where(x => x.Project is not null)
-            .ForEach(x => x.Project!.LastAccessed = x.LastAccess)
+            .ForEachExt(x => x.Project!.LastAccessed = x.LastAccess)
             .Select(x => x.Project!)
             .ToList();
     }

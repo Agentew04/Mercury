@@ -59,4 +59,7 @@
     <data name="DownloadingStdlib" xml:space="preserve">
         <value>Baixando StdLib</value>
     </data>
+    <data name="DownloadingResourcesText" xml:space="preserve">
+        <value>Baixando recursos</value>
+    </data>
 </root>

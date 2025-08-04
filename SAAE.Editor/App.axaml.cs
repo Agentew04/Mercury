@@ -95,7 +95,10 @@ public class App : Application {
                     return;
                 }
             }
-                
+
+            var guideService = Services.GetRequiredService<GuideService>();
+            await guideService.InitializeAsync();
+            
             // finalmente inicializa IDE
             var main = new MainWindow();
             desktop.MainWindow = main;

@@ -110,8 +110,7 @@ public class ResxGenerator : IIncrementalGenerator {
             .ToList();
         StringBuilder properties = new();
         StringBuilder updates = new();
-        foreach (LocalizationEntry entry in entries)
-        {
+        foreach (LocalizationEntry entry in entries) {
             properties.AppendLine(
                 $"""
                      /// <summary>
@@ -119,7 +118,13 @@ public class ResxGenerator : IIncrementalGenerator {
                      /// the current culture.
                      /// </summary>
                      public string {entry.Name} => resourceManager.GetString("{entry.Name}", LocalizationManager.CurrentCulture) ?? "";
-                     
+
+                     /// <summary>
+                     /// Function that retrieves the newest value of the <see cref="{entry.Name}">
+                     /// property in the current culture.
+                     /// </summary>
+                     public string Get{entry.Name} => {entry.Name};
+
                      /// <summary>
                      /// Property that retrieves the value of the {entry.Name} resource in
                      /// the current culture.

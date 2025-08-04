@@ -13,6 +13,8 @@
 public sealed class MockLinux : MipsOperatingSystem {
 
     public override string FriendlyName => "Linux 1.0";
+    
+    public override string Identifier => "linux";
 
     protected override ValueTask OnSyscall(uint code) {
         switch (code) {

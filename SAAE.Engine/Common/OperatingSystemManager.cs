@@ -9,6 +9,8 @@ public struct OperatingSystemType {
     
     public string Name { get; set; }
     
+    public string Identifier { get; set; }
+    
     public Architecture CompatibleArchitecture { get; set; }
 
     public override bool Equals([NotNullWhen(true)] object? obj) {
@@ -17,7 +19,8 @@ public struct OperatingSystemType {
         }
 
         return Name == type.Name && CompatibleArchitecture == type.CompatibleArchitecture
-                                 && OsType.Name == type.OsType.Name;
+                                 && OsType.Name == type.OsType.Name
+                                 && Identifier == type.Identifier;
     }
 }
 
@@ -40,6 +43,7 @@ public static class OperatingSystemManager {
         var osType = new OperatingSystemType {
             OsType = typeof(T),
             Name = os.FriendlyName,
+            Identifier = os.Identifier,
             CompatibleArchitecture = os.CompatibleArchitecture
         };
         AvailableOs.Add(osType);

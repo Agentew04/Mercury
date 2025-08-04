@@ -6,7 +6,9 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Converters;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
+using SkiaSharp;
 
 namespace SAAE.Editor.Services;
 
@@ -18,68 +20,121 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// </summary>
     public string AppDirectory { get; init; }
     
+    public PathObject ResourcesDirectory { get; set; }
+    
     /// <summary>
     /// The path to the config file. It is a file named 'config.json' that
     /// lives inside <see cref="AppDirectory"/>.
     /// </summary>
-    public string ConfigPath { get; init; }
+    public string PreferencesPath { get; }
+    
+    public string StdLibSettingsPath { get; }
+    
+    public string GuideSettingsPath { get; }
 
     /// <summary>
     /// The current user settings
     /// </summary>
     public UserPreferences Preferences { get; set; }
+    
+    /// <summary>
+    /// The current settings and state of the standard library.
+    /// </summary>
+    public StandardLibrarySettings StdLibSettings { get; set; }
+    
+    /// <summary>
+    /// The current settings for the guides installed.
+    /// </summary>
+    public GuideSettings GuideSettings { get; set; }
 
     public SettingsService() {
         Preferences = null!;
         AppDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".saae");
-        ConfigPath = Path.Combine(AppDirectory, "config.json");
+        ResourcesDirectory = AppDirectory.ToDirectoryPath().Folder("resources");
+        PreferencesPath = Path.Combine(AppDirectory, "config.json");
+        StdLibSettingsPath = Path.Combine(AppDirectory, "stdlib.json");
+        GuideSettingsPath = Path.Combine(AppDirectory, "guide.json");
     }
 
     public async Task SaveSettings() {
-        await File.WriteAllTextAsync(ConfigPath, JsonSerializer.Serialize(Preferences, SettingsSerializerContext.Default.UserPreferences));
+        await using Stream sPref = File.OpenWrite(PreferencesPath);
+        await JsonSerializer.SerializeAsync(sPref, Preferences, SettingsSerializerContext.Default.UserPreferences);
+        sPref.SetLength(sPref.Position);
+        await using Stream sStd = File.OpenWrite(StdLibSettingsPath);
+        await JsonSerializer.SerializeAsync(sStd, StdLibSettings, SettingsSerializerContext.Default.StandardLibrarySettings);
+        sStd.SetLength(sStd.Position);
+        await using Stream sGuide = File.OpenWrite(GuideSettingsPath);
+        await JsonSerializer.SerializeAsync(sGuide, GuideSettings, SettingsSerializerContext.Default.GuideSettings);
+        sGuide.SetLength(sGuide.Position);
     }
 
     public async Task LoadSettings() {
-        Preferences = JsonSerializer.Deserialize(await File.ReadAllTextAsync(ConfigPath), SettingsSerializerContext.Default.UserPreferences)
-            ?? GetDefaultPreferences();
-        
+        if (File.Exists(PreferencesPath)) {
+            await using Stream sPref = File.OpenRead(PreferencesPath);
+            try {
+                Preferences =
+                    await JsonSerializer.DeserializeAsync(sPref, SettingsSerializerContext.Default.UserPreferences)
+                    ?? GetDefaultPreferences();
+            }
+            catch (JsonException) {
+                Preferences = GetDefaultPreferences();
+            }
+        }
+        else {
+            Preferences = GetDefaultPreferences();
+        }
+
+        if (File.Exists(StdLibSettingsPath)) {
+            await using Stream sStd = File.OpenRead(StdLibSettingsPath);
+            try {
+                StdLibSettings =
+                    await JsonSerializer.DeserializeAsync(sStd,
+                        SettingsSerializerContext.Default.StandardLibrarySettings)
+                    ?? new StandardLibrarySettings();
+            }
+            catch (JsonException) {
+                StdLibSettings = new StandardLibrarySettings();
+            }
+        }
+        else {
+            StdLibSettings = new StandardLibrarySettings();
+        }
+
+        if (File.Exists(GuideSettingsPath)) {
+            await using Stream sGuide = File.OpenRead(GuideSettingsPath);
+            try {
+                GuideSettings =
+                    await JsonSerializer.DeserializeAsync(sGuide, SettingsSerializerContext.Default.GuideSettings)
+                    ?? new GuideSettings();
+            }
+            catch (JsonException) {
+                GuideSettings = new GuideSettings();
+            }
+        }
+        else {
+            GuideSettings = new GuideSettings();
+        }
+
         if(UpdatePreferences(Preferences)) {
             await SaveSettings();
         }
     }
-    
+
     /// <summary>
     /// Returns the default settings and preferences for a fresh installation.
     /// </summary>
     public UserPreferences GetDefaultPreferences() => new(){
         CompilerPath = Path.Combine(AppDirectory, "compiler"),
-        StdLibPath = Path.Combine(AppDirectory, "stdlib"),
         Language = CultureInfo.CurrentCulture,
-        RecentProjects = []
+        OnlineCheckFrequency = TimeSpan.FromSeconds(1), // TODO: mudar isso antes da producao
+        LastOnlineCheck = DateTime.MinValue
     };
 
     private bool UpdatePreferences(UserPreferences preferences) {
         if(preferences.ConfigVersion == UserPreferences.LatestConfigVersion) {
             return false;
         }
-        
-        if (preferences.ConfigVersion == 1) {
-            preferences.ConfigVersion = 2;
-            preferences.Language = CultureInfo.CurrentCulture;
-            Logger.LogInformation("Atualizada a versão de configuração para 2");
-        }
-
-        if (preferences.ConfigVersion == 2) {
-            preferences.ConfigVersion = 3;
-            preferences.RecentProjects = [];
-            Logger.LogInformation("Atualizada a versao de configuracao para 3");   
-        }
-
-        if (preferences.ConfigVersion == 3) {
-            preferences.ConfigVersion = 4;
-            preferences.StdLibPath = Path.Combine(AppDirectory, "stdlib");
-            Logger.LogInformation("Atualizada a versao de configuracao para 4");
-        }
+        // TODO: talvez mudar isso para manipular JSON diretamente?
         // ir adicionando novos updates aqui abaixo
         return true;
     }
@@ -87,10 +142,12 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     public void Dispose() {
         // ATENCAO: nao dah pra usar async aqui por algum motivo obscuro.
         // faz escrita blocking
-        File.WriteAllText(ConfigPath, JsonSerializer.Serialize(Preferences, SettingsSerializerContext.Default.UserPreferences));
+        File.WriteAllText(PreferencesPath, JsonSerializer.Serialize(Preferences, SettingsSerializerContext.Default.UserPreferences));
     }
 }
 
 [JsonSerializable(typeof(UserPreferences))]
+[JsonSerializable(typeof(StandardLibrarySettings))]
+[JsonSerializable(typeof(GuideSettings))]
 [JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(CultureJsonConverter)])]
 internal partial class SettingsSerializerContext : JsonSerializerContext;

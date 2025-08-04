@@ -11,6 +11,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models;
@@ -20,11 +21,14 @@ using Version = System.Version;
 
 namespace SAAE.Editor.ViewModels;
 
-public partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel> {
+public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel>, IDisposable {
 
     private const string CompilerGithubUrl = "https://github.com/Agentew04/SAAE/raw/refs/heads/clang-bin/";
     private const string StdlibVersionGithubUrl = "https://github.com/Agentew04/SAAE/raw/refs/heads/stdlib/version.json";
-    private const string StdlibDownloadUrl = "https://api.github.com/repos/Agentew04/SAAE/zipball/stdlib";
+
+    private const string ResourcesStructureUrl =
+        "https://github.com/Agentew04/SAAE/raw/refs/heads/stdlib/structure.json";
+    private const string ResourcesDownloadUrl = "https://api.github.com/repos/Agentew04/SAAE/zipball/stdlib";
     
     private readonly SettingsService settings = App.Services.GetRequiredService<SettingsService>();
     private readonly HttpClient http = App.Services.GetRequiredService<HttpClient>();
@@ -36,63 +40,66 @@ public partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel
     [NotifyPropertyChangedFor(nameof(VersionText))]
     private Version? version = null;
     public string VersionText => $"{SplashScreenResources.VersionTextValue}: {Version?.Major ?? 0}.{Version?.Minor ?? 0}";
+
+    private TaskCompletionSource? downloadResourcesTask;
     
     
     public async Task InitializeAsync() {
         Version = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0,0);
         LocalizationManager.CultureChanged += Localize;
-        if(!Directory.Exists(settings.AppDirectory) || !File.Exists(settings.ConfigPath)) {
-            Directory.CreateDirectory(settings.AppDirectory);
-            
+
+        Directory.CreateDirectory(settings.AppDirectory);
+        
+        await settings.LoadSettings();
+        if(!File.Exists(settings.PreferencesPath)
+           || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.PreferencesPath))) {
             // write default configuration
             StatusText = SplashScreenResources.StdSettingsDefineValue;
             settings.Preferences = settings.GetDefaultPreferences();
             await settings.SaveSettings();
         }
+
+        if (!File.Exists(settings.StdLibSettingsPath) || !File.Exists(settings.GuideSettingsPath)
+            || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.StdLibSettingsPath))
+            || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.GuideSettingsPath))) {
+            settings.StdLibSettings = new StandardLibrarySettings();
+            settings.GuideSettings = new GuideSettings();
+            await settings.SaveSettings();
+        }
         
         // read stored configuration
-        await settings.LoadSettings();
+        
         
         LocalizationManager.CurrentCulture = settings.Preferences.Language;
         
         // baixar compilador
-        StatusText = SplashScreenResources.ToolchainCheckValue;
-        (bool hasCompiler, bool hasLinker, bool hasScript) = CheckCompiler();
-        if (!hasCompiler || !hasLinker || !hasScript) {
-            await DownloadTools(!hasCompiler, !hasLinker, !hasScript);
-        }
-        
-        // inicializar guias
-        StatusText = SplashScreenResources.ReadGuideTextValue;
-        var guideService = App.Services.GetService<GuideService>()!;
-        await guideService.InitializeAsync();
-        
-        // baixar/verificar stdlib
-        StatusText = SplashScreenResources.CheckingStdlibValue;
-        if (!await CheckStdLib()) {
-            await DownloadStdlib();
-        }
+        StatusText = SplashScreenResources.InitializingTextValue;
 
-        StatusText = SplashScreenResources.DoneValue;
+        bool doOnlineCheck = DateTime.Now - settings.Preferences.LastOnlineCheck > settings.Preferences.OnlineCheckFrequency;
+        if (doOnlineCheck) {
+            settings.Preferences.LastOnlineCheck = DateTime.Now;
+        }
+        await settings.SaveSettings();
+
+        List<Task> tasks = [
+            DownloadCompiler(),
+            DownloadGuides(doOnlineCheck),
+            DownloadStdlib(doOnlineCheck)
+        ];
         
+
+        await Task.WhenAll(tasks);
+        await settings.SaveSettings();
+        
+        StatusText = SplashScreenResources.DoneValue;
     }
 
     private void Localize(CultureInfo cultureInfo) {
         OnPropertyChanged(nameof(VersionText));
     }
 
-    // destrutor ou idisposable?
-    ~SplashScreenViewModel() {
+    public void Dispose() {
         LocalizationManager.CultureChanged -= Localize;
-    }
-    
-    private (bool hasCompiler, bool hasLinker, bool hasScript) CheckCompiler() {
-        // TODO: check if compiler is installed e usar o do usuario se possivel. issue #1
-        bool appCompiler = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"));
-        bool appLinker = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"));
-        bool script = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "linker.ld"));
-        
-        return (appCompiler, appLinker, script);
     }
 
     private async Task DownloadTools(bool getCompiler, bool getLinker, bool getScript) {
@@ -133,6 +140,7 @@ public partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel
             // eh o fim. :(
             // nao tem caminho
             // disparar message box
+            Logger.LogError("The remote tools json doesn't have the 'clang', 'lld' or 'linkerscript' property! Can't download resources!");
             return;
         }
 
@@ -156,46 +164,18 @@ public partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel
             Directory.CreateDirectory(settings.Preferences.CompilerPath);
         }
 
-        string compilerLinkerText;
-        if (getCompiler && getLinker) {
-            compilerLinkerText =
-                $"{SplashScreenResources.CompilerTextValue} {SplashScreenResources.ConnectorTextValue} {SplashScreenResources.LinkerTextValue}";
-        }
-        else if (getCompiler) {
-            compilerLinkerText = SplashScreenResources.CompilerTextValue;
-        }
-        else {
-            compilerLinkerText = SplashScreenResources.LinkerTextValue;
-        }
-
-        StatusText = SplashScreenResources.DownloadingTextValue + compilerLinkerText;
-
-        TextProgress progress = new() { vm = this };
         Task compilerTask = Task.Run(async () => {
             if (!getCompiler) {
                 return;
             }
+            
+            StatusText = SplashScreenResources.DownloadingResourcesTextValue;
 
-            progress.compilerStatus = TextProgress.Status.Downloading;
             MemoryStream ms = new();
             using HttpResponseMessage response =
                 await http.GetAsync(compilerPath, HttpCompletionOption.ResponseHeadersRead);
-            long? contentLength = response.Content.Headers.ContentLength;
-            progress.max += contentLength ?? 0;
+            await response.Content.CopyToAsync(ms);
 
-            await using Stream download = await response.Content.ReadAsStreamAsync(default);
-            Progress<long> otherProgress = new(progress.Report);
-            if (contentLength.HasValue) {
-                // posso reportar
-                await download.CopyToAsync(ms, 81920, otherProgress);
-                progress.Report(1);
-            }
-            else {
-                // n sei o tamanho total, so faz o download
-                await download.CopyToAsync(ms);
-            }
-
-            progress.compilerStatus = TextProgress.Status.Extracting;
             ms.Seek(0, SeekOrigin.Begin);
             using ZipArchive archive = new(ms, ZipArchiveMode.Read);
             ZipArchiveEntry? entry = archive.GetEntry("clang.exe");
@@ -204,37 +184,21 @@ public partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel
             }
 
             await using Stream entryStream = entry.Open();
-            progress.max += entry.Length;
             await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"),
                 FileMode.OpenOrCreate);
-            await entryStream.CopyToAsync(fs, 81920, otherProgress);
-            progress.compilerStatus = TextProgress.Status.Done;
+            await entryStream.CopyToAsync(fs);
         });
         Task linkerTask = Task.Run(async () => {
             if (!getLinker) {
                 return;
             }
-
-            progress.linkerStatus = TextProgress.Status.Downloading;
+            StatusText = SplashScreenResources.DownloadingResourcesTextValue;
+            
             using MemoryStream ms = new();
             using HttpResponseMessage response =
                 await http.GetAsync(linkerPath, HttpCompletionOption.ResponseHeadersRead);
-            long? contentLength = response.Content.Headers.ContentLength;
-            progress.max += contentLength ?? 0;
+            await response.Content.CopyToAsync(ms);
 
-            await using Stream download = await response.Content.ReadAsStreamAsync(default);
-            Progress<long> otherProgress = new(progress.Report);
-            if (contentLength.HasValue) {
-                // posso reportar
-                await download.CopyToAsync(ms, 81920, otherProgress);
-                progress.Report(1);
-            }
-            else {
-                // n sei o tamanho total, so faz o download
-                await download.CopyToAsync(ms);
-            }
-
-            progress.linkerStatus = TextProgress.Status.Extracting;
             ms.Seek(0, SeekOrigin.Begin);
             using ZipArchive archive = new(ms, ZipArchiveMode.Read);
             ZipArchiveEntry? entry = archive.GetEntry("ld.lld.exe");
@@ -242,17 +206,16 @@ public partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel
                 return;
             }
 
-            progress.max += entry.Length;
             await using Stream entryStream = entry.Open();
             await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"),
                 FileMode.OpenOrCreate);
-            await entryStream.CopyToAsync(fs, 81920, otherProgress);
-            progress.linkerStatus = TextProgress.Status.Done;
+            await entryStream.CopyToAsync(fs);
         });
         Task scriptTask = Task.Run(async () => {
             if (!getScript) {
                 return;
             }
+            StatusText = SplashScreenResources.DownloadingResourcesTextValue;
             using HttpResponseMessage response =
                 await http.GetAsync(scriptPath, HttpCompletionOption.ResponseContentRead);
             await using Stream download = await response.Content.ReadAsStreamAsync(default);
@@ -265,157 +228,146 @@ public partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel
         StatusText = SplashScreenResources.DoneDownloadingValue;
     }
 
-    private async Task<bool> CheckStdLib() {
-        // ver se ela esta presente no sistema
-        string libpath = settings.Preferences.StdLibPath;
-        if (!Directory.Exists(libpath)) {
-            return false;
+    private Task DownloadCompiler() {
+        bool hasCompiler = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"));
+        bool hasLinker = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"));
+        bool hasLinkerScript = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "linker.ld"));
+
+        if (hasCompiler && hasLinker && hasLinkerScript) {
+            return Task.CompletedTask;
         }
 
-        if (!File.Exists(Path.Combine(libpath, "version.json"))) {
-            return false;
+        return DownloadTools(!hasCompiler, !hasLinker, !hasLinkerScript);
+    }
+    
+    private async Task DownloadGuides(bool doOnlineCheck) {
+        if (settings.GuideSettings.Version != 0 && !doOnlineCheck) {
+            return;
         }
-        
-        string localVersionJson = await File.ReadAllTextAsync(Path.Combine(libpath, "version.json"));
-        JsonNode rootNode = JsonNode.Parse(localVersionJson)!.AsObject();
-        Version localVersion = Version.Parse(rootNode["version"]?.GetValue<string>() ?? "0.0");
-        DateTime lastCheck = rootNode["lastCheck"]?.GetValue<DateTime>() ?? DateTime.MinValue;
-        
-        if(lastCheck > DateTime.Now.AddDays(-1)) {
-            // ja verifiquei a versao hoje
-            return true;
+
+        string json = await http.GetStringAsync(ResourcesStructureUrl);
+        using JsonDocument structureDoc = JsonDocument.Parse(json);
+        JsonElement guideProperty = structureDoc.RootElement.GetProperty("guides");
+        int remoteVersion = guideProperty.GetProperty("version").GetInt32();
+        if (remoteVersion <= settings.GuideSettings.Version) {
+            // ja esta atualizado
+            return;
         }
-        
-        // verificar se esta atualizada com a remota
-        string versionJson;
-        try {
-            versionJson = await http.GetStringAsync(StdlibVersionGithubUrl);
+
+        GuideSettings? guideSettings = guideProperty.Deserialize<GuideSettings>(SettingsSerializerContext.Default.GuideSettings);
+        if (guideSettings is null) {
+            Logger.LogError("Detected newer version for guides but couldn't parse structrue json. Consider updating the app.");
+            return;
         }
-        catch (HttpRequestException e) {
-            Console.WriteLine("Sem conexao. Nao foi possivel verificar a versao da stdlib. Erro: " + e.Message);
-            return true;
-        }
-        JsonDocument versionDocument = JsonDocument.Parse(versionJson);
-        JsonElement versionElement = versionDocument.RootElement;
-        Version remoteVersion = Version.Parse(versionElement.GetProperty("version").GetString() ?? "0.0");
+
+        await DownloadResources();
         
-        // atualiza data de ultima verificação
-        rootNode["lastCheck"] = DateTime.Now;
-        await File.WriteAllTextAsync(Path.Combine(libpath, "version.json"), rootNode.ToJsonString());
-        
-        return localVersion >= remoteVersion;
+        // update current guide settings with modified paths from new guide settings
+        settings.GuideSettings.Version = guideSettings.Version;
+        settings.GuideSettings.Common = settings.ResourcesDirectory + guideSettings.Common;
+        settings.GuideSettings.Architectures = guideSettings.Architectures
+            .ForEachExt(x => {
+                x.Path = settings.ResourcesDirectory + x.Path;
+                x.Os.ForEach(y => {
+                    y.Path = settings.ResourcesDirectory + y.Path;
+                });
+            })
+            .ToList();
+        // guide initialization is execute after project selection
+        // to correctly filter arch and os guides. 
     }
 
-    private async Task DownloadStdlib() {
-        // houve algum problema, vai ter que baixar toda stdlib
-        // so texto, n deve ser tao grande
-        StatusText = SplashScreenResources.DownloadingStdlibValue;
 
-        HttpResponseMessage response;
-        try {
-            response = await http.GetAsync(StdlibDownloadUrl);
-        }
-        catch (HttpRequestException e) {
-            Console.WriteLine("Sem internet. Nao foi possivel acessar o github. Erro: " + e.Message);
+    private async Task DownloadStdlib(bool doOnlineCheck) {
+        if (settings.StdLibSettings.AvailableLibraries.Any(x => x.Version != 0)
+            && !doOnlineCheck) {
+            // has at least one library installed and already checked today, skip
             return;
         }
         
-        if (!response.IsSuccessStatusCode) {
-            Console.WriteLine("Requisicao falhou. Status: " + response.StatusCode);
-            return;
-        }
-        
-        // se tem arquivos antigos da stdlib, deleta
-        if (Directory.Exists(settings.Preferences.StdLibPath)) {
-            Directory.Delete(settings.Preferences.StdLibPath, true);
-        }
-        Directory.CreateDirectory(settings.Preferences.StdLibPath);
-        
-        // agora extrai o zip
-        
-        using MemoryStream ms = new();
-        using Stream download = await response.Content.ReadAsStreamAsync(default);
-        await download.CopyToAsync(ms);
-        ms.Seek(0, SeekOrigin.Begin);
-        using ZipArchive archive = new(ms, ZipArchiveMode.Read);
-        foreach (ZipArchiveEntry zipArchiveEntry in archive.Entries) {
-            // remove primeira pasta
-            string name = zipArchiveEntry.FullName;
-            string[]? parts = name.Split('/');
-            parts = parts.Skip(1).ToArray();
-            name = string.Join('/', parts);
-            
-            // eh pasta, cria uma
-            if (zipArchiveEntry.FullName.EndsWith('/')) {
-                Directory.CreateDirectory(settings.Preferences.StdLibPath + "/" + name);
+        string json = await http.GetStringAsync(ResourcesStructureUrl);
+        using JsonDocument structureDoc = JsonDocument.Parse(json);
+        JsonElement stdlibProperty = structureDoc.RootElement.GetProperty("stdlib");
+        bool download = settings.StdLibSettings.AvailableLibraries.Count < stdlibProperty.GetArrayLength();
+
+        JsonElement.ArrayEnumerator arrayEnumerator = stdlibProperty.EnumerateArray();
+        List<StandardLibrary> libs = arrayEnumerator
+            .Select(x => x.Deserialize(SettingsSerializerContext.Default.StandardLibrary))
+            .Where(x => x is not null)
+            .ToList()!;
+        arrayEnumerator.Dispose();
+        foreach (StandardLibrary installedLibrary in settings.StdLibSettings.AvailableLibraries) {
+            if(download)break;
+            StandardLibrary? target = libs
+                .Find(x => x.Architecture == installedLibrary.Architecture
+                           && x.OperatingSystemIdentifier == installedLibrary.OperatingSystemIdentifier);
+            if (target is null) {
                 continue;
             }
-            
+
+            if (target.Version <= installedLibrary.Version) continue;
+            download = true;
+            break;
+        }
+
+        if (!download) {
+            return;
+        }
+
+        await DownloadResources();
+        
+        // atualiza settings com as novas versoes
+        settings.StdLibSettings.AvailableLibraries = libs.ForEachExt(x => {
+            x.Path = settings.ResourcesDirectory + x.Path;
+        }).ToList();
+    }
+
+    private async Task DownloadResources() {
+        if (downloadResourcesTask is not null) {
+            await downloadResourcesTask.Task;
+            return;
+        }
+
+        StatusText = SplashScreenResources.DownloadingResourcesTextValue;
+        
+        downloadResourcesTask = new TaskCompletionSource();
+        Logger.LogInformation("Downloading new resources");
+        HttpResponseMessage response = await http.GetAsync(ResourcesDownloadUrl);
+        if (!response.IsSuccessStatusCode) {
+            Logger.LogError("Failed to fetch new resources. Error code: {err} ({reason})", response.StatusCode, response.ReasonPhrase);
+            downloadResourcesTask.SetCanceled();
+            return;
+        }
+        
+        
+        // before extracting, delete old resources
+        Directory.Delete(settings.ResourcesDirectory.ToString(), true);
+
+        MemoryStream ms = new();
+        await response.Content.CopyToAsync(ms);
+        ms.Seek(0, SeekOrigin.Begin);
+        ZipArchive zip = new(ms, ZipArchiveMode.Read);
+        await Parallel.ForEachAsync(zip.Entries, async (entry, c) => {
+            string name = entry.FullName;
+            string[] parts = name.Split('/');
+            parts = parts.Skip(1).ToArray();
+            // eh pasta, cria uma
+            if (entry.FullName.EndsWith('/')) {
+                Directory.CreateDirectory(settings.ResourcesDirectory.Folders(parts).ToString());
+                Logger.LogInformation("Creating Folder {folder}", settings.ResourcesDirectory.Folders(parts).ToString());
+                return;
+            }
+
             // eh arquivo, extrai arquivo
-            
-            string path = Path.Combine(settings.Preferences.StdLibPath, name);
-            
-            // cria o diretorio se nao existir
-            string? directory = Path.GetDirectoryName(path);
-            if (directory is not null && !Directory.Exists(directory)) {
-                Directory.CreateDirectory(directory);
-            }
-            
+            PathObject filePath = settings.ResourcesDirectory.Folders(parts[..^1]).File(parts[^1]);
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath.ToString())!);
+
             // extrai o arquivo
-            await using Stream entryStream = zipArchiveEntry.Open();
-            await using var fs = new FileStream(path, FileMode.OpenOrCreate);
-            await entryStream.CopyToAsync(fs);
-        }    
+            Logger.LogInformation("Extracting file {file}", filePath.ToString());
+            await using Stream entryStream = entry.Open();
+            await using var fs = new FileStream(filePath.ToString(), FileMode.OpenOrCreate);
+            await entryStream.CopyToAsync(fs, c);
+        });
+        downloadResourcesTask.SetResult();
     }
-    
-    private class TextProgress : IProgress<long> {
-
-        public enum Status {
-            Unused,
-            Downloading,
-            Extracting,
-            Done
-        }
-        
-        public SplashScreenViewModel vm = null!;
-        public long max = 0;
-        public Status compilerStatus = Status.Unused;
-        public Status linkerStatus = Status.Unused;
-
-        private int smoothingValues = 30;
-        private List<double> values = [];
-        
-        public void Report(long value) {
-            double relative = (double)value / (double)max;
-            if (values.Count < smoothingValues) {
-                values.Add(relative);
-            }
-            else {
-                values.RemoveAt(0);
-                values.Add(relative);
-            }
-            
-            double smoothed = values.Average();
-            string percentage = smoothed.ToString("P");
-            
-            if(compilerStatus > Status.Unused && linkerStatus > Status.Unused) {
-                // os dois
-                string mainText = ((compilerStatus >= Status.Extracting && compilerStatus != Status.Done) 
-                                   || (linkerStatus >= Status.Extracting && linkerStatus != Status.Done)) ?
-                    SplashScreenResources.ExtractingTextValue : SplashScreenResources.DownloadingTextValue;
-                vm.StatusText = $"{mainText} {SplashScreenResources.CompilerTextValue} {SplashScreenResources.ConnectorTextValue} {SplashScreenResources.LinkerTextValue} ({percentage})";
-            }else if (compilerStatus > Status.Unused) {
-                // soh compiler
-                vm.StatusText = $"{(compilerStatus >= Status.Extracting && compilerStatus != Status.Done ?
-                    SplashScreenResources.ExtractingTextValue : SplashScreenResources.DownloadingTextValue)} {SplashScreenResources.CompilerTextValue} ({percentage})"; 
-            }
-            else {
-                // soh linker
-                vm.StatusText = $"{(linkerStatus >= Status.Extracting && linkerStatus != Status.Done ?
-                    SplashScreenResources.ExtractingTextValue : SplashScreenResources.DownloadingTextValue)} {SplashScreenResources.LinkerTextValue} ({percentage})";
-            }
-        }
-    }
-    
-    
 }

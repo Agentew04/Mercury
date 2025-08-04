@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -13,7 +12,9 @@ using Markdig;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models;
 using YamlDotNet.Serialization;
@@ -25,11 +26,9 @@ namespace SAAE.Editor.Services;
 
 public sealed partial class GuideService : BaseService<GuideService>, IDisposable {
 
-    private bool isInitialized;
-    
-    private const string GuideNamespace = "SAAE.Editor.Assets.Localization.Guides.";
-    private const string GuideExtension = ".md";
-    
+    private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
+    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+
     public GuideService() {
         LocalizationManager.CultureChanged += LocalizeGuides;
     }
@@ -40,47 +39,83 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
     
     private readonly List<string> guideNames = [];
     private readonly Dictionary<string, GuideChapter> chapterDictionary = [];
-    private readonly Dictionary<(string name, CultureInfo culture), string> manifestDictionary = [];
+    private readonly Dictionary<(string name, CultureInfo culture), PathObject> pathDictionary = [];
     private readonly Dictionary<(string name, CultureInfo culture), GuideMetadata> localizedMetadata = [];
-    private readonly Assembly assembly = typeof(GuideService).Assembly;
     
     /// <summary>
     /// Initializes the service reading guides and storing structures.
     /// </summary>
     public async Task InitializeAsync() {
-        if (isInitialized) {
+        Logger.LogInformation("Initializing Guides...");
+
+        ProjectFile? project = projectService.GetCurrentProject();
+        if (project is null) {
+            Logger.LogWarning("Couldn't load guides. No project loaded.");
             return;
         }
 
         // manifestos completos referente aos guias
-        List<string> manifests = GetGuideManifestNames();
-        foreach (string manifest in manifests) {
-            string rawName = manifest.Replace(GuideNamespace, "").Replace(GuideExtension, "");
+        List<PathObject> guides = [];
+
+        // agrega os guias comuns a todos
+        IEnumerable<PathObject> common = Directory.EnumerateFiles(settingsService.GuideSettings.Common.ToString(), "*.md", 
+            new EnumerationOptions {
+                RecurseSubdirectories = false
+            }).Select(x => x.ToFilePath());
+        guides.AddRange(common);
+
+        // agrega os guias da arquitetura atual
+        GuideArchitecture? guideArch = settingsService.GuideSettings.Architectures.Find(x => x.Architecture == project.Architecture);
+        if (guideArch is null) {
+            Logger.LogWarning("Couldn't load guides. No match for architecture specific information found.");
+            return;
+        }
+        IEnumerable<PathObject> archSpecifc = Directory.EnumerateFiles(guideArch.Path.ToString(), "*.md", 
+            new EnumerationOptions {
+                RecurseSubdirectories = false
+            }).Select(x => x.ToFilePath());
+        guides.AddRange(archSpecifc);
+
+        // agrega os guias do sistema operacional atual
+        GuideOs? guideOs = guideArch.Os.Find(x => x.Identifier == project.OperatingSystem.Identifier);
+        if (guideOs is null) {
+            Logger.LogWarning("Couldn't load guides. No match for operating system specific information found.");
+            return;
+        }
+        IEnumerable<PathObject> osSpecific = Directory.EnumerateFiles(guideOs.Path.ToString(), "*.md",
+            new EnumerationOptions {
+                RecurseSubdirectories = false
+            }).Select(x => x.ToFilePath());
+        guides.AddRange(osSpecific);
+
+        foreach (PathObject guide in guides) {
+            // format filename.pt-BR   -> without .md already
+            string fileName = guide.Filename; // without .md
             Regex cultureRemover = CultureRemoverRegex();
-            string name = cultureRemover.Replace(rawName, "");
-            bool repeated = guideNames.Contains(name);
+            // line below could be replaced with substring, ignore last 6 characters of string!
+            string fileWithoutCulture = cultureRemover.Replace(fileName, "");
+            bool repeated = guideNames.Contains(fileWithoutCulture);
             if (!repeated) {
-                guideNames.Add(name);
+                guideNames.Add(fileWithoutCulture);
             }
-            
-            var culture = new CultureInfo(cultureRemover.Match(rawName).Value.Replace(".",""));
-            manifestDictionary.Add((name, culture), manifest);
+
+            var culture = new CultureInfo(cultureRemover.Match(fileName).Value.Replace(".", ""));
+            pathDictionary.Add((fileWithoutCulture, culture), guide);
 
             if (repeated) {
                 continue;
             }
             
             GuideChapter chapter = new() {
-                GuideName = name,
+                GuideName = fileWithoutCulture,
             };
-            chapterDictionary.Add(name, chapter);
+            chapterDictionary.Add(fileWithoutCulture, chapter);
         }
 
         await ReadMetadataAsync();
         // forca atualizacao dos titulos dos guias
         LocalizeGuides(LocalizationManager.CurrentCulture);
         
-        isInitialized = true;
     }
 
     private void LocalizeGuides(CultureInfo cultureInfo) {
@@ -91,14 +126,17 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
     }
 
     private async Task ReadMetadataAsync() {
-        foreach (((string name, CultureInfo culture) key, string manifest) in manifestDictionary) {
-            await using Stream? s = assembly.GetManifestResourceStream(manifest);
-            if (s is null) {
-                Logger.LogError("Nao consegui ler manifesto: {manifest}", manifest);
+        foreach (((string name, CultureInfo culture) key, PathObject path) in pathDictionary) {
+            FileStream fs;
+            try {
+                fs = File.OpenRead(path.ToString());
+            }
+            catch (Exception e) {
+                Logger.LogError("Nao consegui ler manifesto '{name}.{culture}': {path}. Erro: {err}", key.name, key.culture.ToString(), path.ToString(), e.Message);
                 continue;
             }
 
-            using StreamReader sr = new(s);
+            using StreamReader sr = new(fs);
             MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions()
                 .UseYamlFrontMatter()
                 .Build();
@@ -114,18 +152,10 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                 .Build();
             GuideMetadata metadata = deserializer.Deserialize<GuideMetadata>(yaml);
             localizedMetadata.Add(key, metadata);
+            fs.Close();
         }
     }
-    
-    private static List<string> GetGuideManifestNames() {
-        string[] allResources = typeof(GuideService).Assembly.GetManifestResourceNames();
-        List<string> guideResources = allResources
-            .Where(resource => resource.EndsWith(GuideExtension))
-            .Where(resource => resource.StartsWith(GuideNamespace))
-            .ToList();
-        return guideResources;
-    }
-    
+
     /// <summary>
     /// Returns a readonly list with all available guides
     /// </summary>
@@ -137,14 +167,17 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
 
     private string GetLocalizedGuideContent(string guideName) {
         CultureInfo culture = LocalizationManager.CurrentCulture;
-        string manifest = manifestDictionary[(guideName, culture)];
-        using Stream? s = assembly.GetManifestResourceStream(manifest);
-        if (s is null) {
+        PathObject path = pathDictionary[(guideName, culture)];
+        try {
+            using FileStream fs = File.OpenRead(path.ToString());
+            using StreamReader sr = new(fs);
+            return sr.ReadToEnd();
+        }
+        catch (Exception e) {
+            Logger.LogError("Could not read guide file: {file}. Error: {err}", path.ToString(), e.Message);
             return "";
         }
 
-        using StreamReader sr = new(s);
-        return sr.ReadToEnd();
     }
 
     /// <summary>
@@ -287,7 +320,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
         return result;
     }
     
-    [GeneratedRegex(@".\w\w-\w\w")]
+    [GeneratedRegex(@"\.\w\w-\w\w")]
     private static partial Regex CultureRemoverRegex();
 
 }

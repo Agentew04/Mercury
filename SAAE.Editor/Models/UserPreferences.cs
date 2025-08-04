@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.Json.Serialization;
 using SAAE.Editor.Extensions;
+using SAAE.Engine;
 
 namespace SAAE.Editor.Models;
 
@@ -10,7 +12,7 @@ public class UserPreferences {
     /// <summary>
     /// The latest version available for the configuration file.
     /// </summary>
-    public const int LatestConfigVersion = 4;
+    public const int LatestConfigVersion = 5;
     
     /// <summary>
     /// The version of the configuration file.
@@ -25,15 +27,14 @@ public class UserPreferences {
     public string CompilerPath { get; set; } = "";
 
     /// <summary>
-    /// The path to the standard library of the system.
-    /// </summary>
-    public string StdLibPath { get; set; } = "";
-    
-    /// <summary>
     /// The current language of the application.
     /// </summary>
     public CultureInfo Language { get; set; } = new("pt-BR");
     
+    public DateTime LastOnlineCheck { get; set; }
+    
+    public TimeSpan OnlineCheckFrequency { get; set; }
+
     /// <summary>
     /// A list with the most recent project opened by the user
     /// and the time it was last opened.
@@ -42,3 +43,4 @@ public class UserPreferences {
 
     public record ProjectAccess(string Path, DateTime LastOpen);
 }
+

@@ -104,6 +104,11 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
     /// On Windows it does not because first elemento of <see cref="Parts"/> is a drive letter.</remarks>
     /// <returns></returns>
     public override string ToString() {
+
+        if (Parts.IsDefault) {
+            return "";
+        }
+        
         StringBuilder sb = new();
         if (IsAbsolute) {
             if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS()) {

@@ -47,6 +47,8 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         // 2. Calcular id da compilacao
         Guid compilationId = input.CalculateId();
 
+        StandardLibrary stdlib = settingsService.StdLibSettings.GetCompatibleLibrary(project)!;
+
         // 3. Mover todos os arquivos modificados para o diretorio de compilacao
         List<Task<(PathObject Old, PathObject New, int injectedLines)>> moveTasks = input.Files.Select((x,i) =>
             MoveToBinAsync(
@@ -54,7 +56,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
                 input: x,
                 srcDirectory: project.ProjectDirectory + project.SourceDirectory,
                 binDirectory: compilationDirectory,
-                stdlibDirectory: settingsService.Preferences.StdLibPath.ToDirectoryPath()))
+                stdlibDirectory: stdlib.Path))
             .ToList();
         await Task.WhenAll(moveTasks);
         

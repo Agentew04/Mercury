@@ -23,7 +23,7 @@ public sealed partial class GuideViewModel : BaseViewModel<GuideViewModel> {
     
     public GuideViewModel() {
         ReadOnlyCollection<GuideChapter> guides = _guideService.GetAvailableGuides();
-        _ = guides.ForEach(x => x.GoBackCommand = GoToMenuCommand);
+        _ = guides.ForEachExt(x => x.GoBackCommand = GoToMenuCommand);
         GuideChapters = new ObservableCollection<GuideChapter>(guides);
             
         guideMenu = new GuideMenu(OpenGuideCommand) {

@@ -48,7 +48,15 @@ public class FileService : BaseService<FileService> {
         List<ProjectNode> nodes = [];
         
         if (project.IncludeStandardLibrary) {
-            nodes.Add(GetStdLibNode());
+            StandardLibrary? stdlib = settingsService.StdLibSettings.GetCompatibleLibrary(project);
+            if (stdlib is null) {
+                Logger.LogWarning("Nao encontrei standard library compativel com o projeto");
+            }
+            else {
+                nodes.Add(GetStdLibNode(stdlib));
+                nodeTypes[StdLibCategoryId] = ProjectNodeType.Category;
+                relativePaths[StdLibCategoryId] = stdlib.Path;
+            }
         }
 
         List<ProjectNode> projectFiles = GetFolderNodes(project.ProjectDirectory + project.SourceDirectory, "".ToDirectoryPath());
@@ -66,9 +74,7 @@ public class FileService : BaseService<FileService> {
         // Resolver: #18
         nodes.Add(projectCategoryNode);
 
-        relativePaths[StdLibCategoryId] = settingsService.Preferences.StdLibPath.ToDirectoryPath();
         relativePaths[ProjectCategoryId] = project.ProjectDirectory + project.SourceDirectory;
-        nodeTypes[StdLibCategoryId] = ProjectNodeType.Category;
         nodeTypes[ProjectCategoryId] = ProjectNodeType.Category;
 
         return nodes;
@@ -90,9 +96,14 @@ public class FileService : BaseService<FileService> {
         }
 
         if (isStdlibNode[nodeId]) {
-            PathObject stdlib = settingsService.Preferences.StdLibPath.ToDirectoryPath();
-            Debug.Assert(stdlib.IsAbsolute, "Caminho da StdLib nas configs nao era absoluto.");
-            return stdlib + relative;
+            StandardLibrary? stdlib = settingsService.StdLibSettings.GetCompatibleLibrary(project);
+            if (stdlib is null) {
+                Logger.LogError("Nao encontrei uma stdlib compativel com o projeto");
+                return default;
+            }
+            PathObject stdlibpath = stdlib.Path;
+            Debug.Assert(stdlibpath.IsAbsolute, "Caminho da StdLib nas configs nao era absoluto.");
+            return stdlibpath + relative;
         }
         return project.ProjectDirectory + project.SourceDirectory + relative;
     }
@@ -261,7 +272,7 @@ public class FileService : BaseService<FileService> {
         };
     }
 
-    private ProjectNode GetStdLibNode() {
+    private ProjectNode GetStdLibNode(StandardLibrary stdlib) {
         var root = new ProjectNode {
             Name = Localization.ProjectResources.StdLibValue,
             Id = StdLibCategoryId,
@@ -269,10 +280,7 @@ public class FileService : BaseService<FileService> {
             IsReadOnly = true
         };
 
-        List<ProjectNode> children = GetFolderNodes(settingsService.Preferences.StdLibPath.ToDirectoryPath(), "".ToDirectoryPath(), isStdLib: true);
-        if (children.RemoveAll(x => x.Name == "version.json") != 1) {
-            Debug.Fail("StandardLibrary nao tinha arquivo chamado version.json na root!");
-        }
+        List<ProjectNode> children = GetFolderNodes(stdlib.Path, "".ToDirectoryPath(), isStdLib: true);
         foreach (ProjectNode child in children) {
             child.ParentReference = new WeakReference<ProjectNode>(root);
             child.IsReadOnly = true;

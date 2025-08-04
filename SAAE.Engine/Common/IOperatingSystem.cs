@@ -20,4 +20,10 @@ public interface IOperatingSystem : IDisposable {
     /// is a name after all.
     /// </remarks>
     public string FriendlyName { get; }
+    
+    /// <summary>
+    /// It is a unique string identifier used to serialize
+    /// operating systems in files.
+    /// </summary>
+    public string Identifier { get; }
 }

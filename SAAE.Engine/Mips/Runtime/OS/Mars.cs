@@ -11,6 +11,8 @@ public sealed class Mars : MipsOperatingSystem {
 
     public override string FriendlyName => "Mars 4.5 Runtime";
 
+    public override string Identifier => "mars";
+
     protected override async ValueTask OnSyscall(uint code) {
         switch (code) {
             case 1:
