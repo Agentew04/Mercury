@@ -8,7 +8,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
+using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Markdig;
+using Markdig.Extensions.Tables;
 using Markdig.Extensions.Yaml;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
@@ -194,82 +197,143 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
         MarkdownDocument markdownDocument = Markdig.Markdown.Parse(guideContent, pipeline);
 
         List<Control> controls = [];
-
-        foreach (Block block in markdownDocument) {
-            if (block is YamlFrontMatterBlock) {
-                continue;
-            }
-            
-            switch (block) {
-                case ParagraphBlock paragraphBlock: {
-                    TextBlock textblock = new();
-                    textblock.Classes.Add("paragraph");
-                    
-                    if (paragraphBlock.Inline is null) {
-                        Logger.LogWarning("Achei paragrafo sem inline");
-                        break;
-                    }
-
-                    List<Inline> inlines = ParseInlines(paragraphBlock.Inline!);
-                    textblock.Inlines ??= new InlineCollection();
-                    foreach (Inline inline in inlines) {
-                        textblock.Inlines.Add(inline);
-                    }
-                    controls.Add(textblock);
-                    break;
-                }
-                case HeadingBlock headingBlock: {
-                    var header = new TextBlock();
-                    int level = headingBlock.Level;
-                    if (level > 3) {
-                        Logger.LogInformation("Nao sei processar titulo maior que 3. Defaultando p/ 3");
-                        level = 3;
-                    }
-                    header.Classes.Add("headerh"+level);
-                    
-                    header.Inlines ??= new InlineCollection();
-                    header.Inlines.AddRange(ParseInlines(headingBlock.Inline!));
-                    controls.Add(header);
-                    break;
-                }
-                case CodeBlock codeBlock: {
-                    Border border = new();
-                    border.Classes.Add("codeblock");
-                    SelectableTextBlock textblock = new() {
-                        Text = codeBlock.Lines.ToString()
-                    };
-                    textblock.Classes.Add("mono");
-                    border.Child = textblock;
-                    controls.Add(border);
-                    break;
-                }
-                case QuoteBlock quoteBlock: {
-                    TextBlock textblock = new();
-                    textblock.Classes.Add("quote");
-                    foreach (Block quoteContent in quoteBlock) {
-                        if (quoteContent is not ParagraphBlock paragraph) {
-                            Logger.LogWarning("Nao sei processar bloco dentro de quote: {type}", quoteContent.GetType().FullName);
-                            continue;
-                        }
-                        List<Inline> inlines = ParseInlines(paragraph.Inline!);
-                        textblock.Inlines ??= new InlineCollection();
-                        foreach (Inline inline in inlines) {
-                            textblock.Inlines.Add(inline);
-                        }
-                    }
-                    controls.Add(textblock);
-                    break;
-                }
-                case LinkReferenceDefinitionGroup:
-                    // Ignora, nao nos interessa. Queremos avisos importantes apenas
-                    continue;
-                default:
-                    Logger.LogWarning("Nao sei processar bloco do tipo: {type}", block.GetType().FullName);
-                    break;
+        foreach (Block block in markdownDocument)
+        {
+            Control? ctrl = ParseBlock(block);
+            if (ctrl is not null) {
+                controls.Add(ctrl);
             }
         }
 
         return controls;
+    }
+
+    private Control? ParseBlock(Block block)
+    {
+        List<Control> controls = [];
+        if (block is YamlFrontMatterBlock) {
+            return null;
+        }
+        switch (block) {
+            case ParagraphBlock paragraphBlock: {
+                TextBlock textblock = new();
+                textblock.Classes.Add("paragraph");
+                
+                if (paragraphBlock.Inline is null) {
+                    Logger.LogWarning("Achei paragrafo sem inline");
+                    break;
+                }
+
+                List<Inline> inlines = ParseInlines(paragraphBlock.Inline!);
+                textblock.Inlines ??= new InlineCollection();
+                foreach (Inline inline in inlines) {
+                    textblock.Inlines.Add(inline);
+                }
+                return textblock;
+            }
+            case HeadingBlock headingBlock: {
+                TextBlock header = new();
+                int level = headingBlock.Level;
+                if (level > 3) {
+                    Logger.LogInformation("Nao sei processar titulo maior que 3. Defaultando p/ 3");
+                    level = 3;
+                }
+                header.Classes.Add("headerh"+level);
+                
+                header.Inlines ??= new InlineCollection();
+                header.Inlines.AddRange(ParseInlines(headingBlock.Inline!));
+                return header;
+            }
+            case CodeBlock codeBlock: {
+                Border border = new();
+                border.Classes.Add("codeblock");
+                SelectableTextBlock textblock = new() {
+                    Text = codeBlock.Lines.ToString()
+                };
+                textblock.Classes.Add("mono");
+                border.Child = textblock;
+                return border;
+            }
+            case QuoteBlock quoteBlock: {
+                TextBlock textblock = new();
+                textblock.Classes.Add("quote");
+                foreach (Block quoteContent in quoteBlock) {
+                    if (quoteContent is not ParagraphBlock paragraph) {
+                        Logger.LogWarning("Nao sei processar bloco dentro de quote: {type}", quoteContent.GetType().FullName);
+                        continue;
+                    }
+                    List<Inline> inlines = ParseInlines(paragraph.Inline!);
+                    textblock.Inlines ??= new InlineCollection();
+                    foreach (Inline inline in inlines) {
+                        textblock.Inlines.Add(inline);
+                    }
+                }
+
+                return textblock;
+            }
+            case LinkReferenceDefinitionGroup:
+                // Ignora, nao nos interessa. Queremos avisos importantes apenas
+                break;
+            case Table table: {
+                Grid grid = new();
+                grid.Classes.Add("table");
+                int columnCount = table.ColumnDefinitions.Count - 1;
+                for (int i = 0; i < columnCount; i++)
+                {
+                    grid.ColumnDefinitions.Add(table.ColumnDefinitions[i].Width is 0 ? new ColumnDefinition(GridLength.Star) : new ColumnDefinition(table.ColumnDefinitions[i].Width, GridUnitType.Star));
+                }
+
+                for (int row = 0; row < table.Count; row++)
+                {
+                    TableRow tableRow = (TableRow)table[row];
+                    grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+
+                    for (int col = 0; col < columnCount; col++)
+                    {
+                        TableCell cell = (TableCell)tableRow[col];
+                        Border border = new();
+                        border.Classes.Add("tablecell");
+                        if (row == 0)
+                        {
+                            border.Classes.Add("tableheader");
+                        }
+                        grid.Children.Add(border);
+                        Grid.SetRow(border, row);
+                        Grid.SetColumn(border, col);
+                        if (cell.Count > 1)
+                        {
+                            StackPanel stackPanel = new()
+                            {
+                                Orientation = Orientation.Vertical
+                            };
+                            border.Child = stackPanel;
+                            foreach (Block child in cell)
+                            {
+                                Control? ctrl = ParseBlock(child);
+                                if (ctrl is not null)
+                                {
+                                    stackPanel.Children.Add(ctrl);
+                                }
+                            }
+                        }
+                        else if(cell.Count == 1)
+                        {
+                            Control? ctrl = ParseBlock(cell[0]);
+                            if (ctrl is not null)
+                            {
+                                border.Child = ctrl;
+                            }
+                        }
+                    }
+                }
+
+                return grid;
+            }
+            default:
+                Logger.LogWarning("Nao sei processar bloco do tipo: {type}", block.GetType().FullName);
+                break;
+        }
+        return null;
     }
 
     private List<Inline> ParseInlines(ContainerInline container) {

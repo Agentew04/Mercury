@@ -56,6 +56,11 @@
 
     <Style Selector="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
+        <Setter Property="TextWrapping" Value="Wrap"></Setter>
+    </Style>
+    
+    <Style Selector="SelectableTextBlock">
+        <Setter Property="TextWrapping" Value="Wrap"></Setter>
     </Style>
     
     <Style Selector="TextBlock.mono">
@@ -84,7 +89,6 @@
     </Style>
     
     <Style Selector="TextBlock.paragraph">
-        <Setter Property="TextWrapping" Value="Wrap"></Setter>
         <Setter Property="Margin" Value="15,5"></Setter>
         <Setter Property="FontSize" Value="13"></Setter>
         <Setter Property="TextAlignment" Value="DetectFromContent"></Setter>
@@ -122,5 +126,23 @@
         <Setter Property="Background" Value="{DynamicResource BlueLight}"></Setter>
         <Setter Property="TextAlignment" Value="Left"></Setter>
         <Setter Property="Padding" Value="10,10"></Setter>
+    </Style>
+    
+    <Style Selector="Grid.table">
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+        <Setter Property="Margin" Value="15,5,5,5"></Setter>
+    </Style>
+    
+    <Style Selector="Border.tablecell">
+        <Setter Property="BorderBrush" Value="Black"></Setter>
+        <Setter Property="BorderThickness" Value="1"></Setter>
+    </Style>
+    
+    <Style Selector="Border.tableheader">
+        <Setter Property="Background" Value="Black"></Setter>
+    </Style>
+    
+    <Style Selector="Border.tableheader TextBlock">
+        <Setter Property="FontWeight" Value="Bold"></Setter>
     </Style>
 </Styles>
