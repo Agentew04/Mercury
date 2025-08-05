@@ -10,6 +10,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.Media.Imaging;
 using Markdig;
 using Markdig.Extensions.Tables;
 using Markdig.Extensions.Yaml;
@@ -38,12 +39,15 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
 
     public void Dispose() {
         LocalizationManager.CultureChanged -= LocalizeGuides;
+        guideImages.ForEach(x => x.Dispose());
+        guideImages.Clear();
     }
     
     private readonly List<string> guideNames = [];
     private readonly Dictionary<string, GuideChapter> chapterDictionary = [];
     private readonly Dictionary<(string name, CultureInfo culture), PathObject> pathDictionary = [];
     private readonly Dictionary<(string name, CultureInfo culture), GuideMetadata> localizedMetadata = [];
+    private readonly List<Bitmap> guideImages = []; 
     
     /// <summary>
     /// Initializes the service reading guides and storing structures.
@@ -189,6 +193,8 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
     /// <param name="guide">The guide to be processed</param>
     /// <returns>An ordered list of controls</returns>
     public List<Control> BuildGuide(GuideChapter guide) {
+        guideImages.ForEach(x => x.Dispose());
+        guideImages.Clear();
         string guideContent = GetLocalizedGuideContent(guide.GuideName);
         MarkdownPipeline pipeline = new MarkdownPipelineBuilder()
             .UseAdvancedExtensions()
@@ -375,6 +381,26 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                     result.Add(new Run(" "));
                     // isso se refere a um \n no markdown
                     // nao fica bonito, entao ignoramos
+                    break;
+                case LinkInline link:
+                    if (!link.IsImage)
+                    {
+                        break;
+                    }
+                    InlineUIContainer uicontainer = new();
+                    Image img = new();
+                    img.Classes.Add("image");
+                    // carrega bitmap
+                    string url = link.Url;
+                    if(url.StartsWith('/') || url.StartsWith('\\')) {
+                        // remove leading slash
+                        url = url[1..];
+                    }
+                    Bitmap bmp = new((settingsService.ResourcesDirectory + url.ToFilePath()).ToString());
+                    guideImages.Add(bmp);
+                    img.Source = bmp; 
+                    uicontainer.Child = img;
+                    result.Add(uicontainer);
                     break;
                 default:
                     Logger.LogWarning("Nao sei processar Inline do tipo: {type}", inline.GetType().FullName);

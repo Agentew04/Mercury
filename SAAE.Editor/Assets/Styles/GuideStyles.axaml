@@ -92,6 +92,7 @@
         <Setter Property="Margin" Value="15,5"></Setter>
         <Setter Property="FontSize" Value="13"></Setter>
         <Setter Property="TextAlignment" Value="DetectFromContent"></Setter>
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
     </Style>
     
     <Style Selector="Border.codeblock">
@@ -144,5 +145,11 @@
     
     <Style Selector="Border.tableheader TextBlock">
         <Setter Property="FontWeight" Value="Bold"></Setter>
+    </Style>
+    
+    <Style Selector="Image.image">
+        <Setter Property="Stretch" Value="Uniform"></Setter>
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+        <Setter Property="MaxWidth" Value="{Binding $parent[TextBlock].Bounds.Width}"></Setter>
     </Style>
 </Styles>
