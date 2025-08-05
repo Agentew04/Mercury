@@ -17,6 +17,18 @@ public partial class TitleBar : UserControl {
     }
     
     private void BeginDrag(object? sender, PointerPressedEventArgs e) {
+        if (e.ClickCount == 2)
+        {
+            if (Window.WindowState != WindowState.Maximized)
+            {
+                Window.WindowState = WindowState.Maximized;
+            }
+            else
+            {
+                Window.WindowState = WindowState.Normal;
+            }
+        }
+        
         Window.BeginMoveDrag(e);
     }
 
