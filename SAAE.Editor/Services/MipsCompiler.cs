@@ -74,7 +74,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         List<string> paths = pathMapping.Keys.ToList();
         string command = GenerateCommand(paths, exePath.ToString());
         using MemoryStream diagMs = new();
-        CompilationError commandError = await RunCommand(command, TimeSpan.FromMilliseconds(1000), diagMs);
+        CompilationError commandError = await RunCommand(command, TimeSpan.FromMilliseconds(2000), diagMs);
         diagMs.Seek(0, SeekOrigin.Begin);
 
         if (commandError != CompilationError.None) {
@@ -244,7 +244,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
             return CompilationError.TimeoutError;
         }
 
-        using CancellationTokenSource copyOutputCts = new(TimeSpan.FromMilliseconds(200));
+        using CancellationTokenSource copyOutputCts = new(TimeSpan.FromMilliseconds(500));
         // aqui o compilador rodou
         // agora le o output
         await process.StandardError.BaseStream.CopyToAsync(output, copyOutputCts.Token);
