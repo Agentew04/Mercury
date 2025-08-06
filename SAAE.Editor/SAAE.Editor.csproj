@@ -63,6 +63,12 @@
     <None Remove="Assets\Localization\Guides\*.md" />
     <EmbeddedResource Include="Assets\Localization\Guides\*.md"  WithCulture="false"/>
   </ItemGroup>
+  
+  <!-- syntax highlighting -->
+  <ItemGroup>
+    <None Remove="Assets\Grammars\*.xshd" />
+    <EmbeddedResource Include="Assets\Grammars\*.xshd" />
+  </ItemGroup>
 
   <!-- imagens -->
   <ItemGroup>
