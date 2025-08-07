@@ -19,7 +19,7 @@ namespace SAAE.Editor.Views.CodeView;
 public partial class ProjectView : UserControl {
 
     private readonly ILogger<ProjectView> logger = App.Services.GetRequiredService<ILogger<ProjectView>>();
-    private TopLevel topLevel;
+    private TopLevel? topLevel;
     
     public ProjectView() {
         InitializeComponent();
@@ -94,7 +94,7 @@ public partial class ProjectView : UserControl {
     }
 
     private void DragOver(object? sender, DragEventArgs e) {
-        Point currentPosition = e.GetPosition(topLevel);
+        Point currentPosition = e.GetPosition(topLevel!);
         Point offset = currentPosition - ghostPosition;
         GhostBorder.RenderTransform = new TranslateTransform(offset.X, offset.Y);
 

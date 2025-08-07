@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.Json.Serialization;
@@ -36,6 +37,7 @@ public class InstructionFactory {
         public Dictionary<string, int> Constraints { get; set; } = [];
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2057")]
     public Instruction Disassemble(uint binary) {
         if (binary == 0) {
             return new Nop();
@@ -90,6 +92,7 @@ public class InstructionFactory {
                 continue;
             }
 
+            // se este tipo nao existir, temos problemas muito maiores...
             // pode criar instancia aqui
             if(Activator.CreateInstance(Type.GetType($"SAAE.Engine.Mips.Instructions.{rule.Mnemonic}")!) is not Instruction instruction) {
                 throw new Exception("No rule matched this instruction!");

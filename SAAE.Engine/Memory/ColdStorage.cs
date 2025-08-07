@@ -33,7 +33,7 @@ internal sealed class ColdStorage : IStorage, IDisposable {
         }
         byte[] data = new byte[pageSize];
         fs.Seek((long)((ulong)pageNumber * pageSize), SeekOrigin.Begin);
-        fs.Read(data);
+        fs.ReadExactly(data);
         return new Page(pageSize, pageNumber) {
             Data = data,
             IsDirty = false

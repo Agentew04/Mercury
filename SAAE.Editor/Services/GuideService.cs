@@ -383,7 +383,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                     // nao fica bonito, entao ignoramos
                     break;
                 case LinkInline link:
-                    if (!link.IsImage)
+                    if (!link.IsImage || link.Url is null)
                     {
                         break;
                     }

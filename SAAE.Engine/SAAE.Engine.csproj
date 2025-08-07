@@ -9,13 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- arquivo de dissasembly do mips -->
     <None Remove="Mips\Instructions\Disassembly_Rules.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Mips\Instructions\Disassembly_Rules.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    
+    <!-- arquivo que fala quais classes nao devem ser removidas no link -->
+    <TrimmerRootDescriptor Include="ILLink.Descriptors.xml"/>
   </ItemGroup>
 
   <ItemGroup>

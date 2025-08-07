@@ -51,12 +51,9 @@ public class GrammarService : BaseService<GrammarService> {
             return null;
         }
 
-        StreamReader sr = new(s, leaveOpen:true);
-        Console.WriteLine(sr.ReadToEnd());
-        sr.Dispose();
-        s.Position = 0;
         using var reader = XmlReader.Create(s);
         IHighlightingDefinition? highlight = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+        s.Dispose();
         highlightCache[project.Architecture] = highlight;
         return highlight;
     }

@@ -3,16 +3,24 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+<!--    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>-->
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <IsPackable>false</IsPackable>
     <Authors>Rodrigo Appelt</Authors>
     <AssemblyVersion>0.1</AssemblyVersion>
     <NeutralLanguage>en</NeutralLanguage>
-    <PublishAot>true</PublishAot>
-    <PublishTrimmed>true</PublishTrimmed>
+    
+    <!-- publish and trimming -->
+    <PublishAot>false</PublishAot>
+    <PublishTrimmed>false</PublishTrimmed>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
+  
+  <!-- linker e trimmer -->
+  <ItemGroup>
+    <TrimmerRootDescriptor Include="ILLink.Descriptors.xml"/>
+  </ItemGroup>
   
   <!-- fontes -->
   <ItemGroup>

@@ -197,18 +197,18 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ExecuteSpeedTooltip))]
     private float executionSpeed = 5; // 5 IPS
-    private Machine? machine = null;
+    private Machine? machine;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(StopCommand))]
     [NotifyCanExecuteChangedFor(nameof(ExecuteCommand))]
     [NotifyCanExecuteChangedFor(nameof(StepCommand))]
-    private bool isExecuting = false;
+    private bool isExecuting;
 
     public bool IsExecutionFinished => machine?.IsClockingFinished() ?? false;
 
     private PeriodicTimer? executionTimer;
-    private CancellationTokenSource executionCts;
+    private CancellationTokenSource? executionCts;
 
     [RelayCommand(CanExecute = nameof(CanStep))]
     private void Step() {
@@ -241,7 +241,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
     [RelayCommand(CanExecute = nameof(CanStop))]
     private void Stop() {
         IsExecuting = false;
-        executionCts.Cancel();
+        executionCts?.Cancel();
     }
 
     private bool CanStop() {
@@ -255,7 +255,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
     }
 
     private async Task ExecuteTask() {
-        while (!executionCts.IsCancellationRequested
+        while (!(executionCts?.IsCancellationRequested ?? true)
             && await executionTimer!.WaitForNextTickAsync()){
             Step();
             if (!IsExecutionFinished) continue;

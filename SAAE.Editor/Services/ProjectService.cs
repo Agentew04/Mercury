@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,6 +39,7 @@ public class ProjectService : BaseService<ProjectService> {
             .ToList();
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private ProjectFile? ReadProject(PathObject path) {
         if (path.Extension != ".asmproj") {
             return null;
@@ -49,8 +51,6 @@ public class ProjectService : BaseService<ProjectService> {
         
         using var reader = XmlReader.Create(path.ToString(), new XmlReaderSettings());
         
-#pragma warning disable IL2026
-
         System.Xml.Serialization.XmlSerializer serializer = new(typeof(ProjectFile));
         ProjectFile? project;
         try {
@@ -68,15 +68,15 @@ public class ProjectService : BaseService<ProjectService> {
             return null;
         }
         
-        #pragma warning restore IL2026
-        
         project.OperatingSystem = OperatingSystemManager.GetAvailableOperatingSystems()
             .First(x => x.Name == project.OperatingSystemName);
 
         project.ProjectPath = path;
         return project;
     }
-    
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", 
+        Justification = "ProjectFile class is annotated with [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]")]
     private static void WriteProject(ProjectFile project) {
         if (project.ProjectPath.Extension != ".asmproj") {
             throw new ArgumentException("Project path must end with .asmproj");
@@ -89,10 +89,8 @@ public class ProjectService : BaseService<ProjectService> {
         
         project.OperatingSystemName = project.OperatingSystem.Name;
         
-        #pragma warning disable IL2026
         System.Xml.Serialization.XmlSerializer serializer = new(typeof(ProjectFile));
         serializer.Serialize(writer, project);
-        #pragma warning restore IL2026
     }
     
     public async Task<ProjectFile> CreateProjectAsync(string path, string name, OperatingSystemType os, Architecture isa) {

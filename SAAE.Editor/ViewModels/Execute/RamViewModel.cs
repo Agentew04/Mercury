@@ -2,10 +2,10 @@
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -31,7 +31,7 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Rows))]
     private int selectedSectionIndex;
 
-    public ObservableCollection<RamVisualization> AvailableVisualizationModes { get; private set; } = [];
+    public ObservableCollection<RamVisualization> AvailableVisualizationModes { get; private init; } = [];
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Rows))] private int selectedModeIndex;
 
@@ -43,7 +43,7 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
     [ObservableProperty] private int selectedRowIndex = -1;
 
     private int currentPage;
-    private ulong currentMemoryAccess = 0;
+    private ulong currentMemoryAccess;
 
     public RamViewModel() {
         WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
@@ -249,8 +249,8 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
 }
 
 public class Location {
-    public string Name { get; set; }
-    public uint LoadAddress { get; set; }
+    public required string Name { get; init; }
+    public required uint LoadAddress { get; init; }
 }
 
 public enum RamVisualization {
@@ -268,31 +268,31 @@ public class RamVisualizationConverter : IValueConverter {
             RamVisualization.Decimal => RamResources.RamDecModeValue,
             RamVisualization.Ascii => RamResources.RamTextModeValue,
             RamVisualization.Hexadecimal => RamResources.RamHexModeValue,
-            _ => throw new NotSupportedException()
+            _ => BindingNotification.Null
         };
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
-        throw new NotSupportedException();
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        return BindingNotification.Null;
     }
 }
 
 public partial class RamRow : ObservableObject {
-    public uint RowAddress { get; set; }
+    public uint RowAddress { get; init; }
 
-    public int Data0 { get; set; }
+    public int Data0 { get; init; }
 
     [ObservableProperty] private string data0String = string.Empty;
 
-    public int Data4 { get; set; }
+    public int Data4 { get; init; }
 
     [ObservableProperty] private string data4String = string.Empty;
 
-    public int Data8 { get; set; }
+    public int Data8 { get; init; }
 
     [ObservableProperty] private string data8String = string.Empty;
 
-    public int DataC { get; set; }
+    public int DataC { get; init; }
 
     [ObservableProperty] private string dataCString = string.Empty;
 }

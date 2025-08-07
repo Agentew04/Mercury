@@ -18,9 +18,9 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// The directory where the application stores its configuration files
     /// and is the default location for the compiler and stdlib.
     /// </summary>
-    public string AppDirectory { get; init; }
+    public string AppDirectory { get; }
     
-    public PathObject ResourcesDirectory { get; set; }
+    public PathObject ResourcesDirectory { get; }
     
     /// <summary>
     /// The path to the config file. It is a file named 'config.json' that
@@ -36,16 +36,16 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// The current user settings
     /// </summary>
     public UserPreferences Preferences { get; set; }
-    
+
     /// <summary>
     /// The current settings and state of the standard library.
     /// </summary>
-    public StandardLibrarySettings StdLibSettings { get; set; }
-    
+    public StandardLibrarySettings StdLibSettings { get; set; } = null!;
+
     /// <summary>
     /// The current settings for the guides installed.
     /// </summary>
-    public GuideSettings GuideSettings { get; set; }
+    public GuideSettings GuideSettings { get; set; } = null!;
 
     public SettingsService() {
         Preferences = null!;

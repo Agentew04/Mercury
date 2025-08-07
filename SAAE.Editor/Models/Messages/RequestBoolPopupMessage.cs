@@ -8,6 +8,6 @@ public class BoolPopupResult {
 }
 
 public class RequestBoolPopupMessage : AsyncRequestMessage<BoolPopupResult> {
-    public string Title { get; set; }
-    public bool IsCancellable { get; set; }
+    public required string Title { get; init; }
+    public bool IsCancellable { get; init; }
 }
