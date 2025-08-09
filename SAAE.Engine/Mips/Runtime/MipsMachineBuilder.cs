@@ -1,5 +1,4 @@
-﻿using System.Threading.Channels;
-using SAAE.Engine.Common.Builders;
+﻿using SAAE.Engine.Common.Builders;
 using SAAE.Engine.Mips.Runtime.OS;
 using SAAE.Engine.Mips.Runtime.Simple;
 
@@ -66,7 +65,7 @@ public class MipsMachineBuilder : MachineBuilder
         _cpu.Memory = Memory;
         _cpu.Machine = machine;
         _os.Machine = machine;
-        _cpu.OnSignalException += async (_, e) => {
+        _cpu.OnSignalException += async (e) => {
             await _os.OnSignalBreak(e);
         };
         return machine;

@@ -187,6 +187,10 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
         }
         
         string Display(int data) {
+            if (SelectedModeIndex == -1) {
+                SelectedModeIndex = 0;
+            }
+            
             switch (AvailableVisualizationModes[SelectedModeIndex]) {
                 case RamVisualization.Hexadecimal:
                     return "0x" + data.ToString("x8");

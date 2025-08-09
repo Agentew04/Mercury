@@ -7,7 +7,7 @@ namespace SAAE.Engine.Mips.Runtime.Simple;
 /// A simplified version of the monocycle MIPS processor.
 /// Does not simulate every component of the processor.
 /// </summary>
-public sealed partial class Monocycle : IClockable {
+public sealed partial class Monocycle : IAsyncClockable {
     public Monocycle() {
         RegisterFile[RegisterFile.Register.Sp] = 0x7FFF_EFFC; // o 'E' aparece no MARS
         RegisterFile[RegisterFile.Register.Fp] = 0x0000_0000;
@@ -54,14 +54,13 @@ public sealed partial class Monocycle : IClockable {
     /// </summary>
     public int ExitCode { get; private set; } = 0;
 
-    public void Clock()
+    public async ValueTask ClockAsync()
     {
         if (isHalted) {
             return;
         }
         // read instruction from PC
         int instructionBinary = Memory.ReadWord((ulong)RegisterFile[RegisterFile.Register.Pc]);
-        //Console.WriteLine($"Decoding instruction 0x{instructionBinary:X8} @ 0x{RegisterFile[RegisterFile.Register.Pc]:X8}");
 
         // decode
         Instruction instruction;
@@ -69,19 +68,19 @@ public sealed partial class Monocycle : IClockable {
             instruction = instructionFactory.Disassemble((uint)instructionBinary);
         }
         catch (Exception) {
-            Console.WriteLine("Invalid instruction @ " + RegisterFile[RegisterFile.Register.Pc].ToString("X8"));
-            OnSignalException?.Invoke(this, new SignalExceptionEventArgs {
-                Signal = SignalExceptionEventArgs.SignalType.InvalidInstruction,
-                ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
-                Instruction = instructionBinary
-            });
-            Halt(-1);
+            if (OnSignalException is not null) {
+                await OnSignalException.Invoke(new SignalExceptionEventArgs {
+                    Signal = SignalExceptionEventArgs.SignalType.InvalidInstruction,
+                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
+                    Instruction = instructionBinary
+                });
+            }
+            await Halt(-1);
             return;
         }
 
-        //Console.WriteLine($"Executing: {instruction.GetType().Name} @ 0x{RegisterFile[RegisterFile.Register.Pc]:X8} (0x{instructionBinary:X8})");
         int pcBefore = RegisterFile[RegisterFile.Register.Pc];
-        Execute(instruction);
+        await Execute(instruction);
 
         if (isExecutingBranch && isNextCycleBranch)
         {
@@ -108,26 +107,29 @@ public sealed partial class Monocycle : IClockable {
     /// Stops all execution of this cpu immediately.
     /// The system cannot be resumed after this.
     /// </summary>
-    public void Halt(int code = 0) {
+    public async ValueTask Halt(int code = 0) {
         isHalted = true;
         ExitCode = code;
         // tah certo invocar aqui? se for no meio do ciclo
         // os registradores nao estariam certo(branch)
         // mas tbm, soh da halt uma syscall, entao branch nunca executa esse sinal
-        OnSignalException?.Invoke(this, new SignalExceptionEventArgs {
-            Signal = SignalExceptionEventArgs.SignalType.Halt,
-            ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
-            Instruction = Memory.ReadWord((ulong)RegisterFile[RegisterFile.Register.Pc])
-        });
+        if (OnSignalException is not null) {
+            await OnSignalException.Invoke(new SignalExceptionEventArgs {
+                Signal = SignalExceptionEventArgs.SignalType.Halt,
+                ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
+                Instruction = Memory.ReadWord((ulong)RegisterFile[RegisterFile.Register.Pc])
+            });
+            
+        }
     }
     
-    public event EventHandler<SignalExceptionEventArgs>? OnSignalException = null;
+    public event Func<SignalExceptionEventArgs, Task>? OnSignalException = null;
 
-    private void Execute(Instruction instruction) {
+    private async ValueTask Execute(Instruction instruction) {
         if(instruction is TypeRInstruction r) {
-            ExecuteTypeR(r);
+            await ExecuteTypeR(r);
         }else if(instruction is TypeIInstruction i) {
-            ExecuteTypeI(i);
+            await ExecuteTypeI(i);
         }else if(instruction is TypeJInstruction j) {
             ExecuteTypeJ(j);
         }

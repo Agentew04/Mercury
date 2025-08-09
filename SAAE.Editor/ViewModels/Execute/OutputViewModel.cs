@@ -118,7 +118,7 @@ public partial class OutputViewModel : BaseViewModel<OutputViewModel> {
         }
 
         sb.AppendLine(InputText);
-        await swIn!.WriteAsync(InputText);
+        await swIn!.WriteAsync(InputText + '\n');
         InputText = string.Empty;
         TriggerTextUpdate();
     }

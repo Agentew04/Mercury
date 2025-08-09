@@ -3,15 +3,17 @@
 namespace SAAE.Engine.Mips.Runtime.Simple;
 
 public partial class Monocycle {
-    private void ExecuteTypeR(TypeRInstruction instruction) {
+    private async ValueTask ExecuteTypeR(TypeRInstruction instruction) {
         if (instruction is Add add) {
             RegisterFile[add.Rd] = RegisterFile[add.Rs] + RegisterFile[add.Rt];
             if (IsOverflowed(RegisterFile[add.Rs], RegisterFile[add.Rt], RegisterFile[add.Rd])){
-                OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                    Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
-                    Instruction = add.ConvertToInt(),
-                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-                });
+                if (OnSignalException is not null) {
+                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                        Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
+                        Instruction = add.ConvertToInt(),
+                        ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                    });
+                }
             }
         } else if (instruction is Addu addu) {
             RegisterFile[addu.Rd] = RegisterFile[addu.Rs] + RegisterFile[addu.Rt];
@@ -66,11 +68,13 @@ public partial class Monocycle {
             int result = RegisterFile[sub.Rs] - RegisterFile[sub.Rt];
             if(IsOverflowed(RegisterFile[sub.Rs], RegisterFile[sub.Rt], result)) {
                 // dont change rd, trap
-                OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                    Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
-                    Instruction = sub.ConvertToInt(),
-                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
-                });
+                if (OnSignalException is not null) {
+                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                        Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
+                        Instruction = sub.ConvertToInt(),
+                        ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
+                    });
+                }
             } else {
                 RegisterFile[sub.Rd] = result;
             }
@@ -98,27 +102,33 @@ public partial class Monocycle {
             int filling = (RegisterFile[srav.Rt] < 0 ? -1 : 0) << (32 - RegisterFile[srav.Rs]);
             RegisterFile[srav.Rd] = filling | (RegisterFile[srav.Rt] >> RegisterFile[srav.Rs]);
         } else if(instruction is Srl srl) {
-            RegisterFile[srl.Rd] = (int)((uint)RegisterFile[srl.Rt] >> srl.ShiftAmount);
+            RegisterFile[srl.Rd] = RegisterFile[srl.Rt] >>> srl.ShiftAmount;
         } else if(instruction is Srlv srlv) {
-            RegisterFile[srlv.Rd] = (int)((uint)RegisterFile[srlv.Rt] >> RegisterFile[srlv.Rs]);
+            RegisterFile[srlv.Rd] = RegisterFile[srlv.Rt] >>> RegisterFile[srlv.Rs];
         } else if(instruction is Break @break) {
-            OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                Signal = SignalExceptionEventArgs.SignalType.Breakpoint,
-                Instruction = @break.ConvertToInt(),
-                ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-            });
+            if (OnSignalException is not null) {
+                await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                    Signal = SignalExceptionEventArgs.SignalType.Breakpoint,
+                    Instruction = @break.ConvertToInt(),
+                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                });
+            }
         } else if(instruction is Syscall syscall) {
-            OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                Signal = SignalExceptionEventArgs.SignalType.SystemCall,
-                Instruction = syscall.ConvertToInt(),
-                ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-            });
+            if (OnSignalException is not null) {
+                await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                    Signal = SignalExceptionEventArgs.SignalType.SystemCall,
+                    Instruction = syscall.ConvertToInt(),
+                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                });
+            }
         } else if (instruction is Teq teq && RegisterFile[teq.Rs] == RegisterFile[teq.Rt]) {
-            OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                Signal = SignalExceptionEventArgs.SignalType.Trap,
-                Instruction = teq.ConvertToInt(),
-                ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-            });
+            if (OnSignalException is not null) {
+                await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                    Signal = SignalExceptionEventArgs.SignalType.Trap,
+                    Instruction = teq.ConvertToInt(),
+                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                });
+            }
         }else if(instruction is Jr jr) {
             RegisterFile[RegisterFile.Register.Pc] = RegisterFile[jr.Rs];
         }

@@ -25,7 +25,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
     [ObservableProperty] private int selectedInstructionIndex = -1;
     
     public InstructionViewModel() {
-        WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
+        WeakReferenceMessenger.Default.Register<InstructionViewModel,ProgramLoadMessage>(this, OnProgramLoad);
         LocalizationManager.CultureChanged += OnLocalize;
     }
 
@@ -44,25 +44,24 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
 
     #region Loading
 
-    private static void OnProgramLoad(object recipient, ProgramLoadMessage msg) {
-        InstructionViewModel vm = (InstructionViewModel)recipient;
+    private static void OnProgramLoad(InstructionViewModel recipient, ProgramLoadMessage msg) {
         ProgramMetadata meta = msg.Metadata;
-        vm.machine = msg.Machine;
-        vm.StepCommand.NotifyCanExecuteChanged();
-        vm.ExecuteCommand.NotifyCanExecuteChanged();
-        vm.StopCommand.NotifyCanExecuteChanged();
-        vm.IsExecuting = false;
+        recipient.machine = msg.Machine;
+        recipient.StepCommand.NotifyCanExecuteChanged();
+        recipient.ExecuteCommand.NotifyCanExecuteChanged();
+        recipient.StopCommand.NotifyCanExecuteChanged();
+        recipient.IsExecuting = false;
 
         List<Symbol> userLabels = meta.GetUserDefinedSymbols().ToList();
         
-        vm.Instructions.Clear();
+        recipient.Instructions.Clear();
         for (int i = 0; i < meta.Files.Count; i++) {
             uint start = meta.Files[i].StartAddress;
             uint end = i < meta.Files.Count-1 ? meta.Files[i + 1].StartAddress : msg.Machine.Cpu.DropoffAddress;
-            vm.ProcessFile(meta, meta.Files[i], start, end, msg.Machine.Memory, msg.Machine.Cpu.InstructionFactory, msg.Elf.EntryPoint, userLabels);
+            recipient.ProcessFile(meta, meta.Files[i], start, end, msg.Machine.Memory, msg.Machine.Cpu.InstructionFactory, msg.Elf.EntryPoint, userLabels);
         }
-        int index = vm.Instructions.IndexOf(x => x.Address == msg.Elf.EntryPoint);
-        vm.SelectedInstructionIndex = index;
+        int index = recipient.Instructions.IndexOf(x => x.Address == msg.Elf.EntryPoint);
+        recipient.SelectedInstructionIndex = index;
     }
 
     private void ProcessFile(ProgramMetadata meta, ObjectFile file, uint startAddress, uint endAddress, 
@@ -90,7 +89,6 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
         bool hasSymbols = lineEnumerator.MoveNext();
         (Symbol nextSymbol, int nextLine) = lineEnumerator.Current;
 
-        List<string> labels;
         while (address < endAddress) {
             // pega instrucao atual
             // se eh invalida:
@@ -109,6 +107,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
                 instruction = null;
             }
 
+            List<string> labels;
             if (instruction is null) {
                 labels = symbols.Where(x => x.Address == address).Select(x => x.Name).ToList();
                 Instructions.Add(new DisassemblyRow() {
@@ -154,7 +153,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
                     instruction = null;
                 }
             }
-            
+
             labels = symbols.Where(x => x.Address == address).Select(x => x.Name).ToList();
             Instructions.Add(new DisassemblyRow() {
                 Address = address,
@@ -211,8 +210,8 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
     private CancellationTokenSource? executionCts;
 
     [RelayCommand(CanExecute = nameof(CanStep))]
-    private void Step() {
-        machine!.Clock();
+    private async Task Step() {
+        await machine!.ClockAsync();
         int pc = machine!.Registers[RegisterFile.Register.Pc];
         int index = Instructions.IndexOf(x => x.Address == pc);
         SelectedInstructionIndex = index;
@@ -257,7 +256,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
     private async Task ExecuteTask() {
         while (!(executionCts?.IsCancellationRequested ?? true)
             && await executionTimer!.WaitForNextTickAsync()){
-            Step();
+            await Step();
             if (!IsExecutionFinished) continue;
             IsExecuting = false;
             await executionCts.CancelAsync();

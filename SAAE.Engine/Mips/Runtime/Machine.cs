@@ -12,7 +12,7 @@ namespace SAAE.Engine.Mips.Runtime;
 /// A class that holds all the parts of the computer needed
 /// to function.
 /// </summary>
-public sealed class Machine : IDisposable, IClockable {
+public sealed class Machine : IDisposable, IAsyncClockable {
 
     public IMemory Memory { get; init; } = null!;
 
@@ -92,21 +92,16 @@ public sealed class Machine : IDisposable, IClockable {
         return address + (uint)bytes.Length * 4;
     }
 
-    public void Clock() {
-        Cpu.Clock();
+    public async ValueTask ClockAsync() {
+        await Cpu.ClockAsync();
         List<RegisterFile.Register> regChanged = Registers.GetChangedRegisters(); // essa chamada reseta a lista 
                                                                                   // p proximo clock
-        if(regChanged.Count > 0) {
-            OnRegisterChanged?.Invoke(regChanged);
-        }
-        else {
-            OnRegisterChanged?.Invoke(null);
-        }
+        OnRegisterChanged?.Invoke(regChanged.Count > 0
+            ? regChanged
+            : null);
     }
     
-    public bool IsClockingFinished() {
-        return Cpu.IsClockingFinished();
-    }
+    public bool IsClockingFinished() => Cpu.IsClockingFinished();
 
     public event Action<List<RegisterFile.Register>?>? OnRegisterChanged;
     

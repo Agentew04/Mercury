@@ -9,15 +9,17 @@ namespace SAAE.Engine.Mips.Runtime.Simple;
 
 public partial class Monocycle {
 
-    private void ExecuteTypeI(TypeIInstruction instruction) {
+    private async ValueTask ExecuteTypeI(TypeIInstruction instruction) {
         if (instruction is Addi addi) {
             int result = RegisterFile[addi.Rs] + addi.Immediate;
             if (IsOverflowed(RegisterFile[addi.Rs], addi.Immediate, result)) {
-                OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                    Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
-                    Instruction = addi.ConvertToInt(),
-                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-                });
+                if (OnSignalException is not null) {
+                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                        Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
+                        Instruction = addi.ConvertToInt(),
+                        ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                    });
+                }
                 return;
             }
             RegisterFile[addi.Rt] = result;
@@ -86,11 +88,13 @@ public partial class Monocycle {
         }else if(instruction is Lh lh) {
             int address = RegisterFile[lh.Rs] + lh.Immediate;
             if (address % 2 != 0) {
-                OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                    Signal = SignalExceptionEventArgs.SignalType.AddressError,
-                    Instruction = lh.ConvertToInt(),
-                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-                });
+                if (OnSignalException is not null) {
+                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                        Signal = SignalExceptionEventArgs.SignalType.AddressError,
+                        Instruction = lh.ConvertToInt(),
+                        ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                    });
+                }
                 return;
             }
             RegisterFile[lh.Rt] = (short)(Memory.ReadWord((ulong)address) & 0xFFFF);
@@ -103,11 +107,13 @@ public partial class Monocycle {
         } else if(instruction is Lhu lhu) {
             int address = RegisterFile[lhu.Rs] + lhu.Immediate;
             if (address % 2 != 0) {
-                OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                    Signal = SignalExceptionEventArgs.SignalType.AddressError,
-                    Instruction = lhu.ConvertToInt(),
-                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-                });
+                if (OnSignalException is not null) {
+                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                        Signal = SignalExceptionEventArgs.SignalType.AddressError,
+                        Instruction = lhu.ConvertToInt(),
+                        ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                    });
+                }
                 return;
             }
             RegisterFile[lhu.Rt] = (ushort)(Memory.ReadWord((ulong)address) & 0xFFFF);
@@ -122,11 +128,13 @@ public partial class Monocycle {
         } else if(instruction is Lw lw) {
             int address = RegisterFile[lw.Rs] + lw.Immediate;
             if((address & 0b11) != 0) {
-                OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                    Signal = SignalExceptionEventArgs.SignalType.AddressError,
-                    Instruction = lw.ConvertToInt(),
-                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-                });
+                if (OnSignalException is not null) {
+                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                        Signal = SignalExceptionEventArgs.SignalType.AddressError,
+                        Instruction = lw.ConvertToInt(),
+                        ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                    });
+                }
                 return;
             }
             RegisterFile[lw.Rt] = Memory.ReadWord((ulong)address);
@@ -147,11 +155,13 @@ public partial class Monocycle {
         } else if(instruction is Sh sh) {
             int address = RegisterFile[sh.Rs] + sh.Immediate;
             if((address & 0b1) != 0){
-                OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                    Signal = SignalExceptionEventArgs.SignalType.AddressError,
-                    Instruction = sh.ConvertToInt(),
-                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-                });
+                if (OnSignalException is not null) {
+                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                        Signal = SignalExceptionEventArgs.SignalType.AddressError,
+                        Instruction = sh.ConvertToInt(),
+                        ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                    });
+                }
                 return;
             }
             // write two bytes
@@ -166,11 +176,13 @@ public partial class Monocycle {
         } else if(instruction is Sw sw) {
             int address = RegisterFile[sw.Rs] + sw.Immediate;
             if ((address & 0b11) != 0) {
-                OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                    Signal = SignalExceptionEventArgs.SignalType.AddressError,
-                    Instruction = sw.ConvertToInt(),
-                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-                });
+                if (OnSignalException is not null) {
+                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                        Signal = SignalExceptionEventArgs.SignalType.AddressError,
+                        Instruction = sw.ConvertToInt(),
+                        ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                    });
+                }
                 return;
             }
             Memory.WriteWord((ulong)address, RegisterFile[sw.Rt]);
@@ -182,11 +194,13 @@ public partial class Monocycle {
             });
         } else if(instruction is Teqi teqi) {
             if (RegisterFile[teqi.Rs] == teqi.Immediate) {
-                OnSignalException?.Invoke(this, new SignalExceptionEventArgs() {
-                    Signal = SignalExceptionEventArgs.SignalType.Trap,
-                    Instruction = teqi.ConvertToInt(),
-                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
-                });
+                if (OnSignalException is not null) {
+                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                        Signal = SignalExceptionEventArgs.SignalType.Trap,
+                        Instruction = teqi.ConvertToInt(),
+                        ProgramCounter = RegisterFile[RegisterFile.Register.Pc]
+                    });
+                }
             }
         } 
     }

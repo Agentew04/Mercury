@@ -40,10 +40,10 @@ public sealed class Mars : MipsOperatingSystem {
                 await ReadString();
                 break;
             case 9:
-                Sbrk();
+                //Sbrk();
                 break;
             case 10:
-                Exit();
+                await Exit();
                 break;
             case 11:
                 await PrintCharacter();
@@ -64,7 +64,7 @@ public sealed class Mars : MipsOperatingSystem {
                 CloseFile();
                 break;
             case 17:
-                ExitWithValue();
+                await ExitWithValue();
                 break;
             // code < 17 are compatible with SPIM simulator
             // code >= 30 are MARS specific
@@ -72,13 +72,13 @@ public sealed class Mars : MipsOperatingSystem {
                 SystemTime();
                 break;
             case 31:
-                MidiOut();
+                //MidiOut();
                 break;
             case 32:
-                Sleep();
+                await Sleep();
                 break;
             case 33:
-                MidiOutSync();
+                //MidiOutSync();
                 break;
             case 34:
                 await PrintIntHex();
@@ -373,14 +373,14 @@ public sealed class Mars : MipsOperatingSystem {
     /// $v0 returns the address of the allocated memory
     /// </remarks>
     private void Sbrk() {
-        
+        throw new NotImplementedException();
     }
 
     /// <summary>
     /// Terminates the execution of the program
     /// </summary>
-    private void Exit() {
-        Machine.Cpu.Halt();
+    private ValueTask Exit() {
+        return Machine.Cpu.Halt();
     }
 
     /// <summary>
@@ -389,9 +389,9 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $a0 contains the exit value.
     /// </remarks>
-    private void ExitWithValue() {
+    private ValueTask ExitWithValue() {
         int code = Machine.Registers[RegisterFile.Register.A0];
-        Machine.Cpu.Halt(code);
+        return Machine.Cpu.Halt(code);
     }
 
     /// <summary>
@@ -402,7 +402,9 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a1 returns the high order 32 bits of the system time
     /// </remarks>
     private void SystemTime() {
-        
+        long ticks = DateTime.Now.Ticks;
+        Machine.Registers[RegisterFile.Register.A0] = (int)(ticks & 0xFFFF_FFFF);
+        Machine.Registers[RegisterFile.Register.A1] = (int)(ticks >> 32);
     }
 
     /// <summary>
@@ -426,8 +428,8 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>
     /// $a0 contains the time to sleep in milliseconds.
     /// </remarks>
-    private void Sleep() {
-        
+    private Task Sleep() {
+        return Task.Delay(Machine.Registers[RegisterFile.Register.A0]);
     }
 
     /// <summary>
@@ -613,24 +615,64 @@ public sealed class Mars : MipsOperatingSystem {
 
     #region Random
 
+    private readonly Dictionary<int, Random> rngs = [];
+    
+    /// <summary>
+    /// Sets the seed of a random number generator.
+    /// </summary>
+    /// <remarks>$a0 contains the id of the number generator and $a1 contains
+    /// the seed.</remarks>
     private void SetRandomSeed() {
-        
+        int id = Machine.Registers[RegisterFile.Register.A0];
+        rngs[id] = new Random(Machine.Registers[RegisterFile.Register.A1]);
     }
 
+    /// <summary>
+    /// Generates a random integer.
+    /// </summary>
+    /// <remarks>$a0 containes the id of the generator. $a0 returns the next
+    /// random value.</remarks>
     private void RandomInt() {
-        
+        int id = Machine.Registers[RegisterFile.Register.A0];
+        if (!rngs.TryGetValue(id, out Random? value)) {
+            value = new Random();
+            rngs[id] = value;
+        }
+        Machine.Registers[RegisterFile.Register.A0] = value.Next(); 
     }
 
+    /// <summary>
+    /// Generates a random integer in a range [0,N]
+    /// </summary>
+    /// <remarks>The $a0 contains the id of the generator. $a1 contains the upper
+    /// bound of the range. Value returned in $a0</remarks>
     private void RandomIntRange() {
-        
+        int id = Machine.Registers[RegisterFile.Register.A0];
+        if (!rngs.TryGetValue(id, out Random? value)) {
+            value = new Random();
+            rngs[id] = value;
+        }
+        Machine.Registers[RegisterFile.Register.A0] = value.Next(Machine.Registers[RegisterFile.Register.A1]); 
     }
     
+    /// <summary>
+    /// Returns a random 32 floating point number.
+    /// </summary>
+    /// <remarks>
+    /// $a0 contains the id of the generator. $f0 contains the generated number in the range [0,1].
+    /// </remarks>
     private void RandomFloat() {
-        
+        throw new NotImplementedException();
     }
     
+    /// <summary>
+    /// Returns a random 64 floating point number.
+    /// </summary>
+    /// <remarks>
+    /// $a0 contains the id of the generator. $f0 contains the generated number in the range [0,1].
+    /// </remarks>
     private void RandomDouble() {
-        
+        throw new NotImplementedException();
     }
 
     #endregion

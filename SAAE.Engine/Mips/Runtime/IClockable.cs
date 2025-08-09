@@ -22,3 +22,11 @@ internal interface IClockable {
     /// </summary>
     bool IsClockingFinished();
 }
+
+internal interface IAsyncClockable {
+    /// <inheritdoc cref="IClockable.Clock"/>
+    ValueTask ClockAsync();
+
+    /// <inheritdoc cref="IClockable.IsClockingFinished"/>
+    bool IsClockingFinished();
+}
