@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -55,16 +56,16 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
             vm.architectureMetadata.Processors.Length);
     }
 
-    private void OnRegisterChange(List<RegisterFile.Register>? regs) {
-        if (regs is null) {
+    private void OnRegisterChange(List<(Type,Enum)> regs) {
+        if (regs.Count == 0) {
             lastChangedRegisterIndex = -1;
             return;
         }
-        foreach (RegisterFile.Register reg in regs) {
-            int index = Registers.IndexOf(x => x.Index == (int)reg);
-            if (index >= 0)
-            {
-                Registers[index].Value = machine.Registers[reg];
+        foreach ((Type,Enum) reg in regs) {
+            string registerName = RegisterHelper.GetRegisterName(reg.Item2);
+            int index = Registers.IndexOf(x => x.Name == registerName);
+            if (index >= 0) {
+                Registers[index].Value = machine.Registers.Get(reg.Item2, reg.Item1);
             }
             lastChangedRegisterIndex = index;
         }
@@ -87,11 +88,11 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
         foreach (RegisterDefinition reg in proc.Registers) {
             // TODO: enum com hierarquia?
             // isto esta hardcoded para strings e mips
-            int number = reg.Number != -1 ? reg.Number : (reg.Name == "pc" ? 32 : reg.Name == "hi" ? 33 : 34);
+            Enum reg2 = RegisterHelper.GetRegisterFromName(reg.Name, proc.RegistersType);
             Registers.Add(new Register {
                 Name = reg.Name,
-                Index = number,
-                Value = machine.Registers.Get(number)
+                Index = reg.Number,
+                Value = machine.Registers.Get(reg2, proc.RegistersType)
             });
         }
         Logger.LogInformation("Loaded {registers} registers", proc.Registers.Length);

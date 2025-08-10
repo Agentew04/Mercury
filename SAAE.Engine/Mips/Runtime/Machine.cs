@@ -2,6 +2,7 @@
 using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
 using ELFSharp.ELF.Segments;
+using SAAE.Engine.Common;
 using SAAE.Engine.Memory;
 using SAAE.Engine.Mips.Runtime.OS;
 using SAAE.Engine.Mips.Runtime.Simple;
@@ -18,7 +19,7 @@ public sealed class Machine : IDisposable, IAsyncClockable {
 
     public Monocycle Cpu { get; init; } = null!;
 
-    public RegisterFile Registers => Cpu.RegisterFile;
+    public RegisterBank Registers => Cpu.RegisterBank;
 
     public MipsOperatingSystem Os { get; init; } = null!;
 
@@ -36,7 +37,7 @@ public sealed class Machine : IDisposable, IAsyncClockable {
         Section<uint>? textSection = elf.GetSection(".text");
         uint textStart = textSection!.LoadAddress;
         uint textLength = textSection.Size;
-        Cpu.RegisterFile[RegisterFile.Register.Pc] = (int)elf.EntryPoint;
+        Cpu.RegisterBank[RegisterFile.Register.Pc] = (int)elf.EntryPoint;
         SymbolTable<uint>? symbolTable = elf.GetSections<SymbolTable<uint>>().First();
         Cpu.DropoffAddress = symbolTable?.Entries?.First(x => x.Name == "__end")?.Value ?? textStart + textLength;
         SymbolEntry<uint>? gpSymbol = symbolTable?.Entries?.First(x => x.Name == "_gp");
@@ -94,16 +95,14 @@ public sealed class Machine : IDisposable, IAsyncClockable {
 
     public async ValueTask ClockAsync() {
         await Cpu.ClockAsync();
-        List<RegisterFile.Register> regChanged = Registers.GetChangedRegisters(); // essa chamada reseta a lista 
-                                                                                  // p proximo clock
-        OnRegisterChanged?.Invoke(regChanged.Count > 0
-            ? regChanged
-            : null);
+        List<(Type, Enum)> dirty = Registers.GetDirty();
+        // invoke even with 0 dirty to unselect last changed register on ui
+        OnRegisterChanged?.Invoke(dirty);
     }
     
     public bool IsClockingFinished() => Cpu.IsClockingFinished();
 
-    public event Action<List<RegisterFile.Register>?>? OnRegisterChanged;
+    public event Action<List<(Type,Enum)>>? OnRegisterChanged;
     
     /// <summary>
     /// Event fired when any access to the memory is made.

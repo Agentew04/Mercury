@@ -1,10 +1,5 @@
 ﻿using SAAE.Engine.Mips.Instructions;
 using SAAE.Engine.Mips.Runtime.Simple;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SAAE.Engine.Common.Builders;
 using SAAE.Engine.Mips.Runtime;
 using SAAE.Engine.Mips.Runtime.OS;
@@ -40,22 +35,23 @@ public class MonocycleTest {
         InstructionFactory factory = new();
         bool hasBreaked = false;
         
-        cpu.OnSignalException += (_, e) => {
+        cpu.OnSignalException += (e) => {
             if(e.Signal != Monocycle.SignalExceptionEventArgs.SignalType.Breakpoint) {
-                return;
+                return Task.CompletedTask;
             }
 
             Instruction inst = factory.Disassemble((uint)e.Instruction);
             if(inst is not Break brk) {
-                return;
+                return Task.CompletedTask;
             }
             Console.WriteLine($"Reached BREAK {brk.Code}");
             Assert.AreEqual(0, brk.Code);
             hasBreaked = true;
+            return Task.CompletedTask;
         };
         cpu.UseBranchDelaySlot = false;
         while (!cpu.IsClockingFinished() && !hasBreaked) {
-            cpu.Clock();
+            cpu.ClockAsync().AsTask().GetAwaiter().GetResult();
         }
     }
 
@@ -75,7 +71,7 @@ public class MonocycleTest {
         Assert.IsNotNull(machine.Memory);
         Assert.IsNotNull(machine.Cpu);
         Assert.IsNotNull(machine.Os);
-        Assert.AreSame(machine.Cpu.RegisterFile, machine.Registers);
+        Assert.AreSame(machine.Cpu.RegisterBank, machine.Registers);
         Assert.AreSame(machine.Cpu.Memory, machine.Memory);
         Assert.AreSame(machine.Os.Machine, machine);
         
@@ -160,7 +156,7 @@ public class MonocycleTest {
         machine.LoadProgram(code, Span<int>.Empty);
 
         while (!machine.IsClockingFinished()) {
-            machine.Clock();
+            machine.ClockAsync().AsTask().GetAwaiter().GetResult();
         }
         
         Assert.AreEqual(0, machine.Cpu.ExitCode);    

@@ -18,6 +18,10 @@
     <!-- arquivo que fala quais classes nao devem ser removidas no link -->
     <TrimmerRootDescriptor Include="ILLink.Descriptors.xml"/>
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\SAAE.Engine.Generators\SAAE.Engine.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all"/>
+  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Mips\Runtime\Simulated\" />

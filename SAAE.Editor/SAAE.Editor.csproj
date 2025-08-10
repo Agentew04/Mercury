@@ -62,7 +62,7 @@
   <!-- localizacao -->
   <ItemGroup>
     <ProjectReference Include="..\SAAE.Engine\SAAE.Engine.csproj" />
-    <ProjectReference Include="..\SAAE.Generators\SAAE.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\SAAE.Editor.Generators\SAAE.Editor.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <AdditionalFiles Include="Assets\Localization\*.resx" />
   </ItemGroup>
 

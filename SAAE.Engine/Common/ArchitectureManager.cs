@@ -1,4 +1,6 @@
-﻿namespace SAAE.Engine.Common;
+﻿using SAAE.Engine.Mips.Runtime;
+
+namespace SAAE.Engine.Common;
 
 public readonly struct RegisterDefinition(int number, string name, int bitSize, bool isGeneralPurpose) {
     public int Number { get; } = number;
@@ -7,11 +9,12 @@ public readonly struct RegisterDefinition(int number, string name, int bitSize, 
     public bool IsGeneralPurpose { get; } = isGeneralPurpose;
 }
 
-public readonly struct Processor(int number, string name, RegisterDefinition[] registers, string[] flags) {
+public readonly struct Processor(int number, string name, RegisterDefinition[] registers, string[] flags, Type registersType) {
     public int Number { get; } = number;
     public string Name { get; } = name;
     public RegisterDefinition[] Registers { get; } = registers;
     public string[] Flags { get; } = flags;
+    public Type RegistersType { get; } = registersType;
 }
 
 public readonly struct ArchitectureMetadata {
@@ -97,7 +100,7 @@ public static class ArchitectureManager {
                 new RegisterDefinition(-1, "pc", 32, false),
                 new RegisterDefinition(-1, "hi", 32, false),
                 new RegisterDefinition(-1, "lo", 32, false),
-            ], []),
+            ], [], typeof(MipsGprRegisters)),
             new Processor(1, "Coproc 1", [
                 new RegisterDefinition(0, "f0", 32, true),
                 new RegisterDefinition(0, "f1", 32, true),
@@ -140,13 +143,13 @@ public static class ArchitectureManager {
                 "5",
                 "6",
                 "7"
-            ]),
+            ], typeof(MipsFpuRegisters)),
             new Processor(2, "Coproc 0", [
                 new RegisterDefinition(8, "vaddr", 32, false),
                 new RegisterDefinition(12, "status", 32, false),
                 new RegisterDefinition(13, "cause", 32, false),
                 new RegisterDefinition(14, "epc", 32, false),
-            ], []),
+            ], [], typeof(MipsSpecialRegisters)),
         ]);
     }
 }

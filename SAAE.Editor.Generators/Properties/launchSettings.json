@@ -3,7 +3,7 @@
   "profiles": {
     "DebugRoslynSourceGenerator": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "../SAAE.Generators.Sample/SAAE.Generators.Sample.csproj"
+      "targetProject": "../SAAE.Generators.Sample/SAAE.Generators.csproj"
     }
   }
 }

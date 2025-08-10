@@ -1,4 +1,5 @@
-﻿using SAAE.Engine.Memory;
+﻿using SAAE.Engine.Common;
+using SAAE.Engine.Memory;
 using SAAE.Engine.Mips.Instructions;
 
 namespace SAAE.Engine.Mips.Runtime.Simple;
@@ -9,11 +10,15 @@ namespace SAAE.Engine.Mips.Runtime.Simple;
 /// </summary>
 public sealed partial class Monocycle : IAsyncClockable {
     public Monocycle() {
-        RegisterFile[RegisterFile.Register.Sp] = 0x7FFF_EFFC; // o 'E' aparece no MARS
-        RegisterFile[RegisterFile.Register.Fp] = 0x0000_0000;
-        RegisterFile[RegisterFile.Register.Gp] = 0x1000_8000;
-        RegisterFile[RegisterFile.Register.Ra] = 0x0000_0000;
-        RegisterFile[RegisterFile.Register.Pc] = 0x0040_0000;
+        RegisterBank.DefineBank<MipsGprRegisters>(RegisterHelper.GetMipsGprRegistersCount());
+        RegisterBank.DefineBank<MipsFpuRegisters>(RegisterHelper.GetMipsFpuRegistersCount());
+        RegisterBank.DefineBank<MipsSpecialRegisters>(RegisterHelper.GetMipsSpecialRegistersCount());
+
+        RegisterBank.Set(MipsGprRegisters.Sp, 0x7FFF_EFFC);
+        RegisterBank.Set(MipsGprRegisters.Fp, 0x0000_0000);
+        RegisterBank.Set(MipsGprRegisters.Gp, 0x1000_8000);
+        RegisterBank.Set(MipsGprRegisters.Ra, 0x0000_0000);
+        RegisterBank.Set(MipsGprRegisters.Pc, 0x0040_0000);
     }
 
     /// <summary>
@@ -27,7 +32,7 @@ public sealed partial class Monocycle : IAsyncClockable {
     /// Structure that holds all the general purpose
     /// registers of the CPU.
     /// </summary>
-    public RegisterFile RegisterFile { get; private set; } = new();
+    public RegisterBank RegisterBank { get; private set; } = new();
 
     /// <summary>
     /// Class responsible to interpret binary instructions
@@ -38,21 +43,20 @@ public sealed partial class Monocycle : IAsyncClockable {
     /// <inheritdoc cref="instructionFactory"/>
     public InstructionFactory InstructionFactory => instructionFactory;
 
-    // TODO: remover isso, monociclo nao tem branch delay slot
-    public bool UseBranchDelaySlot { get; set; } = false;
+    public bool UseBranchDelaySlot { get; set; }
     
-    public uint DropoffAddress { get; set; } = 0;
+    public uint DropoffAddress { get; set; }
 
-    private bool isExecutingBranch = false;
-    private bool isNextCycleBranch = false;
-    private uint branchAddress = 0;
+    private bool isExecutingBranch;
+    private bool isNextCycleBranch;
+    private uint branchAddress;
     
-    private bool isHalted = false;
+    private bool isHalted;
 
     /// <summary>
     /// Gets the exit code of the program.
     /// </summary>
-    public int ExitCode { get; private set; } = 0;
+    public int ExitCode { get; private set; }
 
     public async ValueTask ClockAsync()
     {
@@ -60,7 +64,7 @@ public sealed partial class Monocycle : IAsyncClockable {
             return;
         }
         // read instruction from PC
-        int instructionBinary = Memory.ReadWord((ulong)RegisterFile[RegisterFile.Register.Pc]);
+        int instructionBinary = Memory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc));
 
         // decode
         Instruction instruction;
@@ -71,7 +75,7 @@ public sealed partial class Monocycle : IAsyncClockable {
             if (OnSignalException is not null) {
                 await OnSignalException.Invoke(new SignalExceptionEventArgs {
                     Signal = SignalExceptionEventArgs.SignalType.InvalidInstruction,
-                    ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
+                    ProgramCounter = RegisterBank.Get(MipsGprRegisters.Pc),
                     Instruction = instructionBinary
                 });
             }
@@ -79,7 +83,7 @@ public sealed partial class Monocycle : IAsyncClockable {
             return;
         }
 
-        int pcBefore = RegisterFile[RegisterFile.Register.Pc];
+        int pcBefore = RegisterBank.Get(MipsGprRegisters.Pc);
         await Execute(instruction);
 
         if (isExecutingBranch && isNextCycleBranch)
@@ -88,18 +92,18 @@ public sealed partial class Monocycle : IAsyncClockable {
             isExecutingBranch = false;
             isNextCycleBranch = false;
 
-            RegisterFile[RegisterFile.Register.Pc] = (int)branchAddress;
+            RegisterBank.Set(MipsGprRegisters.Pc, (int)branchAddress);
         }else if (isExecutingBranch && !isNextCycleBranch)
         {
             // estamos no cliclo do branch. 
             isNextCycleBranch = true;
             // pc+4
-            RegisterFile[RegisterFile.Register.Pc] = pcBefore + 4;
+            RegisterBank.Set(MipsGprRegisters.Pc, pcBefore + 4);
         }
         else
         {
             // instrucao sem branch
-            RegisterFile[RegisterFile.Register.Pc] += 4;
+            RegisterBank[MipsGprRegisters.Pc] += 4;
         }
     }
 
@@ -116,22 +120,26 @@ public sealed partial class Monocycle : IAsyncClockable {
         if (OnSignalException is not null) {
             await OnSignalException.Invoke(new SignalExceptionEventArgs {
                 Signal = SignalExceptionEventArgs.SignalType.Halt,
-                ProgramCounter = RegisterFile[RegisterFile.Register.Pc],
-                Instruction = Memory.ReadWord((ulong)RegisterFile[RegisterFile.Register.Pc])
+                ProgramCounter = RegisterBank.Get(MipsGprRegisters.Pc),
+                Instruction = Memory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc))
             });
             
         }
     }
     
-    public event Func<SignalExceptionEventArgs, Task>? OnSignalException = null;
+    public event Func<SignalExceptionEventArgs, Task>? OnSignalException;
 
     private async ValueTask Execute(Instruction instruction) {
-        if(instruction is TypeRInstruction r) {
-            await ExecuteTypeR(r);
-        }else if(instruction is TypeIInstruction i) {
-            await ExecuteTypeI(i);
-        }else if(instruction is TypeJInstruction j) {
-            ExecuteTypeJ(j);
+        switch (instruction) {
+            case TypeRInstruction r:
+                await ExecuteTypeR(r);
+                break;
+            case TypeIInstruction i:
+                await ExecuteTypeI(i);
+                break;
+            case TypeJInstruction j:
+                ExecuteTypeJ(j);
+                break;
         }
     }
 
@@ -141,10 +149,10 @@ public sealed partial class Monocycle : IAsyncClockable {
 
     private void BranchTo(int immediate) {
         isExecutingBranch = true;
-        branchAddress = (uint)(RegisterFile[RegisterFile.Register.Pc] + 4 + (immediate << 2));
+        branchAddress = (uint)(RegisterBank[MipsGprRegisters.Pc] + 4 + (immediate << 2));
     }
-    private void Link(RegisterFile.Register register = RegisterFile.Register.Ra) {
-        RegisterFile[register] = RegisterFile[RegisterFile.Register.Pc] + (UseBranchDelaySlot ? 8 : 4);
+    private void Link(MipsGprRegisters register = MipsGprRegisters.Ra) {
+        RegisterBank[register] = RegisterBank[MipsGprRegisters.Pc] + (UseBranchDelaySlot ? 8 : 4);
     }
 
     private static int ZeroExtend(short value) {
@@ -152,16 +160,16 @@ public sealed partial class Monocycle : IAsyncClockable {
     }
 
     public bool IsClockingFinished() {
-        return RegisterFile[RegisterFile.Register.Pc] >= DropoffAddress
+        return RegisterBank[MipsGprRegisters.Pc] >= DropoffAddress
             || isHalted;
     }
 
     public class SignalExceptionEventArgs {
-        public SignalType Signal { get; set; }
+        public SignalType Signal { get; init; }
 
-        public int ProgramCounter { get; set; }
+        public int ProgramCounter { get; init; }
 
-        public int Instruction { get; set; }
+        public int Instruction { get; init; }
 
         public enum SignalType {
             Breakpoint,
