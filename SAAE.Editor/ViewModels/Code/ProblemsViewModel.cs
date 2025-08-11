@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -18,9 +20,6 @@ public sealed partial class ProblemsViewModel : BaseViewModel<ProblemsViewModel>
     [ObservableProperty] 
     private string output = "";
     
-    [ObservableProperty]
-    private int selectedIndex = -1;
-
     [ObservableProperty] 
     private ObservableCollection<Diagnostic> diagnostics = [];
 
@@ -35,8 +34,13 @@ public sealed partial class ProblemsViewModel : BaseViewModel<ProblemsViewModel>
         }
     }
 
-    partial void OnSelectedIndexChanged(int value)
+    public void OnSelectedIndexChanged(int value)
     {
+        if(value == -1)
+        {
+            Logger.LogInformation("Problem null. Skipping.");
+            return;   
+        }
         Diagnostic diag = Diagnostics[value];
         Logger.LogInformation("Opening file from problems view: {FilePath} at line {Line}, column {Column}", diag.FilePath, diag.Line, diag.Column);
         WeakReferenceMessenger.Default.Send(new FileOpenMessage

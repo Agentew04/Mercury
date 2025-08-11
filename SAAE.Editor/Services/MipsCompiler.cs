@@ -80,6 +80,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         if (commandError != CompilationError.None) {
             using StreamReader sr = new(diagMs, leaveOpen: true);
             Logger.LogWarning("Error compiling. Type: {type}. Out: {out}", commandError, await sr.ReadToEndAsync());
+            diagMs.Seek(0, SeekOrigin.Begin);
         }
 
         if (commandError != CompilationError.None && commandError != CompilationError.CompilationError)

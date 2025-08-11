@@ -15,10 +15,11 @@
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,*" Background="{StaticResource BackgroundGrey}">
         <DataGrid Grid.Row="1" ItemsSource="{Binding Diagnostics}"
+                  x:Name="ProblemsDataGrid"
                   IsReadOnly="True" GridLinesVisibility="Horizontal"
-                  SelectedIndex="{Binding SelectedIndex, Mode=OneWayToSource}"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
+                  SelectionChanged="DataGrid_OnSelectionChanged"
                   Classes="noselect headerslim">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Type" Width="50">
