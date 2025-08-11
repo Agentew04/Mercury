@@ -488,6 +488,163 @@
       "opcode": 1,
       "rt": 12
     }
+  },
+  {
+    "mnemonic": "Abs",
+    "constraints": {
+      "opcode": 17,
+      "funct": 5,
+      "rt": 0
+    }
+  },
+  {
+    "mnemonic": "Add_float",
+    "constraints": {
+      "opcode": 17,
+      "funct": 0
+    }
+  },
+  {
+    "mnemonic": "Bc1f",
+    "constraints": {
+      "opcode": 17,
+      "rs": 8,
+      "nd": 0,
+      "tf": 0
+    }
+  },
+  {
+    "mnemonic": "Bc1t",
+    "constraints": {
+      "opcode": 17,
+      "rs": 8,
+      "nd": 0,
+      "tf": 1
+    }
+  },
+  {
+    "mnemonic": "C",
+    "constraints": {
+      "opcode": 17,
+      "zfc": 3
+    }
+  },
+  {
+    "mnemonic": "Cfc1",
+    "constraints": {
+      "opcode": 17,
+      "rs": 2,
+      "shift": 0,
+      "funct": 0
+    }
+  },
+  {
+    "mnemonic": "Ctc1",
+    "constraints": {
+      "opcode": 17,
+      "rs": 6,
+      "shift": 0,
+      "funct": 0
+    }
+  },
+  {
+    "mnemonic": "Cvt_D",
+    "constraints": {
+      "opcode": 17,
+      "rt": 0,
+      "funct": 33
+    }
+  },
+  {
+    "mnemonic": "Cvt_S",
+    "constraints": {
+      "opcode": 17,
+      "rt": 0,
+      "funct": 32
+    }
+  },
+  {
+    "mnemonic": "Bc1f",
+    "constraints": {
+      "opcode": 17,
+      "rs": 8,
+      "nd": 0,
+      "tf": 0
+    }
+  },
+  {
+    "mnemonic": "Div_float",
+    "constraints": {
+      "opcode": 17,
+      "funct": 3
+    }
+  },
+  {
+    "mnemonic": "Lwc1",
+    "constraints": {
+      "opcode": 49
+    }
+  },
+  {
+    "mnemonic": "Mfc1",
+    "constraints": {
+      "opcode": 17,
+      "rs": 0,
+      "shift": 0,
+      "funct": 0
+    }
+  },
+  {
+    "mnemonic": "Mov",
+    "constraints": {
+      "opcode": 17,
+      "rt": 0,
+      "funct": 6
+    }
+  },
+  {
+    "mnemonic": "Mtc1",
+    "constraints": {
+      "opcode": 17,
+      "rs": 4,
+      "shift": 0,
+      "funct": 0
+    }
+  },
+  {
+    "mnemonic": "Mul_float",
+    "constraints": {
+      "opcode": 17,
+      "funct": 2
+    }
+  },
+  {
+    "mnemonic": "Neg",
+    "constraints": {
+      "opcode": 17,
+      "rt": 0,
+      "funct": 7
+    }
+  },
+  {
+    "mnemonic": "Sqrt",
+    "constraints": {
+      "opcode": 17,
+      "rt": 0,
+      "funct": 4
+    }
+  },
+  {
+    "mnemonic": "Sub_float",
+    "constraints": {
+      "opcode": 17,
+      "funct": 1
+    }
+  },
+  {
+    "mnemonic": "Swc1",
+    "constraints": {
+      "opcode": 57
+    }
   }
-
 ]

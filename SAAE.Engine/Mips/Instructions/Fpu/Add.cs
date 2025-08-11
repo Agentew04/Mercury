@@ -1,0 +1,39 @@
+﻿using System.Text.RegularExpressions;
+
+namespace SAAE.Engine.Mips.Instructions;
+
+public class Add_float : TypeFInstruction
+{
+    public byte Fmt { get; private set; }
+    public byte Ft { get; private set; }
+    public byte Fs { get; private set; }
+    public byte Fd { get; private set; }
+    private const byte Function = 0b000000;
+    
+    public bool IsDouble => Fmt == DoublePrecisionFormat;
+
+    public Add_float()
+    {
+        Fmt = 0b10000;
+    }
+
+    public override string ToString() => $"add.{(Fmt == 0b10000 ? "s" : "d")} ${TranslateRegisterName(Fd)}, ${TranslateRegisterName(Fs)}, ${TranslateRegisterName(Ft)}" + FormatTrivia();
+
+    public override void FromInt(int instruction)
+    {
+        Fmt = (byte)((instruction >> 21) & 0b11111);
+        Ft = (byte)((instruction >> 16) & 0b11111);
+        Fs = (byte)((instruction >> 11) & 0b11111);
+        Fd = (byte)((instruction >> 6) & 0b11111);
+    }
+
+    public override int ConvertToInt()
+    {
+        return OpCode << 26 // opcode
+               | (Fmt & 0b11111) << 21 // fmt
+               | (Ft & 0b11111) << 16 // ft
+               | (Fs & 0b11111) << 11 // fs
+               | (Fd & 0b11111) << 6 // fd
+               | (Function & 0b111111); // function
+    }
+}

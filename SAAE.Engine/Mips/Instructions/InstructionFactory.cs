@@ -22,8 +22,6 @@ public class InstructionFactory {
         }
     }
 
-    
-    
     public class RuleList : List<Rule> {}
     
     public record Rule {
@@ -80,6 +78,24 @@ public class InstructionFactory {
                     case "rd":
                         uint rd = (binary >> 11) & 0x1F;
                         if(rule.Constraints[constraint] != rd) {
+                            failed = true;
+                        }
+                        break;
+                    case "nd":
+                        uint nd = (binary >> 17) & 1;
+                        if(rule.Constraints[constraint] != nd) {
+                            failed = true;
+                        }
+                        break;
+                    case "tf":
+                        uint tf = (binary >> 16) & 1;
+                        if(rule.Constraints[constraint] != tf) {
+                            failed = true;
+                        }
+                        break;
+                    case "zfc":
+                        uint zfc = (binary >> 4) & 0b1111;
+                        if(rule.Constraints[constraint] != zfc) {
                             failed = true;
                         }
                         break;

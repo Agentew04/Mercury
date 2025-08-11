@@ -1,15 +1,6 @@
-.hidden __filestart
-__filestart:
-.global __start
-__start:
-    # so da exit
-    L.1.6: addi $a0, $zero, 5
-    L.1.7: addi $a1, $zero, 9
-    L.1.8: jal add2
-    L.1.9: add $t0, $zero, $v0
+add.s $f0, $f2, $f4
+add.d $f0, $f2, $f4
+cvt.d.w $f0, $f1
 
-    L.10: j __end
-.section metadata, "", @progbits
-.quad filestart
-.asciiz "helloworld.s"
-.word 0
+opcode rs rt rd shift opcode
+6      5  5  5   5     6

@@ -130,11 +130,12 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
                 
                 public static string GetRegisterName(Enum reg) {{
         {2}
-                    return null;
+                    throw new System.ArgumentOutOfRangeException(nameof(reg));
                 }}
                 
                 public static Enum GetRegisterFromName(string name, Type type){{
         {3}
+                    throw new System.ArgumentOutOfRangeException(nameof(name));
                 }}
             }}
         }}
@@ -276,7 +277,7 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
         foreach (EnumToGenerate enumtogen in enums) {
             registerSb.AppendLine(string.Format(SharedIfRegisterFormat,
                 /*0 type*/enumtogen.FullEnumName,
-                /*1 type*/enumtogen.FullEnumName
+                /*1 type*/enumtogen.ShortEnumName
             ));
             numberSb.AppendLine(string.Format(SharedIfNumberFormat,
                 enumtogen.FullEnumName,enumtogen.FullEnumName));
