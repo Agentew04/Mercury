@@ -26,6 +26,7 @@
         <entry key="SAAE.Editor/Views/CodeView/FileEditorToolbar.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/CodeView/FileEditorToolbarView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/CodeView/FileEditorView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
+        <entry key="SAAE.Editor/Views/CodeView/GuideView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/CodeView/ProblemsView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/CodeView/ProjectView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />
         <entry key="SAAE.Editor/Views/ExecuteView/ExecuteView.axaml" value="SAAE.Editor/SAAE.Editor.csproj" />

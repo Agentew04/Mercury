@@ -32,7 +32,7 @@ public class InstructionFactory {
 
         [JsonPropertyName("constraints")]
         [JsonPropertyOrder(1)]
-        public Dictionary<string, int> Constraints { get; set; } = [];
+        public Dictionary<string, List<uint>> Constraints { get; set; } = [];
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2057")]
@@ -42,7 +42,7 @@ public class InstructionFactory {
         }
         
         uint opcode = binary >> 26;
-        IEnumerable<Rule>? oprules = rules.Where(x => x.Constraints.ContainsKey("opcode") && x.Constraints["opcode"] == opcode);
+        IEnumerable<Rule>? oprules = rules.Where(x => x.Constraints.ContainsKey("opcode") && x.Constraints["opcode"].Contains(opcode));
         foreach(Rule? rule in oprules) {
             // checar o resto das constraints
             bool failed = false;
@@ -53,49 +53,49 @@ public class InstructionFactory {
                 switch (constraint) {
                     case "funct":
                         uint funct = (binary & 0x3F);
-                        if(rule.Constraints[constraint] != funct) {
+                        if(!rule.Constraints[constraint].Contains(funct)) {
                             failed = true;
                         }
                         break;
                     case "shift":
                         uint shift = (binary >> 6) & 0x1F;
-                        if(rule.Constraints[constraint] != shift) {
+                        if(!rule.Constraints[constraint].Contains(shift)) {
                             failed = true;
                         }
                         break;
                     case "rs":
                         uint rs = (binary >> 21) & 0x1F;
-                        if(rule.Constraints[constraint] != rs) {
+                        if(!rule.Constraints[constraint].Contains(rs)) {
                             failed = true;
                         }
                         break;
                     case "rt":
                         uint rt = (binary >> 16) & 0x1F;
-                        if(rule.Constraints[constraint] != rt) {
+                        if(!rule.Constraints[constraint].Contains(rt)) {
                             failed = true;
                         }
                         break;
                     case "rd":
                         uint rd = (binary >> 11) & 0x1F;
-                        if(rule.Constraints[constraint] != rd) {
+                        if(!rule.Constraints[constraint].Contains(rd)) {
                             failed = true;
                         }
                         break;
                     case "nd":
                         uint nd = (binary >> 17) & 1;
-                        if(rule.Constraints[constraint] != nd) {
+                        if(!rule.Constraints[constraint].Contains(nd)) {
                             failed = true;
                         }
                         break;
                     case "tf":
                         uint tf = (binary >> 16) & 1;
-                        if(rule.Constraints[constraint] != tf) {
+                        if(!rule.Constraints[constraint].Contains(tf)) {
                             failed = true;
                         }
                         break;
                     case "zfc":
                         uint zfc = (binary >> 4) & 0b1111;
-                        if(rule.Constraints[constraint] != zfc) {
+                        if(!rule.Constraints[constraint].Contains(zfc)) {
                             failed = true;
                         }
                         break;

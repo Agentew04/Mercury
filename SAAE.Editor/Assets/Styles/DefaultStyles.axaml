@@ -171,4 +171,8 @@
         <Setter Property="CanUserSortColumns" Value="False"></Setter>
         <Setter Property="IsReadOnly" Value="True"></Setter>
     </Style>
+    
+    <Style Selector="DataGrid.nocellselect DataGridCell /template/ Grid#FocusVisual">
+        <Setter Property="IsVisible" Value="False"></Setter>
+    </Style>
 </Styles>

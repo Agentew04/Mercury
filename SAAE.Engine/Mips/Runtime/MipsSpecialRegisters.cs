@@ -10,6 +10,6 @@ public enum MipsSpecialRegisters {
     Status,
     [RegisterInfo(13, "cause")]
     Cause,
-    [RegisterInfo(14, "eoc")]
+    [RegisterInfo(14, "epc")]
     Epc
 }

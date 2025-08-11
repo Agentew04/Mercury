@@ -54,7 +54,7 @@
         </StackPanel>
 
         <DataGrid x:Name="InstructionDataGrid"
-                  Classes="headerslim static"
+                  Classes="headerslim static nocellselect"
                   SelectionMode="Single"
                   ItemsSource="{Binding Instructions, Mode=OneWay}"
                   SelectedIndex="{Binding SelectedInstructionIndex}"

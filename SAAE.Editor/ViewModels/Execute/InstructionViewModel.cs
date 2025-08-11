@@ -212,7 +212,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>,
     [RelayCommand(CanExecute = nameof(CanStep))]
     private async Task Step() {
         await machine!.ClockAsync();
-        int pc = machine!.Registers[RegisterFile.Register.Pc];
+        int pc = machine!.Registers[MipsGprRegisters.Pc];
         int index = Instructions.IndexOf(x => x.Address == pc);
         SelectedInstructionIndex = index;
         OnPropertyChanged(nameof(IsExecutionFinished));

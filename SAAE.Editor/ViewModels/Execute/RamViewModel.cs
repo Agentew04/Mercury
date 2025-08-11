@@ -15,6 +15,7 @@ using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
 using ELFSharp.ELF.Segments;
 using Microsoft.Extensions.Logging;
+using SAAE.Editor.Extensions;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models.Messages;
 using SAAE.Engine.Memory;
@@ -64,6 +65,7 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
         }
         vm.currentMachine = msg.Machine;
         vm.currentMachine.OnMemoryAccess += vm.OnMemoryAccess;
+        vm.SelectedSectionIndex = vm.Locations.IndexOf(x => x.Name == ".data");
         vm.PopulateRam();
         vm.DisplayRam();
         vm.SelectedRowIndex = -1;
@@ -120,9 +122,13 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
 
     private void CreateModeList() {
         AvailableVisualizationModes.Clear();
-        AvailableVisualizationModes.AddRange(
-            [RamVisualization.Hexadecimal, RamVisualization.Decimal, RamVisualization.Ascii ]
-            );
+        AvailableVisualizationModes.AddRange([
+                RamVisualization.Hexadecimal, 
+                RamVisualization.Decimal, 
+                RamVisualization.Ascii,
+                RamVisualization.Float
+            ]
+        );
     }
 
     private void PopulateRam() {
@@ -211,6 +217,9 @@ public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
                     }
                     Encoding.ASCII.GetChars(bytes, chars);
                     return $"{DisplayChar(chars[0])} {DisplayChar(chars[1])} {DisplayChar(chars[2])} {DisplayChar(chars[3])}";
+                case RamVisualization.Float:
+                    float f = BitConverter.Int32BitsToSingle(data);
+                    return f.ToString(CultureInfo.CurrentCulture);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -260,7 +269,8 @@ public class Location {
 public enum RamVisualization {
     Hexadecimal,
     Decimal,
-    Ascii
+    Ascii,
+    Float
 }
 
 public class RamVisualizationConverter : IValueConverter {
@@ -272,6 +282,7 @@ public class RamVisualizationConverter : IValueConverter {
             RamVisualization.Decimal => RamResources.RamDecModeValue,
             RamVisualization.Ascii => RamResources.RamTextModeValue,
             RamVisualization.Hexadecimal => RamResources.RamHexModeValue,
+            RamVisualization.Float => RamResources.RamFloatModeValue,
             _ => BindingNotification.Null
         };
     }

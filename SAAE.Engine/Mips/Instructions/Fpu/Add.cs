@@ -17,7 +17,7 @@ public class Add_float : TypeFInstruction
         Fmt = 0b10000;
     }
 
-    public override string ToString() => $"add.{(Fmt == 0b10000 ? "s" : "d")} ${TranslateRegisterName(Fd)}, ${TranslateRegisterName(Fs)}, ${TranslateRegisterName(Ft)}" + FormatTrivia();
+    public override string ToString() => $"add.{FormatFmt(Fmt)} ${TranslateRegisterName(Fd)}, ${TranslateRegisterName(Fs)}, ${TranslateRegisterName(Ft)}" + FormatTrivia();
 
     public override void FromInt(int instruction)
     {

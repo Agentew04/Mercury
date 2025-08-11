@@ -2,649 +2,651 @@
   {
     "mnemonic": "Add",
     "constraints": {
-      "opcode": 0,
-      "funct": 32
+      "opcode": [0],
+      "funct": [32]
     }
   },
   {
     "mnemonic": "Addu",
     "constraints": {
-      "opcode": 0,
-      "funct": 33,
-      "shift": 0
+      "opcode": [0],
+      "funct": [33],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Div",
     "constraints": {
-      "opcode": 0,
-      "funct": 26,
-      "shift": 0,
-      "rd": 0
+      "opcode": [0],
+      "funct": [26],
+      "shift": [0],
+      "rd": [0]
     }
   },
   {
     "mnemonic": "Addi",
     "constraints": {
-      "opcode": 8
+      "opcode": [8]
     }
   },
   {
     "mnemonic": "Addiu",
     "constraints": {
-      "opcode": 9
+      "opcode": [9]
     }
   },
   {
     "mnemonic": "Divu",
     "constraints": {
-      "opcode": 0,
-      "funct": 27,
-      "shift": 0,
-      "rd": 0
+      "opcode": [0],
+      "funct": [27],
+      "shift": [0],
+      "rd": [0]
     }
   },
   {
     "mnemonic": "Madd",
     "constraints": {
-      "opcode": 28,
-      "funct": 0,
-      "rd": 0
+      "opcode": [28],
+      "funct": [0],
+      "rd": [0]
     }
   },
   {
     "mnemonic": "Maddu",
     "constraints": {
-      "opcode": 28,
-      "funct": 1,
-      "rd": 0
+      "opcode": [28],
+      "funct": [1],
+      "rd": [0]
     }
   },
   {
     "mnemonic": "Mfhi",
     "constraints": {
-      "opcode": 0,
-      "funct": 16,
-      "rs": 0,
-      "rt": 0
+      "opcode": [0],
+      "funct": [16],
+      "rs": [0],
+      "rt": [0]
     }
   },
   {
     "mnemonic": "Mflo",
     "constraints": {
-      "opcode": 0,
-      "funct": 18,
-      "rs": 0,
-      "rt": 0
+      "opcode": [0],
+      "funct": [18],
+      "rs": [0],
+      "rt": [0]
     }
   },
   {
     "mnemonic": "Movn",
     "constraints": {
-      "opcode": 0,
-      "funct": 11
+      "opcode": [0],
+      "funct": [11]
     }
   },
   {
     "mnemonic": "Movz",
     "constraints": {
-      "opcode": 0,
-      "funct": 10
+      "opcode": [0],
+      "funct": [10]
     }
   },
   {
     "mnemonic": "Msub",
     "constraints": {
-      "opcode": 28,
-      "funct": 4,
-      "rd": 0
+      "opcode": [28],
+      "funct": [4],
+      "rd": [0]
     }
   },
   {
     "mnemonic": "Msubu",
     "constraints": {
-      "opcode": 28,
-      "funct": 5,
-      "rd": 0
+      "opcode": [28],
+      "funct": [5],
+      "rd": [0]
     }
   },
   {
     "mnemonic": "Mthi",
     "constraints": {
-      "opcode": 0,
-      "funct": 17,
-      "rt": 0,
-      "rd": 0
+      "opcode": [0],
+      "funct": [17],
+      "rt": [0],
+      "rd": [0]
     }
   },
   {
     "mnemonic": "Mtlo",
     "constraints": {
-      "opcode": 0,
-      "funct": 19,
-      "rt": 0,
-      "rd": 0
+      "opcode": [0],
+      "funct": [19],
+      "rt": [0],
+      "rd": [0]
     }
   },
   {
     "mnemonic": "Mul",
     "constraints": {
-      "opcode": 28,
-      "funct": 2,
-      "shift": 0
+      "opcode": [28],
+      "funct": [2],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Mult",
     "constraints": {
-      "opcode": 0,
-      "funct": 24,
-      "rd": 0
+      "opcode": [0],
+      "funct": [24],
+      "rd": [0]
     }
   },
   {
     "mnemonic": "Multu",
     "constraints": {
-      "opcode": 0,
-      "funct": 25,
-      "rd": 0
+      "opcode": [0],
+      "funct": [25],
+      "rd": [0]
     }
   },
   {
     "mnemonic": "Slt",
     "constraints": {
-      "opcode": 0,
-      "funct": 42,
-      "shift": 0
+      "opcode": [0],
+      "funct": [42],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Slti",
     "constraints": {
-      "opcode": 10
+      "opcode": [10]
     }
   },
   {
     "mnemonic": "Sltiu",
     "constraints": {
-      "opcode": 11
+      "opcode": [11]
     }
   },
   {
     "mnemonic": "Sltu",
     "constraints": {
-      "opcode": 0,
-      "funct": 43,
-      "shift": 0
+      "opcode": [0],
+      "funct": [43],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Sub",
     "constraints": {
-      "opcode": 0,
-      "funct": 34,
-      "shift": 0
+      "opcode": [0],
+      "funct": [34],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Subu",
     "constraints": {
-      "opcode": 0,
-      "funct": 35,
-      "shift": 0
+      "opcode": [0],
+      "funct": [35],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Beq",
     "constraints": {
-      "opcode": 4
+      "opcode": [4]
     }
   },
   {
     "mnemonic": "Bgez",
     "constraints": {
-      "opcode": 1,
-      "rt": 1
+      "opcode": [1],
+      "rt": [1]
     }
   },
   {
     "mnemonic": "Bgezal",
     "constraints": {
-      "opcode": 1,
-      "rt": 17
+      "opcode": [1],
+      "rt": [17]
     }
   },
   {
     "mnemonic": "Bgtz",
     "constraints": {
-      "opcode": 7,
-      "rt": 0
+      "opcode": [7],
+      "rt": [0]
     }
   },
   {
     "mnemonic": "Blez",
     "constraints": {
-      "opcode": 6,
-      "rt": 0
+      "opcode": [6],
+      "rt": [0]
     }
   },
   {
     "mnemonic": "Bltz",
     "constraints": {
-      "opcode": 1,
-      "rt": 0
+      "opcode": [1],
+      "rt": [0]
     }
   },
   {
     "mnemonic": "Bltzal",
     "constraints": {
-      "opcode": 1,
-      "rt": 16
+      "opcode": [1],
+      "rt": [16]
     }
   },
   {
     "mnemonic": "Bne",
     "constraints": {
-      "opcode": 5
+      "opcode": [5]
     }
   },
   {
     "mnemonic": "J",
     "constraints": {
-      "opcode": 2
+      "opcode": [2]
     }
   },
   {
     "mnemonic": "Jal",
     "constraints": {
-      "opcode": 3
+      "opcode": [3]
     }
   },
   {
     "mnemonic": "Jalr1",
     "constraints": {
-      "opcode": 0,
-      "rt": 0,
-      "rd": 31,
-      "shift": 0,
-      "funct": 9
+      "opcode": [0],
+      "rt": [0],
+      "rd": [31],
+      "shift": [0],
+      "funct": [9]
     }
   },
   {
     "mnemonic": "Jalr2",
     "constraints": {
-      "opcode": 0,
-      "rt": 0,
-      "shift": 0,
-      "funct": 9
+      "opcode": [0],
+      "rt": [0],
+      "shift": [0],
+      "funct": [9]
     }
   },
   {
     "mnemonic": "Jr",
     "constraints": {
-      "opcode": 0,
-      "rt": 0,
-      "rd": 0,
-      "shift": 0,
-      "funct": 8
+      "opcode": [0],
+      "rt": [0],
+      "rd": [0],
+      "shift": [0],
+      "funct": [8]
     }
   },
   {
     "mnemonic": "And",
     "constraints": {
-      "opcode": 0,
-      "funct": 36,
-      "shift": 0
+      "opcode": [0],
+      "funct": [36],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Andi",
     "constraints": {
-      "opcode": 12
+      "opcode": [12]
     }
   },
   {
     "mnemonic": "Clo",
     "constraints": {
-      "opcode": 28,
-      "funct": 33,
-      "shift": 0,
-      "rt": 0
+      "opcode": [28],
+      "funct": [33],
+      "shift": [0],
+      "rt": [0]
     }
   },
   {
     "mnemonic": "Clz",
     "constraints": {
-      "opcode": 28,
-      "funct": 32,
-      "shift": 0,
-      "rt": 0
+      "opcode": [28],
+      "funct": [32],
+      "shift": [0],
+      "rt": [0]
     }
   },
   {
     "mnemonic": "Nor",
     "constraints": {
-      "opcode": 0,
-      "funct": 39,
-      "shift": 0
+      "opcode": [0],
+      "funct": [39],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Or",
     "constraints": {
-      "opcode": 0,
-      "funct": 37,
-      "shift": 0
+      "opcode": [0],
+      "funct": [37],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Ori",
     "constraints": {
-      "opcode": 13
+      "opcode": [13]
     }
   },
   {
     "mnemonic": "Xor",
     "constraints": {
-      "opcode": 0,
-      "funct": 38,
-      "shift": 0
+      "opcode": [0],
+      "funct": [38],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Xori",
     "constraints": {
-      "opcode": 14
+      "opcode": [14]
     }
   },
   {
     "mnemonic": "Lb",
     "constraints": {
-      "opcode": 32
+      "opcode": [32]
     }
   },
   {
     "mnemonic": "Lbu",
     "constraints": {
-      "opcode": 36
+      "opcode": [36]
     }
   },
   {
     "mnemonic": "Lh",
     "constraints": {
-      "opcode": 33
+      "opcode": [33]
     }
   },
   {
     "mnemonic": "Lhu",
     "constraints": {
-      "opcode": 37
+      "opcode": [37]
     }
   },
   {
     "mnemonic": "Lui",
     "constraints": {
-      "opcode": 15,
-      "rs": 0
+      "opcode": [15],
+      "rs": [0]
     }
   },
   {
     "mnemonic": "Lw",
     "constraints": {
-      "opcode": 35
+      "opcode": [35]
     }
   },
   {
     "mnemonic": "Sb",
     "constraints": {
-      "opcode": 40
+      "opcode": [40]
     }
   },
   {
     "mnemonic": "Sh",
     "constraints": {
-      "opcode": 41
+      "opcode": [41]
     }
   },
   {
     "mnemonic": "Sw",
     "constraints": {
-      "opcode": 43
+      "opcode": [43]
     }
   },
   {
     "mnemonic": "Sll",
     "constraints": {
-      "opcode": 0,
-      "funct": 0,
-      "rs": 0
+      "opcode": [0],
+      "funct": [0],
+      "rs": [0]
     }
   },
   {
     "mnemonic": "Sllv",
     "constraints": {
-      "opcode": 0,
-      "funct": 4,
-      "shift": 0
+      "opcode": [0],
+      "funct": [4],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Sra",
     "constraints": {
-      "opcode": 0,
-      "funct": 3,
-      "rs": 0
+      "opcode": [0],
+      "funct": [3],
+      "rs": [0]
     }
   },
   {
     "mnemonic": "Srav",
     "constraints": {
-      "opcode": 0,
-      "funct": 7,
-      "shift": 0
+      "opcode": [0],
+      "funct": [7],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Srl",
     "constraints": {
-      "opcode": 0,
-      "funct": 2,
-      "rs": 0
+      "opcode": [0],
+      "funct": [2],
+      "rs": [0]
     }
   },
   {
     "mnemonic": "Srlv",
     "constraints": {
-      "opcode": 0,
-      "funct": 6,
-      "shift": 0
+      "opcode": [0],
+      "funct": [6],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Break",
     "constraints": {
-      "opcode": 0,
-      "funct": 13
+      "opcode": [0],
+      "funct": [13]
     }
   },
   {
     "mnemonic": "Syscall",
     "constraints": {
-      "opcode": 0,
-      "funct": 12
+      "opcode": [0],
+      "funct": [12]
     }
   },
   {
     "mnemonic": "Teq",
     "constraints": {
-      "opcode": 0,
-      "funct": 52,
-      "shift": 0
+      "opcode": [0],
+      "funct": [52],
+      "shift": [0]
     }
   },
   {
     "mnemonic": "Teqi",
     "constraints": {
-      "opcode": 1,
-      "rt": 12
+      "opcode": [1],
+      "rt": [12]
     }
   },
   {
     "mnemonic": "Abs",
     "constraints": {
-      "opcode": 17,
-      "funct": 5,
-      "rt": 0
+      "opcode": [17],
+      "rs": [16,17,20],
+      "funct": [5],
+      "rt": [0]
     }
   },
   {
     "mnemonic": "Add_float",
     "constraints": {
-      "opcode": 17,
-      "funct": 0
+      "opcode": [17],
+      "rs": [16,17,20],
+      "funct": [0]
     }
   },
   {
     "mnemonic": "Bc1f",
     "constraints": {
-      "opcode": 17,
-      "rs": 8,
-      "nd": 0,
-      "tf": 0
+      "opcode": [17],
+      "rs": [8],
+      "nd": [0],
+      "tf": [0]
     }
   },
   {
     "mnemonic": "Bc1t",
     "constraints": {
-      "opcode": 17,
-      "rs": 8,
-      "nd": 0,
-      "tf": 1
+      "opcode": [17],
+      "rs": [8],
+      "nd": [0],
+      "tf": [1]
     }
   },
   {
     "mnemonic": "C",
     "constraints": {
-      "opcode": 17,
-      "zfc": 3
+      "opcode": [17],
+      "rs": [16,17,20],
+      "zfc": [3]
     }
   },
   {
     "mnemonic": "Cfc1",
     "constraints": {
-      "opcode": 17,
-      "rs": 2,
-      "shift": 0,
-      "funct": 0
+      "opcode": [17],
+      "rs": [2],
+      "shift": [0],
+      "funct": [0]
     }
   },
   {
     "mnemonic": "Ctc1",
     "constraints": {
-      "opcode": 17,
-      "rs": 6,
-      "shift": 0,
-      "funct": 0
+      "opcode": [17],
+      "rs": [6],
+      "shift": [0],
+      "funct": [0]
     }
   },
   {
     "mnemonic": "Cvt_D",
     "constraints": {
-      "opcode": 17,
-      "rt": 0,
-      "funct": 33
+      "opcode": [17],
+      "rs": [16,17,20],
+      "rt": [0],
+      "funct": [33]
     }
   },
   {
     "mnemonic": "Cvt_S",
     "constraints": {
-      "opcode": 17,
-      "rt": 0,
-      "funct": 32
-    }
-  },
-  {
-    "mnemonic": "Bc1f",
-    "constraints": {
-      "opcode": 17,
-      "rs": 8,
-      "nd": 0,
-      "tf": 0
+      "opcode": [17],
+      "rs": [16,17,20],
+      "rt": [0],
+      "funct": [32]
     }
   },
   {
     "mnemonic": "Div_float",
     "constraints": {
-      "opcode": 17,
-      "funct": 3
+      "opcode": [17],
+      "rs": [16,17,20],
+      "funct": [3]
     }
   },
   {
     "mnemonic": "Lwc1",
     "constraints": {
-      "opcode": 49
+      "opcode": [49]
     }
   },
   {
     "mnemonic": "Mfc1",
     "constraints": {
-      "opcode": 17,
-      "rs": 0,
-      "shift": 0,
-      "funct": 0
+      "opcode": [17],
+      "rs": [0],
+      "shift": [0],
+      "funct": [0]
     }
   },
   {
     "mnemonic": "Mov",
     "constraints": {
-      "opcode": 17,
-      "rt": 0,
-      "funct": 6
+      "opcode": [17],
+      "rs": [16,17,20],
+      "rt": [0],
+      "funct": [6]
     }
   },
   {
     "mnemonic": "Mtc1",
     "constraints": {
-      "opcode": 17,
-      "rs": 4,
-      "shift": 0,
-      "funct": 0
+      "opcode": [17],
+      "rs": [4],
+      "shift": [0],
+      "funct": [0]
     }
   },
   {
     "mnemonic": "Mul_float",
     "constraints": {
-      "opcode": 17,
-      "funct": 2
+      "opcode": [17],
+      "rs": [16,17,20],
+      "funct": [2]
     }
   },
   {
     "mnemonic": "Neg",
     "constraints": {
-      "opcode": 17,
-      "rt": 0,
-      "funct": 7
+      "opcode": [17],
+      "rs": [16,17,20],
+      "rt": [0],
+      "funct": [7]
     }
   },
   {
     "mnemonic": "Sqrt",
     "constraints": {
-      "opcode": 17,
-      "rt": 0,
-      "funct": 4
+      "opcode": [17],
+      "rs": [16,17,20],
+      "rt": [0],
+      "funct": [4]
     }
   },
   {
     "mnemonic": "Sub_float",
     "constraints": {
-      "opcode": 17,
-      "funct": 1
+      "opcode": [17],
+      "rs": [16,17,20],
+      "funct": [1]
     }
   },
   {
     "mnemonic": "Swc1",
     "constraints": {
-      "opcode": 57
+      "opcode": [57]
     }
   }
 ]

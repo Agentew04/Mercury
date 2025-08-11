@@ -35,11 +35,10 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
 
     public RegisterViewModel()
     {
-        WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoaded);
+        WeakReferenceMessenger.Default.Register<RegisterViewModel,ProgramLoadMessage>(this, OnProgramLoaded);
     }
 
-    private static void OnProgramLoaded(object sender, ProgramLoadMessage msg) {
-        RegisterViewModel vm = (RegisterViewModel)sender;
+    private static void OnProgramLoaded(RegisterViewModel vm, ProgramLoadMessage msg) {
         if (vm.machine is not null) {
             vm.machine.OnRegisterChanged -= vm.OnRegisterChange;
         }
@@ -74,20 +73,14 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
     }
 
     private void Highlight() {
-        if (SelectedProcessorIndex != 0) {
-            SelectedRegisterIndex = -1;
-            return;
-        }
         SelectedRegisterIndex = lastChangedRegisterIndex;
     }
 
     private void LoadRegisters(int processorIndex) {
         Registers.Clear();
-
+        SelectedRegisterIndex = -1;
         Processor proc = architectureMetadata.Processors[processorIndex];
         foreach (RegisterDefinition reg in proc.Registers) {
-            // TODO: enum com hierarquia?
-            // isto esta hardcoded para strings e mips
             Enum reg2 = RegisterHelper.GetRegisterFromName(reg.Name, proc.RegistersType);
             Registers.Add(new Register {
                 Name = reg.Name,

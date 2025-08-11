@@ -82,12 +82,9 @@
         </StackPanel>
         
         <DataGrid ItemsSource="{Binding Rows, Mode=OneWay}"
-                  Classes="headerslim"
-                  CanUserReorderColumns="False" CanUserSortColumns="False"
-                  CanUserResizeColumns="False"
+                  Classes="headerslim nocellselect static"
                   SelectedIndex="{Binding SelectedRowIndex, Mode=TwoWay}"
-                  CellPointerPressed="DataGrid_OnCellPointerPressed"
-                  IsReadOnly="True">
+                  CellPointerPressed="DataGrid_OnCellPointerPressed">
             <DataGrid.Columns>
                 <DataGridTextColumn Width="Auto" 
                                     Header="{Binding Path=RamHeaderAddress, Source={x:Static loc:RamResources.Instance}}"

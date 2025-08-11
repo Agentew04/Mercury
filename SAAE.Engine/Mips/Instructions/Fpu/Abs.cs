@@ -12,7 +12,7 @@ public class Abs : TypeFInstruction
     
     public bool IsDouble => fmt == DoublePrecisionFormat;
     
-    public override string ToString() => $"abs.{(fmt == 0b10000 ? "s" : "d")} ${TranslateRegisterName(Fd)}, ${TranslateRegisterName(Fs)}" + FormatTrivia();
+    public override string ToString() => $"abs.{FormatFmt(fmt)} ${TranslateRegisterName(Fd)}, ${TranslateRegisterName(Fs)}" + FormatTrivia();
 
     public override void FromInt(int instruction)
     {

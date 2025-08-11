@@ -30,7 +30,7 @@
         <value>Hexadecimal</value>
     </data>
     <data name="RamTextMode" xml:space="preserve">
-        <value>ASCII</value>
+        <value>Texto (ASCII)</value>
     </data>
     <data name="RamHeaderAddress" xml:space="preserve">
         <value>Endereço</value>
@@ -49,5 +49,8 @@
     </data>
     <data name="RamModeTitleText" xml:space="preserve">
         <value>Modo</value>
+    </data>
+    <data name="RamFloatMode" xml:space="preserve">
+        <value>Ponto Flutuante</value>
     </data>
 </root>

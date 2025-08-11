@@ -20,6 +20,7 @@ public sealed partial class Monocycle : IAsyncClockable {
         RegisterBank.Set(MipsGprRegisters.Gp, 0x1000_8000);
         RegisterBank.Set(MipsGprRegisters.Ra, 0x0000_0000);
         RegisterBank.Set(MipsGprRegisters.Pc, 0x0040_0000);
+        _ = RegisterBank.GetDirty();
     }
 
     /// <summary>

@@ -57,4 +57,7 @@
     <data name="RamModeTitleText" xml:space="preserve">
         <value>Mode</value>
     </data>
+    <data name="RamFloatMode" xml:space="preserve">
+        <value>Floating Point</value>
+    </data>
 </root>

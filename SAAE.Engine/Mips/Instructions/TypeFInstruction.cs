@@ -16,7 +16,8 @@ public abstract class TypeFInstruction : Instruction
 
     public const byte SinglePrecisionFormat = 0b10000;
     public const byte DoublePrecisionFormat = 0b10001;//10100
-    public const byte FixedPrecisionFormat = 0b10100;
+    public const byte WordFixedPrecisionFormat = 0b10100;
+    public const byte LongFixedPrecisionFormat = 0b10101;
 
     public override Regex GetRegularExpression()
     {
@@ -44,8 +45,8 @@ public abstract class TypeFInstruction : Instruction
         {
             SinglePrecisionFormat => "s",
             DoublePrecisionFormat => "d",
-            FixedPrecisionFormat => "w",
-            _ => throw new ArgumentOutOfRangeException(nameof(fmt), "Invalid format code.")
+            WordFixedPrecisionFormat => "w",
+            _ => throw new ArgumentOutOfRangeException(nameof(fmt), "Invalid format code. Got: " + fmt)
         };
     }
 }

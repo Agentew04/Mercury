@@ -37,13 +37,13 @@ public sealed class Machine : IDisposable, IAsyncClockable {
         Section<uint>? textSection = elf.GetSection(".text");
         uint textStart = textSection!.LoadAddress;
         uint textLength = textSection.Size;
-        Cpu.RegisterBank[RegisterFile.Register.Pc] = (int)elf.EntryPoint;
+        Cpu.RegisterBank[MipsGprRegisters.Pc] = (int)elf.EntryPoint;
         SymbolTable<uint>? symbolTable = elf.GetSections<SymbolTable<uint>>().First();
         Cpu.DropoffAddress = symbolTable?.Entries?.First(x => x.Name == "__end")?.Value ?? textStart + textLength;
         SymbolEntry<uint>? gpSymbol = symbolTable?.Entries?.First(x => x.Name == "_gp");
         if (gpSymbol is not null)
         {
-            Registers[RegisterFile.Register.Gp] = (int)gpSymbol.Value;
+            Registers[MipsGprRegisters.Gp] = (int)gpSymbol.Value;
         }
 
         // use segments to load data into memory
