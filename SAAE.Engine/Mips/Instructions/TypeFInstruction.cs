@@ -14,9 +14,9 @@ public abstract class TypeFInstruction : Instruction
         OpCode = 0b010001;
     }
 
-    protected const byte SinglePrecisionFormat = 0b10000;
-    protected const byte DoublePrecisionFormat = 0b10001;//10100
-    protected const byte WPrecisionFormat = 0b10100;
+    public const byte SinglePrecisionFormat = 0b10000;
+    public const byte DoublePrecisionFormat = 0b10001;//10100
+    public const byte FixedPrecisionFormat = 0b10100;
 
     public override Regex GetRegularExpression()
     {
@@ -44,7 +44,7 @@ public abstract class TypeFInstruction : Instruction
         {
             SinglePrecisionFormat => "s",
             DoublePrecisionFormat => "d",
-            WPrecisionFormat => "w",
+            FixedPrecisionFormat => "w",
             _ => throw new ArgumentOutOfRangeException(nameof(fmt), "Invalid format code.")
         };
     }

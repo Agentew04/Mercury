@@ -12,6 +12,7 @@ public sealed partial class Monocycle : IAsyncClockable {
     public Monocycle() {
         RegisterBank.DefineBank<MipsGprRegisters>(RegisterHelper.GetMipsGprRegistersCount());
         RegisterBank.DefineBank<MipsFpuRegisters>(RegisterHelper.GetMipsFpuRegistersCount());
+        RegisterBank.DefineBank<MipsFpuControlRegisters>(RegisterHelper.GetMipsFpuControlRegistersCount());
         RegisterBank.DefineBank<MipsSpecialRegisters>(RegisterHelper.GetMipsSpecialRegistersCount());
 
         RegisterBank.Set(MipsGprRegisters.Sp, 0x7FFF_EFFC);
@@ -33,6 +34,8 @@ public sealed partial class Monocycle : IAsyncClockable {
     /// registers of the CPU.
     /// </summary>
     public RegisterBank RegisterBank { get; private set; } = new();
+    
+    public bool[] Flags { get; private set; } = new bool[8];
 
     /// <summary>
     /// Class responsible to interpret binary instructions
@@ -129,18 +132,19 @@ public sealed partial class Monocycle : IAsyncClockable {
     
     public event Func<SignalExceptionEventArgs, Task>? OnSignalException;
 
-    private async ValueTask Execute(Instruction instruction) {
+    private ValueTask Execute(Instruction instruction) {
         switch (instruction) {
             case TypeRInstruction r:
-                await ExecuteTypeR(r);
-                break;
+                return ExecuteTypeR(r);
             case TypeIInstruction i:
-                await ExecuteTypeI(i);
-                break;
+                return ExecuteTypeI(i);
             case TypeJInstruction j:
                 ExecuteTypeJ(j);
                 break;
+            case TypeFInstruction f:
+                return ExecuteTypeF(f);
         }
+        return ValueTask.CompletedTask;
     }
 
     private static bool IsOverflowed(int a, int b, int result) {
@@ -178,7 +182,8 @@ public sealed partial class Monocycle : IAsyncClockable {
             IntegerOverflow,
             AddressError,
             Halt,
-            InvalidInstruction
+            InvalidInstruction,
+            InvalidOperation,
         }
     }
 }

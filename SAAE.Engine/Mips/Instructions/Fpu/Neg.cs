@@ -6,6 +6,8 @@ public class Neg : TypeFInstruction
     public byte Fs { get; private set; }
     public byte Fd { get; private set; }
     
+    public bool IsDouble => Fmt == DoublePrecisionFormat;
+    
     public override string ToString() => $"neg.{FormatFmt(Fmt)} ${TranslateRegisterName(Fd)}, ${TranslateRegisterName(Fs)}" + FormatTrivia();
 
     public override void FromInt(int instruction)

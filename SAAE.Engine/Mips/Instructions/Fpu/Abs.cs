@@ -5,8 +5,8 @@ namespace SAAE.Engine.Mips.Instructions;
 public class Abs : TypeFInstruction
 {
     private byte fmt = SinglePrecisionFormat;
-    private byte Fs { get; set; }
-    private byte Fd { get; set; }
+    public byte Fs { get; set; }
+    public byte Fd { get; set; }
 
     private const byte Function = 0b000101;
     

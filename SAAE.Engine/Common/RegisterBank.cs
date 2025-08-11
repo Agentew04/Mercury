@@ -30,7 +30,7 @@ public class RegisterBank {
 
     public int Get<TRegister>(int number) where TRegister : struct, Enum {
         TRegister? reg = RegisterHelper.GetRegister<TRegister>(number);
-        return reg is null ? default : Get(reg.Value);
+        return reg is null ? 0 : Get(reg.Value);
     }
 
     public int Get(Enum reg, Type type) {

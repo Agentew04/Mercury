@@ -202,6 +202,10 @@ public partial class Monocycle {
                     });
                 }
             }
-        } 
+        } else if (instruction is Lwc1 lwc1) {
+            throw new NotImplementedException();
+        }else if (instruction is Swc1 swc1) {
+            throw new NotImplementedException();
+        }
     }
 }
