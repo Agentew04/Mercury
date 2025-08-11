@@ -131,7 +131,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         }
         string? files = string.Join(" ", inputFiles);
         return $"--target=mips-linux-gnu -O0 -fno-pic -mno-abicalls -nostartfiles -Wl -T \"{LinkerPath}\" -nostdlib" +
-               $" -static -fuse-ld=lld -o \"{outputName}\" {files}";
+               $" -static -fuse-ld=lld -modd-spreg -o \"{outputName}\" {files}";
         /*
          * -O0: no optimization
          * -fno-pic: desativa position independent code. Coloquei pra garantir que 'la' traduza para 'lui'+'ori'
