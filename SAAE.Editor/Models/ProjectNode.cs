@@ -40,7 +40,7 @@ public partial class ProjectNode : ObservableObject {
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasContextMenu))]
-    private ObservableCollection<ContextOption> contextOptions = [];
+    private ObservableCollection<NodeContextOption> contextOptions = [];
 
     public WeakReference<ProjectNode> ParentReference { get; set; } = null!;
     
@@ -55,7 +55,7 @@ public partial class ProjectNode : ObservableObject {
 /// <summary>
 /// Representa uma opcao de contexto para um nó na árvore de arquivos do projeto.
 /// </summary>
-public sealed partial class ContextOption : ObservableObject, IDisposable {
+public abstract partial class ContextOption<T> : ObservableObject, IDisposable {
 
     public string Name => Resource.Invoke();
 
@@ -65,7 +65,7 @@ public sealed partial class ContextOption : ObservableObject, IDisposable {
     private bool isVisible = true;
 
     [ObservableProperty]
-    private IRelayCommand<ProjectNode> command = null!;
+    private IRelayCommand<T> command = null!;
 
     public ContextOption() {
         LocalizationManager.CultureChanged += OnLocalize;
@@ -80,3 +80,5 @@ public sealed partial class ContextOption : ObservableObject, IDisposable {
     }
 }
 
+public sealed class NodeContextOption : ContextOption<ProjectNode>;
+public sealed class MainContextOption : ContextOption<object>;

@@ -47,6 +47,7 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<FileService>();
         collection.AddSingleton<GrammarService>();
         collection.AddSingleton<ExecuteService>();
+        collection.AddSingleton<UpdaterService>();
 
         HttpClient httpClient = new(); // reuse the same instance
         HttpRequestHeaders headers = httpClient.DefaultRequestHeaders;

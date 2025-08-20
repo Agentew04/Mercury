@@ -6,6 +6,7 @@
              xmlns:conv="clr-namespace:SAAE.Editor.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:diag="clr-namespace:SAAE.Editor.Models.Compilation"
+             xmlns:loc="clr-namespace:SAAE.Editor.Localization"
              x:Class="SAAE.Editor.Views.CodeView.ProblemsView"
              x:DataType="code:ProblemsViewModel">
     <UserControl.Resources>
@@ -31,12 +32,12 @@
                                    VerticalAlignment="Center"/>
                     </DataTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Message" Binding="{Binding Message}"
+                <DataGridTextColumn Header="{loc:FileEditorResources ProblemMessageColumn}" Binding="{Binding Message}"
                                     Width="*">
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Filename" Binding="{Binding FilePath, Mode=OneWay,Converter={StaticResource FilenameConverter}}"
+                <DataGridTextColumn Header="{loc:FileEditorResources ProblemFileColumn}" Binding="{Binding FilePath, Mode=OneWay,Converter={StaticResource FilenameConverter}}"
                                     Width="150"/>
-                <DataGridTextColumn Header="Line" Binding="{Binding Line}"
+                <DataGridTextColumn Header="{loc:FileEditorResources ProblemLineColumn}" Binding="{Binding Line}"
                                     Width="50"/>
             </DataGrid.Columns>
         </DataGrid>

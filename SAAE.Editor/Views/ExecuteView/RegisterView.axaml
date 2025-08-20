@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SAAE.Editor.ViewModels.Execute"
              xmlns:loc="clr-namespace:SAAE.Editor.Localization"
+             xmlns:cv="clr-namespace:SAAE.Editor.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="SAAE.Editor.Views.ExecuteView.RegisterView"
              x:DataType="vm:RegisterViewModel">
@@ -19,9 +20,12 @@
             GridLinesVisibility="Horizontal" IsReadOnly="True"
             ItemsSource="{Binding Registers}"
             HorizontalAlignment="Stretch"
-            SelectedIndex="{Binding SelectedRegisterIndex}"
             CellPointerPressed="DataGrid_OnCellPointerPressed"
             Classes="headerslim static nocellselect">
+            <DataGrid.Resources>
+                <cv:BoolToColorConverter x:Key="BoolToColorConverter"></cv:BoolToColorConverter>
+                <cv:ColorConverterParam x:Key="RowHighlightParam" TrueBrush="{StaticResource SelectionColor}" FalseBrush="Transparent"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{Binding Path=NameText, Source={x:Static loc:RegisterResources.Instance}}" 
                                     Binding="{Binding Name}" Width="Auto"/>
@@ -30,6 +34,15 @@
                 <DataGridTextColumn Header="{Binding Path=ValueText, Source={x:Static loc:RegisterResources.Instance}}" 
                                     Binding="{Binding Value }" Width="*"/>
             </DataGrid.Columns>
+            <DataGrid.Styles>
+                <Style Selector="DataGridRow" x:DataType="vm:Register">
+                    <Setter Property="Background" Value="{Binding Highlighted,
+                    Converter={StaticResource BoolToColorConverter},
+                    ConverterParameter={StaticResource RowHighlightParam}}">
+                        
+                    </Setter>
+                </Style>
+            </DataGrid.Styles>
         </DataGrid>
     </Grid>
 </UserControl>

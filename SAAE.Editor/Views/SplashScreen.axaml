@@ -29,7 +29,7 @@
                     Mips 2.0
                 </Label>
                 
-                <Label FontSize="15" Content="{Binding Source={x:Static localization:SplashScreenResources.Instance}, Path=InitializingText}"/>
+                <Label FontSize="15" Content="{localization:SplashScreenResources InitializingText}"/>
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <TextBlock FontSize="11" Text="{Binding StatusText}"/>
                     <TextBlock FontSize="11" Text="{Binding PercentageText}"></TextBlock>
@@ -37,7 +37,7 @@
             </StackPanel>
             <Label HorizontalAlignment="Left" VerticalAlignment="Bottom"
                    Margin="15" 
-                   Content="{Binding Source={x:Static localization:SplashScreenResources.Instance}, Path=CopyrightNotice}"/>
+                   Content="{localization:SplashScreenResources CopyrightNotice}"/>
             <Label HorizontalAlignment="Right" VerticalAlignment="Bottom"
                    Margin="15" Content="{Binding VersionText}"/>
         </Grid>

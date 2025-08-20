@@ -40,11 +40,11 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
         switch (node.Type) {
             case ProjectNodeType.Category:
                 node.ContextOptions = [
-                    new ContextOption {
+                    new NodeContextOption {
                         Resource = () => ProjectResources.NewFileContextMenuValue,
                         Command = AddFileCommand
                     },
-                    new ContextOption {
+                    new NodeContextOption {
                         Resource = () => ProjectResources.NewFolderContextMenuValue,
                         Command = AddFolderCommand
                     },
@@ -52,15 +52,15 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
                 break;
             case ProjectNodeType.Folder:
                 node.ContextOptions = [
-                    new ContextOption {
+                    new NodeContextOption {
                         Resource = () => ProjectResources.NewFileContextMenuValue,
                         Command = AddFileCommand
                     },
-                    new ContextOption {
+                    new NodeContextOption {
                         Resource = () => ProjectResources.NewFolderContextMenuValue,
                         Command = AddFolderCommand
                     },
-                    new ContextOption {
+                    new NodeContextOption {
                         Resource = () => ProjectResources.DeleteFolderContextMenuValue,
                         Command = RemoveNodeCommand
                     }
@@ -68,11 +68,11 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
                 break;
             case ProjectNodeType.AssemblyFile:
                 node.ContextOptions = [
-                    new ContextOption {
+                    new NodeContextOption() {
                         Resource = () => ProjectResources.SetEntryPointContextMenuValue,
                         Command = SetEntryPointCommand
                     },
-                    new ContextOption {
+                    new NodeContextOption {
                         Resource = () => ProjectResources.DeleteFileContextMenuValue,
                         Command = RemoveNodeCommand
                     }

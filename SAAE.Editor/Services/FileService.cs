@@ -156,7 +156,7 @@ public class FileService : BaseService<FileService> {
         nodeTypes.Remove(node.Id);
         isStdlibNode.Remove(node.Id);
         nodeAcceleration.Remove(node.Id);
-        foreach (ContextOption nodeContextOption in node.ContextOptions) {
+        foreach (NodeContextOption nodeContextOption in node.ContextOptions) {
             nodeContextOption.Dispose();
         }
         node.ContextOptions.Clear();

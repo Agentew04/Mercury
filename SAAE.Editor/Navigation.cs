@@ -1,55 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Avalonia.Controls;
 
 namespace SAAE.Editor;
 
+/// <summary>
+/// Class to manage lazy loading page navigation
+/// </summary>
 public class Navigation
 {
     private static Navigation? _instance;
 
-    public Navigation(TabControl tabControl)
+    public Navigation(ContentControl contentControl, bool setAsDefault = true)
     {
-        host = tabControl;
-        _instance = this;
-        
-        // Initialize targets
-        ItemCollection children = tabControl.Items;
-        foreach (object? child in children)
-        {
-            if (child is not TabItem tabItem)
-            {
-                continue;
-            }
-            NavigationTarget? target = (NavigationTarget?)tabItem.Tag;
-            if (target is null)
-            {
-                throw new NotSupportedException("The Tag of a TabItem must be set to a NavigationTarget enum value.");
-            }
-            if (!targets.TryAdd(target.Value, tabItem))
-            {
-                throw new NotSupportedException($"The TabItem with Tag '{target}' is already registered.");
-            }
+        if (_instance is not null && setAsDefault) {
+            throw new NotSupportedException("There can be only one default navigation");
+        }
+        host = contentControl;
+        if (setAsDefault) {
+            _instance = this;
         }
     }
     
+    private readonly ContentControl host;
+    private readonly Dictionary<NavigationTarget, Type> registeredTypes = [];
+    private readonly Dictionary<NavigationTarget, Control> createdTargets = [];
+    private NavigationTarget current = default;
+    private bool hasCurrent = false;
+
+    public void Register<TControl>(NavigationTarget target) where TControl : Control, new(){
+        registeredTypes.Add(target, typeof(TControl));
+    }
+
+    [RequiresDynamicCode("Uses reflection to create instances of pages")]
+    public void Navigate(NavigationTarget target) {
+        if (!createdTargets.TryGetValue(target, out Control? ctrl)) {
+            ctrl = (Control?)Activator.CreateInstance(registeredTypes[target]);
+            if (ctrl is null) {
+                throw new NotSupportedException("Could not create dynamic page type");
+            }
+        }
+
+        if (!hasCurrent || current != target) {
+            host.Content = ctrl;
+            current = target;
+            hasCurrent = true;
+        }
+    }
+
     public static void NavigateTo(NavigationTarget target)
     {
         if (_instance is null)
         {
             throw new InvalidOperationException("Navigation instance is not initialized. Ensure that Navigation is created with a TabControl.");
         }
-        
-        if (!_instance.targets.TryGetValue(target, out TabItem? tabItem))
-        {
-            throw new NotSupportedException($"No TabItem registered for NavigationTarget '{target}'.");
-        }
-        _instance.host.SelectedItem = tabItem;
+        _instance.Navigate(target);
     }
-
-    private readonly TabControl host;
-    private readonly Dictionary<NavigationTarget, TabItem> targets = [];
 }
 
 public enum NavigationTarget

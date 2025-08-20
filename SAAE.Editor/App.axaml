@@ -28,6 +28,7 @@
       <SolidColorBrush x:Key="BlueLight">#0b779c</SolidColorBrush>
       <SolidColorBrush x:Key="PrimaryForeground">#dddddd</SolidColorBrush>
       <SolidColorBrush x:Key="SecondaryForeground">#666666</SolidColorBrush>
+      <SolidColorBrush x:Key="SelectionColor">#0077FF</SolidColorBrush>
       <SolidColorBrush x:Key="Purple1" Color="#7950F2" />
       <SolidColorBrush x:Key="Purple2" Color="#4B3296" />
       <SolidColorBrush x:Key="Purple3" Color="#3A2775" />

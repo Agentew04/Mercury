@@ -11,11 +11,11 @@ public class SimplePipeline : IClockable
 {
     public SimplePipeline()
     {
-        RegisterFile[RegisterFile.Register.Sp] = 0x7FFF_EFFC; // o 'E' aparece no MARS
-        RegisterFile[RegisterFile.Register.Fp] = 0x0000_0000;
-        RegisterFile[RegisterFile.Register.Gp] = 0x1000_8000;
-        RegisterFile[RegisterFile.Register.Ra] = 0x0000_0000;
-        RegisterFile[RegisterFile.Register.Pc] = 0x0040_0000;
+        // RegisterFile[RegisterFile.Register.Sp] = 0x7FFF_EFFC; // o 'E' aparece no MARS
+        // RegisterFile[RegisterFile.Register.Fp] = 0x0000_0000;
+        // RegisterFile[RegisterFile.Register.Gp] = 0x1000_8000;
+        // RegisterFile[RegisterFile.Register.Ra] = 0x0000_0000;
+        // RegisterFile[RegisterFile.Register.Pc] = 0x0040_0000;
     }
 
     #region Components
@@ -26,11 +26,11 @@ public class SimplePipeline : IClockable
     /// </summary>
     public Memory.Memory Memory { get; set; } = null!;
 
-    /// <summary>
-    /// Structure that holds all the general purpose
-    /// registers of the CPU.
-    /// </summary>
-    public RegisterFile RegisterFile { get; private set; } = new();
+    // /// <summary>
+    // /// Structure that holds all the general purpose
+    // /// registers of the CPU.
+    // /// </summary>
+    // public RegisterFile RegisterFile { get; private set; } = new();
 
     #endregion
 
@@ -67,10 +67,10 @@ public class SimplePipeline : IClockable
         
     }
 
-    public bool IsClockingFinished()
-    {
-        return RegisterFile[RegisterFile.Register.Pc] >= DropoffAddress
-               || isHalted;
+    public bool IsClockingFinished() {
+        return true;
+        // return RegisterFile[RegisterFile.Register.Pc] >= DropoffAddress
+        //        || isHalted;
     }
 
     #endregion

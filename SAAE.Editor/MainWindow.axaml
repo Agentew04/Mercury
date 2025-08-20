@@ -2,15 +2,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+        xmlns:loc="clr-namespace:SAAE.Editor.Localization"
         xmlns:view="clr-namespace:SAAE.Editor.Views"
         xmlns:local="clr-namespace:SAAE.Editor"
         xmlns:controls="clr-namespace:SAAE.Editor.Controls"
-        xmlns:codeView="clr-namespace:SAAE.Editor.Views.CodeView"
-        xmlns:execView="clr-namespace:SAAE.Editor.Views.ExecuteView"
-        xmlns:executeView="clr-namespace:SAAE.Editor.Views.ExecuteView"
+        xmlns:model="clr-namespace:SAAE.Editor.Models"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
         x:Class="SAAE.Editor.MainWindow"
+        x:DataType="local:MainWindow"
         Title="SAAE.Editor"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="NoChrome"
@@ -44,21 +43,37 @@
         
         <!-- menu -->
         <Menu Grid.Column="1" Background="{x:Null}">
-          <MenuItem Header="_File">
-            <MenuItem Header="_New"/>
-            <MenuItem Header="_Open"/>
-            <MenuItem Header="_Recent"/>
-            <MenuItem Header="_Save"/>
-            <MenuItem Header="Save _As"/>
+          <MenuItem Header="{Binding Path=ProjectTabHeader, Source={x:Static loc:MainWindowResources.Instance}}"
+                    x:Name="ProjectMenuItem"
+                    Click="ProjectMenuItem_OnClick">
+            <FlyoutBase.AttachedFlyout>
+              <Flyout FlyoutPresenterClasses="menuflyoutslim">
+                <ItemsControl ItemsSource="{Binding ProjectMenuOptions}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="model:MainContextOption">
+                      <Button Classes="contextmenuitem"
+                              IsVisible="{Binding IsVisible}"
+                              Command="{Binding Command}">
+                        <TextBlock Text="{Binding Name, Mode=OneWay}"
+                                   HorizontalAlignment="Left"
+                                   Margin="0"
+                                   Padding="0"
+                                   VerticalAlignment="Center"></TextBlock>
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Flyout>
+            </FlyoutBase.AttachedFlyout>
           </MenuItem>
-          <MenuItem Header="_Edit">
-
-          </MenuItem>
-          <MenuItem Header="_View">
-
-          </MenuItem>
-          <MenuItem Header="_Configuration"
+          <MenuItem Header="{Binding Path=CodeTabHeader, Source={x:Static loc:MainWindowResources.Instance}}"
+                    Click="OpenCode"/>
+          <MenuItem Header="{Binding Path=RunTabHeader, Source={x:Static loc:MainWindowResources.Instance}}"
+                    Click="OpenRun"/>
+          <MenuItem Header="{Binding Path=ConfigTabHeader, Source={x:Static loc:MainWindowResources.Instance}}"
                     Click="OpenConfiguration"/>
+          <MenuItem Header="{loc:MainWindowResources AboutTabHeader}"
+                    Click="Open_About"/>
         </Menu>
       </Grid>
       
@@ -66,17 +81,26 @@
       <view:StatusBar DockPanel.Dock="Bottom" Background="{StaticResource Purple1}"/>
       
       <!-- main view -->
-      <TabControl x:Name="TabControl">
-        <TabControl.Items>
-          <TabItem Header="Code" Tag="{x:Static local:NavigationTarget.CodeView}">
-            <codeView:CodeTabView/>
-            </TabItem>
-          <TabItem Header="Run" Tag="{x:Static local:NavigationTarget.ExecuteView}">
-            <executeView:ExecuteView/>
-          </TabItem>
-          <TabItem Header="Design" Tag="{x:Static local:NavigationTarget.DesignView}"/>
-        </TabControl.Items>
-      </TabControl>
+      <TransitioningContentControl x:Name="PageFrame" Margin="0,5,0,0">
+        <TransitioningContentControl.PageTransition>
+          <CrossFade Duration="00:00:00.250">
+            <CrossFade.FadeInEasing>
+              <CubicEaseIn></CubicEaseIn>
+            </CrossFade.FadeInEasing>
+            <CrossFade.FadeOutEasing>
+              <CubicEaseIn></CubicEaseIn>
+            </CrossFade.FadeOutEasing>
+          </CrossFade>
+          <!-- <PageSlide Duration="00:00:00.250" Orientation="Horizontal"> -->
+          <!--   <PageSlide.SlideInEasing> -->
+          <!--     <CubicEaseIn></CubicEaseIn> -->
+          <!--   </PageSlide.SlideInEasing> -->
+          <!--   <PageSlide.SlideOutEasing> -->
+          <!--     <CubicEaseOut></CubicEaseOut> -->
+          <!--   </PageSlide.SlideOutEasing> -->
+          <!-- </PageSlide> -->
+        </TransitioningContentControl.PageTransition>
+      </TransitioningContentControl>
     </DockPanel>
     <controls:TextPopup IsVisible="False" x:Name="TextPopup"/>
     <controls:BoolPopup IsVisible="False" x:Name="BoolPopup"></controls:BoolPopup>

@@ -19,20 +19,20 @@
         <Grid RowDefinitions="Auto,Auto,*">
             <!-- toolbar -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,3" Spacing="5">
-                <Button Padding="5" ToolTip.Tip="{Binding Path=SaveButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}"
+                <Button Padding="5" ToolTip.Tip="{localization:FileEditorResources SaveButtonTooltip}"
                         Command="{Binding SaveProjectCommand}"
                         HotKey="Ctrl+S">
                     <TextBlock FontFamily="{StaticResource PhosphorFont}"
                                Text="&#xE248;" Margin="0"></TextBlock>
                 </Button>
                 <!-- build -->
-                <Button Padding="5" ToolTip.Tip="{Binding Path=BuildButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}"
+                <Button Padding="5" ToolTip.Tip="{localization:FileEditorResources BuildButtonTooltip}"
                         Command="{Binding BuildProjectCommand}">
                     <TextBlock FontFamily="{StaticResource PhosphorFont}"
                                Text="&#xE80E;" Margin="0"></TextBlock>
                 </Button>
                 <!-- run -->
-                <Button Padding="5" ToolTip.Tip="{Binding Path=RunButtonTooltip, Source={x:Static localization:FileEditorResources.Instance}}"
+                <Button Padding="5" ToolTip.Tip="{localization:FileEditorResources RunButtonTooltip}"
                         Command="{Binding RunProjectCommand}"
                         IsEnabled="{Binding CanRunProject}">
                     <TextBlock FontFamily="{StaticResource PhosphorFont}"

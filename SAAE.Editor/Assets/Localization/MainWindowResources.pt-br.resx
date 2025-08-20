@@ -1,0 +1,32 @@
+﻿<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="OpenProjectSelectionContext" xml:space="preserve">
+        <value>Abrir janela de seleção de projeto</value>
+    </data>
+    <data name="CodeTabHeader" xml:space="preserve">
+        <value>_Programar</value>
+    </data>
+    <data name="RunTabHeader" xml:space="preserve">
+        <value>_Executar</value>
+    </data>
+    <data name="ConfigTabHeader" xml:space="preserve">
+        <value>_Configurações</value>
+    </data>
+    <data name="AboutTabHeader" xml:space="preserve">
+        <value>_Sobre</value>
+    </data>
+    <data name="ProjectTabHeader" xml:space="preserve">
+        <value>_Projeto</value>
+    </data>
+</root>

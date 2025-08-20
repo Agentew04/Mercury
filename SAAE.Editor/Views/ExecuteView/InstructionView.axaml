@@ -16,13 +16,13 @@
     </UserControl.Resources>
     <DockPanel Margin="5">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,3,5,3" Spacing="5">
-            <TextBlock Text="{Binding Path=Title, Source={x:Static loc:InstructionResources.Instance}}"
+            <TextBlock Text="{loc:InstructionResources Title}"
                        VerticalAlignment="Center"
                        Classes="minorheader">
             </TextBlock>
             
             <!-- step  -->
-            <Button Padding="5" ToolTip.Tip="{Binding Path=StepTooltip, Source={x:Static loc:InstructionResources.Instance}}"
+            <Button Padding="5" ToolTip.Tip="{loc:InstructionResources StepTooltip}"
                     Command="{Binding StepCommand}"
                     Margin="10,0,0,0">
                 <TextBlock FontFamily="{StaticResource PhosphorFont}"
@@ -30,14 +30,14 @@
             </Button>
             
             <!-- execute  -->
-            <Button Padding="5" ToolTip.Tip="{Binding Path=ExecuteTooltip, Source={x:Static loc:InstructionResources.Instance}}"
+            <Button Padding="5" ToolTip.Tip="{loc:InstructionResources ExecuteTooltip}"
                     Command="{Binding ExecuteCommand}">
                 <TextBlock FontFamily="{StaticResource PhosphorFont}"
                            Text="&#xE6A6;" Margin="0"></TextBlock>
             </Button>
             
             <!-- stop  -->
-            <Button Padding="5" ToolTip.Tip="{Binding Path=StopExecutionTooltip, Source={x:Static loc:InstructionResources.Instance}}"
+            <Button Padding="5" ToolTip.Tip="{loc:InstructionResources StopExecutionTooltip}"
                     Command="{Binding StopCommand}">
                 <TextBlock FontFamily="{StaticResource PhosphorFont}"
                            Text="&#xE39E;" Margin="0"></TextBlock>
@@ -63,28 +63,25 @@
                   >
             <DataGrid.Columns>
                 <DataGridTextColumn Width="Auto" 
-                                    Header="{Binding Path=AddressHeader, 
-                                        Source={x:Static loc:InstructionResources.Instance}}"
+                                    Header="{loc:InstructionResources AddressHeader}"
                                     Binding="{Binding Address, 
                                         Converter={StaticResource HexadecimalConverter},
                                         StringFormat='0x{0}',
                                         Mode=OneWay}"
                                     ></DataGridTextColumn>
                 <DataGridTextColumn Width="Auto" 
-                                    Header="{Binding Path=BinaryHeader, 
-                                        Source={x:Static loc:InstructionResources.Instance}}"
+                                    Header="{loc:InstructionResources BinaryHeader}"
                                     Binding="{Binding Binary,
                                         Converter={StaticResource HexadecimalConverter},
                                         StringFormat='0x{0}',
                                         Mode=OneWay}"
                                     ></DataGridTextColumn>
                 <DataGridTextColumn Width="Auto"
-                                    Header="{Binding Path=DisassemblyHeader, 
-                                        Source={x:Static loc:InstructionResources.Instance}}"
+                                    Header="{loc:InstructionResources DisassemblyHeader}"
                                     Binding="{Binding Disassembly, Mode=OneWay}"
                                     ></DataGridTextColumn>
                 <DataGridTemplateColumn Width="*"
-                                    Header="{Binding Path=SourceHeader, Source={x:Static loc:InstructionResources.Instance}}"
+                                    Header="{loc:InstructionResources SourceHeader}"
                                     >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="exec:DisassemblyRow">
@@ -98,8 +95,7 @@
                                     <TextBlock Text="&#xE428;"
                                                IsVisible="{Binding Source.IsEntryPoint, Mode=OneWay}"
                                                FontFamily="{StaticResource PhosphorFont}"
-                                               ToolTip.Tip="{Binding Path=EntryPointTooltip, 
-                                                   Source={x:Static loc:InstructionResources.Instance}}"
+                                               ToolTip.Tip="{loc:InstructionResources EntryPointTooltip}"
                                                VerticalAlignment="Center"/>
                                     <!-- labels icon -->
                                     <TextBlock Text="&#xE478;"
@@ -120,8 +116,7 @@
                                                Converter={StaticResource EnumToBoolConverter},
                                                ConverterParameter={x:Static exec:InstructionType.Generated}}"
                                                FontFamily="{StaticResource PhosphorFont}"
-                                               ToolTip.Tip="{Binding Path=GeneratedTooltip, 
-                                                   Source={x:Static loc:InstructionResources.Instance}}"
+                                               ToolTip.Tip="{loc:InstructionResources GeneratedTooltip}"
                                                VerticalAlignment="Center"></TextBlock>
                                     <!-- lego icon -->
                                     <TextBlock Text="&#xE8C6;"
@@ -129,8 +124,7 @@
                                                Converter={StaticResource EnumToBoolConverter},
                                                ConverterParameter={x:Static exec:InstructionType.Padding}}"
                                                FontFamily="{StaticResource PhosphorFont}"
-                                               ToolTip.Tip="{Binding Path=PaddingTooltip, 
-                                                   Source={x:Static loc:InstructionResources.Instance}}"
+                                               ToolTip.Tip="{loc:InstructionResources PaddingTooltip}"
                                                VerticalAlignment="Center"></TextBlock>
                                 </StackPanel>
                                 

@@ -41,7 +41,7 @@
                             <Flyout FlyoutPresenterClasses="menuflyoutslim">
                                 <ItemsControl ItemsSource="{Binding ContextOptions}">
                                     <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="model:ContextOption">
+                                        <DataTemplate x:DataType="model:NodeContextOption">
                                             <Button Classes="contextmenuitem"
                                                     IsVisible="{Binding IsVisible}"
                                                     Command="{Binding Command}"

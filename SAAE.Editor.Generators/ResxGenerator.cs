@@ -110,40 +110,56 @@ public class ResxGenerator : IIncrementalGenerator {
             .ToList();
         StringBuilder properties = new();
         StringBuilder updates = new();
+        StringBuilder ctorInits = new();
         foreach (LocalizationEntry entry in entries) {
             properties.AppendLine(
-                $"""
+                $$"""
                      /// <summary>
-                     /// Property that retrieves the value of the {entry.Name} resource in
+                     /// Reactive value holder for property <see cref="{{entry.Name}}"/>
+                     /// </summary>
+                     private readonly BehaviorSubject<string> _{{entry.Name}};
+                     
+                     /// <summary>
+                     /// Returns a <see cref="IObservable{T}"/>
+                     /// </summary>
+                     public static IObservable<string> {{entry.Name}}Observable => Instance._{{entry.Name}};
+                 
+                     /// <summary>
+                     /// Property that retrieves the value of the {{entry.Name}} resource in
                      /// the current culture.
                      /// </summary>
-                     public string {entry.Name} => resourceManager.GetString("{entry.Name}", LocalizationManager.CurrentCulture) ?? "";
+                     public string {{entry.Name}} => resourceManager.GetString("{{entry.Name}}", LocalizationManager.CurrentCulture) ?? "";
 
                      /// <summary>
-                     /// Function that retrieves the newest value of the <see cref="{entry.Name}">
+                     /// Function that retrieves the newest value of the <see cref="{{entry.Name}}">
                      /// property in the current culture.
                      /// </summary>
-                     public string Get{entry.Name} => {entry.Name};
+                     public string Get{{entry.Name}}() => {{entry.Name}};
 
                      /// <summary>
-                     /// Property that retrieves the value of the {entry.Name} resource in
+                     /// Property that retrieves the value of the {{entry.Name}} resource in
                      /// the current culture.
                      /// </summary>
-                     public static string {entry.Name}Value => Instance.{entry.Name};
+                     public static string {{entry.Name}}Value => Instance.{{entry.Name}};
                  """);
 
-            updates.Append(
+            updates.AppendLine(
                 $"""
-                 
                          OnPropertyChanged(new("{entry.Name}"));
+                         _{entry.Name}.OnNext({entry.Name});
                  """);
+            ctorInits.AppendLine(
+               $"""
+                        _{entry.Name} = new BehaviorSubject<string>({entry.Name});
+                """);
         }
         
-        string classCode = 
+        string moduleclassCode = 
         $$"""
         using System;
         using System.ComponentModel;
         using System.Globalization;
+        using System.Reactive.Subjects;
         
         #nullable enable
         
@@ -168,6 +184,7 @@ public class ResxGenerator : IIncrementalGenerator {
                 resourceManager = new System.Resources.ResourceManager(
                     baseName: "SAAE.Editor.Assets.Localization.{{module}}", 
                     typeof({{module}}).Assembly);
+        {{ctorInits}}
             }
             
             private void OnCultureChanged(CultureInfo culture) {
@@ -182,7 +199,53 @@ public class ResxGenerator : IIncrementalGenerator {
         {{properties}}
         }                
         """;
-        ctx.AddSource($"SAAE.Editor.Localization.{module}.g.cs", SourceText.From(classCode, Encoding.UTF8));
+        ctx.AddSource($"SAAE.Editor.Localization.{module}.g.cs", SourceText.From(moduleclassCode, Encoding.UTF8));
+
+        StringBuilder switchCaseEntries = new();
+        StringBuilder enumEntries = new();
+        foreach (LocalizationEntry entry in entries) {
+            switchCaseEntries.AppendLine(
+               $"""
+                            case {module}Enum.{entry.Name}:
+                                return {module}.{entry.Name}Observable.ToBinding();
+                """);
+            enumEntries.AppendLine(
+                $"        {entry.Name},"
+            );
+        }
+
+        string extensionClassCode = 
+            $$"""
+              using System;
+              using Avalonia;
+              using Avalonia.Data;
+              using Avalonia.Markup.Xaml;
+              
+              namespace SAAE.Editor.Localization;
+              
+              /// <summary>
+              /// Extension class to enable easy XAML access to localization for <see cref="{{module}}"/>.
+              /// </summary>
+              public class {{module}}Extension {
+              
+                  [ConstructorArgument("resource")]
+                  public {{module}}Enum Resource { get; }
+                  
+                  public {{module}}Extension({{module}}Enum resource) => Resource = resource;
+                  
+                  public IBinding ProvideValue() {
+                      switch (Resource) {
+              {{switchCaseEntries}}
+                      }
+                      return null;
+                  }
+                  
+                  public enum {{module}}Enum {
+              {{enumEntries}}
+                  }
+              }
+              """;
+        ctx.AddSource($"SAAE.Editor.Localization.{module}Extension.g.cs", SourceText.From(extensionClassCode, Encoding.UTF8));
     }
     
     private readonly record struct LocalizationEntry {

@@ -58,6 +58,7 @@ public class RegisterBank {
 
     public void Set(Enum reg, Type type, int value) {
         ((int[])banks[type])[Convert.ToInt32(reg)] = value;
+        dirty.Add((type, reg));
     }
 
     /// <summary>
@@ -68,8 +69,8 @@ public class RegisterBank {
     /// <exception cref="KeyNotFoundException">Thrown when the
     /// type of the Enum passed is not present in any bank.</exception>
     public int this[Enum reg] {
-        get => ((int[])banks[reg.GetType()])[Convert.ToInt32(reg)];
-        set => ((int[])banks[reg.GetType()])[Convert.ToInt32(reg)] = value;
+        get => Get(reg, reg.GetType());
+        set => Set(reg, reg.GetType(), value);
     }
 
     private readonly List<(Type, Enum)> dirty = [];

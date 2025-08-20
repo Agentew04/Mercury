@@ -16,6 +16,7 @@
         <Setter Property="FontFamily" Value="{DynamicResource NunitoFont}"></Setter>
     </Style>
     
+    <!-- text block -->
     <Style Selector="TextBlock.header">
         <Setter Property="FontSize" Value="24"></Setter>
         <Setter Property="Margin" Value="10,5,0,5"></Setter>
@@ -27,6 +28,7 @@
         <Setter Property="FontWeight" Value="Regular"></Setter>
     </Style>
     
+    <!-- button  -->
     <Style Selector="Button.invisible">
         <Setter Property="Background" Value="Transparent"></Setter>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForeground}"></Setter>
@@ -139,6 +141,9 @@
     </Style>
     
     <!-- data grid styles -->
+    <Style Selector="DataGrid DataGridRow:selected Rectangle#BackgroundRectangle">
+        <Setter Property="Fill" Value="{DynamicResource SelectionColor}"></Setter>
+    </Style>
     <Style Selector="DataGrid.noselect:focus DataGridCell:current /template/ Grid#FocusVisual">
         <Setter Property="IsVisible" Value="False"/>
     </Style>
@@ -174,5 +179,39 @@
     
     <Style Selector="DataGrid.nocellselect DataGridCell /template/ Grid#FocusVisual">
         <Setter Property="IsVisible" Value="False"></Setter>
+    </Style>
+    
+    <!-- text box -->
+    <Style Selector="TextBox">
+        <Setter Property="SelectionBrush" Value="{DynamicResource SelectionColor}"/>
+    </Style>
+    
+    <!-- flyout -->
+    <Style Selector="FlyoutPresenter.menuflyoutslim">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="CornerRadius" Value="3"></Setter>
+        <Setter Property="MinWidth" Value="0"></Setter>
+        <Setter Property="MinHeight" Value="0"></Setter>
+    </Style>
+    
+    <Style Selector="Button.contextmenuitem">
+        <Setter Property="Padding" Value="5,2,5,2"></Setter>
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+        <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Setter Property="Margin" Value="3,0"></Setter>
+        <Setter Property="CornerRadius" Value="0"></Setter>
+    </Style>
+    
+    <Style Selector="Button.contextmenuitem:pressed">
+        <Setter Property="RenderTransform" Value=""></Setter>
+    </Style>
+    
+    <Style Selector="Button.contextmenuitem:disabled">
+        <Setter Property="Cursor" Value=""></Setter>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForeground}"></Setter>
+    </Style>
+    <Style Selector="Button.contextmenuitem:disabled ContentPresenter">
+        <Setter Property="Background" Value="Transparent"></Setter>
     </Style>
 </Styles>

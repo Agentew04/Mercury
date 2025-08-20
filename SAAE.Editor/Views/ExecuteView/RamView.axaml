@@ -16,13 +16,13 @@
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top"
                     Spacing="15">
             <TextBlock Classes="minorheader"
-                       Text="{Binding Path=RamTitleText, Source={x:Static loc:RamResources.Instance}}"/>
+                       Text="{loc:RamResources RamTitleText}"/>
 
             <Label Margin="10,0,0,0"
                    VerticalContentAlignment="Center"
                    FontSize="16"
                    Target="LocationComboBox"
-                   Content="{Binding Path=RamSegmentsText, Source={x:Static loc:RamResources.Instance}}"/>
+                   Content="{loc:RamResources RamSegmentsText}"/>
             
             <!-- section combo box -->
             <ComboBox ItemsSource="{Binding Locations, Mode=OneWay}"
@@ -51,14 +51,14 @@
                 <TextBlock
                     FontFamily="{StaticResource PhosphorFont}"
                     Text="&#xE138;"
-                    ToolTip.Tip="{Binding Path=RamPageLeftTooltip, Source={x:Static loc:RamResources.Instance}}"
+                    ToolTip.Tip="{loc:RamResources RamPageLeftTooltip}"
                     ></TextBlock>
             </Button>
             <Button Command="{Binding NextPageCommand}">
                 <TextBlock
                     FontFamily="{StaticResource PhosphorFont}"
                     Text="&#xE13A;"
-                    ToolTip.Tip="{Binding Path=RamPageRightTooltip, Source={x:Static loc:RamResources.Instance}}"
+                    ToolTip.Tip="{loc:RamResources RamPageRightTooltip}"
                 ></TextBlock>
             </Button>
 
@@ -68,7 +68,7 @@
             <Label Target="DataModeComboBox"
                    VerticalAlignment="Center"
                    FontSize="16"
-                   Content="{Binding Path=RamModeTitleText, Source={x:Static loc:RamResources.Instance}}">
+                   Content="{loc:RamResources RamModeTitleText}">
             </Label>
             <ComboBox x:Name="DataModeComboBox"
                       ItemsSource="{Binding AvailableVisualizationModes, Mode=OneWay}"
@@ -87,21 +87,21 @@
                   CellPointerPressed="DataGrid_OnCellPointerPressed">
             <DataGrid.Columns>
                 <DataGridTextColumn Width="Auto" 
-                                    Header="{Binding Path=RamHeaderAddress, Source={x:Static loc:RamResources.Instance}}"
+                                    Header="{loc:RamResources RamHeaderAddress}"
                                     Binding="{Binding RowAddress, Mode=OneWay, Converter={StaticResource HexConverter},
                                     StringFormat='0x{0}'}">
                 </DataGridTextColumn>
                 <DataGridTextColumn Width="*"
-                                    Header="{Binding Path=RamHeaderValue0, Source={x:Static loc:RamResources.Instance}}"
+                                    Header="{loc:RamResources RamHeaderValue0}"
                                     Binding="{Binding Data0String, Mode=OneWay}"></DataGridTextColumn>
                 <DataGridTextColumn Width="*"
-                                    Header="{Binding Path=RamHeaderValue4, Source={x:Static loc:RamResources.Instance}}"
+                                    Header="{loc:RamResources RamHeaderValue4}"
                                     Binding="{Binding Data4String, Mode=OneWay}"></DataGridTextColumn>
                 <DataGridTextColumn Width="*"
-                                    Header="{Binding Path=RamHeaderValue8, Source={x:Static loc:RamResources.Instance}}"
+                                    Header="{loc:RamResources RamHeaderValue8}"
                                     Binding="{Binding Data8String, Mode=OneWay}"></DataGridTextColumn>
                 <DataGridTextColumn Width="*"
-                                    Header="{Binding Path=RamHeaderValueC, Source={x:Static loc:RamResources.Instance}}"
+                                    Header="{loc:RamResources RamHeaderValueC}"
                                     Binding="{Binding DataCString, Mode=OneWay}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>

@@ -42,10 +42,10 @@
         <Grid Grid.Row="1" Grid.Column="0" IsVisible="{Binding !IsCreatingProject}"
               RowDefinitions="Auto,Auto,*">
             <TextBlock Grid.Row="0" 
-                       Text="{Binding OpenProject, Source={x:Static localization:ProjectResources.Instance}}" Classes="minorheader"/>
+                       Text="{localization:ProjectResources OpenProject}" Classes="minorheader"/>
             
             <StackPanel Grid.Row="1" Margin="15,0">
-                <TextBox x:Name="SearchBox" Watermark="{Binding RecentProjectsWatermark, Source={x:Static localization:ProjectResources.Instance}}"
+                <TextBox x:Name="SearchBox" Watermark="{localization:ProjectResources RecentProjectsWatermark}"
                          Text="{Binding SearchQuery, Mode=TwoWay}"/>
             </StackPanel>
             <ListBox Grid.Row="2"
@@ -84,7 +84,7 @@
             </ListBox>
             <TextBlock Grid.Row="2"
                        IsVisible="{Binding EmptyRecentProjects}"
-                       Text="{Binding EmptyRecentProjects, Source={x:Static localization:ProjectResources.Instance}}"
+                       Text="{localization:ProjectResources EmptyRecentProjects}"
                        HorizontalAlignment="Center" VerticalAlignment="Center"
                        FontSize="14"
                        Padding="0,0,0,10"/>
@@ -107,10 +107,10 @@
                            Stretch="Uniform"
                            Path="/Assets/Images/file-open.svg"/>
                     <TextBlock Grid.Column="1" Grid.Row="0"
-                               Text="{Binding Path=OpenProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
+                               Text="{localization:ProjectResources OpenProjectTitleButton}"
                                Margin="5,8,0,0"></TextBlock>
                     <TextBlock Grid.Column="1" Grid.Row="1"
-                               Text="{Binding OpenProjectDescButton ,Source={x:Static localization:ProjectResources.Instance}}"
+                               Text="{localization:ProjectResources OpenProjectDescButton}"
                                FontSize="11" TextWrapping="Wrap"
                                Margin="5,5,5,0"></TextBlock>
                 </Grid>
@@ -125,10 +125,10 @@
                            Stretch="Uniform"
                            Path="/Assets/Images/note-add.svg"/>
                     <TextBlock Grid.Column="1" Grid.Row="0"
-                               Text="{Binding CreateProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
+                               Text="{localization:ProjectResources CreateProjectTitleButton}"
                                Margin="5,8,0,0"></TextBlock>
                     <TextBlock Grid.Column="1" Grid.Row="1"
-                               Text="{Binding CreateProjectDescButton, Source={x:Static localization:ProjectResources.Instance}}"
+                               Text="{localization:ProjectResources CreateProjectDescButton}"
                                FontSize="11" TextWrapping="Wrap"
                                Margin="5,5,5,0"></TextBlock>
                 </Grid>
@@ -141,7 +141,7 @@
               Margin="15">
             <ScrollViewer>
                 <StackPanel HorizontalAlignment="Center" Width="300">
-                <Label Content="{Binding FolderLabel, Source={x:Static localization:ProjectResources.Instance}}"
+                <Label Content="{localization:ProjectResources FolderLabel}"
                        Target="PathTextbox"
                        HorizontalAlignment="Left"></Label>
                 <Grid HorizontalAlignment="Stretch"
@@ -149,7 +149,7 @@
                     <TextBox Grid.Column="0" x:Name="PathTextbox"
                              HorizontalAlignment="Stretch"
                              Text="{Binding NewProjectPath}"></TextBox>
-                    <Button Grid.Column="1" Content="{Binding BrowseButton, Source={x:Static localization:ProjectResources.Instance}}"
+                    <Button Grid.Column="1" Content="{localization:ProjectResources BrowseButton}"
                             Margin="3,0"
                             Click="BrowseFolderOnNewProject"/>
                 </Grid>
@@ -157,14 +157,14 @@
                            HorizontalAlignment="Left"
                            TextWrapping="Wrap"
                            FontSize="11" Margin="0,2,0,8"/>
-                <Label Content="{Binding NameLabel, Source={x:Static localization:ProjectResources.Instance}}"
+                <Label Content="{localization:ProjectResources NameLabel}"
                        Target="NameTextbox"
                        HorizontalAlignment="Left"></Label>
                 <TextBox x:Name="NameTextbox"
                          HorizontalAlignment="Stretch"
                          Margin="0,0,0,8"
                          Text="{Binding NewProjectName}"></TextBox>
-                <Label Content="{Binding IsaLabel, Source={x:Static localization:ProjectResources.Instance}}"
+                <Label Content="{localization:ProjectResources IsaLabel}"
                        Target="IsaComboBox"
                        HorizontalAlignment="Left"></Label>
                 <ComboBox x:Name="IsaComboBox"
@@ -184,7 +184,7 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Label Content="{Binding OsLabel, Source={x:Static localization:ProjectResources.Instance}}"
+                <Label Content="{localization:ProjectResources OsLabel}"
                        Target="OsComboBox"
                        HorizontalAlignment="Left"></Label>
                 <ComboBox x:Name="OsComboBox"
@@ -199,9 +199,9 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="{Binding GoBack, Source={x:Static localization:ProjectResources.Instance}}"
+                    <Button Content="{localization:ProjectResources GoBack}"
                             Command="{Binding NewProjectReturnCommand}"/>
-                    <Button Content="{Binding CreateProjectTitleButton, Source={x:Static localization:ProjectResources.Instance}}"
+                    <Button Content="{localization:ProjectResources CreateProjectTitleButton}"
                             Margin="15"
                             IsEnabled="{Binding CanCreateProject}"
                             Command="{Binding NewProjectEndCommand}"/>

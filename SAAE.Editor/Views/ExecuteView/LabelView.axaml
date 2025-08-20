@@ -12,7 +12,7 @@
         <conv:HexadecimalConverter x:Key="HexadecimalConverter"></conv:HexadecimalConverter>
     </UserControl.Resources>
     <DockPanel Margin="5">
-        <TextBlock Text="{Binding Path=Title, Source={x:Static loc:LabelResources.Instance}}"
+        <TextBlock Text="{loc:LabelResources Title}"
                    DockPanel.Dock="Top"
                    Classes="minorheader"
                    Margin="5,3"/>
@@ -20,8 +20,8 @@
         <TabStrip DockPanel.Dock="Top" Classes="slim" 
                   SelectedIndex="{Binding SelectedTabIndex}">
             <TabStrip.Items>
-                <TabStripItem Content="{Binding Path=InstructionsTab,Source={x:Static loc:LabelResources.Instance}}"/>
-                <TabStripItem Content="{Binding Path=DataTab,Source={x:Static loc:LabelResources.Instance}}"/>
+                <TabStripItem Content="{loc:LabelResources InstructionsTab}"/>
+                <TabStripItem Content="{loc:LabelResources DataTab}"/>
             </TabStrip.Items>
         </TabStrip>
 
@@ -30,10 +30,10 @@
                   CellPointerPressed="DataGrid_OnCellPointerPressed">
             <DataGrid.Columns>
                 <DataGridTextColumn Width="Auto"
-                                    Header="{Binding Path=NameHeader,Source={x:Static loc:LabelResources.Instance}}"
+                                    Header="{loc:LabelResources NameHeader}"
                                     Binding="{Binding Name, Mode=OneWay}"/>
                 <DataGridTextColumn Width="*"
-                                    Header="{Binding Path=AddressHeader,Source={x:Static loc:LabelResources.Instance}}"
+                                    Header="{loc:LabelResources AddressHeader}"
                                     Binding="{Binding Address, Mode=OneWay,
                                     Converter={StaticResource HexadecimalConverter},
                                     StringFormat='0x{0}'}"/>

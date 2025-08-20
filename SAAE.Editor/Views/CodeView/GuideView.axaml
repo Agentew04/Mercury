@@ -20,7 +20,7 @@
     <ScrollViewer Margin="0" Padding="0">
         <StackPanel Orientation="Vertical">
             <!-- header -->
-            <TextBlock Text="{Binding Source={x:Static localization:GuideResources.Instance}, Path=TitleText}" Margin="15" 
+            <TextBlock Text="{localization:GuideResources TitleText}" Margin="15" 
                        FontSize="24" FontWeight="DemiBold"/>
             
             <!-- body -->

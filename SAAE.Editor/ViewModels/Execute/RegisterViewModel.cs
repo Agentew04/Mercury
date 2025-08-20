@@ -16,8 +16,6 @@ namespace SAAE.Editor.ViewModels.Execute;
 
 public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
 
-    private readonly ExecuteService executeService = App.Services.GetRequiredService<ExecuteService>();
-    
     [ObservableProperty]
     private int selectedProcessorIndex;
 
@@ -26,8 +24,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
 
     [ObservableProperty] private ObservableCollection<string> processorNames = [];
 
-    [ObservableProperty] private int selectedRegisterIndex = -1;
-    private int  lastChangedRegisterIndex;
+    private readonly List<(Type, Enum)> highlightedRegisters = [];
 
     private ArchitectureMetadata architectureMetadata;
 
@@ -56,29 +53,39 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
     }
 
     private void OnRegisterChange(List<(Type,Enum)> regs) {
-        if (regs.Count == 0) {
-            lastChangedRegisterIndex = -1;
-            return;
-        }
+        highlightedRegisters.Clear();
         foreach ((Type,Enum) reg in regs) {
             string registerName = RegisterHelper.GetRegisterName(reg.Item2);
             int index = Registers.IndexOf(x => x.Name == registerName);
             if (index >= 0) {
                 Registers[index].Value = machine.Registers.Get(reg.Item2, reg.Item1);
             }
-            lastChangedRegisterIndex = index;
+            highlightedRegisters.Add(reg);
         }
         Logger.LogInformation("Updated value of {count} registers", regs.Count);
         Highlight();
     }
 
     private void Highlight() {
-        SelectedRegisterIndex = lastChangedRegisterIndex;
+        foreach (var register in Registers) {
+            register.Highlighted = false;
+        }
+        Type currentType = architectureMetadata.Processors[SelectedProcessorIndex].RegistersType;
+        foreach ((Type, Enum) highlight in highlightedRegisters) {
+            if (highlight.Item1 != currentType) {
+                continue;
+            }
+            string registerName = RegisterHelper.GetRegisterName(highlight.Item2);
+            Register? register = Registers.FirstOrDefault(x => x.Name == registerName);
+            if (register is null) {
+                continue;
+            }
+            register.Highlighted = true;
+        }
     }
 
     private void LoadRegisters(int processorIndex) {
         Registers.Clear();
-        SelectedRegisterIndex = -1;
         Processor proc = architectureMetadata.Processors[processorIndex];
         foreach (RegisterDefinition reg in proc.Registers) {
             Enum reg2 = RegisterHelper.GetRegisterFromName(reg.Name, proc.RegistersType);
@@ -88,6 +95,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
                 Value = machine.Registers.Get(reg2, proc.RegistersType)
             });
         }
+        Highlight();
         Logger.LogInformation("Loaded {registers} registers", proc.Registers.Length);
     }
 
@@ -104,4 +112,6 @@ public partial class Register : ObservableObject
     [ObservableProperty] private int index;
 
     [ObservableProperty] private int value;
+
+    [ObservableProperty] private bool highlighted;
 }

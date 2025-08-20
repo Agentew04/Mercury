@@ -18,31 +18,22 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="EditMessage" xml:space="preserve">
-        <value>Editing {0}</value>
+    <data name="OpenProjectSelectionContext" xml:space="preserve">
+        <value>Open project selection window</value>
     </data>
-    <data name="BuildButtonTooltip" xml:space="preserve">
-        <value>Build</value>
+    <data name="CodeTabHeader" xml:space="preserve">
+        <value>_Code</value>
     </data>
-    <data name="RunButtonTooltip" xml:space="preserve">
-        <value>Run</value>
+    <data name="RunTabHeader" xml:space="preserve">
+        <value>_Run</value>
     </data>
-    <data name="SaveButtonTooltip" xml:space="preserve">
-        <value>Save File</value>
+    <data name="ConfigTabHeader" xml:space="preserve">
+        <value>Confi_guration</value>
     </data>
-    <data name="ConfirmPopupText" xml:space="preserve">
-        <value>Confirm</value>
+    <data name="AboutTabHeader" xml:space="preserve">
+        <value>_About</value>
     </data>
-    <data name="CancelPopupText" xml:space="preserve">
-        <value>Cancel</value>
-    </data>
-    <data name="ProblemMessageColumn" xml:space="preserve">
-        <value>Message</value>
-    </data>
-    <data name="ProblemLineColumn" xml:space="preserve">
-        <value>Line</value>
-    </data>
-    <data name="ProblemFileColumn" xml:space="preserve">
-        <value>File</value>
+    <data name="ProjectTabHeader" xml:space="preserve">
+        <value>_Project</value>
     </data>
 </root>
