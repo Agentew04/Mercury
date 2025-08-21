@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SAAE.Editor.Generators", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SAAE.Engine.Generators", "SAAE.Engine.Generators\SAAE.Engine.Generators.csproj", "{AD4494C8-F48F-45A7-8AD7-2113B3FDF9BF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{824829B0-F778-46AA-8134-06ED4EF41C8C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{AD4494C8-F48F-45A7-8AD7-2113B3FDF9BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD4494C8-F48F-45A7-8AD7-2113B3FDF9BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD4494C8-F48F-45A7-8AD7-2113B3FDF9BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{824829B0-F778-46AA-8134-06ED4EF41C8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{824829B0-F778-46AA-8134-06ED4EF41C8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{824829B0-F778-46AA-8134-06ED4EF41C8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{824829B0-F778-46AA-8134-06ED4EF41C8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

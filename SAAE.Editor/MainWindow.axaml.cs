@@ -27,7 +27,7 @@ namespace SAAE.Editor {
             // initialize navigation
             nav = new Navigation(PageFrame);
             nav.Register<CodeTabView>(NavigationTarget.CodeView);
-            nav.Register<ExecuteView>(NavigationTarget.ExecuteView);
+            nav.Register<ExecuteView>(NavigationTarget.ExecuteView, true);
             nav.Navigate(NavigationTarget.CodeView);
             
             // initialize context menu
@@ -54,25 +54,6 @@ namespace SAAE.Editor {
                             Result = r.Result ??false,
                             IsCancelled = r.Result is null
                         }));
-                });
-
-            Task.Delay(10000)
-                .ContinueWith(t => {
-                    Dispatcher.UIThread.InvokeAsync(async () => {
-                        for (int i = 0; i < 10; i++) {
-                            Console.WriteLine("Mudando cultura");
-                            if (LocalizationManager.CurrentCulture.Name == "en-US") {
-                                LocalizationManager.CurrentCulture = new("pt-BR");
-                            }
-                            else {
-                                LocalizationManager.CurrentCulture = new("en-US");
-                            }
-
-                            Console.WriteLine("Mudado cultura");
-                            await Task.Delay(1000);
-                            Console.WriteLine("dps delay");
-                        }
-                    });
                 });
         }
 

@@ -47,7 +47,8 @@
                       Classes="fileStrip">
                 <TabStrip.ItemTemplate>
                     <DataTemplate x:DataType="code:OpenFile">
-                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="*,2">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="*,2"
+                              PointerPressed="File_PointerPressed">
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Filename}"
                                        Classes="fileStripTitle"/>
                             <Button Grid.Row="0" Grid.Column="1" Classes="fileStripCloseButton"

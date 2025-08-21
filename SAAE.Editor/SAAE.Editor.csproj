@@ -13,15 +13,21 @@
     
     <!-- publish and trimming -->
     <PublishAot>false</PublishAot>
-    <PublishTrimmed>false</PublishTrimmed>
+    <PublishTrimmed>true</PublishTrimmed>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
   </PropertyGroup>
   
   <!-- linker e trimmer -->
   <ItemGroup>
     <TrimmerRootDescriptor Include="ILLink.Descriptors.xml"/>
   </ItemGroup>
-  
+
   <!-- fontes -->
   <ItemGroup>
     <AvaloniaResource Include="Assets\Fonts\Nunito\*.ttf"/>
@@ -55,6 +61,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
+    <PackageReference Include="SharpCompress" Version="0.40.0" />
     <PackageReference Include="Vecc.YamlDotNet.Analyzers.StaticGenerator" Version="16.3.0" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>

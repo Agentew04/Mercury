@@ -30,8 +30,11 @@ public class Navigation
     private NavigationTarget current = default;
     private bool hasCurrent = false;
 
-    public void Register<TControl>(NavigationTarget target) where TControl : Control, new(){
+    public void Register<TControl>(NavigationTarget target, bool initialize = false) where TControl : Control, new(){
         registeredTypes.Add(target, typeof(TControl));
+        if (initialize) {
+            createdTargets[target] = new TControl();
+        }
     }
 
     [RequiresDynamicCode("Uses reflection to create instances of pages")]

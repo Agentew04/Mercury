@@ -19,7 +19,8 @@ public class App : Application {
     }
 
     public static ServiceProvider Services { get; private set; } = null!;
-        
+
+    private static IClassicDesktopStyleApplicationLifetime? desktopLifetime;
     public override async void OnFrameworkInitializationCompleted() {
         // pq essa linha de baixo estava aqui?? esperar algo quebrar pra voltar com ela
         //BindingPlugins.DataValidators.RemoveAt(0);
@@ -30,6 +31,7 @@ public class App : Application {
             .BuildServiceProvider();
             
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+            desktopLifetime = desktop;
             desktop.Exit += OnAppExit;
             var splash = new SplashScreen();
             desktop.MainWindow = splash;
@@ -109,7 +111,11 @@ public class App : Application {
 
         base.OnFrameworkInitializationCompleted();
     }
-        
+
+    public static void Shutdown() {
+        desktopLifetime?.Shutdown();
+    }
+    
     private static void OnAppExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
         Services.Dispose();
     }
