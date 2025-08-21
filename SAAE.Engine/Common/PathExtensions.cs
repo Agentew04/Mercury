@@ -53,6 +53,29 @@ public static class PathExtensions {
         PathObject folder = path[..lastIndex].ToDirectoryPath();
         return folder.File(file);
     }
+
+    /// <summary>
+    /// Checks if the path exists. If the path is a directory, calls <see cref="Directory.Exists"/>. If
+    /// the path is a file, calls <see cref="File.Exists"/>.
+    /// </summary>
+    /// <param name="path">The path to check</param>
+    /// <returns>Wether the path exists or not in the disk</returns>
+    public static bool Exists(this PathObject path) {
+        return path.IsFile ? File.Exists(path.ToString()) : Directory.Exists(path.ToString());
+    }
+
+    /// <summary>
+    /// Deletes an entire path. If the path is a directory, deletes recursively.
+    /// </summary>
+    /// <param name="path">The path to be deleted</param>
+    /// <exception cref="IOException">Thrown when a file could not be deleted from a directory</exception>
+    public static void Delete(this PathObject path) {
+        if (path.IsFile) {
+            File.Delete(path.ToString());
+            return;
+        }
+        Directory.Delete(path.ToString(), true);
+    }
 }
 
 /// <summary>

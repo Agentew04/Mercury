@@ -62,13 +62,19 @@ public partial class UpdaterService : BaseService<UpdaterService> {
         Version? version = null;
         for (int i = 0; i < candidates.Length && !found; i++) {
             string subject = candidates[i];
-            Match match = reg3.Match(tag);
-            if (match.Captures.Count < 1) {
+            Match match = reg3.Match(subject);
+            if (match.Groups.Count < 2) {
                 // try with X.Y style version
-                match = reg2.Match(tag);
-                if (match.Captures.Count < 1) continue;
+                match = reg2.Match(subject);
+                if (match.Groups.Count < 2) continue;
             }
-            version = Version.Parse(match.Captures[0].ValueSpan);
+
+            try {
+                version = Version.Parse(match.Groups[1].ValueSpan);
+            }
+            catch (Exception ex) {
+                
+            }
             found = true;
         }
 
@@ -91,10 +97,10 @@ public partial class UpdaterService : BaseService<UpdaterService> {
         };
     }
 
-    [GeneratedRegex(@".*(\d+.\d+.\d+).*")]
+    [GeneratedRegex(@".*(\d+\.\d+\.\d+).*")]
     private partial Regex Version3NumberRegex();
     
-    [GeneratedRegex(@".*(\d+.\d+).*")]
+    [GeneratedRegex(@".*(\d+\.\d+).*")]
     private partial Regex Version2NumberRegex();
 
 
@@ -144,7 +150,7 @@ public partial class UpdaterService : BaseService<UpdaterService> {
             }
             case GithubFileType.Zip: {
                 Logger.LogInformation("Extracting .zip archive");
-                using ZipArchive archive = new(assetStream, ZipArchiveMode.Create, leaveOpen: true);
+                using ZipArchive archive = new(assetStream, ZipArchiveMode.Update, leaveOpen: true);
                 string path = Path.Combine(Path.GetTempPath(), Random.Shared.Next().ToString());
                 Directory.CreateDirectory(path);
                 archive.ExtractToDirectory(path, true);
@@ -193,11 +199,21 @@ public partial class UpdaterService : BaseService<UpdaterService> {
 
     public void Update(string newPackageDirectory) {
         string[] args = Environment.GetCommandLineArgs();
+        if (args[0].EndsWith(".dll")) {
+            args[0] = args[0].Replace(".dll", ".exe"); // :)
+        }
+        int pid = Environment.ProcessId;
         PathObject appLocation = Assembly.GetAssembly(typeof(App))!.Location.ToFilePath()
             .Path();
+
+        if (!File.Exists(appLocation.File("Updater.exe").ToString())) {
+            Logger.LogError("Could not find Updater executable! Will not update");
+            return;
+        }
+        
         ProcessStartInfo startInfo = new() {
             FileName = appLocation.File("Updater.exe").ToString(),
-            Arguments = $"{appLocation} {newPackageDirectory} {string.Join(" ",args)}"
+            Arguments = $"{pid} {appLocation} {newPackageDirectory} {string.Join(" ",args)}"
         };
         Process.Start(startInfo);
         App.Shutdown();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -115,8 +116,11 @@ public class App : Application {
     public static void Shutdown() {
         desktopLifetime?.Shutdown();
     }
+
+    public static event Action? OnExit = null;
     
     private static void OnAppExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
+        OnExit?.Invoke();
         Services.Dispose();
     }
 }

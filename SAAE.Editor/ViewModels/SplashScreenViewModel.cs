@@ -84,6 +84,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         }
         await settings.SaveSettings();
 
+        UpdateInstaller(); // removes old installer on post update
         if (doOnlineCheck) {
             await UpdateSoftware();
         }
@@ -461,6 +462,18 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
 
     }
 
+    private void UpdateInstaller() {
+        PathObject appLocation = Assembly.GetAssembly(typeof(App))!.Location.ToFilePath()
+            .Path();
+        PathObject newInstaller = appLocation.File("Update2.exe");
+        if (!newInstaller.Exists()) return;
+        Logger.LogInformation("Removing old updater and using new one");
+        PathObject oldInstaller = appLocation.File("Update.exe");
+        oldInstaller.Delete();
+        File.Delete(oldInstaller.ToString());
+        File.Move(newInstaller.ToString(), oldInstaller.ToString());
+    }
+    
     private async Task UpdateSoftware() {
         
         GithubRelease? latest = (await updater.GetRemoteReleases())
