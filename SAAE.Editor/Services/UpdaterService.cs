@@ -25,35 +25,57 @@ public partial class UpdaterService : BaseService<UpdaterService> {
     private readonly Uri releasesUri = new("https://api.github.com/repos/Agentew04/SAAE/releases");
     private readonly HttpClient http = App.Services.GetRequiredService<HttpClient>();
 
-    public async Task<IReadOnlyList<GithubRelease>> GetRemoteReleases(CancellationToken cancellationToken = default) {
-        using HttpRequestMessage request = new(HttpMethod.Get, releasesUri);
-        using HttpResponseMessage response = await http.SendAsync(request, cancellationToken);
-        await using Stream jsonStream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        using JsonDocument document = await JsonDocument.ParseAsync(jsonStream, cancellationToken: cancellationToken);
-        using JsonElement.ArrayEnumerator releasesEnumerator = document.RootElement.EnumerateArray();
-        List<GithubRelease> releases = [];
-        foreach (JsonElement releaseElement in releasesEnumerator) {
-            GithubRelease? release = ParseRelease(releaseElement);
-            if (release is not null) {
-                releases.Add(release);
+    public async Task<List<GithubRelease>> GetRemoteReleases(CancellationToken cancellationToken = default) {
+        try {
+            using HttpRequestMessage request = new(HttpMethod.Get, releasesUri);
+            using HttpResponseMessage response = await http.SendAsync(request, cancellationToken);
+            await using Stream jsonStream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            using JsonDocument document =
+                await JsonDocument.ParseAsync(jsonStream, cancellationToken: cancellationToken);
+            using JsonElement.ArrayEnumerator releasesEnumerator = document.RootElement.EnumerateArray();
+            List<GithubRelease> releases = [];
+            foreach (JsonElement releaseElement in releasesEnumerator) {
+                GithubRelease? release = ParseRelease(releaseElement);
+                if (release is not null) {
+                    releases.Add(release);
+                }
             }
-        }
 
-        return releases;
+            return releases;
+        }
+        catch (Exception ex) {
+            Logger.LogError("Could not fetch remote version information. Error Message: {msg}", ex.Message);
+            return [];
+        }
     }
 
     private GithubRelease? ParseRelease(JsonElement element) {
         string tag = element.GetProperty("tag_name").GetString() ?? string.Empty;
-        Regex reg = Version3NumberRegex();
-        Match match = reg.Match(tag);
-        Version version;
-        if (match.Captures.Count >= 1) {
+        string name = element.GetProperty("name").GetString() ?? string.Empty;
+        string[] candidates = [
+            tag,
+            name
+        ];
+        Regex reg3 = Version3NumberRegex();
+        Regex reg2 = Version2NumberRegex();
+        bool found = false;
+        Version? version = null;
+        for (int i = 0; i < candidates.Length && !found; i++) {
+            string subject = candidates[i];
+            Match match = reg3.Match(tag);
+            if (match.Captures.Count < 1) {
+                // try with X.Y style version
+                match = reg2.Match(tag);
+                if (match.Captures.Count < 1) continue;
+            }
             version = Version.Parse(match.Captures[0].ValueSpan);
-        }
-        else {
-            return null;
+            found = true;
         }
 
+        if (version is null) {
+            return null;
+        }
+        
         DateTime publishDate = element.GetProperty("published_at").GetDateTime();
         using JsonElement.ArrayEnumerator assetEnumerator = element.GetProperty("assets").EnumerateArray();
         List<GithubAsset> assets = [];
@@ -71,6 +93,9 @@ public partial class UpdaterService : BaseService<UpdaterService> {
 
     [GeneratedRegex(@".*(\d+.\d+.\d+).*")]
     private partial Regex Version3NumberRegex();
+    
+    [GeneratedRegex(@".*(\d+.\d+).*")]
+    private partial Regex Version2NumberRegex();
 
 
     private GithubAsset ParseAsset(JsonElement element) {

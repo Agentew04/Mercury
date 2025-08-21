@@ -62,4 +62,19 @@
     <data name="DownloadingResourcesText" xml:space="preserve">
         <value>Baixando recursos</value>
     </data>
+    <data name="DownloadingUpdateText" xml:space="preserve">
+        <value>Baixando atualização</value>
+    </data>
+    <data name="UnpackingUpdateText" xml:space="preserve">
+        <value>Descompactando atualização</value>
+    </data>
+    <data name="UpdatePromptTitle" xml:space="preserve">
+        <value>Atualização Disponível</value>
+    </data>
+    <data name="UpdatePromptBody" xml:space="preserve">
+        <value>Há uma atualização disponível. Você gostaria de instalar agora?</value>
+    </data>
+    <data name="CheckingUpdates" xml:space="preserve">
+        <value>Verificando atualizações</value>
+    </data>
 </root>

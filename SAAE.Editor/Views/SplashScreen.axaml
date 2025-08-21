@@ -12,11 +12,11 @@
         Topmost="True"
         x:Class="SAAE.Editor.Views.SplashScreen"
         x:DataType="vm:SplashScreenViewModel"
-        Title="SplashScreen"
+        Title="Mercury"
         Background="Transparent">
     <Window.Styles>
         <Style Selector="Label">
-            <Setter Property="FontFamily" Value="JetBrains Mono"></Setter>
+            <Setter Property="FontFamily" Value="{StaticResource NunitoFont}"></Setter>
         </Style>
     </Window.Styles>
     <Border CornerRadius="20" ClipToBounds="True">
@@ -26,13 +26,12 @@
                         Margin="30,15" >
                 <!-- titulo do app-->
                 <Label FontSize="42">
-                    Mips 2.0
+                    Mercury
                 </Label>
                 
                 <Label FontSize="15" Content="{localization:SplashScreenResources InitializingText}"/>
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <TextBlock FontSize="11" Text="{Binding StatusText}"/>
-                    <TextBlock FontSize="11" Text="{Binding PercentageText}"></TextBlock>
                 </StackPanel>
             </StackPanel>
             <Label HorizontalAlignment="Left" VerticalAlignment="Bottom"

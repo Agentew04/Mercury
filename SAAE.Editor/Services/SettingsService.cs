@@ -125,9 +125,9 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// </summary>
     public UserPreferences GetDefaultPreferences() => new(){
         CompilerPath = Path.Combine(AppDirectory, "compiler"),
-        Language = CultureInfo.CurrentCulture,
+        Language = CultureInfo.InstalledUICulture,
         OnlineCheckFrequency = TimeSpan.FromSeconds(1), // TODO: mudar isso antes da producao
-        LastOnlineCheck = DateTime.MinValue
+        LastOnlineCheck = DateTime.MinValue,
     };
 
     private bool UpdatePreferences(UserPreferences preferences) {

@@ -9,10 +9,16 @@ using System.Reflection;
 using System.Resources;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Base;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Enums;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models;
@@ -30,6 +36,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
     
     private readonly SettingsService settings = App.Services.GetRequiredService<SettingsService>();
     private readonly HttpClient http = App.Services.GetRequiredService<HttpClient>();
+    private readonly UpdaterService updater = App.Services.GetRequiredService<UpdaterService>();
 
     [ObservableProperty]
     private string statusText = "";
@@ -37,13 +44,11 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VersionText))]
     private Version? version;
-    public string VersionText => $"{SplashScreenResources.VersionTextValue}: {Version?.Major ?? 0}.{Version?.Minor ?? 0}";
+    public string VersionText => $"{Version?.Major ?? 0}.{Version?.Minor ?? 0}";
 
     private TaskCompletionSource? downloadResourcesTask;
 
-    [ObservableProperty]
-    private string percentageText = string.Empty;
-    
+    public WeakReference<Window> Window { get; set; }
     
     public async Task InitializeAsync() {
         Version = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0,0);
@@ -68,8 +73,6 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         }
         
         // read stored configuration
-        
-        
         LocalizationManager.CurrentCulture = settings.Preferences.Language;
         
         // baixar compilador
@@ -81,6 +84,10 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         }
         await settings.SaveSettings();
 
+        if (doOnlineCheck) {
+            await UpdateSoftware();
+        }
+        
         List<Task> tasks = [
             DownloadCompiler(),
             DownloadGuides(doOnlineCheck),
@@ -90,7 +97,6 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
 
         await Task.WhenAll(tasks);
         
-        PercentageText = string.Empty;
         await settings.SaveSettings();
         
         StatusText = SplashScreenResources.DoneValue;
@@ -314,7 +320,6 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         // to correctly filter arch and os guides. 
     }
 
-
     private async Task DownloadStdlib(bool doOnlineCheck) {
         if (settings.StdLibSettings.AvailableLibraries.Any(x => x.Version != 0)
             && !doOnlineCheck) {
@@ -454,5 +459,50 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             return false;
         }
 
+    }
+
+    private async Task UpdateSoftware() {
+        
+        GithubRelease? latest = (await updater.GetRemoteReleases())
+            .Where(x => x.Version > Version)
+            .OrderByDescending(x => x.Version)
+            .FirstOrDefault();
+        if (latest is null) {
+            return;
+        }
+        IMsBox<ButtonResult>? messageBox = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams() {
+            ShowInCenter = true,
+            CloseOnClickAway = false,
+            EnterDefaultButton = ClickEnum.Yes,
+            EscDefaultButton = ClickEnum.No,
+            CanResize = false,
+            ContentTitle = SplashScreenResources.UpdatePromptTitleValue,
+            ContentMessage = SplashScreenResources.UpdatePromptBodyValue,
+            Topmost = true,
+            ButtonDefinitions = ButtonEnum.YesNo,
+            WindowStartupLocation = WindowStartupLocation.CenterScreen
+        });
+        ButtonResult result;
+        if (!Window.TryGetTarget(out Window w)) {
+            result = await messageBox.ShowWindowAsync();
+        }
+        else {
+             result = await messageBox.ShowWindowDialogAsync(w);
+        }
+
+        if (result != ButtonResult.Yes) {
+            return;
+        }
+
+        GithubAsset asset = latest.Assets.First(); // talvez uma selecao mais rigorosa aqui
+        using MemoryStream ms = new();
+        Logger.LogInformation("Downloading release {version} from {date}", latest.Version, latest.PublishDate.Date.ToShortDateString());
+        StatusText = SplashScreenResources.DownloadingUpdateTextValue;
+        await updater.DownloadAsset(asset, ms);
+        Logger.LogInformation("Unpacking release");
+        StatusText = SplashScreenResources.UnpackingUpdateTextValue;
+        string artifactFolder = await updater.UnpackAsset(asset, ms);
+        Logger.LogInformation("Updating. Bye-Bye");
+        updater.Update(artifactFolder);
     }
 }
