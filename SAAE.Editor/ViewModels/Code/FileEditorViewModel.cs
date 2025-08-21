@@ -47,8 +47,16 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     #region Editor Properties
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasOpenFiles))]
     private ObservableCollection<OpenFile> openFiles = [];
-    
+
+    public bool HasOpenFiles {
+        get {
+            Logger.LogDebug("Open files? {res}", OpenFiles.Count > 0);
+            return OpenFiles.Count > 0;
+        }
+    }
+
     [ObservableProperty]
     private int selectedTabIndex;
     
@@ -124,7 +132,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         OpenFile file = new(name, path, vm.CloseTabCommand, message.ProjectNode?.IsEffectiveReadOnly ?? false);
         file.TextDocument.Text = File.ReadAllText(path.ToString());
         vm.OpenFiles.Add(file);
-        
+        vm.OnPropertyChanged(nameof(HasOpenFiles));
         vm.ChangeTab(file, line, column);
     }
 
@@ -274,6 +282,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
             {
                 // nao tem mais arquivos abertos, limpa o editor
                 TextDocument.Text = "";
+                OnPropertyChanged(nameof(HasOpenFiles));
                 return;
             }
             // troca para o arquivo aberto mais proximo (index-1)
@@ -288,6 +297,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
                 ChangeTab(OpenFiles[index]);
             }
         }
+        OnPropertyChanged(nameof(HasOpenFiles));
     }
 }
 

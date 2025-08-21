@@ -66,8 +66,16 @@
             <!-- editor em si -->
             <avaloniaEdit:TextEditor x:Name="TextEditor" Classes="textEditor"
                                      Grid.Row="2"
+                                     IsVisible="{Binding HasOpenFiles, Mode=OneWay}"
                                      Document="{Binding TextDocument}"
                                      IsReadOnly="{Binding IsReadonlyEditor}"/>
+            <TextBlock Grid.Row="1" Grid.RowSpan="2"
+                IsVisible="{Binding !HasOpenFiles, Mode=OneWay}"
+                Text="{localization:FileEditorResources NoOpenFilesText}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="15"
+                FontWeight="SemiBold"></TextBlock>
         </Grid>
     </Border>
 </UserControl>

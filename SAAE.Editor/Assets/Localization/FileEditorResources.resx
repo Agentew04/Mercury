@@ -45,4 +45,7 @@
     <data name="ProblemFileColumn" xml:space="preserve">
         <value>File</value>
     </data>
+    <data name="NoOpenFilesText" xml:space="preserve">
+        <value>No files open</value>
+    </data>
 </root>

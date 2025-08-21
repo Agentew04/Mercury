@@ -38,4 +38,7 @@
     <data name="ProblemMessageColumn" xml:space="preserve">
         <value>Mensagem</value>
     </data>
+    <data name="NoOpenFilesText" xml:space="preserve">
+        <value>Nenhum arquivo aberto</value>
+    </data>
 </root>
