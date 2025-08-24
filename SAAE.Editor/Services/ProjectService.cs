@@ -120,6 +120,8 @@ public class ProjectService : BaseService<ProjectService> {
         
         WriteProject(templateProject);
 
+        Directory.CreateDirectory((templateProject.ProjectDirectory + templateProject.OutputPath).ToString());
+
         return templateProject;
 
         void CopyFolder(PathObject old, PathObject @new) {
