@@ -239,6 +239,16 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
     }
 
     /// <summary>
+    /// Creates a new file on the given path.
+    /// </summary>
+    /// <param name="filename">The name of the file without the extension</param>
+    /// <param name="extension">The extension of the file with or without the leading dot</param>
+    /// <returns>The path to the file</returns>
+    public PathObject File(string filename, string extension) {
+        return extension.StartsWith('.') ? File(filename + extension) : File(filename + '.' + extension);
+    }
+
+    /// <summary>
     /// Returns the path of the current path. If this is a directory, returns itself. If it's
     /// a file, returns the folder containing this file.
     /// </summary>

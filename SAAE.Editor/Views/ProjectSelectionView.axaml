@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
-        xmlns:localization="clr-namespace:SAAE.Editor.Localization"
+        xmlns:loc="clr-namespace:SAAE.Editor.Localization"
         xmlns:controls="clr-namespace:SAAE.Editor.Controls"
         xmlns:converters="clr-namespace:SAAE.Editor.Converters"
         xmlns:engine="clr-namespace:SAAE.Engine;assembly=SAAE.Engine"
@@ -19,7 +19,7 @@
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="-1"
-        Title="MIPS 2.0"
+        Title="Mercury"
         Closing="Window_OnClosing">
     <Window.Styles>
         <StyleInclude Source="/Assets/Styles/ProjectSelectionStyles.axaml"/>
@@ -34,7 +34,7 @@
                            x:Name="TitleBar"/>
         
         <!-- app title -->
-        <TextBlock Text="MIPS 2.0" Classes="header"
+        <TextBlock Text="Mercury" Classes="header"
                    Margin="15" IsHitTestVisible="False"
                    Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"></TextBlock>
         
@@ -42,10 +42,10 @@
         <Grid Grid.Row="1" Grid.Column="0" IsVisible="{Binding !IsCreatingProject}"
               RowDefinitions="Auto,Auto,*">
             <TextBlock Grid.Row="0" 
-                       Text="{localization:ProjectResources OpenProject}" Classes="minorheader"/>
+                       Text="{loc:ProjectResources OpenProject}" Classes="minorheader"/>
             
             <StackPanel Grid.Row="1" Margin="15,0">
-                <TextBox x:Name="SearchBox" Watermark="{localization:ProjectResources RecentProjectsWatermark}"
+                <TextBox x:Name="SearchBox" Watermark="{loc:ProjectResources RecentProjectsWatermark}"
                          Text="{Binding SearchQuery, Mode=TwoWay}"/>
             </StackPanel>
             <ListBox Grid.Row="2"
@@ -84,7 +84,7 @@
             </ListBox>
             <TextBlock Grid.Row="2"
                        IsVisible="{Binding EmptyRecentProjects}"
-                       Text="{localization:ProjectResources EmptyRecentProjects}"
+                       Text="{loc:ProjectResources EmptyRecentProjects}"
                        HorizontalAlignment="Center" VerticalAlignment="Center"
                        FontSize="14"
                        Padding="0,0,0,10"/>
@@ -107,10 +107,10 @@
                            Stretch="Uniform"
                            Path="/Assets/Images/file-open.svg"/>
                     <TextBlock Grid.Column="1" Grid.Row="0"
-                               Text="{localization:ProjectResources OpenProjectTitleButton}"
+                               Text="{loc:ProjectResources OpenProjectTitleButton}"
                                Margin="5,8,0,0"></TextBlock>
                     <TextBlock Grid.Column="1" Grid.Row="1"
-                               Text="{localization:ProjectResources OpenProjectDescButton}"
+                               Text="{loc:ProjectResources OpenProjectDescButton}"
                                FontSize="11" TextWrapping="Wrap"
                                Margin="5,5,5,0"></TextBlock>
                 </Grid>
@@ -125,10 +125,10 @@
                            Stretch="Uniform"
                            Path="/Assets/Images/note-add.svg"/>
                     <TextBlock Grid.Column="1" Grid.Row="0"
-                               Text="{localization:ProjectResources CreateProjectTitleButton}"
+                               Text="{loc:ProjectResources CreateProjectTitleButton}"
                                Margin="5,8,0,0"></TextBlock>
                     <TextBlock Grid.Column="1" Grid.Row="1"
-                               Text="{localization:ProjectResources CreateProjectDescButton}"
+                               Text="{loc:ProjectResources CreateProjectDescButton}"
                                FontSize="11" TextWrapping="Wrap"
                                Margin="5,5,5,0"></TextBlock>
                 </Grid>
@@ -141,7 +141,7 @@
               Margin="15">
             <ScrollViewer>
                 <StackPanel HorizontalAlignment="Center" Width="300">
-                <Label Content="{localization:ProjectResources FolderLabel}"
+                <Label Content="{loc:ProjectResources FolderLabel}"
                        Target="PathTextbox"
                        HorizontalAlignment="Left"></Label>
                 <Grid HorizontalAlignment="Stretch"
@@ -149,7 +149,7 @@
                     <TextBox Grid.Column="0" x:Name="PathTextbox"
                              HorizontalAlignment="Stretch"
                              Text="{Binding NewProjectPath}"></TextBox>
-                    <Button Grid.Column="1" Content="{localization:ProjectResources BrowseButton}"
+                    <Button Grid.Column="1" Content="{loc:ProjectResources BrowseButton}"
                             Margin="3,0"
                             Click="BrowseFolderOnNewProject"/>
                 </Grid>
@@ -157,14 +157,14 @@
                            HorizontalAlignment="Left"
                            TextWrapping="Wrap"
                            FontSize="11" Margin="0,2,0,8"/>
-                <Label Content="{localization:ProjectResources NameLabel}"
+                <Label Content="{loc:ProjectResources NameLabel}"
                        Target="NameTextbox"
                        HorizontalAlignment="Left"></Label>
                 <TextBox x:Name="NameTextbox"
                          HorizontalAlignment="Stretch"
                          Margin="0,0,0,8"
                          Text="{Binding NewProjectName}"></TextBox>
-                <Label Content="{localization:ProjectResources IsaLabel}"
+                <Label Content="{loc:ProjectResources IsaLabel}"
                        Target="IsaComboBox"
                        HorizontalAlignment="Left"></Label>
                 <ComboBox x:Name="IsaComboBox"
@@ -184,7 +184,21 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Label Content="{localization:ProjectResources OsLabel}"
+                <Label Content="{loc:ProjectResources TemplateLabel}"
+                       Target="TemplateComboBox"
+                       HorizontalAlignment="Left"/>
+                <ComboBox x:Name="TemplateComboBox"
+                          HorizontalAlignment="Stretch"
+                          ItemsSource="{Binding Templates}"
+                          SelectedIndex="{Binding SelectedTemplateIndex}"
+                          Margin="0,0,0,8">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:Template">
+                            <TextBlock Text="{Binding Name^}"></TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Label Content="{loc:ProjectResources OsLabel}"
                        Target="OsComboBox"
                        HorizontalAlignment="Left"></Label>
                 <ComboBox x:Name="OsComboBox"
@@ -199,9 +213,9 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="{localization:ProjectResources GoBack}"
+                    <Button Content="{loc:ProjectResources GoBack}"
                             Command="{Binding NewProjectReturnCommand}"/>
-                    <Button Content="{localization:ProjectResources CreateProjectTitleButton}"
+                    <Button Content="{loc:ProjectResources CreateProjectTitleButton}"
                             Margin="15"
                             IsEnabled="{Binding CanCreateProject}"
                             Command="{Binding NewProjectEndCommand}"/>

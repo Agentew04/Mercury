@@ -5,12 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
+using Avalonia.Controls.Shapes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
 using SAAE.Engine;
 using SAAE.Engine.Common;
+using Path = Avalonia.Controls.Shapes.Path;
 
 namespace SAAE.Editor.Services;
 
@@ -92,8 +94,56 @@ public class ProjectService : BaseService<ProjectService> {
         System.Xml.Serialization.XmlSerializer serializer = new(typeof(ProjectFile));
         serializer.Serialize(writer, project);
     }
+
+    private ProjectFile CreateProjectFromTemplateAsync(string path, string name,
+        Template template) {
+        if (template.IsBlank) {
+            Logger.LogError("Empty template to CreateProjectFromTemplateAsync");
+            return null!;
+        }
+
+        PathObject oldPath = template.ProjectPath;
+        PathObject newPath = path.ToFilePath();
+        ProjectFile? templateProject = ReadProject(oldPath);
+        if (templateProject is null) {
+            Logger.LogError("Could not parse Template Project");
+            return null!;
+        }
+        // recursively copy files from templated path to destination path
+        CopyFolder(oldPath, newPath);
+        
+        // remove copied .asmproj
+        File.Delete(newPath.Path().File(templateProject.ProjectName,"asmproj").ToString());
+        
+        templateProject.ProjectName = name;
+        templateProject.ProjectPath = newPath;
+        
+        WriteProject(templateProject);
+
+        return templateProject;
+
+        void CopyFolder(PathObject old, PathObject @new) {
+            Logger.LogInformation("Copying folder {old} to {new}", old.ToString(), @new.ToString());
+            foreach (string file in Directory.EnumerateFiles(old.ToString())) {
+                string filename = System.IO.Path.GetFileName(file);
+                string newFile = @new.File(filename).ToString();
+                Logger.LogInformation("Copying file {old} to {new}", file, newFile);
+                File.Copy(file, newFile);
+            }
+
+            foreach (string folder in Directory.EnumerateDirectories(old.ToString())) {
+                string folderName = System.IO.Path.GetDirectoryName(folder) ?? "error";
+                Directory.CreateDirectory(@new.Folder(folderName).ToString());
+                CopyFolder(old.Folder(folderName), @new.Folder(folderName));
+            }
+        }
+    }
     
-    public async Task<ProjectFile> CreateProjectAsync(string path, string name, OperatingSystemType os, Architecture isa) {
+    public async Task<ProjectFile> CreateProjectAsync(string path, string name, OperatingSystemType os, Architecture isa, Template template) {
+        if (!template.IsBlank) {
+            return CreateProjectFromTemplateAsync(path, name, template);
+        }
+        
         ProjectFile project = new() {
             ProjectName = name,
             ProjectPath = path.ToFilePath(),

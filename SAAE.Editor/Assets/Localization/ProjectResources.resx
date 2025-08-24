@@ -111,4 +111,10 @@
     <data name="DeleteFolderConfirmModal" xml:space="preserve">
         <value>Delete folder {0} and its contents?</value>
     </data>
+    <data name="TemplateLabel" xml:space="preserve">
+        <value>Template</value>
+    </data>
+    <data name="NoTemplateText" xml:space="preserve">
+        <value>Blank Project</value>
+    </data>
 </root>

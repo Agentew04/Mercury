@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Converters;
@@ -27,10 +28,9 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// lives inside <see cref="AppDirectory"/>.
     /// </summary>
     public string PreferencesPath { get; }
-    
     public string StdLibSettingsPath { get; }
-    
     public string GuideSettingsPath { get; }
+    public string TemplateSettingsPath { get; }
 
     /// <summary>
     /// The current user settings
@@ -47,6 +47,11 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// </summary>
     public GuideSettings GuideSettings { get; set; } = null!;
 
+    /// <summary>
+    /// The current information of stored project templates.
+    /// </summary>
+    public TemplateSettings TemplateSettings { get; set; } = null!;
+
     public SettingsService() {
         Preferences = null!;
         AppDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".saae");
@@ -54,69 +59,60 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
         PreferencesPath = Path.Combine(AppDirectory, "config.json");
         StdLibSettingsPath = Path.Combine(AppDirectory, "stdlib.json");
         GuideSettingsPath = Path.Combine(AppDirectory, "guide.json");
+        TemplateSettingsPath = Path.Combine(AppDirectory, "templates.json");
     }
 
     public async Task SaveSettings() {
+        // parallel serialization
         await using Stream sPref = File.OpenWrite(PreferencesPath);
-        await JsonSerializer.SerializeAsync(sPref, Preferences, SettingsSerializerContext.Default.UserPreferences);
+        Task prefTask = JsonSerializer.SerializeAsync(sPref, Preferences, SettingsSerializerContext.Default.UserPreferences);
         sPref.SetLength(sPref.Position);
         await using Stream sStd = File.OpenWrite(StdLibSettingsPath);
-        await JsonSerializer.SerializeAsync(sStd, StdLibSettings, SettingsSerializerContext.Default.StandardLibrarySettings);
+        Task stdTask = JsonSerializer.SerializeAsync(sStd, StdLibSettings, SettingsSerializerContext.Default.StandardLibrarySettings);
         sStd.SetLength(sStd.Position);
         await using Stream sGuide = File.OpenWrite(GuideSettingsPath);
-        await JsonSerializer.SerializeAsync(sGuide, GuideSettings, SettingsSerializerContext.Default.GuideSettings);
+        Task guideTask = JsonSerializer.SerializeAsync(sGuide, GuideSettings, SettingsSerializerContext.Default.GuideSettings);
         sGuide.SetLength(sGuide.Position);
+        await using Stream sTemplate = File.OpenWrite(TemplateSettingsPath);
+        Task templateTask = JsonSerializer.SerializeAsync(sTemplate, TemplateSettings, SettingsSerializerContext.Default.TemplateSettings);
+        sTemplate.SetLength(sTemplate.Position);
+
+        await Task.WhenAll(prefTask, stdTask, guideTask, templateTask);
     }
 
     public async Task LoadSettings() {
-        if (File.Exists(PreferencesPath)) {
-            await using Stream sPref = File.OpenRead(PreferencesPath);
-            try {
-                Preferences =
-                    await JsonSerializer.DeserializeAsync(sPref, SettingsSerializerContext.Default.UserPreferences)
-                    ?? GetDefaultPreferences();
-            }
-            catch (JsonException) {
-                Preferences = GetDefaultPreferences();
-            }
-        }
-        else {
-            Preferences = GetDefaultPreferences();
-        }
+        // parallel async loading
+        Task<UserPreferences> prefTask = Deserialize(PreferencesPath, SettingsSerializerContext.Default.UserPreferences,
+            GetDefaultPreferences);
+        Task<StandardLibrarySettings> stdlibTask = Deserialize(StdLibSettingsPath,
+            SettingsSerializerContext.Default.StandardLibrarySettings, () => new StandardLibrarySettings());
+        Task<GuideSettings> guideTask = Deserialize(GuideSettingsPath, SettingsSerializerContext.Default.GuideSettings,
+            () => new GuideSettings());
+        Task<TemplateSettings> templateTask = Deserialize(TemplateSettingsPath,
+            SettingsSerializerContext.Default.TemplateSettings, () => new TemplateSettings());
 
-        if (File.Exists(StdLibSettingsPath)) {
-            await using Stream sStd = File.OpenRead(StdLibSettingsPath);
-            try {
-                StdLibSettings =
-                    await JsonSerializer.DeserializeAsync(sStd,
-                        SettingsSerializerContext.Default.StandardLibrarySettings)
-                    ?? new StandardLibrarySettings();
-            }
-            catch (JsonException) {
-                StdLibSettings = new StandardLibrarySettings();
-            }
-        }
-        else {
-            StdLibSettings = new StandardLibrarySettings();
-        }
-
-        if (File.Exists(GuideSettingsPath)) {
-            await using Stream sGuide = File.OpenRead(GuideSettingsPath);
-            try {
-                GuideSettings =
-                    await JsonSerializer.DeserializeAsync(sGuide, SettingsSerializerContext.Default.GuideSettings)
-                    ?? new GuideSettings();
-            }
-            catch (JsonException) {
-                GuideSettings = new GuideSettings();
-            }
-        }
-        else {
-            GuideSettings = new GuideSettings();
-        }
+        await Task.WhenAll(prefTask, stdlibTask, guideTask, templateTask);
+        Preferences = prefTask.Result;
+        StdLibSettings = stdlibTask.Result;
+        GuideSettings = guideTask.Result;
+        TemplateSettings = templateTask.Result;
 
         if(UpdatePreferences(Preferences)) {
             await SaveSettings();
+        }
+
+        return;
+
+        async Task<T> Deserialize<T>(string path, JsonTypeInfo<T> info, Func<T> factory) {
+            if (!File.Exists(path)) return factory();
+            await using Stream stream = File.OpenRead(path);
+            try {
+                return await JsonSerializer.DeserializeAsync(stream, info)
+                       ?? factory();
+            }
+            catch (JsonException) {
+                return factory();
+            }
         }
     }
 
@@ -149,5 +145,6 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
 [JsonSerializable(typeof(UserPreferences))]
 [JsonSerializable(typeof(StandardLibrarySettings))]
 [JsonSerializable(typeof(GuideSettings))]
+[JsonSerializable(typeof(TemplateSettings))]
 [JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(CultureJsonConverter)])]
 internal partial class SettingsSerializerContext : JsonSerializerContext;

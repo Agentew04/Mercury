@@ -24,4 +24,7 @@
     <data name="Version" xml:space="preserve">
         <value>Installed version:</value>
     </data>
+    <data name="WindowTitle" xml:space="preserve">
+        <value>About Mercury</value>
+    </data>
 </root>

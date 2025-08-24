@@ -8,7 +8,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <IsPackable>false</IsPackable>
     <Authors>Rodrigo Appelt</Authors>
-    <AssemblyVersion>0.1</AssemblyVersion>
+    <AssemblyVersion>0.2</AssemblyVersion>
     <NeutralLanguage>en</NeutralLanguage>
     
     <!-- publish and trimming -->
@@ -18,9 +18,9 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-<!--    <DebugSymbols>False</DebugSymbols>-->
-<!--    <DebugType>None</DebugType>-->
-<!--    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>-->
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
   </PropertyGroup>
   
   <!-- linker e trimmer -->

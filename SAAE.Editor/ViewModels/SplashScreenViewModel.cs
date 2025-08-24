@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -365,6 +366,60 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         }).ToList();
     }
 
+    private async Task DownloadTemplates(bool doOnlineCheck) {
+        if (!doOnlineCheck) {
+            return;
+        }
+        
+        string json = await http.GetStringAsync(ResourcesStructureUrl);
+        using JsonDocument structureDoc = JsonDocument.Parse(json);
+        JsonElement templatesProperty = structureDoc.RootElement.GetProperty("templates");
+        
+        // se o remote tem mais templates que nos
+        bool doDownload = templatesProperty.GetArrayLength() > settings.TemplateSettings.Templates.Count;
+        List<Template> remoteTemplates = [];
+        if (!doDownload) {
+            // ou algum dos nossos templates esta desatualzado
+            using JsonElement.ArrayEnumerator arrayEnumerator = templatesProperty.EnumerateArray();
+            foreach (JsonElement templateElement in arrayEnumerator) {
+                int version = templateElement.GetProperty("version").GetInt32();
+                string id = templateElement.GetProperty("id").GetString() ?? string.Empty;
+                Template? localTemplate = settings.TemplateSettings.Templates.FirstOrDefault(x => x.Identifier == id);
+                if (localTemplate is null) {
+                    doDownload = true;
+                    break;
+                }
+
+                if (localTemplate.Version < version) {
+                    doDownload = true;
+                    break;
+                }
+            }
+
+            if (doDownload) {
+                arrayEnumerator.Reset();
+                remoteTemplates = arrayEnumerator
+                    .Select(x => x.Deserialize(SettingsSerializerContext.Default.Template))
+                    .Where(x => x is not null)
+                    .ToList()!;
+            }
+        }
+
+        if (!doDownload) {
+            return;
+        }
+        
+        await RequestDownload();
+        
+        // atualiza settings dos templates
+        settings.TemplateSettings.Templates.ForEach(x => x.Dispose());
+        settings.TemplateSettings.Templates.Clear();
+        settings.TemplateSettings.Templates.AddRange(remoteTemplates.ForEachExt(x => {
+                x.ProjectPath = settings.ResourcesDirectory + x.ProjectPath;
+            }
+        ));
+    }
+    
     private Task RequestDownload()
     {
         if (downloadResourcesTask is not null)
@@ -465,10 +520,10 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
     private void UpdateInstaller() {
         PathObject appLocation = Assembly.GetAssembly(typeof(App))!.Location.ToFilePath()
             .Path();
-        PathObject newInstaller = appLocation.File("Update2.exe");
+        PathObject newInstaller = appLocation.File("Updater2.exe");
         if (!newInstaller.Exists()) return;
         Logger.LogInformation("Removing old updater and using new one");
-        PathObject oldInstaller = appLocation.File("Update.exe");
+        PathObject oldInstaller = appLocation.File("Updater.exe");
         oldInstaller.Delete();
         File.Delete(oldInstaller.ToString());
         File.Move(newInstaller.ToString(), oldInstaller.ToString());
@@ -496,7 +551,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             WindowStartupLocation = WindowStartupLocation.CenterScreen
         });
         ButtonResult result;
-        if (!Window.TryGetTarget(out Window w)) {
+        if (!Window.TryGetTarget(out Window? w)) {
             result = await messageBox.ShowWindowAsync();
         }
         else {
@@ -514,8 +569,10 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         await updater.DownloadAsset(asset, ms);
         Logger.LogInformation("Unpacking release");
         StatusText = SplashScreenResources.UnpackingUpdateTextValue;
+    
         string artifactFolder = await updater.UnpackAsset(asset, ms);
         Logger.LogInformation("Updating. Bye-Bye");
         updater.Update(artifactFolder);
     }
+
 }

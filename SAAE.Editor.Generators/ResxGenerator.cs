@@ -22,10 +22,15 @@ public class ResxGenerator : IIncrementalGenerator {
         using System;
         using System.Globalization;
         using System.Collections.Generic;
+        using CommunityToolkit.Mvvm.Messaging;
         
         #nullable enable
         
         namespace SAAE.Editor.Localization;
+        
+        public class LocalizationChangedMessage{
+            public CultureInfo Culture { get; init; }
+        }
         
         public static class LocalizationManager
         {
@@ -40,6 +45,9 @@ public class ResxGenerator : IIncrementalGenerator {
                     if (currentCulture != value) {
                         currentCulture = value;
                         CultureChanged?.Invoke(currentCulture);
+                        WeakReferenceMessenger.Default.Send<LocalizationChangedMessage>(new(){
+                            Culture = currentCulture
+                        });
                     }
                 }
             }

@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
+using SAAE.Editor.Localization;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
 using SAAE.Editor.Views;
@@ -35,6 +38,7 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
 
     public ProjectSelectionView view = null!; // isso eh feio mas nao quero fazer um role pro filepicker
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+    private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
 
     public bool Cancelled { get; private set; } = false;
     
@@ -74,13 +78,18 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
     [NotifyPropertyChangedFor(nameof(CanCreateProject))]
     [NotifyPropertyChangedFor(nameof(HasAvailableOperatingSystems))]
     private int selectedIsaIndex = -1;
+
+    public ObservableCollection<Template> Templates { get; set; } = [];
+    [ObservableProperty] private int selectedTemplateIndex;
+    private readonly Template blankTemplate = Template.Blank;
     
     public bool EmptyRecentProjects => FilteredRecentProjects.Count == 0;
     
     public bool CanCreateProject => !string.IsNullOrWhiteSpace(NewProjectName) 
                                     && !string.IsNullOrWhiteSpace(NewProjectPath)
                                     && SelectedOperatingSystemIndex >= 0
-                                    && SelectedIsaIndex >= 0;
+                                    && SelectedIsaIndex >= 0
+                                    && SelectedTemplateIndex != -1;
     
     public bool HasAvailableOperatingSystems => OperatingSystems.Count > 0;
     
@@ -124,7 +133,8 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
         allOperatingSystems = OperatingSystemManager.GetAvailableOperatingSystems().ToList();
         OperatingSystems = new ObservableCollection<OperatingSystemType>(allOperatingSystems);
         Isas = [Architecture.Mips, Architecture.RiscV, Architecture.Arm];
-        OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasAvailableOperatingSystems)));
+        SelectedIsaIndex = Isas.IndexOf(Architecture.Mips);
+        OnPropertyChanged(nameof(HasAvailableOperatingSystems));
     }
 
     [RelayCommand]
@@ -134,10 +144,10 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
     }
     
     partial void OnSelectedIsaIndexChanged(int value) {
-        if (value < 0 || value >= allOperatingSystems.Count) {
+        if (value < 0 || value >= Isas.Count) {
+            Logger.LogInformation("Invalid ISA index: {idx}", value);
             return;
         }
-        Console.WriteLine("Selected ISA changed");
         Architecture isa = Isas[value];
         IEnumerable<OperatingSystemType> oss = allOperatingSystems
             .Where(x => x.CompatibleArchitecture == isa);
@@ -150,8 +160,17 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
         }else {
             SelectedOperatingSystemIndex = -1;
         }
-
-        Console.WriteLine("Now with {0} OSes and selection at {1}", OperatingSystems.Count, SelectedOperatingSystemIndex);
+        
+        Logger.LogInformation("Selected ISA changed to {arch}", isa);
+        
+        // update available templates
+        Templates.Clear();
+        Templates.Add(blankTemplate);
+        Templates.AddRange(settingsService.TemplateSettings.Templates
+            .Where(x => x.Architecture == isa));
+        OnPropertyChanged(nameof(Templates));
+        SelectedTemplateIndex = -1;
+        SelectedTemplateIndex = 0;
     }
 
     [RelayCommand]
@@ -159,9 +178,10 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
         string path = SanitizeProjectPath(NewProjectPath);
         string name = SanitizeProjectName(NewProjectName);
         string projectFilePath = Path.Combine(path, name, name+".asmproj");
+        Template template = Templates[SelectedTemplateIndex];
         OperatingSystemType os = OperatingSystems[SelectedOperatingSystemIndex];
         Architecture isa = Isas[SelectedIsaIndex];
-        ProjectFile project = await projectService.CreateProjectAsync(projectFilePath, name, os, isa);
+        ProjectFile project = await projectService.CreateProjectAsync(projectFilePath, name, os, isa, template);
         projectService.SetCurrentProject(project);
         IsCreatingProject = false;
         if(!projectSelectionTask.Task.IsCompleted) {
@@ -177,12 +197,12 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
         }
         
         IReadOnlyList<IStorageFile> result = await view.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions {
-            Title = Localization.ProjectResources.SelectProjectPickerValue,
+            Title = ProjectResources.SelectProjectPickerValue,
             AllowMultiple = false,
-            SuggestedFileName = "project.asmproj", 
+            SuggestedFileName = "project.asmproj",
             FileTypeFilter = [
-                new FilePickerFileType(Localization.ProjectResources.AsmProjectsValue) {
-                    Patterns = [ "*.asmproj" ], 
+                new FilePickerFileType(ProjectResources.AsmProjectsValue) {
+                    Patterns = [ "*.asmproj" ],
                 }
             ]
         });

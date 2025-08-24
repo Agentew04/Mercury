@@ -7,7 +7,7 @@
         x:Class="SAAE.Editor.Views.AboutView"
         Width="450"
         Height="300"
-        Title="AboutView">
+        Title="{loc:AboutResources WindowTitle}">
     <ScrollViewer>
         <StackPanel Margin="15" HorizontalAlignment="Stretch">
             <TextBlock HorizontalAlignment="Left">

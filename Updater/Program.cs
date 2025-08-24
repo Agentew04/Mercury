@@ -116,13 +116,22 @@ internal static class Program {
             foreach (string entry in Directory.EnumerateFiles(@new)) {
                 string sourceFilename = Path.GetFileName(entry);
                 string destFilename = sourceFilename;
-                if (sourceFilename == "Update.exe") {
-                    destFilename = "Update2.exe";
+                if (sourceFilename.Contains("Updater.exe")) {
+                    destFilename = "Updater2.exe";
                 }
-                File.Move(Path.Combine(@new, sourceFilename), Path.Combine(oldPath, destFilename));
+
+                string sourcePath = Path.Combine(@new, sourceFilename);
+                string destinationPath = Path.Combine(old, destFilename);
+
+                try {
+                    File.Move(sourcePath, destinationPath);
+                }
+                catch (Exception ex) {
+                    Console.WriteLine($"Couldnt move file: {sourcePath}->{destinationPath}");
+                }
             }
 
-            foreach (string entry in Directory.EnumerateDirectories(newPath)) {
+            foreach (string entry in Directory.EnumerateDirectories(@new)) {
                 string? directoryName = Path.GetDirectoryName(entry);
                 if (directoryName is null) {
                     Console.WriteLine($"Error. Skipping directory {entry}");

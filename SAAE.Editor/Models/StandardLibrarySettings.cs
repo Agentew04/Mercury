@@ -13,8 +13,9 @@ public class StandardLibrarySettings {
     public List<StandardLibrary> AvailableLibraries { get; set; } = [];
 
     public StandardLibrary? GetCompatibleLibrary(ProjectFile project) {
-        // TODO: considerar sistema operacional tambem!
-        return AvailableLibraries.Find(x => x.Architecture == project.Architecture);
+        return AvailableLibraries.Find(x => 
+            x.Architecture == project.Architecture
+            && x.OperatingSystemIdentifier == project.OperatingSystem.Identifier);
     }
 }
 

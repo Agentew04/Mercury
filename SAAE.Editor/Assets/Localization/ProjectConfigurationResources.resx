@@ -54,4 +54,7 @@
     <data name="LanguageLabel" xml:space="preserve">
         <value>Language</value>
     </data>
+    <data name="WindowTitle" xml:space="preserve">
+        <value>Project Configuration</value>
+    </data>
 </root>

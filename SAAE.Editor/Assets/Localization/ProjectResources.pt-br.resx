@@ -104,4 +104,10 @@
     <data name="DeleteFileConfirmModal" xml:space="preserve">
         <value>Excluir arquivo {0}?</value>
     </data>
+    <data name="TemplateLabel" xml:space="preserve">
+        <value>Modelo</value>
+    </data>
+    <data name="NoTemplateText" xml:space="preserve">
+        <value>Projeto vazio</value>
+    </data>
 </root>

@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions {
 
         HttpClient httpClient = new(); // reuse the same instance
         HttpRequestHeaders headers = httpClient.DefaultRequestHeaders;
-        headers.UserAgent.ParseAdd("SAAE/" + typeof(App).Assembly.GetName().Version);
+        headers.UserAgent.ParseAdd("MercuryIDE/" + typeof(App).Assembly.GetName().Version);
         collection.AddSingleton(httpClient);
         
         #endregion
