@@ -1,26 +1,26 @@
 {
     "windows": {
         "x64": {
-            "clang": "/win-x64/clang.zip",
+            "mc": "/win-x64/llvm-mc.zip",
             "lld": "/win-x64/ld.lld.zip",
             "linkerscript": "/linker.ld",
-            "version": 3,
+            "version": 4,
             "available": true
         },
         "x86": {
-            "clang": "/win-x86/clang.zip",
+            "mc": "/win-x86/llvm-mc.zip",
             "lld": "/win-x86/ld.lld.zip",
             "linkerscript": "/linker.ld",
-            "version": 3,
+            "version": 0,
             "available": false
         }
     },
     "linux": {
         "x64":{
-            "clang": "/linux-x64/clang.zip",
+            "mc": "/linux-x64/clang.zip",
             "lld": "/linux-x64/ld.lld.zip",
             "linkerscript": "/linker.ld",
-            "version": 3,
+            "version": 0,
             "available": false
         }
     }
