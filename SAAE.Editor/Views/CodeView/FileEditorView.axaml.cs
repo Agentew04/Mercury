@@ -21,7 +21,7 @@ public partial class FileEditorView : UserControl {
     public FileEditorView() {
         InitializeComponent();
         DataContext = ViewModel = App.Services.GetRequiredService<FileEditorViewModel>();
-        ViewModel.TextEditor = TextEditor; // HACK
+        ViewModel.SetView(this);
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
     }
     

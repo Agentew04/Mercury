@@ -19,7 +19,7 @@ using SAAE.Engine.Common;
 
 namespace SAAE.Editor.ViewModels;
 
-public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfigurationViewModel> {
+public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfigurationViewModel, ProjectConfiguration> {
 
     public ProjectConfiguration View { get; set; } = null!;
 

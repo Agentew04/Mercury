@@ -40,20 +40,14 @@ namespace SAAE.Editor {
             // initialize pop ups
             WeakReferenceMessenger.Default.Register<MainWindow, RequestTextPopupMessage>(this, static (recipient, msg) => {
                 msg.Reply(recipient.TextPopup
-                    .Request(msg.Title, msg.Watermark, msg.IsCancellable)
-                    .ContinueWith(r => new TextPopupResult {
-                        Result = r.Result ?? string.Empty,
-                        IsCancelled = r.Result is null
-                }));
+                    .Request(msg)
+                    .ContinueWith(r => r.Result));
             });
             WeakReferenceMessenger.Default.Register<MainWindow, RequestBoolPopupMessage>(this,
                 static (recipient, msg) => {
                     msg.Reply(recipient.BoolPopup
-                        .Request(msg.Title, msg.IsCancellable)
-                        .ContinueWith(r => new BoolPopupResult {
-                            Result = r.Result ??false,
-                            IsCancelled = r.Result is null
-                        }));
+                        .Request(msg)
+                        .ContinueWith(r => r.Result));
                 });
         }
 

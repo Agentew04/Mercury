@@ -11,18 +11,21 @@ namespace SAAE.Editor.Views.ExecuteView;
 public partial class OutputView : UserControl {
 
     private readonly ILogger<OutputView> logger = App.Services.GetRequiredService<ILogger<OutputView>>();
+    
+    public ScrollViewer? OutputScroller { get; private set; }
 
     public OutputView() {
         InitializeComponent();
         DataContext = ViewModel = App.Services.GetRequiredService<OutputViewModel>();
+        ViewModel.SetView(this);
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
-        ViewModel.OutputScroller = OutputTextBox.GetVisualDescendants()
+        OutputScroller = OutputTextBox.GetVisualDescendants()
             .OfType<ScrollViewer>()
             .FirstOrDefault();
-        if (ViewModel.OutputScroller is null) {
+        if (OutputScroller is null) {
             logger.LogWarning("OutputTextBox ScrollView not found! Can't auto scroll to end!");
         }
     }

@@ -24,11 +24,12 @@ using SAAE.Editor.Extensions;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
+using SAAE.Editor.Views;
 using Version = System.Version;
 
 namespace SAAE.Editor.ViewModels;
 
-public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel>, IDisposable {
+public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenViewModel, SplashScreen>, IDisposable {
 
     private const string CompilerGithubUrl = "https://github.com/Agentew04/SAAE/raw/refs/heads/clang-bin/";
     private const string ResourcesStructureUrl =
@@ -48,8 +49,6 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
     public string VersionText => $"{Version?.Major ?? 0}.{Version?.Minor ?? 0}";
 
     private TaskCompletionSource? downloadResourcesTask;
-
-    public WeakReference<Window> Window { get; set; }
     
     public async Task InitializeAsync() {
         Version = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0,0);
@@ -112,12 +111,12 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         LocalizationManager.CultureChanged -= Localize;
     }
 
-    private async Task DownloadTools(bool getCompiler, bool getLinker, bool getScript) {
+    private async Task DownloadTools(bool getAssembler, bool getLinker, bool getScript) {
         // get structure of remote repo
         StatusText = SplashScreenResources.PlatformCheckValue;
         string repoStructureJson = await http.GetStringAsync(CompilerGithubUrl + "structure.json");
         using JsonDocument repoStructure = JsonDocument.Parse(repoStructureJson);
-        string os = OperatingSystem.IsWindows() ? "windows" : "linux";
+        string os = OperatingSystem.IsWindows() ? "windows" : OperatingSystem.IsMacOS() ? "mac" : "linux";
         string arch = Environment.Is64BitOperatingSystem ? "x64" : "x86";
 
         // get compiler and linker path in remote repo
@@ -130,7 +129,22 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         catch (KeyNotFoundException) {
             // erro, plataforma nao suportada
             // eh disparado em linux 32bits, macos, arm etc
-            // disparar message box
+            IMsBox<ButtonResult>? msgBox = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams() {
+                ShowInCenter = true,
+                CanResize = false,
+                ContentMessage = $"Platform currently not supported: ({os}/{arch})",
+                ContentHeader = "Not Supported",
+                ButtonDefinitions = ButtonEnum.Ok,
+                ContentTitle = "Not Supported",
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                Topmost = true,
+                EnterDefaultButton = ClickEnum.Ok,
+                EscDefaultButton = ClickEnum.Ok
+            });
+            SplashScreen? view = GetView();
+            if (view is not null) {
+                await msgBox.ShowWindowDialogAsync(GetView());
+            }
             return;
         }
 
@@ -138,15 +152,31 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         if (!available) {
             // plataforma nao disponivel ainda
             // disparar message box
+            IMsBox<ButtonResult>? msgBox = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams() {
+                ShowInCenter = true,
+                CanResize = false,
+                ContentMessage = $"Platform currently not supported: ({os}/{arch})",
+                ContentHeader = "Not Supported",
+                ButtonDefinitions = ButtonEnum.Ok,
+                ContentTitle = "Not Supported",
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                Topmost = true,
+                EnterDefaultButton = ClickEnum.Ok,
+                EscDefaultButton = ClickEnum.Ok
+            });
+            SplashScreen? view = GetView();
+            if (view is not null) {
+                await msgBox.ShowWindowDialogAsync(GetView());
+            }
             return;
         }
 
         // download
-        string? compilerPath = info.GetProperty("clang").GetString();
+        string? assemblerPath = info.GetProperty("mc").GetString();
         string? linkerPath = info.GetProperty("lld").GetString();
         string? scriptPath = info.GetProperty("linkerscript").GetString();
 
-        if (compilerPath is null || linkerPath is null || scriptPath is null) {
+        if (assemblerPath is null || linkerPath is null || scriptPath is null) {
             // eh o fim. :(
             // nao tem caminho
             // disparar message box
@@ -154,8 +184,8 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             return;
         }
 
-        if (compilerPath.StartsWith('/')) {
-            compilerPath = compilerPath[1..];
+        if (assemblerPath.StartsWith('/')) {
+            assemblerPath = assemblerPath[1..];
         }
 
         if (linkerPath.StartsWith('/')) {
@@ -166,7 +196,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             scriptPath = scriptPath[1..];
         }
 
-        compilerPath = CompilerGithubUrl + compilerPath;
+        assemblerPath = CompilerGithubUrl + assemblerPath;
         linkerPath = CompilerGithubUrl + linkerPath;
         scriptPath = CompilerGithubUrl + scriptPath;
 
@@ -174,26 +204,26 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             Directory.CreateDirectory(settings.Preferences.CompilerPath);
         }
 
-        Task compilerTask = Task.Run(async () => {
-            if (!getCompiler) {
+        Task assemblerTask = Task.Run(async () => {
+            if (!getAssembler) {
                 return;
             }
             
             StatusText = SplashScreenResources.DownloadingResourcesTextValue;
 
             using MemoryStream zipStream = new();
-            using HttpRequestMessage requestMessage = new(HttpMethod.Get, compilerPath);
+            using HttpRequestMessage requestMessage = new(HttpMethod.Get, assemblerPath);
             using HttpResponseMessage response =
                 await http.SendAsync(requestMessage);
             if (!response.IsSuccessStatusCode)
             {
-                Logger.LogError("Failed to download compiler. Error code: {err} ({reason})", response.StatusCode,
+                Logger.LogError("Failed to download assembler. Error code: {err} ({reason})", response.StatusCode,
                     response.ReasonPhrase);
                 return;
             }
             
-            Logger.LogInformation("Downloading compiler from {compilerPath}", compilerPath);
-            Logger.LogInformation("Compiler download size: {size}", response.Content.Headers.ContentLength);
+            Logger.LogInformation("Downloading assembler from {compilerPath}", assemblerPath);
+            Logger.LogInformation("Assembler download size: {size}", response.Content.Headers.ContentLength);
             await using Stream contentStream = await response.Content.ReadAsStreamAsync();
             await contentStream.CopyToAsync(zipStream);
             Logger.LogInformation("Download complete");
@@ -201,14 +231,13 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
 
             zipStream.Seek(0, SeekOrigin.Begin);
             using ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
-            ZipArchiveEntry? entry = archive.GetEntry("clang.exe");
+            ZipArchiveEntry? entry = archive.GetEntry("llvm-mc.exe");
             if (entry is null) {
                 return;
             }
 
             await using Stream entryStream = entry.Open();
-            // progress?.AddNewQuota((ulong)entryStream.Length);
-            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"),
+            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "llvm-mc.exe"),
                 FileMode.OpenOrCreate);
             await entryStream.CopyToAsync(fs);
         });
@@ -269,20 +298,20 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             Logger.LogInformation("Linker script downloaded successfully");
         });  
 
-        await Task.WhenAll(compilerTask, linkerTask, scriptTask);
+        await Task.WhenAll(assemblerTask, linkerTask, scriptTask);
         StatusText = SplashScreenResources.DoneDownloadingValue;
     }
 
     private Task DownloadCompiler() {
-        bool hasCompiler = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "clang.exe"));
+        bool hasAssembler = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "llvm-mc.exe"));
         bool hasLinker = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"));
         bool hasLinkerScript = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "linker.ld"));
 
-        if (hasCompiler && hasLinker && hasLinkerScript) {
+        if (hasAssembler && hasLinker && hasLinkerScript) {
             return Task.CompletedTask;
         }
 
-        return DownloadTools(!hasCompiler, !hasLinker, !hasLinkerScript);
+        return DownloadTools(!hasAssembler, !hasLinker, !hasLinkerScript);
     }
     
     private async Task DownloadGuides(bool doOnlineCheck) {
@@ -551,11 +580,12 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             WindowStartupLocation = WindowStartupLocation.CenterScreen
         });
         ButtonResult result;
-        if (!Window.TryGetTarget(out Window? w)) {
-            result = await messageBox.ShowWindowAsync();
+        SplashScreen? view = GetView();
+        if (view is not null) {
+             result = await messageBox.ShowWindowDialogAsync(view);
         }
         else {
-             result = await messageBox.ShowWindowDialogAsync(w);
+            result = await messageBox.ShowWindowAsync();
         }
 
         if (result != ButtonResult.Yes) {

@@ -15,11 +15,12 @@ using SAAE.Editor.Models;
 using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
+using SAAE.Editor.Views.CodeView;
 using SAAE.Engine;
 
 namespace SAAE.Editor.ViewModels.Code;
 
-public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
+public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel, FileEditorView> {
 
     private readonly FileService fileService = App.Services.GetRequiredService<FileService>();
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
@@ -74,9 +75,6 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
     private bool canRunProject = false;
     
     #endregion
-
-    // HACK:
-    public TextEditor? TextEditor { get; set; }
 
     private static void OnFileDelete(FileEditorViewModel recipient, FileDeleteMessage msg) {
         OpenFile? file = recipient.OpenFiles
@@ -188,9 +186,10 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
             return;
         }
 
+        FileEditorView? view = GetView();
         DocumentLine line = lineNumber is not null 
             ? TextDocument.GetLineByNumber(lineNumber.Value) : 
-            TextDocument.GetLineByOffset(TextEditor!.CaretOffset); 
+            TextDocument.GetLineByOffset(view?.TextEditor.CaretOffset ?? 0); 
         
         int column = columnNumber ?? 1; // se nao tiver coluna, usa a primeira
         if (line.Length < column)
@@ -202,8 +201,8 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel> {
         // atualiza o cursor
         // por algum motivo o offset do texteditor nao aceita bindings
         //CursorOffset = line.Offset + column - 1; // -1 porque o caret offset eh zero-based
-        if (TextEditor is not null) {
-            TextEditor.CaretOffset = line.Offset + column - 1;
+        if (view?.TextEditor != null) {
+            view.TextEditor.CaretOffset = line.Offset + column - 1;
         }
     }
 

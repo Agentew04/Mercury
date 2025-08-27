@@ -15,14 +15,15 @@ namespace SAAE.Editor.Views;
 public partial class ProjectSelectionView : Window {
     public ProjectSelectionView() {
         InitializeComponent();
-        DataContext = SelectionViewModel = App.Services.GetRequiredService<ProjectSelectionViewModel>();
-        SelectionViewModel.view = this;
+        DataContext = ViewModel = App.Services.GetRequiredService<ProjectSelectionViewModel>();
+        ViewModel.SetView(this);
         TitleBar.Window = this;
     }
 
-    public ProjectSelectionViewModel SelectionViewModel { get; set; }
+    public ProjectSelectionViewModel ViewModel { get; set; }
 
     private async void BrowseFolderOnNewProject(object? sender, RoutedEventArgs e) {
+        // TODO: mover isso para viewmodel
         if(!StorageProvider.CanOpen){
             Console.WriteLine("FilePicker nao eh suportado nessa plataforma!");
             return;
@@ -38,10 +39,10 @@ public partial class ProjectSelectionView : Window {
         }
 
         string path = result[0].Path.AbsolutePath;
-        SelectionViewModel.NewProjectPath = path;
+        ViewModel.NewProjectPath = path;
     }
 
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e) {
-        SelectionViewModel.OverrideTaskCompletion();
+        ViewModel.OverrideTaskCompletion();
     }
 }

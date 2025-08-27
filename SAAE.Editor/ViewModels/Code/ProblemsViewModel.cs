@@ -7,10 +7,11 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
+using SAAE.Editor.Views.CodeView;
 
 namespace SAAE.Editor.ViewModels.Code;
 
-public sealed partial class ProblemsViewModel : BaseViewModel<ProblemsViewModel> {
+public sealed partial class ProblemsViewModel : BaseViewModel<ProblemsViewModel, ProblemsView> {
     
     public ProblemsViewModel()
     {

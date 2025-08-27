@@ -13,13 +13,14 @@ using CommunityToolkit.Mvvm.Messaging;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models.Messages;
+using SAAE.Editor.Views.ExecuteView;
 using SAAE.Engine.Memory;
 using SAAE.Engine.Mips.Instructions;
 using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Editor.ViewModels.Execute;
 
-public partial class InstructionViewModel : BaseViewModel<InstructionViewModel>, IDisposable {
+public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, InstructionView>, IDisposable {
 
     [ObservableProperty] private ObservableCollection<DisassemblyRow> instructions = [];
     [ObservableProperty] private int selectedInstructionIndex = -1;

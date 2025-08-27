@@ -4,10 +4,11 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using SAAE.Editor.Models.Messages;
+using SAAE.Editor.Views.ExecuteView;
 
 namespace SAAE.Editor.ViewModels.Execute;
 
-public partial class LabelViewModel : BaseViewModel<LabelViewModel> {
+public partial class LabelViewModel : BaseViewModel<LabelViewModel, LabelView> {
 
     private List<Symbol> allSymbols = [];
     [ObservableProperty] private ObservableCollection<Symbol> symbols = [];

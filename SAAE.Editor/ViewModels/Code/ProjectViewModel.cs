@@ -16,13 +16,14 @@ using SAAE.Editor.Localization;
 using SAAE.Editor.Models;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
+using SAAE.Editor.Views.CodeView;
 using SAAE.Engine.Common;
 using YamlDotNet.Serialization;
 using Path = System.IO.Path;
 
 namespace SAAE.Editor.ViewModels.Code;
 
-public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel> {
+public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel, ProblemsView> {
 
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly FileService fileService = App.Services.GetRequiredService<FileService>();

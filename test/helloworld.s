@@ -1,22 +1,10 @@
 .data
 
-prompt: .asciiz "Qual o seu nome? "
-str: .space 64
-
 
 .text
-# imprime string
-li $v0, 4
-la $a0, prompt
-syscall
 
-# le string
-li $v0, 8
-la $a0, str
-li $a1, 64
-syscall
+.macro marcos target
+addi \target, $zero, 5
+.endmacro
 
-# printa string lida
-li $v0, 4
-la $a0, str
-syscall
+marcos $t2

@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using ELFSharp.ELF;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
@@ -20,10 +18,12 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
 
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
-    private string CompilerPath => Path.Combine(settingsService.Preferences.CompilerPath, "clang.exe");
-    private string LinkerPath => Path.Combine(settingsService.Preferences.CompilerPath, "linker.ld");
+    private string AssemblerPath => Path.Combine(settingsService.Preferences.CompilerPath, "llvm-mc.exe");
+    
+    private string LinkerPath => Path.Combine(settingsService.Preferences.CompilerPath, "ld.lld.exe");
+    private string LinkerScriptPath => Path.Combine(settingsService.Preferences.CompilerPath, "linker.ld");
 
-    public const string EntryPointPreambule = ".globl __start\n__start:\n";
+    private const string EntryPointPreambule = ".globl __start\n__start:\n";
     
     public async ValueTask<CompilationResult> CompileAsync(CompilationInput input)
     {
@@ -63,88 +63,109 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         // 4. construir dicionarios
         Dictionary<string, PathObject> pathMapping = [];
         Dictionary<string, int> injectedLinesMapping = [];
-        foreach ((PathObject Old, PathObject New, int injectedLines) in moveTasks.Select(x => x.Result)) {
-            string key = New.ToString();
-            pathMapping[key] = Old;
+        foreach ((PathObject old, PathObject @new, int injectedLines) in moveTasks.Select(x => x.Result)) {
+            string key = @new.ToString();
+            pathMapping[key] = old;
             injectedLinesMapping[key] = injectedLines;
         }
         
-        // 5. Compilar
+        // 5. Compilar cada arquivo
         PathObject exePath = compilationDirectory + project.OutputFile;
         List<string> paths = pathMapping.Keys.ToList();
-        string command = GenerateCommand(paths, exePath.ToString());
         using MemoryStream diagMs = new();
-        CompilationError commandError = await RunCommand(command, TimeSpan.FromMilliseconds(2000), diagMs);
-        diagMs.Seek(0, SeekOrigin.Begin);
-
-        if (commandError != CompilationError.None) {
-            using StreamReader sr = new(diagMs, leaveOpen: true);
-            Logger.LogWarning("Error compiling. Type: {type}. Out: {out}", commandError, await sr.ReadToEndAsync());
-            diagMs.Seek(0, SeekOrigin.Begin);
-        }
-
-        if (commandError != CompilationError.None && commandError != CompilationError.CompilationError)
-        {
-            return LastCompilationResult = new CompilationResult
-            {
-                IsSuccess = false,
-                Error = commandError,
-                Diagnostics = null,
-                Id = Guid.Empty,
-                OutputPath = null
-            }; 
-        }
-        
-        List<Diagnostic> diagnostics = ParseDiagnostics(diagMs, pathMapping, injectedLinesMapping);
-
-        if (commandError == CompilationError.CompilationError)
-        {
-            return LastCompilationResult = new CompilationResult
-            {
-                IsSuccess = false,
-                Error = commandError,
-                Diagnostics = diagnostics,
+        List<ProcessResult> compilations = await CompileFiles(paths);
+        List<Diagnostic> diagnostics = compilations.Select(x => x.Diagnostics)
+            .Where(x => x is not null)
+            .SelectMany(x => ParseDiagnostics(x!, pathMapping, injectedLinesMapping))
+            .ToList();
+        // se algum nao compilou corretamente, falha
+        if (compilations.Any(x => !x.Success)) {
+            return LastCompilationResult = new CompilationResult() {
+                Error = CompilationError.CompilationError,
+                OutputPath = null,
                 Id = compilationId,
-                OutputPath = null
+                IsSuccess = false,
+                Diagnostics = diagnostics
             };
         }
         
-        return LastCompilationResult = new CompilationResult
-        {
+        // 6. Linkar todos arquivos
+        ProcessResult link = await LinkFiles(compilations
+            .Where(x => x.OutputFilePath is not null)
+            .Select(x => x.OutputFilePath!)
+            .ToList(),
+            exePath.ToString());
+        diagnostics.AddRange(link.Diagnostics is not null
+            ? ParseDiagnostics(link.Diagnostics, pathMapping, injectedLinesMapping) : []);
+        // se nao conseguiu linkar, da erro
+        if (!link.Success) {
+            return LastCompilationResult = new CompilationResult() {
+                Error = CompilationError.LinkError,
+                OutputPath = null,
+                Id = compilationId,
+                IsSuccess = false,
+                Diagnostics = diagnostics
+            };
+        }
+        
+        // Libera recursos da compilacao
+        if (link.Diagnostics is not null) await link.Diagnostics.DisposeAsync();
+        compilations.ForEach(x => x.Diagnostics?.Dispose());
+        
+        // 7. Retorna a compilacao
+        return LastCompilationResult = new CompilationResult() {
             IsSuccess = true,
+            Diagnostics = diagnostics,
             Id = compilationId,
             Error = CompilationError.None,
-            Diagnostics = diagnostics,
             OutputPath = exePath.ToString()
         };
     }
 
     public CompilationResult LastCompilationResult { get; private set; }
 
-    private string GenerateCommand(List<string> inputFiles, string outputName) {
-        StringBuilder sb = new();
-        foreach (string file in inputFiles) {
-            sb.Append('"');
-            sb.Append(file);
-            sb.Append('"');
-            sb.Append(' ');
-        }
-        string? files = string.Join(" ", inputFiles);
-        return $"--target=mips-linux-gnu -O0 -fno-pic -mno-abicalls -nostartfiles -Wl -T \"{LinkerPath}\" -nostdlib" +
-               $" -static -fuse-ld=lld -modd-spreg -o \"{outputName}\" {files}";
-        /*
-         * -O0: no optimization
-         * -fno-pic: desativa position independent code. Coloquei pra garantir que 'la' traduza para 'lui'+'ori'
-         *  e nao usar o $gp
-         * -mno-abicalls: codigo asm puro, sem nada do linker
-         * -nostartfiles: nao incluir arquivos de inicializacao
-         * -Wl -T: passa o script do linker (obriga o .text e .data ser o endereco q a gente quer)
-         * -nostdlib: nao linka a standard library. sem printf, scanf, etc
-         * -static: linka estaticamente(um exe só, sem dlls)
-         * -fuse-ld=lld: usa o lld como linker(qq muda? n sei. mas ld normal n funciona pra mips, sla)
-         */
+    private async Task<List<ProcessResult>> CompileFiles(List<string> sourceFiles) {
+        List<ProcessResult> results = [];
+        string assemblerPath = AssemblerPath;
+        await Parallel.ForEachAsync(sourceFiles, async (file, _) => {
+            string outputName = Path.ChangeExtension(file, ".o");
+            string commandArgs = $"--arch=mips --assemble --filetype=obj --no-exec-stack -o \"{outputName}\" \"{file}\"";
+
+            MemoryStream ms = new();
+            CompilationError result = await RunCommand(assemblerPath, commandArgs,
+                TimeSpan.FromMilliseconds(100),
+                ms);
+            ms.Seek(0, SeekOrigin.Begin);
+            lock (results) {
+                results.Add(new ProcessResult() {
+                    Success = result == CompilationError.None,
+                    OutputFilePath = result == CompilationError.None ? outputName : null,
+                    Diagnostics = ms
+                });
+            }
+        });
+        return results;
     }
 
+    private async Task<ProcessResult> LinkFiles(List<string> objectFiles, string elfFile) {
+        string linker = LinkerPath;
+        string args = $"-T \"{LinkerScriptPath}\" -static -O0 -oformat=elf --nostdlib --no-pie {string.Join(' ', objectFiles.Select(x => '"'+x+'"'))} -o \"{elfFile}\"";
+        MemoryStream ms = new();
+        CompilationError result = await RunCommand(linker, args, TimeSpan.FromMilliseconds(500), ms);
+        ms.Seek(0, SeekOrigin.Begin);
+        return new ProcessResult() {
+            Success = result == CompilationError.None,
+            Diagnostics = ms,
+            OutputFilePath = result == CompilationError.None ? elfFile : null
+        };
+    }
+
+    private struct ProcessResult {
+        public bool Success { get; init; }
+        public Stream? Diagnostics { get; init; }
+        public string? OutputFilePath { get; init; }
+    }
+    
     // talvez esse codigo repita para todos os compilers que usem clang!
     private static List<Diagnostic> ParseDiagnostics(Stream stream, Dictionary<string, PathObject> pathMapping, Dictionary<string, int> injectedLinesMapping) {
         List<Diagnostic> diagnostics = [];
@@ -198,19 +219,11 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
 
     [GeneratedRegex(@"^(?<path>.+):(?<line>\d+):(?<column>\d+): (?<type>error|warning): (?<message>.+)$")]
     private static partial Regex ClangDiagnosticRegex();
-    
-    private readonly CompilationResult internalErrorCompilationResult = new() {
-        IsSuccess = false,
-        Error = CompilationError.InternalError,
-        Diagnostics = null,
-        Id = Guid.Empty,
-        OutputPath = null
-    };
 
-    private async ValueTask<CompilationError> RunCommand(string arguments, TimeSpan timeout, Stream output)
+    private async Task<CompilationError> RunCommand(string path, string arguments, TimeSpan timeout, Stream output)
     {
         ProcessStartInfo startInfo = new() {
-            FileName = CompilerPath,
+            FileName = path,
             Arguments = arguments,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -225,20 +238,18 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
             process = Process.Start(startInfo);
         }
         catch (Exception) {
-            return CompilationError.FileNotFound; // causa mais provavel, nao achou o compilador
+            return CompilationError.ProgramError;
         }
         if (process is null) {
-            // clang nao foi nem executado
-            return CompilationError.InternalError; // nem ideia oq causaria isso
+            // OS reutilizou um outro processo. nao deveria acontecer nunca
+            Logger.LogError("Started process is null. This should never happen when UseShellExecute = false. Its joever");
+            return CompilationError.InternalError;
         }
         try {
             await process.WaitForExitAsync(processCts.Token);
         }
         catch (TaskCanceledException) {
-            // possivelmente permission denied. arquivo .elf esta
-            // sendo usado por outro processo!
-            Logger.LogError("StdOut: {out}; StdErr: {err}",
-                await process.StandardOutput.ReadToEndAsync(),
+            Logger.LogError("Timeout exceeded for started process. Aborting. Standard Error: {stderr}",
                 await process.StandardError.ReadToEndAsync());
             process.Kill();
             process.Close();
@@ -246,8 +257,6 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         }
 
         using CancellationTokenSource copyOutputCts = new(TimeSpan.FromMilliseconds(500));
-        // aqui o compilador rodou
-        // agora le o output
         await process.StandardError.BaseStream.CopyToAsync(output, copyOutputCts.Token);
         CompilationError error = process.ExitCode == 0 ? CompilationError.None : CompilationError.CompilationError;
         process.Close();
@@ -272,13 +281,12 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         await sw.WriteLineAsync(".text");
         await sw.WriteLineAsync(".hidden __filestart");
         await sw.WriteLineAsync("__filestart: # comeca com __, vai ser ignorado pelo aplicativo.");
-        await sw.WriteLineAsync("# se vc eh um usuario lendo isso, nao use __ nas suas labels :)");
         await sw.WriteLineAsync(".section metadata, \"\", @progbits # define secao de metadados que guarda onde no elf esse arquivo comeca");
         await sw.WriteLineAsync($".asciiz \"{input.Path.ToString().Replace("\\","/")}\"");
         await sw.WriteLineAsync(".quad __filestart");
         await sw.WriteLineAsync($".word {index}");
         await sw.WriteLineAsync(".text");
-        injected+=9;
+        injected+=8;
         if (input.IsEntryPoint) {
             await sw.WriteAsync(EntryPointPreambule);
             injected+=2;

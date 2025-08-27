@@ -4,12 +4,13 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.Input;
+using SAAE.Editor.Models.Messages;
 
 namespace SAAE.Editor.Controls;
 
-public partial class TextPopup : UserControl {
+public partial class TextPopup : UserControl, IPopup<RequestTextPopupMessage, TextPopupResult> {
 
-    private TaskCompletionSource<string?>? tcs;
+    private TaskCompletionSource<TextPopupResult>? tcs;
 
     private bool isCancellable;
     
@@ -17,17 +18,17 @@ public partial class TextPopup : UserControl {
         InitializeComponent();
         DataContext = this;
     }
-
-    public Task<string?> Request(string? title, string? watermark, bool isCancellable) {
+    
+    public Task<TextPopupResult> Request(RequestTextPopupMessage request) {
         IsVisible = true;
-        this.isCancellable = isCancellable;
-        PopupTitle.Text = title ?? string.Empty;
-        PopupTitle.IsVisible = title is not null;
+        isCancellable = request.IsCancellable;
+        PopupTitle.Text = request.Title ?? string.Empty;
+        PopupTitle.IsVisible = request.Title is not null;
         TextBox.Text = string.Empty;
-        TextBox.Watermark = watermark;
+        TextBox.Watermark = request.Watermark;
         TextBox.Focus();
         CancelButton.IsVisible = isCancellable;
-        tcs = new TaskCompletionSource<string?>();
+        tcs = new TaskCompletionSource<TextPopupResult>();
         return tcs.Task;
     }
 
@@ -35,13 +36,19 @@ public partial class TextPopup : UserControl {
     private void Enter() {
         string input = TextBox.Text ?? string.Empty;
         IsVisible = false;
-        tcs?.SetResult(input); // Finaliza a Task
+        tcs?.SetResult(new TextPopupResult() {
+            IsCancelled = false,
+            Result = input
+        }); // Finaliza a Task
     }
 
     [RelayCommand]
     private void Cancel() {
         IsVisible = false;
-        tcs?.SetResult(null);
+        tcs?.SetResult(new TextPopupResult() {
+            Result = string.Empty,
+            IsCancelled = true
+        });
     }
 
     private void InputElement_OnKeyDown(object? sender, KeyEventArgs e) {
@@ -50,7 +57,10 @@ public partial class TextPopup : UserControl {
         }
         e.Handled = true;
         IsVisible = false;
-        tcs?.SetResult(null);
+        tcs?.SetResult(new TextPopupResult() {
+            Result = string.Empty,
+            IsCancelled = true
+        });
     }
 
     private void Dismiss_OnPointerPressed(object? sender, PointerPressedEventArgs e) {
@@ -61,7 +71,12 @@ public partial class TextPopup : UserControl {
         if (e.Source == DismissBorder)
         {
             IsVisible = false;
-            tcs?.SetResult(null);
+            tcs?.SetResult(new TextPopupResult() {
+                Result = string.Empty,
+                IsCancelled = true
+            });
         }
     }
+
+    
 }

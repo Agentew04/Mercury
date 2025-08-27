@@ -10,6 +10,7 @@
     <Color name="Default" foreground="#FFFFFF" /> <!-- ok -->
     <Color name="Comma" foreground="#5C9CD6" /> <!-- ok -->
     <Color name="StringEscape" foreground="#D7BA7D"/>
+    
 
     <RuleSet ignoreCase="true">
 
@@ -39,6 +40,7 @@
         <Rule color="Directive">
             \.(data|text|word|byte|asciiz|ascii|globl|align|space|float|double|macro|endmacro)
         </Rule>
+        
 
         <!-- Numbers: decimais ou hexadecimais -->
         <Rule color="Number">
@@ -51,7 +53,6 @@
 
         <!-- label no meio de uma instrucao -->
         
-
         <!-- Instructions: keywords (preencher abaixo) -->
         <Keywords color="Instruction">
             <Word>add</Word>

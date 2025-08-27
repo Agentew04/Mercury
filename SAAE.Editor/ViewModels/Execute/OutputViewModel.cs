@@ -9,14 +9,13 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Models.Messages;
+using SAAE.Editor.Views.ExecuteView;
 using SAAE.Engine.Common;
 
 namespace SAAE.Editor.ViewModels.Execute;
 
-public partial class OutputViewModel : BaseViewModel<OutputViewModel> {
+public partial class OutputViewModel : BaseViewModel<OutputViewModel, OutputView> {
 
-    public ScrollViewer? OutputScroller { get; set; }
-    
     [ObservableProperty, NotifyCanExecuteChangedFor(nameof(SendCommand))] private string inputText = string.Empty;
 
     // manually implemented text property
@@ -27,7 +26,7 @@ public partial class OutputViewModel : BaseViewModel<OutputViewModel> {
         textCached = null;
         OnPropertyChanged(new PropertyChangedEventArgs(nameof(Text)));
         ClearCommand.NotifyCanExecuteChanged();
-        OutputScroller?.ScrollToEnd();
+        GetView()?.OutputScroller?.ScrollToEnd();
     }
 
     private readonly StringBuilder sb = new();

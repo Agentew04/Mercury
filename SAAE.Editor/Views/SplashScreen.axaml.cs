@@ -13,7 +13,7 @@ public partial class SplashScreen : Window {
         InitializeComponent();
         ViewModel = App.Services.GetService<SplashScreenViewModel>() ?? throw new Exception("Could not resolve service");
         DataContext = ViewModel;
-        ViewModel.Window = new WeakReference<Window>(this);
+        ViewModel.SetView(this);
     }
 
     public SplashScreenViewModel ViewModel { get; private set; }

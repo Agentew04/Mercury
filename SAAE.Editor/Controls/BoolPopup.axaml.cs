@@ -4,38 +4,45 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Input;
+using SAAE.Editor.Models.Messages;
 
 namespace SAAE.Editor.Controls;
 
-public partial class BoolPopup : UserControl {
+public partial class BoolPopup : UserControl, IPopup<RequestBoolPopupMessage,BoolPopupResult> {
     
     public BoolPopup() {
         InitializeComponent();
         DataContext = this;
     }
     
-    private TaskCompletionSource<bool?>? tcs;
+    private TaskCompletionSource<BoolPopupResult>? tcs;
 
     private bool isCancellable;
 
-    public Task<bool?> Request(string title, bool isCancellable) {
+    public Task<BoolPopupResult> Request(RequestBoolPopupMessage request) {
         IsVisible = true;
-        this.isCancellable = isCancellable;
-        PopupTitle.Text = title;
-        tcs = new TaskCompletionSource<bool?>();
+        this.isCancellable = request.IsCancellable;
+        PopupTitle.Text = request.Title;
+        tcs = new TaskCompletionSource<BoolPopupResult>();
         return tcs.Task;
     }
 
     [RelayCommand]
     private void Confirm() {
         IsVisible = false;
-        tcs?.SetResult(true); // Finaliza a Task
+        tcs?.SetResult(new BoolPopupResult() {
+            IsCancelled = false,
+            Result = true
+        });
     }
     
     [RelayCommand]
     private void Deny() {
         IsVisible = false;
-        tcs?.SetResult(false); // Finaliza a Task
+        tcs?.SetResult(new BoolPopupResult() {
+            IsCancelled = false,
+            Result = false
+        });
     }
 
     private void InputElement_OnKeyDown(object? sender, KeyEventArgs e) {
@@ -44,7 +51,10 @@ public partial class BoolPopup : UserControl {
         }
         e.Handled = true;
         IsVisible = false;
-        tcs?.SetResult(null);
+        tcs?.SetResult(new BoolPopupResult() {
+            IsCancelled = true,
+            Result = default
+        });
     }
 
     private void Dismiss_OnPointerPressed(object? sender, PointerPressedEventArgs e) {
@@ -53,6 +63,9 @@ public partial class BoolPopup : UserControl {
             return;
         }
         IsVisible = false;
-        tcs?.SetResult(null);
+        tcs?.SetResult(new BoolPopupResult() {
+            IsCancelled = true,
+            Result = default
+        });
     }
 }

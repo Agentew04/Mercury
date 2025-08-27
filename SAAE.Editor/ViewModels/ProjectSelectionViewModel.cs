@@ -34,9 +34,8 @@ public partial class ProjectFileVisualItem : ObservableObject {
     [ObservableProperty] private IRelayCommand<PathObject> openCommand;
 }
 
-public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionViewModel> {
-
-    public ProjectSelectionView view = null!; // isso eh feio mas nao quero fazer um role pro filepicker
+public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionViewModel, ProjectSelectionView> {
+    
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
 
@@ -191,6 +190,10 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
     
     [RelayCommand]
     private async Task OpenProjectDialog() {
+        ProjectSelectionView? view = GetView();
+        if (view is null) {
+            return;
+        }
         if (!view.StorageProvider.CanOpen) {
             Console.WriteLine("FilePicker nao eh suportado nessa plataforma!");
             return;

@@ -92,8 +92,8 @@ public class App : Application {
                 desktop.MainWindow = projectSelection;
                 projectSelection.Show();
                 splash.Close();
-                await projectSelection.SelectionViewModel.WaitForProjectSelection();
-                if (projectSelection.SelectionViewModel.Cancelled) {
+                await projectSelection.ViewModel.WaitForProjectSelection();
+                if (projectSelection.ViewModel.Cancelled) {
                     //desktop.Shutdown();
                     return;
                 }

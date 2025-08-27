@@ -5,10 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Models;
 using SAAE.Editor.Services;
+using SAAE.Editor.Views.CodeView;
 
 namespace SAAE.Editor.ViewModels.Code;
 
-public sealed partial class GuideViewModel : BaseViewModel<GuideViewModel> {
+public sealed partial class GuideViewModel : BaseViewModel<GuideViewModel, GuideView> {
 
     private readonly GuideService _guideService = App.Services.GetService<GuideService>()!;
     

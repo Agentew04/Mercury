@@ -18,13 +18,14 @@ using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models.Messages;
+using SAAE.Editor.Views.ExecuteView;
 using SAAE.Engine.Memory;
 using SAAE.Engine.Mips.Runtime;
 using Machine = SAAE.Engine.Mips.Runtime.Machine;
 
 namespace SAAE.Editor.ViewModels.Execute;
 
-public partial class RamViewModel : BaseViewModel<RamViewModel>, IDisposable {
+public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDisposable {
 
     [ObservableProperty]
     private ObservableCollection<Location> locations = [];

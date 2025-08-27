@@ -9,12 +9,13 @@ using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
+using SAAE.Editor.Views.ExecuteView;
 using SAAE.Engine.Common;
 using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Editor.ViewModels.Execute;
 
-public partial class RegisterViewModel : BaseViewModel<RegisterViewModel> {
+public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, RegisterView> {
 
     [ObservableProperty]
     private int selectedProcessorIndex;
