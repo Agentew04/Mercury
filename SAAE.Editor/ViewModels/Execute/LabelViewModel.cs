@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.Logging;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Views.ExecuteView;
 
@@ -45,5 +46,13 @@ public partial class LabelViewModel : BaseViewModel<LabelViewModel, LabelView> {
                 Symbols.Add(symbol);
             }
         }
+    }
+
+    public void OnSymbolClicked(Symbol symbol) {
+        Logger.LogInformation("Click on symbol {name}", symbol.Name);
+        WeakReferenceMessenger.Default.Send(new LabelFocusMessage() {
+            Name = symbol.Name,
+            Address = symbol.Address
+        });
     }
 }

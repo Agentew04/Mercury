@@ -18,9 +18,11 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
 
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
-    private string AssemblerPath => Path.Combine(settingsService.Preferences.CompilerPath, "llvm-mc.exe");
+    private string AssemblerPath => Path.Combine(settingsService.Preferences.CompilerPath,
+        OperatingSystem.IsWindows() ? "llvm-mc.exe" : "llvm-mc");
     
-    private string LinkerPath => Path.Combine(settingsService.Preferences.CompilerPath, "ld.lld.exe");
+    private string LinkerPath => Path.Combine(settingsService.Preferences.CompilerPath, 
+        OperatingSystem.IsWindows() ? "ld.lld.exe" : "ld.lld");
     private string LinkerScriptPath => Path.Combine(settingsService.Preferences.CompilerPath, "linker.ld");
 
     private const string EntryPointPreambule = ".globl __start\n__start:\n";
@@ -133,9 +135,15 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
 
             MemoryStream ms = new();
             CompilationError result = await RunCommand(assemblerPath, commandArgs,
-                TimeSpan.FromMilliseconds(100),
+                TimeSpan.FromMilliseconds(300),
                 ms);
             ms.Seek(0, SeekOrigin.Begin);
+            if (result != CompilationError.None) {
+                StreamReader sr = new(ms, leaveOpen: true);
+                Logger.LogDebug("llvm-mc exit code non zero. output for {file}: {output}", file, await sr.ReadToEndAsync(_));
+                sr.Dispose();
+                ms.Seek(0, SeekOrigin.Begin);
+            }
             lock (results) {
                 results.Add(new ProcessResult() {
                     Success = result == CompilationError.None,
@@ -297,6 +305,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         // agora prefixa todas linhas de codigo com a linha original
         string? line = await sr.ReadLineAsync();
         bool inTextSection = true;
+        bool inMacro = false;
         for (int lineIndex = 1; line is not null; lineIndex++) {
             // remove possivel comentario
             string processed = line;
@@ -323,12 +332,19 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
                     inTextSection = false;
                 }
 
+                if (processed.StartsWith(".macro")) {
+                    inMacro = true;
+                }else if (processed.StartsWith(".endm")) {
+                    inMacro = false;
+                }
+
                 if (processed.StartsWith(".text")) {
                     inTextSection = true;
                 }
             }
 
-            if (inTextSection && !processed.StartsWith(':') && !string.IsNullOrWhiteSpace(processed) && processed.Trim() != ".text") {
+            if (inTextSection && !processed.StartsWith(':') && !string.IsNullOrWhiteSpace(processed) && processed.Trim() != ".text"
+                && !inMacro && !processed.StartsWith('.')) {
                 await sw.WriteAsync($"L.{index}.{lineIndex}: ");
             }
             await sw.WriteLineAsync(line);

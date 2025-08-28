@@ -17,9 +17,10 @@ public class BaseViewModel<TViewModel,TView> : ObservableObject where TView: cla
     /// </summary>
     protected ILogger<TViewModel> Logger => logger ??= App.Services.GetRequiredService<ILogger<TViewModel>>();
 
-    private WeakReference<TView> viewReference;
+    private WeakReference<TView>? viewReference;
 
     protected TView? GetView() {
+        if (viewReference is null) return null;
         return viewReference.TryGetTarget(out TView? target) ? target : null;
     }
 

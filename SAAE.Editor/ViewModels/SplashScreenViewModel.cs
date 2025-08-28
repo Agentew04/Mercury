@@ -92,7 +92,8 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         List<Task> tasks = [
             DownloadCompiler(),
             DownloadGuides(doOnlineCheck),
-            DownloadStdlib(doOnlineCheck)
+            DownloadStdlib(doOnlineCheck),
+            //DownloadTemplates(doOnlineCheck)
         ];
         
 
@@ -180,7 +181,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             // eh o fim. :(
             // nao tem caminho
             // disparar message box
-            Logger.LogError("The remote tools json doesn't have the 'clang', 'lld' or 'linkerscript' property! Can't download resources!");
+            Logger.LogError("The remote tools json doesn't have the 'mc', 'lld' or 'linkerscript' property! Can't download resources!");
             return;
         }
 

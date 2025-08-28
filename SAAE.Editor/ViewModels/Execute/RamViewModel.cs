@@ -47,8 +47,13 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
     private int currentPage;
     private ulong currentMemoryAccess;
 
+    private const uint BytesPerPage = 256;
+    private const uint BytesPerRow = 16;
+    private const int RowCount = 16;
+
     public RamViewModel() {
-        WeakReferenceMessenger.Default.Register<ProgramLoadMessage>(this, OnProgramLoad);
+        WeakReferenceMessenger.Default.Register<RamViewModel, ProgramLoadMessage>(this, OnProgramLoad);
+        WeakReferenceMessenger.Default.Register<RamViewModel,LabelFocusMessage>(this,OnLabelFocus);
         LocalizationManager.CultureChanged += OnLocalize;
     }
 
@@ -56,8 +61,7 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
         OnPropertyChanged(nameof(AvailableVisualizationModes));
     }
 
-    private static void OnProgramLoad(object recipient, ProgramLoadMessage msg) {
-        RamViewModel vm = (RamViewModel)recipient;
+    private static void OnProgramLoad(RamViewModel vm, ProgramLoadMessage msg) {
         // load sectors from elf
         vm.PopulateLocations(msg.Elf);
         if(vm.currentMachine is not null) {
@@ -74,6 +78,32 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
         vm.PreviousPageCommand.NotifyCanExecuteChanged();
     }
 
+    private static void OnLabelFocus(RamViewModel vm, LabelFocusMessage msg) {
+        int nearest = -1;
+        for (int i = 0; i < vm.Locations.Count; i++) {
+            ulong next = i >= vm.Locations.Count-1 ? ulong.MaxValue : vm.Locations[i+1].LoadAddress;
+            if (msg.Address >= vm.Locations[i].LoadAddress &&
+                msg.Address < next) {
+                nearest = i;
+                break;
+            }
+        }
+
+        if (nearest == -1) {
+            vm.Logger.LogWarning("Could not find suitable elf section for label {label}", msg.Name);
+            return;
+        }
+
+        vm.SelectedSectionIndex = nearest;
+        
+        // find correct page
+        long offset = (long)(msg.Address - vm.Locations[nearest].LoadAddress);
+        vm.currentPage = (int)(offset / BytesPerPage);
+        vm.Logger.LogInformation("Changing RamView to section {section} and page {page}", vm.Locations[nearest].Name, vm.currentPage);
+        vm.PopulateRam();
+        vm.DisplayRam();
+    }
+    
     private void OnMemoryAccess(object? sender, MemoryAccessEventArgs e) {
         currentMemoryAccess = e.Address;
         HighlightRow(currentMemoryAccess);
@@ -135,22 +165,20 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
     private void PopulateRam() {
         Location loc = Locations[SelectedSectionIndex];
         long addr = loc.LoadAddress;
-        const uint bytesPerPage = 256;
-        const uint bytesPerRow = 16;
-        const int rowCount = 16;
-        if (addr < bytesPerPage * currentPage) {
+        
+        if (addr < BytesPerPage * currentPage) {
             addr = 0;
         }
         else {
-            addr += bytesPerPage * currentPage;
+            addr += BytesPerPage * currentPage;
         }
 
         Rows.Clear();
         if (currentMachine is null) {
             return;
         }
-        for (uint i = 0; i < rowCount; i++) {
-            uint offset = (uint)(addr + i * bytesPerRow);
+        for (uint i = 0; i < RowCount; i++) {
+            uint offset = (uint)(addr + i * BytesPerRow);
             RamRow row = new() {
                 RowAddress = offset,
                 Data0 = currentMachine.Memory.ReadWord(offset + 0x0),

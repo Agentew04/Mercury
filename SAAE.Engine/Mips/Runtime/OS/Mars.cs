@@ -306,11 +306,11 @@ public sealed class Mars : MipsOperatingSystem {
         if(line.Length > n - 1) {
             line = line[..(n - 1)];
         }
-        
-        if (line.Length < n - 1 && !line.EndsWith('\n')) {
-            line += '\n';
-        }
-        
+
+        // if (line.Length < n - 1 && !line.EndsWith('\n')) {
+        //     line += '\n';
+        // }
+
         byte[] buffer = Encoding.ASCII.GetBytes(line);
         // write buffer and fill with null characters
         for (uint i = 0; i < n; i++) {

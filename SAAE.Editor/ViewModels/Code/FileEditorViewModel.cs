@@ -51,12 +51,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel, Fi
     [NotifyPropertyChangedFor(nameof(HasOpenFiles))]
     private ObservableCollection<OpenFile> openFiles = [];
 
-    public bool HasOpenFiles {
-        get {
-            Logger.LogDebug("Open files? {res}", OpenFiles.Count > 0);
-            return OpenFiles.Count > 0;
-        }
-    }
+    public bool HasOpenFiles => OpenFiles.Count > 0;
 
     [ObservableProperty]
     private int selectedTabIndex;

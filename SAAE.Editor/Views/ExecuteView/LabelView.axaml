@@ -25,9 +25,11 @@
             </TabStrip.Items>
         </TabStrip>
 
-        <DataGrid Classes="headerslim static"
+        <DataGrid x:Name="LabelsDataGrid"
+                  Classes="headerslim static"
                   ItemsSource="{Binding Symbols, Mode=OneWay}"
-                  CellPointerPressed="DataGrid_OnCellPointerPressed">
+                  CellPointerPressed="DataGrid_OnCellPointerPressed"
+                  SelectionChanged="DataGrid_OnSelectionChanged">
             <DataGrid.Columns>
                 <DataGridTextColumn Width="Auto"
                                     Header="{loc:LabelResources NameHeader}"
