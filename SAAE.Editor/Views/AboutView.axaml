@@ -3,21 +3,34 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:loc="clr-namespace:SAAE.Editor.Localization"
+        xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
         mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="300"
         x:Class="SAAE.Editor.Views.AboutView"
         Width="450"
         Height="300"
-        Title="{loc:AboutResources WindowTitle}">
+        Title="{loc:AboutResources WindowTitle}"
+        x:DataType="vm:AboutViewModel">
+    <Window.Styles>
+        <Style Selector="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"></Setter>
+        </Style>
+    </Window.Styles>
     <ScrollViewer>
+        <!-- title -->
         <StackPanel Margin="15" HorizontalAlignment="Stretch">
-            <TextBlock HorizontalAlignment="Left">
-                <Run Text="{loc:AboutResources Author}"></Run>
-                <Run Text="Rodrigo Appelt"></Run>
-            </TextBlock>
-            <TextBlock HorizontalAlignment="Left">
-                <Run Text="{loc:AboutResources Version}"></Run>
-                <Run Text="1.0.0"></Run>
-            </TextBlock>
+            <TextBlock HorizontalAlignment="Center"
+                     Classes="header"
+                     Text="{loc:AboutResources AppName}"/>
+            <TextBlock HorizontalAlignment="Left"
+                       Text="{Binding CopyrightString}"/>
+            <TextBlock HorizontalAlignment="Left" Text="{Binding VersionString}"/>
+            <TextBlock HorizontalAlignment="Left" Text="{Binding BuildString}"></TextBlock>
+            
+            
+            <TextBlock Text="{loc:AboutResources LicenseHeader}" Margin="0,15,0,0"/>
+            <Border HorizontalAlignment="Stretch" Padding="10,0">
+                <TextBlock Text="{Binding LicenseString}"/>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </Window>

@@ -15,9 +15,21 @@
         <value>Autor:</value>
     </data>
     <data name="Version" xml:space="preserve">
-        <value>Versão instalada:</value>
+        <value>Versão instalada: {0}</value>
     </data>
     <data name="WindowTitle" xml:space="preserve">
         <value>Sobre Mercury</value>
+    </data>
+    <data name="AppName" xml:space="preserve">
+        <value>Mercury - Ambiente de Simulação e Aprendizado Integrado</value>
+    </data>
+    <data name="CopyrightNotice" xml:space="preserve">
+        <value>Todos os direitos reservados © 2025-{year} Rodrigo Appelt</value>
+    </data>
+    <data name="LicenseHeader" xml:space="preserve">
+        <value>Licença</value>
+    </data>
+    <data name="BuildTimeText" xml:space="preserve">
+        <value>Compilado em {0}</value>
     </data>
 </root>

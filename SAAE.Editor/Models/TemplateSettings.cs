@@ -94,12 +94,12 @@ public sealed class Template : IDisposable{
     /// </summary>
     [JsonPropertyName("arch")]
     public Architecture Architecture { get; set; }
-    
+
     /// <summary>
     /// The unique non-localizable identifier of this template.
     /// </summary>
     [JsonPropertyName("id")]
-    public string Identifier { get; set; }
+    public string Identifier { get; set; } = string.Empty;
 
     public void Dispose() {
         nameSub?.Dispose();

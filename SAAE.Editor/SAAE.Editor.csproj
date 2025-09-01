@@ -92,6 +92,11 @@
     <AvaloniaResource Include="Assets\Images\*.svg" />
     <None Remove="Assets\Images\*.svg" />
   </ItemGroup>
+  
+  <!-- licenca -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\LICENSE.txt"/>
+  </ItemGroup>
 
   <!-- ainda nao sei se isso serve pra alguma coisa... -->
   <ItemGroup>

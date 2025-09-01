@@ -38,15 +38,12 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
     public List<CultureInfo> AvailableLanguages { get; } = [..LocalizationManager.AvailableCultures];
     [ObservableProperty] private int selectedLanguageIndex;
 
-    private bool canChangeOs = true; 
-
     public void Load() {
         ProjectFile? project = projectService.GetCurrentProject();
         if (project is null) {
             return;
         }
 
-        // canChangeOs = false;
         ProjectName = project.ProjectName;
         IncludeStdlib = project.IncludeStandardLibrary;
         SelectedArchIndex = AvailableArchs.IndexOf(project.Architecture);

@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions {
 
         #region ViewModels
 
-        collection.AddTransient<SplashScreenViewModel>();
+        collection.AddTransient<SplashScreenViewModel>(); // nao queremos a mesma splash screen sempre
         collection.AddSingleton<GuideViewModel>();
         collection.AddSingleton<ProjectSelectionViewModel>();
         collection.AddSingleton<ProjectViewModel>();
@@ -35,6 +35,7 @@ public static class ServiceCollectionExtensions {
         collection.AddSingleton<RamViewModel>();
         collection.AddSingleton<InstructionViewModel>();
         collection.AddSingleton<LabelViewModel>();
+        collection.AddTransient<AboutViewModel>(); // transient pq nos deletamos a window ao fechar
 
         #endregion
 

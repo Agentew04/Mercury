@@ -72,8 +72,8 @@ public partial class UpdaterService : BaseService<UpdaterService> {
             try {
                 version = Version.Parse(match.Groups[1].ValueSpan);
             }
-            catch (Exception ex) {
-                
+            catch (Exception) {
+                // nada                
             }
             found = true;
         }
@@ -194,7 +194,6 @@ public partial class UpdaterService : BaseService<UpdaterService> {
             default:
                 throw new ArgumentOutOfRangeException(nameof(asset), "Invalid Asset Type");
         }
-        return string.Empty;
     }
 
     public void Update(string newPackageDirectory) {

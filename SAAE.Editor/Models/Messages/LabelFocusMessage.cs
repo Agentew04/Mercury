@@ -1,7 +1,8 @@
 ﻿namespace SAAE.Editor.Models.Messages;
 
-public class LabelFocusMessage {
-    public string Name { get; set; }
+public class LabelFocusMessage
+{
+    public required string Name { get; init; }
     
-    public ulong Address { get; set; }
+    public required ulong Address { get; init; }
 }
