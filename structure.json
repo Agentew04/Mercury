@@ -69,7 +69,7 @@
 			"id": "basic-io",
 			"arch": "mips",
 			"version": 1,
-			"project":"/templates/basicio/basicio.asmproj"
+			"project":"/templates/basic-io/basic-io.asmproj"
 		}
 	]
 }
