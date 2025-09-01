@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="3">
+    <ProjectName>basic-io</ProjectName>
+    <IncludeStdLib>true</IncludeStdLib>
+    <Architecture>Mips</Architecture>
+    <OperatingSystem>Mars 4.5 Runtime</OperatingSystem>
+    <SourceDirectory directory="True" path="src\" />
+    <EntryFile directory="False" path="main.asm" />
+    <OutputPath directory="True" path="bin\" />
+    <OutputFile directory="False" path="basic-io.elf" />
+</Project>

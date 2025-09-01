@@ -59,5 +59,17 @@
             "path": "/stdlib/arm",
             "version": 0
         }
-    ]
+    ],
+	"templates":[
+		{
+			"name":{
+				"pt-BR": "E/S básica",
+				"en-US": "Basic I/O"
+			},
+			"id": "basic-io"
+			"arch": "mips",
+			"version": 1,
+			"project":"/templates/basicio/basicio.asmproj"
+		}
+	]
 }
