@@ -6,9 +6,10 @@
         xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
         mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="300"
         x:Class="SAAE.Editor.Views.AboutView"
-        Width="450"
-        Height="300"
+        Width="550"
+        Height="400"
         Title="{loc:AboutResources WindowTitle}"
+        Background="{StaticResource BackgroundGrey}"
         x:DataType="vm:AboutViewModel">
     <Window.Styles>
         <Style Selector="TextBlock">

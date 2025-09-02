@@ -36,7 +36,7 @@ public sealed class Template : IDisposable{
         }
         else {
             Console.WriteLine("Could not get localization for a template");
-            nameSub = new BehaviorSubject<string>("localization error");
+            nameSub = new BehaviorSubject<string>("localization error. "+LocalizationManager.CurrentCulture.ToString());
         }
         Name = nameSub;
     }
@@ -59,6 +59,8 @@ public sealed class Template : IDisposable{
     public Dictionary<string, string> LocalizedNames { get; set; } = [];
 
     private readonly BehaviorSubject<string>? nameSub;
+    
+    [JsonIgnore]
     public IObservable<string> Name { get; }
     
     /// <summary>
@@ -70,7 +72,12 @@ public sealed class Template : IDisposable{
     [JsonPropertyName("project")]
     public string ProjectPathStr {
         get => ProjectPath.ToString();
-        set => ProjectPath = value.ToFilePath();
+        set  {
+            if (value.StartsWith('/') || value.StartsWith('\\')) {
+                value = value[1..];
+            }
+            ProjectPath = value.ToFilePath();
+        }
     }
 
     public static readonly Template Blank = new(ProjectResources.NoTemplateTextObservable) {
@@ -80,6 +87,7 @@ public sealed class Template : IDisposable{
         LocalizedNames = [],
     };
 
+    [JsonIgnore]
     public bool IsBlank => ReferenceEquals(this,Blank);
     
     /// <summary>

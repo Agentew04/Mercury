@@ -95,7 +95,7 @@ public class ProjectService : BaseService<ProjectService> {
         serializer.Serialize(writer, project);
     }
 
-    private ProjectFile CreateProjectFromTemplateAsync(string path, string name,
+    private async Task<ProjectFile> CreateProjectFromTemplateAsync(string path, string name,
         Template template) {
         if (template.IsBlank) {
             Logger.LogError("Empty template to CreateProjectFromTemplateAsync");
@@ -110,7 +110,8 @@ public class ProjectService : BaseService<ProjectService> {
             return null!;
         }
         // recursively copy files from templated path to destination path
-        CopyFolder(oldPath, newPath);
+        Directory.CreateDirectory(newPath.Path().ToString());
+        CopyFolder(oldPath.Path(), newPath.Path());
         
         // remove copied .asmproj
         File.Delete(newPath.Path().File(templateProject.ProjectName,"asmproj").ToString());
@@ -122,6 +123,8 @@ public class ProjectService : BaseService<ProjectService> {
 
         Directory.CreateDirectory((templateProject.ProjectDirectory + templateProject.OutputPath).ToString());
 
+        SetRecentAccess(templateProject);
+        await settingsService.SaveSettings();
         return templateProject;
 
         void CopyFolder(PathObject old, PathObject @new) {
@@ -134,7 +137,7 @@ public class ProjectService : BaseService<ProjectService> {
             }
 
             foreach (string folder in Directory.EnumerateDirectories(old.ToString())) {
-                string folderName = System.IO.Path.GetDirectoryName(folder) ?? "error";
+                string folderName = System.IO.Path.GetFileName(folder) ?? "error";
                 Directory.CreateDirectory(@new.Folder(folderName).ToString());
                 CopyFolder(old.Folder(folderName), @new.Folder(folderName));
             }
@@ -143,7 +146,7 @@ public class ProjectService : BaseService<ProjectService> {
     
     public async Task<ProjectFile> CreateProjectAsync(string path, string name, OperatingSystemType os, Architecture isa, Template template) {
         if (!template.IsBlank) {
-            return CreateProjectFromTemplateAsync(path, name, template);
+            return await CreateProjectFromTemplateAsync(path, name, template);
         }
         
         ProjectFile project = new() {

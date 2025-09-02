@@ -93,7 +93,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             DownloadCompiler(),
             DownloadGuides(doOnlineCheck),
             DownloadStdlib(doOnlineCheck),
-            //DownloadTemplates(doOnlineCheck)
+            DownloadTemplates(doOnlineCheck)
         ];
         
 
@@ -404,13 +404,13 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         string json = await http.GetStringAsync(ResourcesStructureUrl);
         using JsonDocument structureDoc = JsonDocument.Parse(json);
         JsonElement templatesProperty = structureDoc.RootElement.GetProperty("templates");
+        using JsonElement.ArrayEnumerator arrayEnumerator = templatesProperty.EnumerateArray();
         
         // se o remote tem mais templates que nos
         bool doDownload = templatesProperty.GetArrayLength() > settings.TemplateSettings.Templates.Count;
         List<Template> remoteTemplates = [];
         if (!doDownload) {
             // ou algum dos nossos templates esta desatualzado
-            using JsonElement.ArrayEnumerator arrayEnumerator = templatesProperty.EnumerateArray();
             foreach (JsonElement templateElement in arrayEnumerator) {
                 int version = templateElement.GetProperty("version").GetInt32();
                 string id = templateElement.GetProperty("id").GetString() ?? string.Empty;
@@ -426,13 +426,9 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
                 }
             }
 
-            if (doDownload) {
-                arrayEnumerator.Reset();
-                remoteTemplates = arrayEnumerator
-                    .Select(x => x.Deserialize(SettingsSerializerContext.Default.Template))
-                    .Where(x => x is not null)
-                    .ToList()!;
-            }
+            // if (doDownload) {
+            //     
+            // }
         }
 
         if (!doDownload) {
@@ -440,6 +436,12 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         }
         
         await RequestDownload();
+        
+        arrayEnumerator.Reset();
+        remoteTemplates = arrayEnumerator
+            .Select(x => x.Deserialize(SettingsSerializerContext.Default.Template))
+            .Where(x => x is not null)
+            .ToList()!;
         
         // atualiza settings dos templates
         settings.TemplateSettings.Templates.ForEach(x => x.Dispose());
