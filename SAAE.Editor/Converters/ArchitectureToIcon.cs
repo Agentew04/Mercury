@@ -7,6 +7,7 @@ using Avalonia.Data.Converters;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using SAAE.Engine;
+using SAAE.Engine.Common;
 
 namespace SAAE.Editor.Converters;
 

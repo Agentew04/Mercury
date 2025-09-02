@@ -28,6 +28,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
     private readonly List<(Type, Enum)> highlightedRegisters = [];
 
     private ArchitectureMetadata architectureMetadata;
+    private IRegisterHelper registerHelper = null!;
 
     private Machine machine = null!;
 
@@ -48,6 +49,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
                 .ToList());
         vm.LoadRegisters(vm.SelectedProcessorIndex);
         vm.machine.OnRegisterChanged += vm.OnRegisterChange;
+        vm.registerHelper = RegisterHelperProvider.ProvideHelper(msg.Machine.Architecture);
         vm.Logger.LogInformation("Initialized register view with {registers} and {processors}", 
             vm.Registers.Count, 
             vm.architectureMetadata.Processors.Length);
@@ -56,7 +58,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
     private void OnRegisterChange(List<(Type,Enum)> regs) {
         highlightedRegisters.Clear();
         foreach ((Type,Enum) reg in regs) {
-            string registerName = RegisterHelper.GetRegisterName(reg.Item2);
+            string registerName = registerHelper.GetRegisterNameX(reg.Item2);
             int index = Registers.IndexOf(x => x.Name == registerName);
             if (index >= 0) {
                 Registers[index].Value = machine.Registers.Get(reg.Item2, reg.Item1);
@@ -76,7 +78,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
             if (highlight.Item1 != currentType) {
                 continue;
             }
-            string registerName = RegisterHelper.GetRegisterName(highlight.Item2);
+            string registerName = registerHelper.GetRegisterNameX(highlight.Item2);
             Register? register = Registers.FirstOrDefault(x => x.Name == registerName);
             if (register is null) {
                 continue;
@@ -89,7 +91,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         Registers.Clear();
         Processor proc = architectureMetadata.Processors[processorIndex];
         foreach (RegisterDefinition reg in proc.Registers) {
-            Enum reg2 = RegisterHelper.GetRegisterFromName(reg.Name, proc.RegistersType);
+            Enum reg2 = registerHelper.GetRegisterFromNameX(reg.Name, proc.RegistersType);
             Registers.Add(new Register {
                 Name = reg.Name,
                 Index = reg.Number,
@@ -104,6 +106,32 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         LoadRegisters(value);
         Highlight();
     }
+    
+    public RegisterInfo GetRegisterInfo(Register register) {
+        Processor proc = architectureMetadata.Processors[SelectedProcessorIndex];
+        Enum regEnum = registerHelper.GetRegisterFromNameX(register.Name, proc.RegistersType);
+        int regValue = machine.Registers.Get(regEnum, proc.RegistersType);
+        RegisterInfo info = new() {
+            Name = register.Name,
+            Number = register.Index == -1 ? null : register.Index,
+            Decimal = regValue.ToString(),
+            Hex = "0x" + regValue.ToString("8X"),
+            Ascii = ((char)(regValue & 0xFF)).ToString(),
+            AsFloat = BitConverter.Int32BitsToSingle(regValue)
+        };
+        if (register.Index != -1)
+        {
+            // get next register
+            Enum? nextRegEnum = registerHelper.GetRegisterFromNumberX(register.Index+1, proc.RegistersType);
+            if (nextRegEnum is not null)
+            {
+                int nextRegValue = machine.Registers.Get(nextRegEnum, proc.RegistersType);
+                long combined = ((long)regValue << 32) | (uint)nextRegValue;
+                info.AsDouble = BitConverter.Int64BitsToDouble(combined);
+            }
+        }
+        return info;
+    }
 }
 
 public partial class Register : ObservableObject
@@ -115,4 +143,15 @@ public partial class Register : ObservableObject
     [ObservableProperty] private int value;
 
     [ObservableProperty] private bool highlighted;
+}
+
+public class RegisterInfo
+{
+    public string Name { get; set; } = string.Empty;
+    public int? Number { get; set; }
+    public string Decimal { get; set; } = string.Empty;
+    public string Hex { get; set; } = string.Empty;
+    public string Ascii { get; set; } = string.Empty;
+    public float AsFloat { get; set; }
+    public double? AsDouble { get; set; }
 }

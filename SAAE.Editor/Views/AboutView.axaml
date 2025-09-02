@@ -28,7 +28,8 @@
             <TextBlock HorizontalAlignment="Left" Text="{Binding BuildString}"></TextBlock>
             
             
-            <TextBlock Text="{loc:AboutResources LicenseHeader}" Margin="0,15,0,0"/>
+            <TextBlock Text="{loc:AboutResources LicenseHeader}" Margin="0,15,0,0"
+                       FontWeight="Bold"/>
             <Border HorizontalAlignment="Stretch" Padding="10,0">
                 <TextBlock Text="{Binding LicenseString}"/>
             </Border>

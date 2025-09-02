@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using SAAE.Editor.Extensions;
 using SAAE.Editor.Localization;
 using SAAE.Engine;
+using SAAE.Engine.Common;
 
 namespace SAAE.Editor.Models;
 

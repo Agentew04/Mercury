@@ -173,7 +173,7 @@
                           SelectedIndex="{Binding SelectedIsaIndex}"
                           Margin="0,0,0,8">
                     <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="engine:Architecture">
+                        <DataTemplate x:DataType="common:Architecture">
                             <StackPanel Orientation="Horizontal">
                                 <!-- comentar a Image e descomentar o Textblock para alternar entre
                                      imagem e soh texto na combobox de arquitetura do novo projeto-->

@@ -8,6 +8,12 @@ namespace SAAE.Engine.Common;
 /// </summary>
 public class RegisterBank {
     private readonly Dictionary<Type, Array> banks = [];
+    private IRegisterHelper provider;
+
+    public RegisterBank(IRegisterHelper provider)
+    {
+        this.provider = provider;
+    }
 
     /// <summary>
     /// Creates a new bank.
@@ -29,7 +35,7 @@ public class RegisterBank {
     }
 
     public int Get<TRegister>(int number) where TRegister : struct, Enum {
-        TRegister? reg = RegisterHelper.GetRegister<TRegister>(number);
+        TRegister? reg = provider.GetRegisterX<TRegister>(number);
         return reg is null ? 0 : Get(reg.Value);
     }
 
@@ -49,7 +55,7 @@ public class RegisterBank {
     }
 
     public void Set<TRegister>(int number, int value) where TRegister : struct, Enum {
-        TRegister? reg = RegisterHelper.GetRegister<TRegister>(number);
+        TRegister? reg = provider.GetRegisterX<TRegister>(number);
         if (reg is null) {
             return;
         }

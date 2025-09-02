@@ -1,8 +1,9 @@
-﻿using SAAE.Generators;
+﻿using SAAE.Engine.Common;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Runtime;
 
-[RegisterInfoDefinition]
+[RegisterInfoDefinition(Architecture.Mips)]
 public enum MipsGprRegisters {
     [RegisterInfo(0, "zero")]
     Zero,
