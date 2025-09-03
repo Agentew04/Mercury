@@ -47,9 +47,9 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
             vm.architectureMetadata.Processors
                 .Select(x => x.Name)
                 .ToList());
+        vm.registerHelper = RegisterHelperProvider.ProvideHelper(msg.Machine.Architecture);
         vm.LoadRegisters(vm.SelectedProcessorIndex);
         vm.machine.OnRegisterChanged += vm.OnRegisterChange;
-        vm.registerHelper = RegisterHelperProvider.ProvideHelper(msg.Machine.Architecture);
         vm.Logger.LogInformation("Initialized register view with {registers} and {processors}", 
             vm.Registers.Count, 
             vm.architectureMetadata.Processors.Length);
