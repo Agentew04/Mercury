@@ -307,9 +307,9 @@ public sealed class Mars : MipsOperatingSystem {
             line = line[..(n - 1)];
         }
 
-        // if (line.Length < n - 1 && !line.EndsWith('\n')) {
-        //     line += '\n';
-        // }
+        if (line.EndsWith('\n')) {
+            line = line[..^1];
+        }
 
         byte[] buffer = Encoding.ASCII.GetBytes(line);
         // write buffer and fill with null characters

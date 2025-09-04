@@ -1,4 +1,11 @@
-﻿<root>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
     <resheader name="resmimetype">
         <value>text/microsoft-resx</value>
     </resheader>
@@ -11,19 +18,13 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="CodeTabHeader" xml:space="preserve">
-        <value>Pro_gramar</value>
+    <data name="Apply" xml:space="preserve">
+        <value>Apply</value>
     </data>
-    <data name="RunTabHeader" xml:space="preserve">
-        <value>_Executar</value>
+    <data name="Language" xml:space="preserve">
+        <value>Language</value>
     </data>
-    <data name="PreferencesMenuButton" xml:space="preserve">
-        <value>Pre_ferências</value>
-    </data>
-    <data name="AboutTabHeader" xml:space="preserve">
-        <value>_Sobre</value>
-    </data>
-    <data name="ProjectTabHeader" xml:space="preserve">
-        <value>_Projeto</value>
+    <data name="WindowTitle" xml:space="preserve">
+        <value>Preferences</value>
     </data>
 </root>

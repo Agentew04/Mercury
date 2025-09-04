@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
+using System.Text;
+using Avalonia.Data;
+using Avalonia.Data.Converters;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SAAE.Editor.Extensions;
+using SAAE.Editor.Localization;
 using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
 using SAAE.Editor.Views.ExecuteView;
@@ -61,7 +66,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
             string registerName = registerHelper.GetRegisterNameX(reg.Item2);
             int index = Registers.IndexOf(x => x.Name == registerName);
             if (index >= 0) {
-                Registers[index].Value = machine.Registers.Get(reg.Item2, reg.Item1);
+                Registers[index].Values = GetRegisterValues(registerName, index);
             }
             highlightedRegisters.Add(reg);
         }
@@ -95,7 +100,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
             Registers.Add(new Register {
                 Name = reg.Name,
                 Index = reg.Number,
-                Value = machine.Registers.Get(reg2, proc.RegistersType)
+                Values = GetRegisterValues(reg.Name, reg.Number)
             });
         }
         Highlight();
@@ -107,30 +112,44 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         Highlight();
     }
     
-    public RegisterInfo GetRegisterInfo(Register register) {
+    public RegisterValues GetRegisterValues(string name, int index) {
         Processor proc = architectureMetadata.Processors[SelectedProcessorIndex];
-        Enum regEnum = registerHelper.GetRegisterFromNameX(register.Name, proc.RegistersType);
+        Enum? regEnum = registerHelper.GetRegisterFromNameX(name, proc.RegistersType);
+        if (regEnum is null) {
+            foreach (Processor processor in architectureMetadata.Processors) {
+                regEnum = registerHelper.GetRegisterFromNameX(name, processor.RegistersType);
+                if (regEnum is not null) {
+                    break;
+                }
+            }
+
+            if (regEnum is null) {
+                Logger.LogError("Could not find any register with id: {name}/{index}", name, index);
+                return new RegisterValues();
+            }
+        }
         int regValue = machine.Registers.Get(regEnum, proc.RegistersType);
-        RegisterInfo info = new() {
-            Name = register.Name,
-            Number = register.Index == -1 ? null : register.Index,
+        Span<byte> r = stackalloc byte[4];
+        _ = BitConverter.TryWriteBytes(r, regValue);
+        string s = Encoding.ASCII.GetString(r);
+        RegisterValues values = new() {
             Decimal = regValue.ToString(),
-            Hex = "0x" + regValue.ToString("8X"),
-            Ascii = ((char)(regValue & 0xFF)).ToString(),
+            Hex = "0x" + regValue.ToString("X8"),
+            Ascii = s.Escape(),
             AsFloat = BitConverter.Int32BitsToSingle(regValue)
         };
-        if (register.Index != -1)
+        if (index != -1)
         {
             // get next register
-            Enum? nextRegEnum = registerHelper.GetRegisterFromNumberX(register.Index+1, proc.RegistersType);
+            Enum? nextRegEnum = registerHelper.GetRegisterFromNumberX(index+1, proc.RegistersType);
             if (nextRegEnum is not null)
             {
                 int nextRegValue = machine.Registers.Get(nextRegEnum, proc.RegistersType);
                 long combined = ((long)regValue << 32) | (uint)nextRegValue;
-                info.AsDouble = BitConverter.Int64BitsToDouble(combined);
+                values.AsDouble = BitConverter.Int64BitsToDouble(combined);
             }
         }
-        return info;
+        return values;
     }
 }
 
@@ -138,20 +157,53 @@ public partial class Register : ObservableObject
 {
     [ObservableProperty] private string name = string.Empty;
 
-    [ObservableProperty] private int index;
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(HasIndex))]
+    private int index;
 
-    [ObservableProperty] private int value;
+    public bool HasIndex => Index != -1;
 
     [ObservableProperty] private bool highlighted;
+
+    [ObservableProperty] private RegisterValues values = null!;
 }
 
-public class RegisterInfo
+public class RegisterValues
 {
-    public string Name { get; set; } = string.Empty;
-    public int? Number { get; set; }
     public string Decimal { get; set; } = string.Empty;
     public string Hex { get; set; } = string.Empty;
     public string Ascii { get; set; } = string.Empty;
     public float AsFloat { get; set; }
     public double? AsDouble { get; set; }
+}
+
+public class RegisterValueDoubleConverter : IValueConverter {
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        if (value is null) {
+            return RegisterResources.NotAvailableValue;
+        }
+
+        double d = (double)value;
+        string s = d.ToString(CultureInfo.CurrentCulture); 
+        return s;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        return BindingNotification.Null;
+    }
+}
+
+public class RegisterNumberConverter : IValueConverter {
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        if (value is null) {
+            return "null";
+        }
+
+        int index = (int)value;
+        return index == -1 ? string.Empty : index.ToString();
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        return BindingNotification.Null;
+    }
 }

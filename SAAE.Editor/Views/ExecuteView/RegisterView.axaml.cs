@@ -1,9 +1,17 @@
-﻿using Avalonia;
+﻿using System;
+using System.Drawing;
+using System.Globalization;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Data.Converters;
+using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using SAAE.Editor.Localization;
 using SAAE.Editor.ViewModels.Execute;
+using Rectangle = Avalonia.Controls.Shapes.Rectangle;
 
 namespace SAAE.Editor.Views.ExecuteView;
 
@@ -23,13 +31,24 @@ public partial class RegisterView : UserControl
 
     private void DataGrid_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if(sender is DataGrid dataGrid && e.AddedItems.Count > 0){
-            if (e.AddedItems[0] is Register register)
-            {
-                FlyoutBase? flyout = FlyoutBase.GetAttachedFlyout(dataGrid);
-                FlyoutBase.ShowAttachedFlyout(dataGrid);
-                dataGrid.SelectedIndex = -1;
-            }
+        // if(sender is DataGrid dataGrid && e.AddedItems.Count > 0){
+        //     if (e.AddedItems[0] is Register register)
+        //     {
+        //         FlyoutBase? flyout = FlyoutBase.GetAttachedFlyout(dataGrid);
+        //         FlyoutBase.ShowAttachedFlyout(dataGrid);
+        //         //dataGrid.SelectedIndex = -1;
+        //     }
+        // }
+    }
+
+    private void RowBorder_OnPointerPressed(object? sender, PointerPressedEventArgs e) {
+        Control? control = (Control?)sender;
+        Register? reg = (Register?)control?.DataContext;
+        if (reg is null || control is null) {
+            return;
         }
+        FlyoutBase? flyout = FlyoutBase.GetAttachedFlyout(control);
+        FlyoutBase.ShowAttachedFlyout(control);
     }
 }
+

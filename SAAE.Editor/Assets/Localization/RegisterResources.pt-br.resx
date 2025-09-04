@@ -20,4 +20,25 @@
     <data name="ValueText" xml:space="preserve">
         <value>Valor</value>
     </data>
+    <data name="RegisterNoun" xml:space="preserve">
+        <value>Registrador</value>
+    </data>
+    <data name="AsciiValue" xml:space="preserve">
+        <value>ASCII: </value>
+    </data>
+    <data name="DecimalValue" xml:space="preserve">
+        <value>Decimal: </value>
+    </data>
+    <data name="DoubleValue" xml:space="preserve">
+        <value>Double: </value>
+    </data>
+    <data name="FloatValue" xml:space="preserve">
+        <value>Single: </value>
+    </data>
+    <data name="HexValue" xml:space="preserve">
+        <value>Hex: </value>
+    </data>
+    <data name="NotAvailable" xml:space="preserve">
+        <value>Não disponível</value>
+    </data>
 </root>

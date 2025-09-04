@@ -38,15 +38,6 @@
     <data name="SrcDirLabel" xml:space="preserve">
         <value>Pasta de entrada</value>
     </data>
-    <data name="TabPreferences" xml:space="preserve">
-        <value>Preferências</value>
-    </data>
-    <data name="TabProject" xml:space="preserve">
-        <value>Projeto</value>
-    </data>
-    <data name="LanguageLabel" xml:space="preserve">
-        <value>Idioma</value>
-    </data>
     <data name="WindowTitle" xml:space="preserve">
         <value>Configuração do Projeto</value>
     </data>

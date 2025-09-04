@@ -1,0 +1,33 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="clr-namespace:SAAE.Editor.Localization"
+        xmlns:vm="clr-namespace:SAAE.Editor.ViewModels"
+        mc:Ignorable="d"
+        x:Class="SAAE.Editor.Views.PreferencesView"
+        x:DataType="vm:PreferencesViewModel"
+        Title="{loc:PreferencesResources WindowTitle}"
+        Background="{StaticResource BackgroundGrey}"
+        Loaded="OnWindowLoad">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollViewer Grid.Row="0"
+                      Margin="50,0">
+            <StackPanel Spacing="5">
+                <StackPanel>
+                    <Label Target="LanguageCombobox" 
+                           Content="{loc:PreferencesResources Language}"/>
+                    <ComboBox x:Name="LanguageCombobox" ItemsSource="{Binding AvailableLanguages}"
+                              SelectedIndex="{Binding SelectedLanguageIndex}"></ComboBox>
+                </StackPanel>        
+            </StackPanel>
+        </ScrollViewer>
+        
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="{loc:PreferencesResources Apply}"
+                    Background="{StaticResource Purple1}"
+                    Command="{Binding ApplyCommand}"
+                    Margin="15"></Button>
+        </StackPanel>
+    </Grid>
+</Window>

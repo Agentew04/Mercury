@@ -21,8 +21,6 @@ namespace SAAE.Editor.ViewModels;
 
 public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfigurationViewModel, ProjectConfiguration> {
 
-    public ProjectConfiguration View { get; set; } = null!;
-
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
 
     [ObservableProperty] private string projectName = string.Empty;
@@ -35,8 +33,7 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
     [ObservableProperty] private string outputDir = string.Empty;
     [ObservableProperty] private string outputFile = string.Empty;
     [ObservableProperty] private string entryFile = string.Empty;
-    public List<CultureInfo> AvailableLanguages { get; } = [..LocalizationManager.AvailableCultures];
-    [ObservableProperty] private int selectedLanguageIndex;
+    
 
     public void Load() {
         ProjectFile? project = projectService.GetCurrentProject();
@@ -59,7 +56,7 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
         OutputDir = project.OutputPath.ToString();
         OutputFile = project.OutputFile.ToString();
         EntryFile = project.EntryFile.ToString();
-        SelectedLanguageIndex = AvailableLanguages.IndexOf(LocalizationManager.CurrentCulture);
+        
     }
 
     partial void OnSelectedArchIndexChanged(int value) {
@@ -81,15 +78,10 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
     [RelayCommand(CanExecute = nameof(CanApply))]
     private void Apply() {
         ApplyProject();
-        ApplyPreferences();
-        View.Close();
+        GetView()?.Close();
     }
 
     public bool CanApply() {
-        // Logger.LogInformation("Can Apply? {res}. SelectedOSIdx: {os}. OS: {oslist}", 
-        //     AvailableOperatingSystems.Count > 0 && SelectedOsIndex != -1,
-        //     SelectedOsIndex,
-        //     string.Join(", ", AvailableOperatingSystems));
         return AvailableOperatingSystems.Count > 0 && SelectedOs != string.Empty; //SelectedOsIndex != -1;
     }
 
@@ -117,12 +109,5 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
         project.EntryFile = EntryFile.ToFilePath();
         
         projectService.SaveProject();
-    }
-
-    private void ApplyPreferences() {
-        if (!AvailableLanguages[SelectedLanguageIndex].Equals(LocalizationManager.CurrentCulture)) {
-            Logger.LogInformation("Changing to culture: {culture}", AvailableLanguages[SelectedLanguageIndex]);
-            LocalizationManager.CurrentCulture = AvailableLanguages[SelectedLanguageIndex];
-        }
     }
 }

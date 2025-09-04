@@ -18,17 +18,14 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="OpenProjectSelectionContext" xml:space="preserve">
-        <value>Open project selection window</value>
-    </data>
     <data name="CodeTabHeader" xml:space="preserve">
         <value>_Code</value>
     </data>
     <data name="RunTabHeader" xml:space="preserve">
         <value>_Run</value>
     </data>
-    <data name="ConfigTabHeader" xml:space="preserve">
-        <value>Confi_guration</value>
+    <data name="PreferencesMenuButton" xml:space="preserve">
+        <value>Pre_ferences</value>
     </data>
     <data name="AboutTabHeader" xml:space="preserve">
         <value>_About</value>

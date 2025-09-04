@@ -204,22 +204,6 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
         }
         //OnPropertyChanged(nameof(Rows));
         return;
-
-        string DisplayChar(char c) {
-            if (char.IsControl(c)) {
-                return c switch {
-                    '\0' => "\\0",
-                    '\b' => "\\b",
-                    '\t' => "\\t",
-                    '\n' => "\\n",
-                    '\r' => "\\r",
-                    _ => $"\\x{(int)c:X2}" // ex: \x1B
-                };
-            }
-            else {
-                return c.ToString();
-            }
-        }
         
         string Display(int data) {
             if (SelectedModeIndex == -1) {
@@ -245,7 +229,7 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
                             throw new NotSupportedException();
                     }
                     Encoding.ASCII.GetChars(bytes, chars);
-                    return $"{DisplayChar(chars[0])} {DisplayChar(chars[1])} {DisplayChar(chars[2])} {DisplayChar(chars[3])}";
+                    return $"{chars[0].Escape()} {chars[1].Escape()} {chars[2].Escape()} {chars[3].Escape()}";
                 case RamVisualization.Float:
                     float f = BitConverter.Int32BitsToSingle(data);
                     return f.ToString(CultureInfo.CurrentCulture);

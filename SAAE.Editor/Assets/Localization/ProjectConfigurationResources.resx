@@ -45,15 +45,6 @@
     <data name="ApplyButton" xml:space="preserve">
         <value>Apply</value>
     </data>
-    <data name="TabProject" xml:space="preserve">
-        <value>Project</value>
-    </data>
-    <data name="TabPreferences" xml:space="preserve">
-        <value>Preferences</value>
-    </data>
-    <data name="LanguageLabel" xml:space="preserve">
-        <value>Language</value>
-    </data>
     <data name="WindowTitle" xml:space="preserve">
         <value>Project Configuration</value>
     </data>
