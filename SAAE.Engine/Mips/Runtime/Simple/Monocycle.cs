@@ -10,10 +10,10 @@ namespace SAAE.Engine.Mips.Runtime.Simple;
 /// </summary>
 public sealed partial class Monocycle : IAsyncClockable {
     public Monocycle() {
-        RegisterBank.DefineBank<MipsGprRegisters>(RegisterHelper.GetMipsGprRegistersCount());
-        RegisterBank.DefineBank<MipsFpuRegisters>(RegisterHelper.GetMipsFpuRegistersCount());
-        RegisterBank.DefineBank<MipsFpuControlRegisters>(RegisterHelper.GetMipsFpuControlRegistersCount());
-        RegisterBank.DefineBank<MipsSpecialRegisters>(RegisterHelper.GetMipsSpecialRegistersCount());
+        RegisterBank.DefineBank<MipsGprRegisters>(MipsRegisterHelper.GetMipsGprRegistersCount());
+        RegisterBank.DefineBank<MipsFpuRegisters>(MipsRegisterHelper.GetMipsFpuRegistersCount());
+        RegisterBank.DefineBank<MipsFpuControlRegisters>(MipsRegisterHelper.GetMipsFpuControlRegistersCount());
+        RegisterBank.DefineBank<MipsSpecialRegisters>(MipsRegisterHelper.GetMipsSpecialRegistersCount());
 
         RegisterBank.Set(MipsGprRegisters.Sp, 0x7FFF_EFFC);
         RegisterBank.Set(MipsGprRegisters.Fp, 0x0000_0000);
@@ -34,7 +34,7 @@ public sealed partial class Monocycle : IAsyncClockable {
     /// Structure that holds all the general purpose
     /// registers of the CPU.
     /// </summary>
-    public RegisterBank RegisterBank { get; private set; } = new();
+    public RegisterBank RegisterBank { get; private set; } = new(new MipsRegisterHelper());
     
     public bool[] Flags { get; private set; } = new bool[8];
 

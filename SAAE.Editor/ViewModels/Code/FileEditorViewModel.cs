@@ -17,6 +17,7 @@ using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Services;
 using SAAE.Editor.Views.CodeView;
 using SAAE.Engine;
+using SAAE.Engine.Common;
 
 namespace SAAE.Editor.ViewModels.Code;
 

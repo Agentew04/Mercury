@@ -1,4 +1,6 @@
-﻿namespace SAAE.Engine;
+﻿using SAAE.Engine.Common;
+
+namespace SAAE.Engine;
 
 /// <summary>
 /// Base interface for all operating systems across

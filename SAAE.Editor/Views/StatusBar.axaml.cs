@@ -11,6 +11,7 @@ using System.Linq;
 using SAAE.Editor.Localization;
 using SAAE.Editor.Models.Compilation;
 using SAAE.Engine;
+using SAAE.Engine.Common;
 
 namespace SAAE.Editor.Views;
 

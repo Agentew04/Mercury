@@ -15,6 +15,7 @@ using SAAE.Editor.Extensions;
 using SAAE.Editor.Models.Compilation;
 using SAAE.Editor.Models.Messages;
 using SAAE.Engine;
+using SAAE.Engine.Common;
 using SAAE.Engine.Common.Builders;
 using Machine = SAAE.Engine.Mips.Runtime.Machine;
 

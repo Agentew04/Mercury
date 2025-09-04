@@ -11,6 +11,7 @@ using SAAE.Editor.ViewModels.Code;
 using SAAE.Editor.ViewModels.Execute;
 using SAAE.Editor.Views;
 using SAAE.Engine;
+using SAAE.Engine.Common;
 using FileEditorViewModel = SAAE.Editor.ViewModels.Code.FileEditorViewModel;
 using GuideViewModel = SAAE.Editor.ViewModels.Code.GuideViewModel;
 using ProblemsViewModel = SAAE.Editor.ViewModels.Code.ProblemsViewModel;

@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using SAAE.Editor.Extensions;
 using SAAE.Engine;
+using SAAE.Engine.Common;
 
 namespace SAAE.Editor.Models;
 
