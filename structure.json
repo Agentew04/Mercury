@@ -68,6 +68,7 @@
 			},
 			"id": "basic-io",
 			"arch": "mips",
+            "os": "mars",
 			"version": 1,
 			"project":"/templates/basic-io/basic-io.asmproj"
 		}
