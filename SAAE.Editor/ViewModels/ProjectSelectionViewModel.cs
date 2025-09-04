@@ -64,7 +64,7 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
 
     private List<OperatingSystemType> allOperatingSystems = null!;
     [ObservableProperty] 
-    [NotifyPropertyChangedFor(nameof(HasAvailableOperatingSystems))]
+    [NotifyPropertyChangedFor(nameof(CanChangeOperatingSystem))]
     private ObservableCollection<OperatingSystemType> operatingSystems = [];
     
     [ObservableProperty]
@@ -75,22 +75,27 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanCreateProject))]
-    [NotifyPropertyChangedFor(nameof(HasAvailableOperatingSystems))]
+    [NotifyPropertyChangedFor(nameof(CanChangeOperatingSystem))]
     private int selectedIsaIndex = -1;
 
     public ObservableCollection<Template> Templates { get; set; } = [];
-    [ObservableProperty] private int selectedTemplateIndex;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanChangeOperatingSystem))]
+    private int selectedTemplateIndex;
     private readonly Template blankTemplate = Template.Blank;
     
     public bool EmptyRecentProjects => FilteredRecentProjects.Count == 0;
     
     public bool CanCreateProject => !string.IsNullOrWhiteSpace(NewProjectName) 
                                     && !string.IsNullOrWhiteSpace(NewProjectPath)
-                                    && SelectedOperatingSystemIndex >= 0
+                                    && (
+                                        Templates[SelectedTemplateIndex].IsBlank && SelectedOperatingSystemIndex >= 0
+                                        || !Templates[SelectedTemplateIndex].IsBlank
+                                        )
                                     && SelectedIsaIndex >= 0
                                     && SelectedTemplateIndex != -1;
-    
-    public bool HasAvailableOperatingSystems => OperatingSystems.Count > 0;
+
+    public bool CanChangeOperatingSystem => Templates[SelectedTemplateIndex].IsBlank && OperatingSystems.Count > 0;
     
 
     private readonly TaskCompletionSource<bool> projectSelectionTask = new();
@@ -98,7 +103,7 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
     public string DirectoryNotice {
         get {
             string path = Path.Combine(SanitizeProjectPath(NewProjectPath), SanitizeProjectName(NewProjectName));
-            return string.Format(Localization.ProjectResources.DirectoryResultNoticeValue, path);
+            return string.Format(ProjectResources.DirectoryResultNoticeValue, path);
         }
     }
 
@@ -133,7 +138,7 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
         OperatingSystems = new ObservableCollection<OperatingSystemType>(allOperatingSystems);
         Isas = [Architecture.Mips, Architecture.RiscV, Architecture.Arm];
         SelectedIsaIndex = Isas.IndexOf(Architecture.Mips);
-        OnPropertyChanged(nameof(HasAvailableOperatingSystems));
+        OnPropertyChanged(nameof(CanChangeOperatingSystem));
     }
 
     [RelayCommand]
@@ -171,6 +176,33 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
         SelectedTemplateIndex = -1;
         SelectedTemplateIndex = 0;
     }
+    
+    partial void OnSelectedTemplateIndexChanged(int value) {
+        if (value < 0 || value >= Templates.Count) {
+            return;
+        }
+        Template template = Templates[value];
+        if (template.IsBlank) {
+            return;
+        }
+        // eh um template, modificar OS
+        OperatingSystemType? os = OperatingSystemManager
+            .GetAvailableOperatingSystems()
+            .FirstOrDefault(x => x.CompatibleArchitecture == Isas[SelectedIsaIndex] 
+                                && x.Identifier == template.OperatingSystemIdentifier);
+        if (os is null) {
+            Logger.LogWarning("Could not find a registered operating system that matches conditions");
+            return;
+        }
+
+        int osIndex = OperatingSystems.IndexOf(os.Value);
+        if (osIndex < 0) {
+            Logger.LogWarning("Could not find Template operating system from loaded ones");
+            return;
+        }
+        Logger.LogInformation("Changing OS because template uses a custom one");
+        SelectedOperatingSystemIndex = osIndex;
+    }
 
     [RelayCommand]
     private async Task NewProjectEnd() {
@@ -195,7 +227,7 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
             return;
         }
         if (!view.StorageProvider.CanOpen) {
-            Console.WriteLine("FilePicker nao eh suportado nessa plataforma!");
+            Logger.LogError("FilePicker nao eh suportado nessa plataforma!");
             return;
         }
         
