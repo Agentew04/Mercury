@@ -20,4 +20,19 @@
     <data name="WindowTitle" xml:space="preserve">
         <value>Preferências</value>
     </data>
+    <data name="ClearRecentProjects" xml:space="preserve">
+        <value>Limpar projetos recentes</value>
+    </data>
+    <data name="CompilerPath" xml:space="preserve">
+        <value>Caminho das ferramentas</value>
+    </data>
+    <data name="ConfigVersion" xml:space="preserve">
+        <value>Versão da configuração</value>
+    </data>
+    <data name="OnlineCheck" xml:space="preserve">
+        <value>Frequência de verificação de novos recursos</value>
+    </data>
+    <data name="OnlineCheckError" xml:space="preserve">
+        <value>Período de tempo inválido</value>
+    </data>
 </root>

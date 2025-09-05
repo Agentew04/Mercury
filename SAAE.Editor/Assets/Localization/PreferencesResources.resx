@@ -27,4 +27,19 @@
     <data name="WindowTitle" xml:space="preserve">
         <value>Preferences</value>
     </data>
+    <data name="CompilerPath" xml:space="preserve">
+        <value>Tools path</value>
+    </data>
+    <data name="OnlineCheck" xml:space="preserve">
+        <value>Online resource check frequency</value>
+    </data>
+    <data name="OnlineCheckError" xml:space="preserve">
+        <value>Invalid time period</value>
+    </data>
+    <data name="ClearRecentProjects" xml:space="preserve">
+        <value>Clear recent projects</value>
+    </data>
+    <data name="ConfigVersion" xml:space="preserve">
+        <value>Configuration version</value>
+    </data>
 </root>
