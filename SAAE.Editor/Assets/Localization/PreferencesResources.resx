@@ -18,19 +18,28 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="CodeTabHeader" xml:space="preserve">
-        <value>_Code</value>
+    <data name="Apply" xml:space="preserve">
+        <value>Apply</value>
     </data>
-    <data name="RunTabHeader" xml:space="preserve">
-        <value>_Run</value>
+    <data name="Language" xml:space="preserve">
+        <value>Language</value>
     </data>
-    <data name="PreferencesMenuButton" xml:space="preserve">
-        <value>Pre_ferences</value>
+    <data name="WindowTitle" xml:space="preserve">
+        <value>Preferences</value>
     </data>
-    <data name="AboutTabHeader" xml:space="preserve">
-        <value>_About</value>
+    <data name="CompilerPath" xml:space="preserve">
+        <value>Tools path</value>
     </data>
-    <data name="ProjectTabHeader" xml:space="preserve">
-        <value>_Project</value>
+    <data name="OnlineCheck" xml:space="preserve">
+        <value>Online resource check frequency</value>
+    </data>
+    <data name="OnlineCheckError" xml:space="preserve">
+        <value>Invalid time period</value>
+    </data>
+    <data name="ClearRecentProjects" xml:space="preserve">
+        <value>Clear recent projects</value>
+    </data>
+    <data name="ConfigVersion" xml:space="preserve">
+        <value>Configuration version</value>
     </data>
 </root>

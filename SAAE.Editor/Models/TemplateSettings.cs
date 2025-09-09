@@ -109,6 +109,11 @@ public sealed class Template : IDisposable{
     /// </summary>
     [JsonPropertyName("id")]
     public string Identifier { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// The operating system identifier that this template uses.
+    /// </summary>
+    [JsonPropertyName("os")] public string OperatingSystemIdentifier { get; set; } = string.Empty;
 
     public void Dispose() {
         nameSub?.Dispose();

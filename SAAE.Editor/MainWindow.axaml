@@ -43,35 +43,14 @@
         
         <!-- menu -->
         <Menu Grid.Column="1" Background="{x:Null}">
-          <MenuItem Header="{Binding Path=ProjectTabHeader, Source={x:Static loc:MainWindowResources.Instance}}"
-                    x:Name="ProjectMenuItem"
-                    Click="ProjectMenuItem_OnClick">
-            <FlyoutBase.AttachedFlyout>
-              <Flyout FlyoutPresenterClasses="menuflyoutslim">
-                <ItemsControl ItemsSource="{Binding ProjectMenuOptions}">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="model:MainContextOption">
-                      <Button Classes="contextmenuitem"
-                              IsVisible="{Binding IsVisible}"
-                              Command="{Binding Command}">
-                        <TextBlock Text="{Binding Name, Mode=OneWay}"
-                                   HorizontalAlignment="Left"
-                                   Margin="0"
-                                   Padding="0"
-                                   VerticalAlignment="Center"></TextBlock>
-                      </Button>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </Flyout>
-            </FlyoutBase.AttachedFlyout>
-          </MenuItem>
-          <MenuItem Header="{Binding Path=CodeTabHeader, Source={x:Static loc:MainWindowResources.Instance}}"
+          <MenuItem Header="{loc:MainWindowResources ProjectTabHeader}"
+                    Click="OpenProjectConfiguration"/>
+          <MenuItem Header="{loc:MainWindowResources CodeTabHeader}"
                     Click="OpenCode"/>
-          <MenuItem Header="{Binding Path=RunTabHeader, Source={x:Static loc:MainWindowResources.Instance}}"
+          <MenuItem Header="{loc:MainWindowResources RunTabHeader}"
                     Click="OpenRun"/>
-          <MenuItem Header="{Binding Path=ConfigTabHeader, Source={x:Static loc:MainWindowResources.Instance}}"
-                    Click="OpenConfiguration"/>
+          <MenuItem Header="{loc:MainWindowResources PreferencesMenuButton}"
+                    Click="OpenPreferences"/>
           <MenuItem Header="{loc:MainWindowResources AboutTabHeader}"
                     Click="Open_About"/>
         </Menu>

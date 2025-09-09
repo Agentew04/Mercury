@@ -205,7 +205,7 @@
                           HorizontalAlignment="Stretch"
                           ItemsSource="{Binding OperatingSystems}"
                           SelectedIndex="{Binding SelectedOperatingSystemIndex}"
-                          IsEnabled="{Binding HasAvailableOperatingSystems}">
+                          IsEnabled="{Binding CanChangeOperatingSystem}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="common:OperatingSystemType">
                             <TextBlock Text="{Binding Name}"></TextBlock>

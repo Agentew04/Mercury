@@ -7,16 +7,16 @@ using SAAE.Editor.ViewModels;
 
 namespace SAAE.Editor.Views;
 
-public partial class ProjectConfiguration : Window {
-    public ProjectConfiguration() {
+public partial class PreferencesView : Window {
+    public PreferencesView() {
         InitializeComponent();
-        DataContext = ViewModel = App.Services.GetRequiredService<ProjectConfigurationViewModel>();
-        ViewModel.SetView(this);
+        DataContext = viewModel = App.Services.GetRequiredService<PreferencesViewModel>();
+        viewModel.SetView(this);
     }
-    
-    public ProjectConfigurationViewModel ViewModel { get; set; }
+
+    private PreferencesViewModel viewModel;
 
     private void OnWindowLoad(object? sender, RoutedEventArgs e) {
-        ViewModel.Load();
+        viewModel.Load();
     }
 }

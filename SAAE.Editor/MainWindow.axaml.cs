@@ -29,14 +29,7 @@ namespace SAAE.Editor {
             nav.Register<CodeTabView>(NavigationTarget.CodeView);
             nav.Register<ExecuteView>(NavigationTarget.ExecuteView, true);
             nav.Navigate(NavigationTarget.CodeView);
-            
-            // initialize context menu
-            ProjectMenuOptions.Add(new MainContextOption {
-                IsVisible = true,
-                Command = OpenProjectSelectionCommand,
-                Resource = MainWindowResources.Instance.GetOpenProjectSelectionContext
-            });
-            
+
             // initialize pop ups
             WeakReferenceMessenger.Default.Register<MainWindow, RequestTextPopupMessage>(this, static (recipient, msg) => {
                 msg.Reply(recipient.TextPopup
@@ -53,11 +46,9 @@ namespace SAAE.Editor {
 
         private readonly Navigation nav;
 
-        public List<MainContextOption> ProjectMenuOptions { get; set; } = [];
-
-        private void OpenConfiguration(object? sender, RoutedEventArgs e) {
-            ProjectConfiguration config = new();
-            config.ShowDialog(this);
+        private void OpenPreferences(object? sender, RoutedEventArgs e) {
+            PreferencesView preferencesView = new();
+            preferencesView.ShowDialog(this);
         }
 
         private void OpenCode(object? sender, RoutedEventArgs e) {
@@ -68,13 +59,9 @@ namespace SAAE.Editor {
             nav.Navigate(NavigationTarget.ExecuteView);
         }
 
-        [RelayCommand]
-        private void OpenProjectSelection(object? _) {
-            
-        }
-
-        private void ProjectMenuItem_OnClick(object? sender, RoutedEventArgs e) {
-            
+        private void OpenProjectConfiguration(object? sender, RoutedEventArgs e) {
+            ProjectConfiguration config = new();
+            config.ShowDialog(this);
         }
 
         private void Open_About(object? sender, RoutedEventArgs e) {
