@@ -21,7 +21,6 @@ using SAAE.Editor.Models.Messages;
 using SAAE.Editor.Views.ExecuteView;
 using SAAE.Engine.Memory;
 using SAAE.Engine.Mips.Runtime;
-using Machine = SAAE.Engine.Mips.Runtime.Machine;
 
 namespace SAAE.Editor.ViewModels.Execute;
 
@@ -37,7 +36,7 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(Rows))] private int selectedModeIndex;
 
-    private Machine? currentMachine;
+    private MipsMachine? currentMachine;
 
     [ObservableProperty]
     private ObservableCollection<RamRow> rows = [];
@@ -66,10 +65,10 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
         vm.PopulateLocations(msg.Elf);
         if(vm.currentMachine is not null) {
             // desinscreve do evento de acesso de memoria da maquina antiga
-            vm.currentMachine.OnMemoryAccess -= vm.OnMemoryAccess;
+            vm.currentMachine.MemoryAccessed -= vm.MemoryAccessed;
         }
-        vm.currentMachine = msg.Machine;
-        vm.currentMachine.OnMemoryAccess += vm.OnMemoryAccess;
+        vm.currentMachine = msg.MipsMachine;
+        vm.currentMachine.MemoryAccessed += vm.MemoryAccessed;
         vm.SelectedSectionIndex = vm.Locations.IndexOf(x => x.Name == ".data");
         vm.PopulateRam();
         vm.DisplayRam();
@@ -104,7 +103,7 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
         vm.DisplayRam();
     }
     
-    private void OnMemoryAccess(object? sender, MemoryAccessEventArgs e) {
+    private void MemoryAccessed(object? sender, MemoryAccessEventArgs e) {
         currentMemoryAccess = e.Address;
         HighlightRow(currentMemoryAccess);
     }

@@ -99,6 +99,12 @@ public class InstructionFactory {
                             failed = true;
                         }
                         break;
+                    case "op4pre":
+                        uint op4 = binary >> 28;
+                        if(!rule.Constraints[constraint].Contains(op4)) {
+                            failed = true;
+                        }
+                        break;
                 }
                 if (failed) {
                     break;

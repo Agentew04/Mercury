@@ -659,8 +659,61 @@ public class TypeITest {
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
 
+    [TestCategory("lwcz")]
+    [DataRow(1, 10, 0, 5, 0xC540_0005)]
+    [DataRow(2, 10, 0, 5, 0xC940_0005)]
+    [DataTestMethod]
+    public void LwczAssembly(int coproc, int @base, int rt, int offset, uint expected)
+    {
+        Lwcz instruction = new() {
+            Coprocessor = (byte)coproc,
+            Base = (byte)@base,
+            Rt = (byte)rt,
+            Immediate = (short)offset
+        };
+        Assert.AreEqual(expected, (uint)instruction.ConvertToInt());
+    }
 
-        
+    [TestCategory("lwcz")]
+    [DataRow(0xC540_0005, 1, 10, 0, 5)]
+    [DataRow(0xC940_0005, 2, 10, 0, 5)]
+    [DataTestMethod]
+    public void LwczFromInt(uint binary, int coproc, int @base, int rt, int offset)
+    {
+        Lwcz instruction = new();
+        instruction.FromInt((int)binary);
+        Assert.AreEqual(coproc, instruction.Coprocessor);
+        Assert.AreEqual(@base, instruction.Base);
+        Assert.AreEqual(rt, instruction.Rt);
+        Assert.AreEqual(offset, instruction.Immediate);
+    }
+    
+    [TestCategory("Swcz")]
+    [DataRow(1, 10, 0, 5, 0xE540_0005)]
+    [DataRow(2, 10, 0, 5, 0xE940_0005)]
+    [DataTestMethod]
+    public void SwczAssembly(int coproc, int @base, int rt, int offset, uint expected)
+    {
+        Swcz instruction = new() {
+            Coprocessor = (byte)coproc,
+            Base = (byte)@base,
+            Rt = (byte)rt,
+            Immediate = (short)offset
+        };
+        Assert.AreEqual(expected, (uint)instruction.ConvertToInt());
+    }
 
-
+    [TestCategory("swcz")]
+    [DataRow(0xE540_0005, 1, 10, 0, 5)]
+    [DataRow(0xE940_0005, 2, 10, 0, 5)]
+    [DataTestMethod]
+    public void SwczFromInt(uint binary, int coproc, int @base, int rt, int offset)
+    {
+        Swcz instruction = new();
+        instruction.FromInt((int)binary);
+        Assert.AreEqual(coproc, instruction.Coprocessor);
+        Assert.AreEqual(@base, instruction.Base);
+        Assert.AreEqual(rt, instruction.Rt);
+        Assert.AreEqual(offset, instruction.Immediate);
+    }
 }

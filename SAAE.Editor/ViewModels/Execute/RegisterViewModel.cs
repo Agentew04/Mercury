@@ -41,13 +41,13 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         if (vm.machine is not null) {
             vm.machine.OnRegisterChanged -= vm.OnRegisterChange;
         }
-        vm.machine = msg.Machine;
-        vm.architectureMetadata = ArchitectureManager.GetArchitectureMetadata(msg.Machine.Architecture);
+        vm.machine = msg.MipsMachine;
+        vm.architectureMetadata = ArchitectureManager.GetArchitectureMetadata(msg.MipsMachine.Architecture);
         vm.ProcessorNames = new ObservableCollection<string>(
             vm.architectureMetadata.Processors
                 .Select(x => x.Name)
                 .ToList());
-        vm.registerHelper = RegisterHelperProvider.ProvideHelper(msg.Machine.Architecture);
+        vm.registerHelper = RegisterHelperProvider.ProvideHelper(msg.MipsMachine.Architecture);
         vm.LoadRegisters(vm.SelectedProcessorIndex);
         vm.machine.OnRegisterChanged += vm.OnRegisterChange;
         vm.Logger.LogInformation("Initialized register view with {registers} and {processors}", 
