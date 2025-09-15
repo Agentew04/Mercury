@@ -95,7 +95,7 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
                                     && SelectedIsaIndex >= 0
                                     && SelectedTemplateIndex != -1;
 
-    public bool CanChangeOperatingSystem => (SelectedTemplateIndex == -1 || Templates[SelectedTemplateIndex].IsBlank) && OperatingSystems.Count > 0;
+    public bool CanChangeOperatingSystem => (SelectedTemplateIndex == -1 || (Templates.Count > SelectedTemplateIndex && Templates[SelectedTemplateIndex].IsBlank)) && OperatingSystems.Count > 0;
     
 
     private readonly TaskCompletionSource<bool> projectSelectionTask = new();

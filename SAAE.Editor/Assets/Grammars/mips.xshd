@@ -1,22 +1,24 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <SyntaxDefinition name="MIPS" extensions=".asm" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
-    <Color name="Comment" foreground="#6A9955" /> <!-- ok -->
-    <Color name="Register" foreground="#9CDCFE" /> <!-- ok -->
-    <Color name="Directive" foreground="#C586C0" /><!-- ok -->
-    <Color name="Label" foreground="#DCDCAA" /> <!-- ok -->
-    <Color name="Instruction" foreground="#5C9CD6" /> <!-- ok -->
-    <Color name="Number" foreground="#B5CEA8" /> <!-- ok -->
-    <Color name="String" foreground="#CE9178" /> <!-- ok -->
-    <Color name="Default" foreground="#FFFFFF" /> <!-- ok -->
-    <Color name="Comma" foreground="#5C9CD6" /> <!-- ok -->
+    <Color name="Comment" foreground="#6A9955" />
+    <Color name="Register" foreground="#9CDCFE" />
+    <Color name="Directive" foreground="#C586C0" />
+    <Color name="Label" foreground="#DCDCAA" />
+    <Color name="Instruction" foreground="#5C9CD6" />
+    <Color name="Number" foreground="#B5CEA8" />
+    <Color name="String" foreground="#CE9178" />
+    <Color name="Default" foreground="#FFFFFF" />
+    <Color name="Comma" foreground="#5C9CD6" />
     <Color name="StringEscape" foreground="#D7BA7D"/>
+    <Color name="MacroParameter" foreground="#4EC9B0"/>
     
 
     <RuleSet ignoreCase="true">
 
+
         <!-- Comments: # até o fim da linha -->
         <Span begin="#" end="\n" color="Comment" />
-
+        
         <!-- Strings entre aspas -->
         <Span color="String">
             <Begin>"</Begin>
@@ -33,18 +35,34 @@
 
         <!-- Registers: $t0, $s1, $a0 etc -->
         <Rule color="Register">
-            \$(zero|at|v[0-1]|a[0-3]|t[0-9]|s[0-7]|k[0-1]|gp|sp|fp|ra|[1-9]|1[0-9]|2[0-9]|3[0-1]|0)
+            \$(zero|at|v[0-1]|a[0-3]|t[0-9]|s[0-7]|k[0-1]|gp|sp|fp|ra|[1-9]|1[0-9]|2[0-9]|3[0-1]|0|f[0-9]{1,2})
         </Rule>
 
         <!-- Directives: .data, .text, .word, etc -->
         <Rule color="Directive">
-            \.(data|text|word|byte|asciiz|ascii|globl|align|space|float|double|macro|endmacro)
+            \.(data|text|word|byte|asciiz|ascii|globl|align|space|float|double|endmacro|macro)
         </Rule>
         
+        <!-- macros -->
+        <Rule color="Label">
+            (?&lt;=\.macro)\s*[a-zA-Z_][a-zA-Z0-9_]*
+        </Rule>
+        <Rule color="MacroParameter">
+            (?&lt;=^\s*\.macro\s+[A-Za-z_][A-Za-z0-9_]*\s+)[^,\s][^,]*(?:\s*,\s*[^,\s][^,]*)*
+        </Rule>
+        <Rule color="MacroParameter">
+            \\[a-zA-Z_][a-zA-Z0-9_]*
+        </Rule>
 
         <!-- Numbers: decimais ou hexadecimais -->
         <Rule color="Number">
             \b0x[0-9a-fA-F]+\b|\b\d+\b
+        </Rule>
+        <Rule color="Number">
+            -\b0x[0-9a-fA-F]+\b|-\b\d+\b
+        </Rule>
+        <Rule color="Number">
+            \b\d+\.\d+\b
         </Rule>
 
         <Rule color="Comma">
@@ -125,10 +143,103 @@
             <Word>li</Word>
             <Word>la</Word>
             <Word>move</Word>
+            <Word>abs.s</Word>
+            <Word>abs.d</Word>
+            <Word>abs.w</Word>
+            <Word>add.s</Word>
+            <Word>add.d</Word>
+            <Word>add.w</Word>
+            <Word>bc1f</Word>
+            <Word>bc1t</Word>
+            <Word>c.f.s</Word>
+            <Word>c.f.d</Word>
+            <Word>c.f.w</Word>
+            <Word>c.un.s</Word>
+            <Word>c.un.d</Word>
+            <Word>c.un.w</Word>
+            <Word>c.eq.s</Word>
+            <Word>c.eq.d</Word>
+            <Word>c.eq.w</Word>
+            <Word>c.ueq.s</Word>
+            <Word>c.ueq.d</Word>
+            <Word>c.ueq.w</Word>
+            <Word>c.olt.s</Word>
+            <Word>c.olt.d</Word>
+            <Word>c.olt.w</Word>
+            <Word>c.ult.s</Word>
+            <Word>c.ult.d</Word>
+            <Word>c.ult.w</Word>
+            <Word>c.ole.s</Word>
+            <Word>c.ole.d</Word>
+            <Word>c.ole.w</Word>
+            <Word>c.ule.s</Word>
+            <Word>c.ule.d</Word>
+            <Word>c.ule.w</Word>
+            <Word>c.sf.s</Word>
+            <Word>c.sf.d</Word>
+            <Word>c.sf.w</Word>             
+            <Word>c.ngle.s</Word>
+            <Word>c.ngle.d</Word>
+            <Word>c.ngle.w</Word>
+            <Word>c.seq.s</Word>
+            <Word>c.seq.d</Word>
+            <Word>c.seq.w</Word>
+            <Word>c.ngl.s</Word>
+            <Word>c.ngl.d</Word>
+            <Word>c.ngl.w</Word>
+            <Word>c.lt.s</Word>
+            <Word>c.lt.d</Word>
+            <Word>c.lt.w</Word>
+            <Word>c.nge.s</Word>
+            <Word>c.nge.d</Word>
+            <Word>c.nge.w</Word>
+            <Word>c.le.s</Word>
+            <Word>c.le.d</Word>
+            <Word>c.le.w</Word>           
+            <Word>c.ngt.s</Word>
+            <Word>c.ngt.d</Word>
+            <Word>c.ngt.w</Word>
+            <Word>cfc1</Word>
+            <Word>ctc1</Word>
+            <Word>cvt.s.d</Word>
+            <Word>cvt.s.w</Word>
+            <Word>cvt.d.s</Word>
+            <Word>cvt.d.w</Word>
+            <Word>cvt.w.s</Word>
+            <Word>cvt.w.d</Word>
+            <Word>div.s</Word>
+            <Word>div.d</Word>
+            <Word>div.w</Word>
+            <Word>lwc0</Word>
+            <Word>lwc1</Word>
+            <Word>lwc2</Word>
+            <Word>lwc3</Word>
+            <Word>mfc1</Word>
+            <Word>mtc1</Word>
+            <Word>mul.s</Word>
+            <Word>mul.d</Word>
+            <Word>mul.w</Word>
+            <Word>neg.s</Word>
+            <Word>neg.d</Word>
+            <Word>neg.w</Word>
+            <Word>sqrt.s</Word>
+            <Word>sqrt.d</Word>
+            <Word>sqrt.w</Word>
+            <Word>sub.s</Word>
+            <Word>sub.d</Word>
+            <Word>sub.w</Word>
+            <Word>swc0</Word>
+            <Word>swc1</Word>
+            <Word>swc2</Word>
+            <Word>swc3</Word>
         </Keywords>
 
         <Rule color="Label">
             [a-zA-Z_\.][a-zA-Z0-9_]*
         </Rule>
+
+        
+        
+        
     </RuleSet>
 </SyntaxDefinition>
