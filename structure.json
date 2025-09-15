@@ -1,6 +1,6 @@
 {
     "guides":{
-        "version": 1,
+        "version": 2,
         "common": "/guides/common",
         "architectures": [
             {
@@ -69,7 +69,7 @@
 			"id": "basic-io",
 			"arch": "mips",
             "os": "mars",
-			"version": 1,
+			"version": 2,
 			"project":"/templates/basic-io/basic-io.asmproj"
 		}
 	]
