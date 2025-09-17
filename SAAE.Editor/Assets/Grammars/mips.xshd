@@ -42,6 +42,10 @@
         <Rule color="Directive">
             \.(data|text|word|byte|asciiz|ascii|globl|align|space|float|double|endmacro|macro)
         </Rule>
+
+        <Rule color="Comma">
+            ,
+        </Rule>
         
         <!-- macros -->
         <Rule color="Label">
@@ -65,9 +69,7 @@
             \b\d+\.\d+\b
         </Rule>
 
-        <Rule color="Comma">
-            ,
-        </Rule>
+        
 
         <!-- label no meio de uma instrucao -->
         
