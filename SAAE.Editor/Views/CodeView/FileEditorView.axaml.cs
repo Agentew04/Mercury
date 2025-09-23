@@ -76,10 +76,13 @@ public partial class FileEditorView : UserControl {
     }
 
     private void TextEntered(object? sender, TextInputEventArgs e) {
-        if(e.Text?.Length > 0 && completionWindow != null) {
-            if(!char.IsLetterOrDigit(e.Text[0])) {
-                //completionWindow.CompletionList.RequestInsertion(e);
-            }
-        }
+        // complete this method with something like the code below
+        // to be able to auto complete the text with a key different
+        // from tab or enter;
+        /* if(e.Text?.Length > 0 && completionWindow != null) {
+             if(!char.IsLetterOrDigit(e.Text[0])) {
+                 completionWindow.CompletionList.RequestInsertion(e);
+             }
+         }*/
     }
 }
