@@ -1,4 +1,5 @@
-﻿using SAAE.Engine.Mips.Instructions;
+﻿using SAAE.Engine.Common;
+using SAAE.Engine.Mips.Instructions;
 using SAAE.Engine.Mips.Runtime.Simple;
 using SAAE.Engine.Common.Builders;
 using SAAE.Engine.Mips.Runtime;
@@ -11,7 +12,7 @@ public class MonocycleTest {
     [TestMethod]
     public void TestBeq()
     {
-        using Machine machine = new MachineBuilder()
+        using MipsMachine mipsMachine = new MachineBuilder()
             .WithMemory(new MemoryBuilder()
                 .With4Gb()
                 .WithVolatileStorage()
@@ -22,7 +23,7 @@ public class MonocycleTest {
             .WithMarsOs()
             .Build();
         
-        Monocycle cpu = machine.Cpu; 
+        Monocycle cpu = mipsMachine.Cpu; 
         int[] code = [
             0x2008_000f,
             0x2009_0014,
@@ -31,7 +32,7 @@ public class MonocycleTest {
             0x0810_0006,
             0x0000_004d
             ];
-        machine.LoadProgram(code, Span<int>.Empty);
+        mipsMachine.LoadProgram(code, Span<int>.Empty);
         InstructionFactory factory = new();
         bool hasBreaked = false;
         
@@ -57,7 +58,7 @@ public class MonocycleTest {
 
     [TestMethod]
     public void TestBuilder() {
-        using Machine machine = new MachineBuilder()
+        using MipsMachine mipsMachine = new MachineBuilder()
             .WithMemory(new MemoryBuilder()
                 .With4Gb()
                 .WithVolatileStorage()
@@ -68,22 +69,25 @@ public class MonocycleTest {
             .WithMarsOs()
             .Build();
         
-        Assert.IsNotNull(machine.Memory);
-        Assert.IsNotNull(machine.Cpu);
-        Assert.IsNotNull(machine.Os);
-        Assert.AreSame(machine.Cpu.RegisterBank, machine.Registers);
-        Assert.AreSame(machine.Cpu.Memory, machine.Memory);
-        Assert.AreSame(machine.Os.Machine, machine);
+        Assert.IsNotNull(mipsMachine.Memory);
+        Assert.IsNotNull(mipsMachine.Cpu);
+        Assert.IsNotNull(mipsMachine.Os);
+        Assert.AreSame(mipsMachine.Cpu.RegisterBank, mipsMachine.Registers);
+        Assert.AreSame(mipsMachine.Cpu.Memory, mipsMachine.Memory);
+        if(!mipsMachine.Os.Machine.TryGetTarget(out Machine? target)) {
+            Assert.Fail("OS Machine weak reference is not set.");
+        }
+        Assert.AreSame(target, mipsMachine);
         
         const ulong gb = 1024 * 1024 * 1024;
-        Assert.AreEqual(4 * gb, (machine.Memory as Engine.Memory.Memory)!.Size);
-        Assert.IsInstanceOfType<Monocycle>(machine.Cpu);
-        Assert.IsInstanceOfType<Mars>(machine.Os);
+        Assert.AreEqual(4 * gb, (mipsMachine.Memory as Engine.Memory.Memory)!.Size);
+        Assert.IsInstanceOfType<Monocycle>(mipsMachine.Cpu);
+        Assert.IsInstanceOfType<Mars>(mipsMachine.Os);
     }
 
     [TestMethod]
     public void TestFibonacci() {
-        using Machine machine = new MachineBuilder()
+        using MipsMachine mipsMachine = new MachineBuilder()
             .WithMemory(new MemoryBuilder()
                 .With4Gb()
                 .WithVolatileStorage()
@@ -153,12 +157,12 @@ public class MonocycleTest {
             0x000a_1020,
             0x03e0_0008
         ];
-        machine.LoadProgram(code, Span<int>.Empty);
+        mipsMachine.LoadProgram(code, Span<int>.Empty);
 
-        while (!machine.IsClockingFinished()) {
-            machine.ClockAsync().AsTask().GetAwaiter().GetResult();
+        while (!mipsMachine.IsClockingFinished()) {
+            mipsMachine.ClockAsync().AsTask().GetAwaiter().GetResult();
         }
         
-        Assert.AreEqual(0, machine.Cpu.ExitCode);    
+        Assert.AreEqual(0, mipsMachine.Cpu.ExitCode);    
     }
 }

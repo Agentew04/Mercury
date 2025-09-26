@@ -17,7 +17,7 @@ using SAAE.Editor.Models.Messages;
 using SAAE.Engine;
 using SAAE.Engine.Common;
 using SAAE.Engine.Common.Builders;
-using Machine = SAAE.Engine.Mips.Runtime.Machine;
+using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Editor.Services;
 
@@ -29,7 +29,7 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable {
     private readonly ICompilerService compilerService =
         App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
     
-    private Machine? currentMachine;
+    private MipsMachine? currentMachine;
     private ELF<uint>? currentElf;
 
     public void LoadProgram() {
@@ -115,7 +115,7 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable {
         // publica evento de carregamento do programa
         ProgramLoadMessage loadMsg = new()
         {
-            Machine = currentMachine,
+            MipsMachine = currentMachine,
             Elf = currentElf,
             Metadata = meta
         };
@@ -123,7 +123,7 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable {
         WeakReferenceMessenger.Default.Send(loadMsg);
     }
 
-    public Machine GetCurrentMachine()
+    public MipsMachine GetCurrentMachine()
     {
         return currentMachine!;
     }

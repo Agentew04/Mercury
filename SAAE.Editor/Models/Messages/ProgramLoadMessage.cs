@@ -3,13 +3,13 @@ using System.Linq;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using ELFSharp.ELF;
 using SAAE.Editor.Extensions;
-using Machine = SAAE.Engine.Mips.Runtime.Machine;
+using SAAE.Engine.Mips.Runtime;
 
 namespace SAAE.Editor.Models.Messages;
 
 public class ProgramLoadMessage
 {
-    public required Machine Machine { get; init; }
+    public required MipsMachine MipsMachine { get; init; }
     
     public required ELF<uint> Elf { get; init; }
     public required ProgramMetadata Metadata { get; init; }

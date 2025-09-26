@@ -28,7 +28,7 @@ public sealed partial class Monocycle : IAsyncClockable {
     /// </summary>
     public IMemory Memory { get; set; } = null!;
 
-    public Machine Machine { get; set; } = null!;
+    public MipsMachine MipsMachine { get; set; } = null!;
 
     /// <summary>
     /// Structure that holds all the general purpose

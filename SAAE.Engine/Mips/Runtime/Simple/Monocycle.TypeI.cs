@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SAAE.Engine.Common;
 
 namespace SAAE.Engine.Mips.Runtime.Simple;
 
@@ -71,7 +72,7 @@ public partial class Monocycle {
             RegisterBank.Set<MipsGprRegisters>(xori.Rt, RegisterBank.Get<MipsGprRegisters>(xori.Rs) ^ ZeroExtend(xori.Immediate));
         } else if(instruction is Lb lb) {
             RegisterBank.Set<MipsGprRegisters>(lb.Rt, (sbyte)Memory.ReadByte((ulong)(RegisterBank.Get<MipsGprRegisters>(lb.Rs) + lb.Immediate)));
-            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+            MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)(RegisterBank.Get<MipsGprRegisters>(lb.Rs) + lb.Immediate),
                 Size = 1,
                 Mode = MemoryAccessMode.Read,
@@ -79,7 +80,7 @@ public partial class Monocycle {
             });
         } else if(instruction is Lbu lbu) {
             RegisterBank.Set<MipsGprRegisters>(lbu.Rt, Memory.ReadByte((ulong)(RegisterBank.Get<MipsGprRegisters>(lbu.Rs) + lbu.Immediate)));
-            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+            MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)(RegisterBank.Get<MipsGprRegisters>(lbu.Rs) + lbu.Immediate),
                 Size = 1,
                 Mode = MemoryAccessMode.Read,
@@ -98,7 +99,7 @@ public partial class Monocycle {
                 return;
             }
             RegisterBank.Set<MipsGprRegisters>(lh.Rt, (short)(Memory.ReadWord((ulong)address) & 0xFFFF));
-            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+            MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)address,
                 Size = 2,
                 Mode = MemoryAccessMode.Read,
@@ -117,7 +118,7 @@ public partial class Monocycle {
                 return;
             }
             RegisterBank.Set<MipsGprRegisters>(lhu.Rt, (ushort)(Memory.ReadWord((ulong)address) & 0xFFFF));
-            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+            MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)address,
                 Size = 2,
                 Mode = MemoryAccessMode.Read,
@@ -138,7 +139,7 @@ public partial class Monocycle {
                 return;
             }
             RegisterBank.Set<MipsGprRegisters>(lw.Rt, Memory.ReadWord((ulong)address));
-            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+            MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)address,
                 Size = 4,
                 Mode = MemoryAccessMode.Read,
@@ -146,7 +147,7 @@ public partial class Monocycle {
             });
         } else if(instruction is Sb sb) {
             Memory.WriteByte((ulong)(RegisterBank.Get<MipsGprRegisters>(sb.Rs) + sb.Immediate), (byte)RegisterBank.Get<MipsGprRegisters>(sb.Rt));
-            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+            MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)(RegisterBank.Get<MipsGprRegisters>(sb.Rs) + sb.Immediate),
                 Size = 1,
                 Mode = MemoryAccessMode.Write,
@@ -167,7 +168,7 @@ public partial class Monocycle {
             // write two bytes
             Memory.WriteByte((ulong)address, (byte)(RegisterBank.Get<MipsGprRegisters>(sh.Rt) >> 8));
             Memory.WriteByte((ulong)(address + 1), (byte)(RegisterBank.Get<MipsGprRegisters>(sh.Rt) & 0xFF));
-            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+            MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)address,
                 Size = 2,
                 Mode = MemoryAccessMode.Write,
@@ -186,7 +187,7 @@ public partial class Monocycle {
                 return;
             }
             Memory.WriteWord((ulong)address, RegisterBank.Get<MipsGprRegisters>(sw.Rt));
-            Machine.InvokeMemoryAccess(new MemoryAccessEventArgs() {
+            MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)address,
                 Size = 4,
                 Mode = MemoryAccessMode.Write,
@@ -202,10 +203,54 @@ public partial class Monocycle {
                     });
                 }
             }
-        } else if (instruction is Lwc1 lwc1) {
-            throw new NotImplementedException();
-        }else if (instruction is Swc1 swc1) {
-            throw new NotImplementedException();
-        }
+        } else if (instruction is Lwcz lwcz)
+        {
+            ulong address = (ulong)(RegisterBank.Get<MipsGprRegisters>(lwcz.Base) + lwcz.Immediate);
+            int value = Memory.ReadWord(address);
+            if (lwcz.Coprocessor == 0) { // syscontrol
+                RegisterBank.Set<MipsSpecialRegisters>(lwcz.Rt, value);
+            }else if (lwcz.Coprocessor == 1) { // fpu
+                RegisterBank.Set<MipsFpuRegisters>(lwcz.Rt, value);
+            }else {
+                if (MipsMachine.StdErr is not null) {
+                    await MipsMachine.StdErr.Writer.WriteAsync($"Coprocessor {lwcz.Coprocessor} not supported. Instruction: {lwcz} @ PC={RegisterBank[MipsGprRegisters.Pc]:X8}\n");
+                }
+                return;
+            }
+            MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs()
+            {
+                Address = address,
+                Mode =MemoryAccessMode.Read,
+                Size = 4,
+                Source = MemoryAccessSource.Instruction
+            });
+            
+        }else if (instruction is Swcz swc1) {
+            ulong address = (ulong)(RegisterBank.Get<MipsGprRegisters>(swc1.Base) + swc1.Immediate);
+            int value = 0;
+            if (swc1.Coprocessor == 0) { // syscontrol
+                value = RegisterBank.Get<MipsSpecialRegisters>(swc1.Rt);
+            }else if (swc1.Coprocessor == 1) { // fpu
+                value = RegisterBank.Get<MipsFpuRegisters>(swc1.Rt);
+            }else {
+                if (MipsMachine.StdErr is not null) {
+                    await MipsMachine.StdErr.Writer.WriteAsync($"Coprocessor {swc1.Coprocessor} not supported. Instruction: {swc1} @ PC={RegisterBank[MipsGprRegisters.Pc]:X8}\n");
+                }
+                return;
+            }
+            Memory.WriteWord(address, value);
+            MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs()
+            {
+                Address = address,
+                Mode = MemoryAccessMode.Write,
+                Size = 4,
+                Source = MemoryAccessSource.Instruction
+            });
+        } else {
+            if (MipsMachine.StdErr is not null) {
+                await MipsMachine.StdErr.Writer.WriteAsync($"Type I instruction not implemented: {instruction} @ PC={RegisterBank[MipsGprRegisters.Pc]:X8}\n");
+            }
+            return;
+        } 
     }
 }

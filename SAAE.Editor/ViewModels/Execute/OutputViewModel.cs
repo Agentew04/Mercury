@@ -51,9 +51,9 @@ public partial class OutputViewModel : BaseViewModel<OutputViewModel, OutputView
         vm.sb.Clear();
 
         // create new objects
-        vm.swIn = msg.Machine.StdIn?.Writer;
-        vm.srOut = msg.Machine.StdOut?.Reader;
-        vm.srErr = msg.Machine.StdErr?.Reader;
+        vm.swIn = msg.MipsMachine.StdIn?.Writer;
+        vm.srOut = msg.MipsMachine.StdOut?.Reader;
+        vm.srErr = msg.MipsMachine.StdErr?.Reader;
 
         _ = vm.ReadStdOut(vm.cts.Token);
         _ = vm.ReadStdErr(vm.cts.Token);

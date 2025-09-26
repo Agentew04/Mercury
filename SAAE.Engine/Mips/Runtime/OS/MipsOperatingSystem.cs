@@ -8,8 +8,8 @@ namespace SAAE.Engine.Mips.Runtime.OS;
 /// Specific version for MIPS archtecture.
 /// </summary>
 public abstract class MipsOperatingSystem : IOperatingSystem {
-
-    public Machine Machine { get; set; } = null!;
+    
+    public WeakReference<Machine?> Machine { get; set; }
 
     public Architecture CompatibleArchitecture => Architecture.Mips;
     
@@ -31,8 +31,11 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
         }
         else {
             // this is normally used on mips
-            uint registerSignal = (uint)Machine.Registers[MipsGprRegisters.V0];
-            await OnSyscall(registerSignal);
+            if (Machine.TryGetTarget(out Machine? target))
+            {
+                uint registerSignal = (uint)target.Registers[MipsGprRegisters.V0];
+                await OnSyscall(registerSignal);
+            }
         }
     }
 

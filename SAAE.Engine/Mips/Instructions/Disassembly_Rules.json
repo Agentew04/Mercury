@@ -579,7 +579,7 @@
   {
     "mnemonic": "Lwc1",
     "constraints": {
-      "opcode": [49]
+      "op4pre": [12]
     }
   },
   {

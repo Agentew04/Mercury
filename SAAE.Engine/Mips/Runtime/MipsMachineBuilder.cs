@@ -7,55 +7,54 @@ namespace SAAE.Engine.Mips.Runtime;
 
 public class MipsMachineBuilder : MachineBuilder
 {
-    // TODO: trocar isso por classe base de cpus
-    private Monocycle? _cpu;
-    private MipsOperatingSystem? _os;
+    private Monocycle? cpu;
+    private MipsOperatingSystem? os;
     
     public MipsMachineBuilder(MachineBuilder builder) : base(builder){}
 
     public MipsMachineBuilder WithMipsMonocycle()
     {
-        _cpu = new Monocycle();
+        cpu = new Monocycle();
         return this;
     }
 
     public MipsMachineBuilder WithCpu(Monocycle cpu)
     {
-        _cpu = cpu;
+        this.cpu = cpu;
         return this;
     }
     
     public MipsMachineBuilder WithMarsOs()
     {
-        _os = new Mars();
+        os = new Mars();
         return this;
     }
 
     public MipsMachineBuilder WithOs(MipsOperatingSystem os)
     {
-        _os = os;
+        this.os = os;
         return this;
     }
 
-    public override Machine Build()
+    public override MipsMachine Build()
     {
         if (Memory is null)
         {
             throw new InvalidOperationException("Memory must be set.");
         }
-        if (_cpu is null)
+        if (cpu is null)
         {
             throw new InvalidOperationException("CPU must be set.");
         }
-        if (_os is null)
+        if (os is null)
         {
             throw new InvalidOperationException("Operating System must be set.");
         }
 
-        Machine machine = new() {
-            Cpu = _cpu,
+        MipsMachine mipsMachine = new() {
+            Cpu = cpu,
             Memory = Memory,
-            Os = _os,
+            Os = os,
             StdIn = StdIn,
             StdOut = StdOut,
             StdErr = StdErr,
@@ -63,12 +62,12 @@ public class MipsMachineBuilder : MachineBuilder
         };
         
         // realiza links de hardware
-        _cpu.Memory = Memory;
-        _cpu.Machine = machine;
-        _os.Machine = machine;
-        _cpu.OnSignalException += async (e) => {
-            await _os.OnSignalBreak(e);
+        cpu.Memory = Memory;
+        cpu.MipsMachine = mipsMachine;
+        os.Machine = new WeakReference<Machine?>(mipsMachine);
+        cpu.OnSignalException += async (e) => {
+            await os.OnSignalBreak(e);
         };
-        return machine;
+        return mipsMachine;
     }
 }

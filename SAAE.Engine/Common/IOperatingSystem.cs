@@ -28,4 +28,9 @@ public interface IOperatingSystem : IDisposable {
     /// operating systems in files.
     /// </summary>
     public string Identifier { get; }
+    
+    /// <summary>
+    /// A weak reference to the machine that this operating system is installed.
+    /// </summary>
+    public WeakReference<Machine?> Machine { get; set; }
 }
