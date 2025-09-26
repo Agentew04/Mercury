@@ -10,6 +10,7 @@
         Title="{loc:ProjectConfigurationResources WindowTitle}"
         Background="{StaticResource BackgroundGrey}"
         Width="500"
+        Icon="avares://SAAE.Editor/Assets/Images/icon-noborder-64.png"
         Height="700"
         Loaded="OnWindowLoad">
     <Grid RowDefinitions="*,Auto">

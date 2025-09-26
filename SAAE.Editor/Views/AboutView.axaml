@@ -9,6 +9,7 @@
         Width="550"
         Height="400"
         Title="{loc:AboutResources WindowTitle}"
+        Icon="avares://SAAE.Editor/Assets/Images/icon-noborder-64.png"
         Background="{StaticResource BackgroundGrey}"
         x:DataType="vm:AboutViewModel">
     <Window.Styles>

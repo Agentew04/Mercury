@@ -11,6 +11,7 @@
         x:Class="SAAE.Editor.MainWindow"
         x:DataType="local:MainWindow"
         Title="Mercury"
+        Icon="avares://SAAE.Editor/Assets/Images/icon-noborder-64.png"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="-1"
@@ -28,6 +29,12 @@
       <Setter Property="Foreground" Value="White"/>
       <Setter Property="Background" Value="{StaticResource BackgroundGrey1}"/>
     </Style>
+    <Style Selector="Image.icon">
+      <Setter Property="Source" Value="avares://SAAE.Editor/Assets/Images/icon-noborder-32.png"></Setter>
+    </Style>
+    <Style Selector="Image.icon:pointerover">
+      <Setter Property="Source" Value="avares://SAAE.Editor/Assets/Images/icon-border-white-32.png"></Setter>
+    </Style>
   </Window.Styles>
 
   <Grid>
@@ -37,9 +44,8 @@
         <controls:TitleBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" x:Name="TitleBar"/>
         
         <!-- icon -->
-        <Image Grid.Column="0" Source="avares://SAAE.Editor/Assets/Images/book.png"
-               Stretch="Uniform"
-               Width="25" Margin="10,0,10,0"/>
+        <Image Grid.Column="0" Stretch="Uniform" Classes="icon"
+               Width="20" Margin="10,0,10,0"/>
         
         <!-- menu -->
         <Menu Grid.Column="1" Background="{x:Null}">

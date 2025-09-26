@@ -9,6 +9,7 @@
         x:DataType="vm:PreferencesViewModel"
         Title="{loc:PreferencesResources WindowTitle}"
         Width="500"
+        Icon="avares://SAAE.Editor/Assets/Images/icon-noborder-64.png"
         Background="{StaticResource BackgroundGrey}"
         Loaded="OnWindowLoad">
     <Grid RowDefinitions="*,Auto">

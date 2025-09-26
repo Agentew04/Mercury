@@ -13,6 +13,7 @@
         x:Class="SAAE.Editor.Views.SplashScreen"
         x:DataType="vm:SplashScreenViewModel"
         Title="Mercury"
+        Icon="avares://SAAE.Editor/Assets/Images/icon-noborder-64.png"
         Background="Transparent">
     <Window.Styles>
         <Style Selector="Label">
