@@ -45,6 +45,8 @@
         
         <!-- icon -->
         <Image Grid.Column="0" Stretch="Uniform" Classes="icon"
+               PointerPressed="LogoClicked"
+               ToolTip.Tip="{loc:MainWindowResources LogoTooltip}"
                Width="20" Margin="10,0,10,0"/>
         
         <!-- menu -->

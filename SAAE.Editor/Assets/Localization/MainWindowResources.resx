@@ -33,4 +33,7 @@
     <data name="ProjectTabHeader" xml:space="preserve">
         <value>_Project</value>
     </data>
+    <data name="LogoTooltip" xml:space="preserve">
+        <value>Click to open project website</value>
+    </data>
 </root>

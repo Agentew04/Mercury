@@ -1,9 +1,11 @@
 using System;
 using Avalonia.Controls;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
@@ -67,6 +69,10 @@ namespace SAAE.Editor {
         private void Open_About(object? sender, RoutedEventArgs e) {
             AboutView about = new();
             about.ShowDialog(this);
+        }
+
+        private void LogoClicked(object? sender, PointerPressedEventArgs e) {
+            Process.Start(new ProcessStartInfo("https://github.com/Agentew04/SAAE") { UseShellExecute = true });
         }
     }
 }
