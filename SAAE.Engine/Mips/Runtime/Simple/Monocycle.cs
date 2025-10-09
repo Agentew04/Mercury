@@ -37,16 +37,7 @@ public sealed partial class Monocycle : IAsyncClockable {
     public RegisterBank RegisterBank { get; private set; } = new(new MipsRegisterHelper());
     
     public bool[] Flags { get; private set; } = new bool[8];
-
-    /// <summary>
-    /// Class responsible to interpret binary instructions
-    /// and return the corresponding class.
-    /// </summary>
-    private readonly InstructionFactory instructionFactory = new();
-
-    /// <inheritdoc cref="instructionFactory"/>
-    public InstructionFactory InstructionFactory => instructionFactory;
-
+    
     public bool UseBranchDelaySlot { get; set; }
     
     public uint DropoffAddress { get; set; }
@@ -71,18 +62,14 @@ public sealed partial class Monocycle : IAsyncClockable {
         int instructionBinary = Memory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc));
 
         // decode
-        Instruction instruction;
-        try {
-            instruction = instructionFactory.Disassemble((uint)instructionBinary);
-        }
-        catch (Exception) {
-            if (OnSignalException is not null) {
-                await OnSignalException.Invoke(new SignalExceptionEventArgs {
-                    Signal = SignalExceptionEventArgs.SignalType.InvalidInstruction,
-                    ProgramCounter = RegisterBank.Get(MipsGprRegisters.Pc),
-                    Instruction = instructionBinary
-                });
-            }
+        Instruction? instruction = Disassembler.Disassemble((uint)instructionBinary);
+        if(instruction is null) {
+            if (OnSignalException is null) return;
+            await OnSignalException.Invoke(new SignalExceptionEventArgs {
+                Signal = SignalExceptionEventArgs.SignalType.InvalidInstruction,
+                ProgramCounter = RegisterBank.Get(MipsGprRegisters.Pc),
+                Instruction = instructionBinary
+            });
             await Halt(-1);
             return;
         }

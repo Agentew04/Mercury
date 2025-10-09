@@ -1,6 +1,9 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,26,35)] // opcode
 public partial class Lw : TypeIInstruction {
 
     public Lw() {

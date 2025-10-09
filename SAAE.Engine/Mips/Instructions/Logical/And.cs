@@ -1,7 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
 
+[FormatExact<Instruction>(31,26,0)] // opcode
+[FormatExact<Instruction>(10,6,0)] // shift
+[FormatExact<Instruction>(5,0,36)] // funct
 public partial class And : TypeRInstruction {
 
     public And() {

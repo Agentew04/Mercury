@@ -9,8 +9,8 @@ public class TypeITest {
     [TestCategory("Addi")]
     [TestMethod]
     public void AddiRegex() {
-        var instruction = new Addi();
-        Regex? regex = instruction.GetRegularExpression();
+        Addi instruction = new();
+        Regex regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("addi $t0, $t1, 5"));
         Assert.IsTrue(regex.IsMatch("addi $t0, $t1, -5"));
         Assert.IsTrue(regex.IsMatch("addi $t0, $t1, 0xA"));
@@ -34,12 +34,24 @@ public class TypeITest {
         };
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
+    
+    [TestCategory("Addi")]
+    [DataRow((uint)0x2008000F)]
+    [DataRow((uint)0x2140008F)]
+    [DataRow((uint)0x23B7FFE4)]
+    [DataTestMethod]
+    public void AddiDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Addi>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
 
-    [TestCategory(("Addiu"))]
+    [TestCategory("Addiu")]
     [TestMethod]
     public void AddiuRegex() {
-        var instruction = new Addiu();
-        Regex? regex = instruction.GetRegularExpression();
+        Addiu instruction = new();
+        Regex regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("addiu $t0, $t1, 5"));
         Assert.IsTrue(regex.IsMatch("addiu $t0, $t1, -5"));
         Assert.IsTrue(regex.IsMatch("addiu $t0, $t1, 0xA"));
@@ -56,7 +68,7 @@ public class TypeITest {
     [DataRow(23,29, 0x7FE4, 0x27B77FE4)]
     [DataTestMethod]
     public void AddiuAssembly(int rt, int rs, int immediate, int expected) {
-        var instruction = new Addiu() {
+        Addiu instruction = new() {
             Rt = (byte)rt,
             Rs = (byte)rs,
             Immediate = (short)immediate
@@ -64,11 +76,23 @@ public class TypeITest {
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
 
+    [TestCategory("Addiu")]
+    [DataRow((uint)0x2408000F)]
+    [DataRow((uint)0x2540008F)]
+    [DataRow((uint)0x27B77FE4)]
+    [DataTestMethod]
+    public void AddiuDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Addiu>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
+
     [TestCategory("Slti")]
     [TestMethod]
     public void SltiRegex() { 
-        var instruction = new Slti();
-        Regex? regex = instruction.GetRegularExpression();
+        Slti instruction = new();
+        Regex regex = instruction.GetRegularExpression();
         Assert.IsTrue(regex.IsMatch("slti $t0, $t1, 5"));
         Assert.IsTrue(regex.IsMatch("slti $t0, $t1, -5"));
         Assert.IsTrue(regex.IsMatch("slti $t0, $t1, 0xA"));
@@ -91,6 +115,18 @@ public class TypeITest {
             Immediate = (short)immediate
         };
         Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Slti")]
+    [DataRow((uint)0x2808000F)]
+    [DataRow((uint)0x2940008F)]
+    [DataRow((uint)0x2BB7FFE4)]
+    [DataTestMethod]
+    public void SltiDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Slti>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 
     [TestCategory("Sltiu")]
@@ -120,6 +156,18 @@ public class TypeITest {
             Immediate = (short)immediate
         };
         Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Sltiu")]
+    [DataRow((uint)0x2C08000F)]
+    [DataRow((uint)0x2D40008F)]
+    [DataRow((uint)0x2FB7FFE4)]
+    [DataTestMethod]
+    public void SltiuDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Sltiu>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 
     [TestCategory("Andi")]
@@ -153,6 +201,17 @@ public class TypeITest {
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
 
+    [TestCategory("Andi")]
+    [DataRow((uint)0x3008000F)]
+    [DataRow((uint)0x3140008F)]
+    [DataTestMethod]
+    public void AndiDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Andi>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
+
     [TestCategory("Ori")]
     [TestMethod]
     public void OriRegex() {
@@ -180,6 +239,17 @@ public class TypeITest {
             Immediate = (short)immediate
         };
         Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Ori")]
+    [DataRow((uint)0x3408000F)]
+    [DataRow((uint)0x3540008F)]
+    [DataTestMethod]
+    public void OriDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Ori>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 
     [TestCategory("Xori")]
@@ -211,6 +281,17 @@ public class TypeITest {
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
 
+    [TestCategory("Xori")]
+    [DataRow((uint)0x3808000F)]
+    [DataRow((uint)0x3940008F)]
+    [DataTestMethod]
+    public void XoriDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Xori>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
+
     [TestCategory("Lb")]
     [TestMethod]
     public void LbRegex() {
@@ -238,6 +319,18 @@ public class TypeITest {
             Immediate = (short)immediate
         };
         Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Lb")]
+    [DataRow((uint)0x8161000F)]
+    [DataRow((uint)0x839BFFF1)]
+    [DataRow((uint)0x82FF0001)]
+    [DataTestMethod]
+    public void LbDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Lb>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 
     [TestCategory("Lbu")]
@@ -269,6 +362,18 @@ public class TypeITest {
         Assert.AreEqual((int)expected, instruction.ConvertToInt());
     }
 
+    [TestCategory("Lbu")]
+    [DataRow((uint)0x9161000F)]
+    [DataRow((uint)0x939BFFF1)]
+    [DataRow((uint)0x92FF0001)]
+    [DataTestMethod]
+    public void LbuDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Lbu>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
+
     [TestCategory("Lh")]
     [TestMethod]
     public void LhRegex() {
@@ -296,6 +401,18 @@ public class TypeITest {
             Immediate = (short)immediate
         };
         Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Lh")]
+    [DataRow((uint)0x8561000F)]
+    [DataRow((uint)0x879BFFF1)]
+    [DataRow((uint)0x86FF0001)]
+    [DataTestMethod]
+    public void LhDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Lh>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 
     [TestCategory("Lhu")]
@@ -327,6 +444,18 @@ public class TypeITest {
         Assert.AreEqual((int)expected, instruction.ConvertToInt());
     }
 
+    [TestCategory("Lhu")]
+    [DataRow((uint)0x9561000F)]
+    [DataRow((uint)0x979BFFF1)]
+    [DataRow((uint)0x96FF0001)]
+    [DataTestMethod]
+    public void LhuDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Lhu>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
+
     [TestCategory("Lui")]
     [TestMethod]
     public void LuiRegex() {
@@ -354,6 +483,18 @@ public class TypeITest {
             Immediate = (short)immediate
         };
         Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Lui")]
+    [DataRow((uint)0x3C01000F)]
+    [DataRow((uint)0x3C1B0000)]
+    [DataRow((uint)0x3C1F00FA)]
+    [DataTestMethod]
+    public void LuiDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Lui>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 
     // LW
@@ -387,6 +528,18 @@ public class TypeITest {
         Assert.AreEqual((int)expected, instruction.ConvertToInt());
     }
 
+    [TestCategory("Lw")]
+    [DataRow((uint)0x8D61000F)]
+    [DataRow((uint)0x8F9B7FF1)]
+    [DataRow((uint)0x8EFF0001)]
+    [DataTestMethod]
+    public void LwDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Lw>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
+
     [TestCategory("Sb")]
     [TestMethod]
     public void SbRegex() {
@@ -415,6 +568,18 @@ public class TypeITest {
             Immediate = (short)immediate
         };
         Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Sb")]
+    [DataRow((uint)0xA161000F)]
+    [DataRow((uint)0xA39B7FF1)]
+    [DataRow((uint)0xA2FF0001)]
+    [DataTestMethod]
+    public void SbDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Sb>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 
     [TestCategory("Sh")]
@@ -447,6 +612,18 @@ public class TypeITest {
         Assert.AreEqual((int)expected, instruction.ConvertToInt());
     }
 
+    [TestCategory("Sh")]
+    [DataRow((uint)0xA561000F)]
+    [DataRow((uint)0xA79B7FF1)]
+    [DataRow((uint)0xA6FF0001)]
+    [DataTestMethod]
+    public void ShDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Sh>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
+
     [TestCategory("Sw")]
     [TestMethod]
     public void SwRegex() {
@@ -475,6 +652,18 @@ public class TypeITest {
             Immediate = (short)immediate
         };
         Assert.AreEqual((int)expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Sw")]
+    [DataRow((uint)0xAD61000F)]
+    [DataRow((uint)0xAF9B7FF1)]
+    [DataRow((uint)0xAEFF0001)]
+    [DataTestMethod]
+    public void SwDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Sw>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 
     [TestCategory("Beq")]
@@ -546,6 +735,18 @@ public class TypeITest {
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
 
+    [TestCategory("Bgez")]
+    [DataRow((uint)0x04E13FFF)]
+    [DataRow((uint)0x06C10018)]
+    [DataRow((uint)0x04013FFD)]
+    [DataTestMethod]
+    public void BgezDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Bgez>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
+
     [TestCategory("Bgtz")]
     [TestMethod]
     public void BgtzRegex() {
@@ -572,6 +773,18 @@ public class TypeITest {
             Immediate = (short)immediate
         };
         Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Bgtz")]
+    [DataRow((uint)0x1CE03FFF)]
+    [DataRow((uint)0x1EC00018)]
+    [DataRow((uint)0x1C003FFD)]
+    [DataTestMethod]
+    public void BgtzDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Bgtz>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 
     [TestCategory("Blez")]
@@ -602,6 +815,18 @@ public class TypeITest {
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
 
+    [TestCategory("Blez")]
+    [DataRow((uint)0x18E03FFF)]
+    [DataRow((uint)0x1AC00018)]
+    [DataRow((uint)0x18003FFD)]
+    [DataTestMethod]
+    public void BlezDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Blez>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
+
     [TestCategory("Bltz")]
     [TestMethod]
     public void BltzRegex() {
@@ -628,6 +853,18 @@ public class TypeITest {
             Immediate = (short)immediate
         };
         Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+
+    [TestCategory("Bltz")]
+    [DataRow((uint)0x04E03FFF)]
+    [DataRow((uint)0x06C00018)]
+    [DataRow((uint)0x04003FFD)]
+    [DataTestMethod]
+    public void BltzDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Bltz>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 
     [TestCategory("Bne")]
@@ -659,7 +896,19 @@ public class TypeITest {
         Assert.AreEqual(expected, instruction.ConvertToInt());
     }
 
-    [TestCategory("lwcz")]
+    [TestCategory("Bne")]
+    [DataRow((uint)0x14FC3FFF)]
+    [DataRow((uint)0x16CC0018)]
+    [DataRow((uint)0x14033FFD)]
+    [DataTestMethod]
+    public void BneDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Bne>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
+    }
+
+    [TestCategory("Lwcz")]
     [DataRow(1, 10, 0, 5, 0xC540_0005)]
     [DataRow(2, 10, 0, 5, 0xC940_0005)]
     [DataTestMethod]
@@ -674,7 +923,7 @@ public class TypeITest {
         Assert.AreEqual(expected, (uint)instruction.ConvertToInt());
     }
 
-    [TestCategory("lwcz")]
+    [TestCategory("Lwcz")]
     [DataRow(0xC540_0005, 1, 10, 0, 5)]
     [DataRow(0xC940_0005, 2, 10, 0, 5)]
     [DataTestMethod]
@@ -686,6 +935,18 @@ public class TypeITest {
         Assert.AreEqual(@base, instruction.Base);
         Assert.AreEqual(rt, instruction.Rt);
         Assert.AreEqual(offset, instruction.Immediate);
+    }
+    
+    [TestCategory("Lwcz")]
+    [DataRow((uint)0xC540_0005)]
+    [DataRow((uint)0xC940_0005)]
+    [DataTestMethod]
+    public void LwczDisassembly(uint instruction)
+    {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Lwcz>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
     
     [TestCategory("Swcz")]
@@ -715,5 +976,16 @@ public class TypeITest {
         Assert.AreEqual(@base, instruction.Base);
         Assert.AreEqual(rt, instruction.Rt);
         Assert.AreEqual(offset, instruction.Immediate);
+    }
+
+    [TestCategory("Swcz")]
+    [DataRow((uint)0xE540_0005)]
+    [DataRow((uint)0xE940_0005)]
+    [DataTestMethod]
+    public void SwczDisassembly(uint instruction) {
+        Instruction? disassembled = Disassembler.Disassemble(instruction);
+        Assert.IsNotNull(disassembled);
+        Assert.IsInstanceOfType<Swcz>(disassembled);
+        Assert.AreEqual(instruction, (uint)disassembled.ConvertToInt());
     }
 }

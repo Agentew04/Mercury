@@ -15,12 +15,14 @@ internal readonly record struct RegisterDef {
     public readonly int Number;
     public readonly string Name;
     public readonly string EnumMemberName;
+    public readonly int Size;
 
-    public RegisterDef(string enumMemberName, string name, bool hasNumber, int number) {
+    public RegisterDef(string enumMemberName, string name, bool hasNumber, int number, int size) {
         EnumMemberName = enumMemberName;
         Number = number;
         HasNumber = hasNumber;
         Name = name;
+        Size = size;
     }
 }
 
@@ -51,11 +53,11 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
             [System.AttributeUsage(System.AttributeTargets.Field)]
             public class RegisterInfoAttribute : System.Attribute {
         
-                public RegisterInfoAttribute(int number, string name) {
+                public RegisterInfoAttribute(int number, string name, int size) {
                     
                 }
         
-                public RegisterInfoAttribute(string name) {
+                public RegisterInfoAttribute(string name, int size) {
                     
                 }
             }
@@ -283,15 +285,14 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
             }
             ImmutableArray<AttributeData> attributes = fieldSymbol.GetAttributes();
             foreach (AttributeData attribute in attributes) {
-                if (attribute.AttributeClass!.ToDisplayString() == "SAAE.Generators.RegisterInfoAttribute") {
-                    if (attribute.ConstructorArguments.Length == 2) {
-                        regs.Add(new RegisterDef(fieldSymbol.ToDisplayString(), (string)attribute.ConstructorArguments[1].Value!, true, (int)attribute.ConstructorArguments[0].Value!));
-                    }
-                    else {
-                        regs.Add(new RegisterDef(fieldSymbol.ToDisplayString(), (string)attribute.ConstructorArguments[0].Value!, false, -1));
-                    }
-                    break;
+                if (attribute.AttributeClass!.ToDisplayString() != "SAAE.Generators.RegisterInfoAttribute") continue;
+                if (attribute.ConstructorArguments.Length == 3) {
+                    regs.Add(new RegisterDef(fieldSymbol.ToDisplayString(), (string)attribute.ConstructorArguments[1].Value!, true, (int)attribute.ConstructorArguments[0].Value!, (int)attribute.ConstructorArguments[2].Value!));
                 }
+                else {
+                    regs.Add(new RegisterDef(fieldSymbol.ToDisplayString(), (string)attribute.ConstructorArguments[0].Value!, false, -1, (int)attribute.ConstructorArguments[1].Value!));
+                }
+                break;
             }
         }
 

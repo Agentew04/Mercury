@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a substitution strategy for cache row/block replacement.
 /// </summary>
-public enum SubstitutionStrategy {
+public enum ReplacementPolicyType {
     /// <summary>
     /// Discards the oldest block in the cache.
     /// </summary>

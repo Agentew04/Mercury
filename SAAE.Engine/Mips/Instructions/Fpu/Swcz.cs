@@ -1,7 +1,9 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
 
+[FormatExact<Instruction>(31,28,14)] // opcode 4 bits
 public class Swcz : TypeIInstruction
 {
     public byte Base

@@ -1,7 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
 
+[FormatExact<Instruction>(31,26,0)] // opcode
+[FormatExact<Instruction>(10,6,0)] // rs
+[FormatExact<Instruction>(5,0,34)] // funct
 public partial class Sub : TypeRInstruction {
 
     public Sub() {

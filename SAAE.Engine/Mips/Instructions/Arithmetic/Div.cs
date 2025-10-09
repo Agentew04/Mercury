@@ -1,6 +1,12 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,26,0)]
+[FormatExact<Instruction>(15,11,0)]
+[FormatExact<Instruction>(10,6,0)]
+[FormatExact<Instruction>(5,0,26)]
 public partial class Div : TypeRInstruction {
 
     public Div() {

@@ -33,6 +33,17 @@ public class TypeJTest {
     }
 
     [TestCategory("J")]
+    [DataRow((uint)0x08100007)]
+    [DataRow((uint)0x08100006)]
+    [DataTestMethod]
+    public void JDisassembly(uint instructionInt) {
+        Instruction? instruction = Disassembler.Disassemble(instructionInt);
+        Assert.IsNotNull(instruction);
+        Assert.IsInstanceOfType<J>(instruction);
+        Assert.AreEqual(instructionInt, (uint)instruction.ConvertToInt());
+    }
+
+    [TestCategory("J")]
     [DataRow("j 0x0040001c", 0x0040001C)]
     [DataRow("j 0x00400018", 0x00400018)]
     [DataTestMethod]
@@ -61,6 +72,17 @@ public class TypeJTest {
             Immediate = (address&0x3FFFFFF)>>2
         };
         Assert.AreEqual(expected, instruction.ConvertToInt());
+    }
+    
+    [TestCategory("Jal")]
+    [DataRow((uint)0x0C100007)]
+    [DataRow((uint)0x0C100006)]
+    [DataTestMethod]
+    public void JalDisassembly(uint instructionInt) {
+        Instruction? instruction = Disassembler.Disassemble(instructionInt);
+        Assert.IsNotNull(instruction);
+        Assert.IsInstanceOfType<Jal>(instruction);
+        Assert.AreEqual(instructionInt, (uint)instruction.ConvertToInt());
     }
 
     [TestCategory("Jal")]

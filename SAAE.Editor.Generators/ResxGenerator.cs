@@ -139,7 +139,7 @@ public class ResxGenerator : IIncrementalGenerator {
                      public string {{entry.Name}} => resourceManager.GetString("{{entry.Name}}", LocalizationManager.CurrentCulture) ?? "";
 
                      /// <summary>
-                     /// Function that retrieves the newest value of the <see cref="{{entry.Name}}">
+                     /// Function that retrieves the newest value of the <see cref="{{entry.Name}}"/>
                      /// property in the current culture.
                      /// </summary>
                      public string Get{{entry.Name}}() => {{entry.Name}};

@@ -59,14 +59,14 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, 
         for (int i = 0; i < meta.Files.Count; i++) {
             uint start = meta.Files[i].StartAddress;
             uint end = i < meta.Files.Count-1 ? meta.Files[i + 1].StartAddress : msg.MipsMachine.Cpu.DropoffAddress;
-            recipient.ProcessFile(meta, meta.Files[i], start, end, msg.MipsMachine.Memory, msg.MipsMachine.Cpu.InstructionFactory, msg.Elf.EntryPoint, userLabels);
+            recipient.ProcessFile(meta, meta.Files[i], start, end, msg.MipsMachine.Memory, msg.Elf.EntryPoint, userLabels);
         }
         int index = recipient.Instructions.IndexOf(x => x.Address == msg.Elf.EntryPoint);
         recipient.SelectedInstructionIndex = index;
     }
 
     private void ProcessFile(ProgramMetadata meta, ObjectFile file, uint startAddress, uint endAddress, 
-        IMemory memory, InstructionFactory factory, uint entryPointAddress, List<Symbol> symbols) {
+        IMemory memory, uint entryPointAddress, List<Symbol> symbols) {
         IEnumerable<(Symbol x, int)> lineLabels = meta.Symbols
             .Where(x => x.Name.StartsWith("L."))
             .Select(x => {
@@ -100,14 +100,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, 
             //     emite instrucao com link para linha
 
             uint instructionBinary = (uint)memory.ReadWord(address);
-            Instruction? instruction;
-            try {
-                instruction = factory.Disassemble(instructionBinary);
-            }
-            catch (Exception) {
-                instruction = null;
-            }
-
+            Instruction? instruction = Disassembler.Disassemble(instructionBinary);
             List<string> labels;
             if (instruction is null) {
                 labels = symbols.Where(x => x.Address == address).Select(x => x.Name).ToList();
@@ -148,7 +141,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, 
                 address += 4;
                 instructionBinary = (uint)memory.ReadWord(address);
                 try {
-                    instruction = factory.Disassemble(instructionBinary);
+                    instruction = Disassembler.Disassemble(instructionBinary);
                 }
                 catch (Exception) {
                     instruction = null;

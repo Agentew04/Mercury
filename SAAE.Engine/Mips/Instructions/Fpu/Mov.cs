@@ -1,5 +1,12 @@
-﻿namespace SAAE.Engine.Mips.Instructions;
+﻿using SAAE.Generators;
 
+namespace SAAE.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,26,17)] // opcode
+[FormatExact<Instruction>(20,16,0)] // rt
+[FormatExact<Instruction>(25,21,[16,17,20])] // rs
+[FormatExact<Instruction>(10,6,0)] // shift
+[FormatExact<Instruction>(5,0,6)] // funct
 public class Mov : TypeFInstruction
 {
     public byte Fmt { get; private set; }

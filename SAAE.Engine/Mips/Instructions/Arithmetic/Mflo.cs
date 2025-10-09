@@ -1,6 +1,12 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,26,0)] // opcode
+[FormatExact<Instruction>(25,21,0)] // rs
+[FormatExact<Instruction>(20,16,0)] // rt
+[FormatExact<Instruction>(5,0,18)] // funct
 public partial class Mflo : TypeRInstruction {
 
     public Mflo() {

@@ -1,6 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,26,28)]
+[FormatExact<Instruction>(15,11,0)]
+[FormatExact<Instruction>(5,0,1)]
 public partial class Maddu : TypeRInstruction {
 
     public Maddu() {

@@ -33,7 +33,6 @@ public class MonocycleTest {
             0x0000_004d
             ];
         mipsMachine.LoadProgram(code, Span<int>.Empty);
-        InstructionFactory factory = new();
         bool hasBreaked = false;
         
         cpu.OnSignalException += (e) => {
@@ -41,7 +40,7 @@ public class MonocycleTest {
                 return Task.CompletedTask;
             }
 
-            Instruction inst = factory.Disassemble((uint)e.Instruction);
+            Instruction? inst = Disassembler.Disassemble((uint)e.Instruction);
             if(inst is not Break brk) {
                 return Task.CompletedTask;
             }

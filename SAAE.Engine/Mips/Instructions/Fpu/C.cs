@@ -1,5 +1,10 @@
-﻿namespace SAAE.Engine.Mips.Instructions;
+﻿using SAAE.Generators;
 
+namespace SAAE.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,26,17)] // opcode
+[FormatExact<Instruction>(25,21,[16,17,20])] // rs
+[FormatExact<Instruction>(7,4,3)] // zfc
 public class C : TypeFInstruction
 {
     public byte Fmt { get; private set; }

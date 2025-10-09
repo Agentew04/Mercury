@@ -1,6 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,26,0)] // opcode
+[FormatExact<Instruction>(15,11,0)] // rs
+[FormatExact<Instruction>(5,0,25)] // funct
 public partial class Multu : TypeRInstruction {
 
     public Multu() {

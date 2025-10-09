@@ -1,7 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
 
+[FormatExact<Instruction>(31,26,17)] // opcode
+[FormatExact<Instruction>(25,21,[16,17,20])] // rs
+[FormatExact<Instruction>(5,0,0)] // funct
 public class Add_float : TypeFInstruction
 {
     public byte Fmt { get; private set; }

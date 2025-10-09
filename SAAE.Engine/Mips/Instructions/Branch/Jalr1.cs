@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
 
@@ -7,6 +8,11 @@ namespace SAAE.Engine.Mips.Instructions;
 /// Jump and link register. Jumps to the address stored in the register provided and stores the return address in $ra register or
 /// an specific one.
 /// </summary>
+[FormatExact<Instruction>(31,26,0)] // opcode
+[FormatExact<Instruction>(20,16,0)] // rt
+[FormatExact<Instruction>(15,11,31)] // rd
+[FormatExact<Instruction>(10,6,0)] // shift
+[FormatExact<Instruction>(5,0,9)] // funct
 public partial class Jalr1 : TypeRInstruction {
 
     public Jalr1() {

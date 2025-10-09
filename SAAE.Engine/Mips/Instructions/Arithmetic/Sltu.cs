@@ -1,7 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
 
+[FormatExact<Instruction>(31,26,0)] // opcode
+[FormatExact<Instruction>(5,0,43)] // funct
+[FormatExact<Instruction>(10,6,0)] // shamt
 public partial class Sltu : TypeRInstruction {
 
     public Sltu() {

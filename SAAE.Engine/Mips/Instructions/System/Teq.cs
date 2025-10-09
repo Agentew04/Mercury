@@ -1,10 +1,14 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Instructions;
 
 /// <summary>
 /// Trap if equal. Triggers a breakpoint if the contents of Rs and Rt are equal.
 /// </summary>
+[FormatExact<Instruction>(31,26,0)] // opcode
+[FormatExact<Instruction>(10,6,0)] // shift
+[FormatExact<Instruction>(5,0,52)] // funct
 public partial class Teq : TypeRInstruction {
 
     public Teq() {
