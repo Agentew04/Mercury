@@ -23,7 +23,7 @@ internal interface IClockable {
     bool IsClockingFinished();
 }
 
-internal interface IAsyncClockable {
+public interface IAsyncClockable {
     /// <inheritdoc cref="IClockable.Clock"/>
     ValueTask ClockAsync();
 

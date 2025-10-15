@@ -7,8 +7,8 @@ public partial class Monocycle {
         if (instruction is Add add) {
             RegisterBank.Set<MipsGprRegisters>(add.Rd, RegisterBank.Get<MipsGprRegisters>(add.Rs) + RegisterBank.Get<MipsGprRegisters>(add.Rt));
             if (IsOverflowed(RegisterBank.Get<MipsGprRegisters>(add.Rs), RegisterBank.Get<MipsGprRegisters>(add.Rt), RegisterBank.Get<MipsGprRegisters>(add.Rd))){
-                if (OnSignalException is not null) {
-                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                if (SignalException is not null) {
+                    await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
                         Instruction = add.ConvertToInt(),
                         ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
@@ -68,8 +68,8 @@ public partial class Monocycle {
             int result = RegisterBank.Get<MipsGprRegisters>(sub.Rs) - RegisterBank.Get<MipsGprRegisters>(sub.Rt);
             if(IsOverflowed(RegisterBank.Get<MipsGprRegisters>(sub.Rs), RegisterBank.Get<MipsGprRegisters>(sub.Rt), result)) {
                 // dont change rd, trap
-                if (OnSignalException is not null) {
-                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                if (SignalException is not null) {
+                    await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
                         Instruction = sub.ConvertToInt(),
                         ProgramCounter = RegisterBank[MipsGprRegisters.Pc],
@@ -106,24 +106,24 @@ public partial class Monocycle {
         } else if(instruction is Srlv srlv) {
             RegisterBank.Set<MipsGprRegisters>(srlv.Rd, RegisterBank.Get<MipsGprRegisters>(srlv.Rt) >>> RegisterBank.Get<MipsGprRegisters>(srlv.Rs));
         } else if(instruction is Break @break) {
-            if (OnSignalException is not null) {
-                await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+            if (SignalException is not null) {
+                await SignalException.Invoke(new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.Breakpoint,
                     Instruction = @break.ConvertToInt(),
                     ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
                 });
             }
         } else if(instruction is Syscall syscall) {
-            if (OnSignalException is not null) {
-                await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+            if (SignalException is not null) {
+                await SignalException.Invoke(new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.SystemCall,
                     Instruction = syscall.ConvertToInt(),
                     ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
                 });
             }
         } else if (instruction is Teq teq && RegisterBank.Get<MipsGprRegisters>(teq.Rs) == RegisterBank.Get<MipsGprRegisters>(teq.Rt)) {
-            if (OnSignalException is not null) {
-                await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+            if (SignalException is not null) {
+                await SignalException.Invoke(new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.Trap,
                     Instruction = teq.ConvertToInt(),
                     ProgramCounter = RegisterBank[MipsGprRegisters.Pc]

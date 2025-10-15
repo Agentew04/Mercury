@@ -3,37 +3,6 @@ using System.Threading.Channels;
 
 namespace SAAE.Engine.Common;
 
-public class ChannelReader : TextReader {
-
-    private readonly ChannelReader<char> reader;
-    
-    public ChannelReader(ChannelReader<char> reader) {
-        this.reader = reader;
-    }
-
-    public override int Peek() {
-        return !reader.TryPeek(out char item) ? default(int) : item;
-    }
-
-    public override int Read() {
-        return !reader.TryRead(out char item) ? -1 : item;
-    }
-}
-
-public class ChannelWriter : TextWriter {
-    private readonly ChannelWriter<char> writer;
-
-    public ChannelWriter(ChannelWriter<char> writer) {
-        this.writer = writer;
-    }
-
-    public override Encoding Encoding { get; } = Encoding.Default;
-
-    public override void Write(char value) {
-        _ = writer.TryWrite(value);
-    }
-}
-
 public class ChannelStream : Stream {
 
     private readonly Channel<char> channel;

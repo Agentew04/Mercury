@@ -3,17 +3,17 @@ using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Runtime;
 
-[RegisterInfoDefinition(Architecture.Mips)]
+[RegisterBankDefinition(Architecture.Mips, Processor = 1)]
 public enum MipsFpuControlRegisters
 {
-    [RegisterInfo(0, "FIR",32)]
+    [Register(0, "FIR",32, false)]
     Fir,
-    [RegisterInfo(1, "FEXR",32)]
+    [Register(1, "FEXR",32,false)]
     Fexr,
-    [RegisterInfo(2, "FENR",32)]
+    [Register(2, "FENR",32,false)]
     Fenr,
-    [RegisterInfo(3, "FCSR",32)]
+    [Register(3, "FCSR",32,false)]
     Fcsr,
-    [RegisterInfo(4, "FCCR",32)]
+    [Register(4, "FCCR",32,false)]
     Fccr,
 }

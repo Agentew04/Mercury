@@ -76,7 +76,7 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
             return new[] { onlineCheckError };
         }
 
-        return null;
+        return null!;
     }
 
     public bool HasErrors => onlineCheckError != null; 

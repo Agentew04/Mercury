@@ -32,5 +32,5 @@ public interface IOperatingSystem : IDisposable {
     /// <summary>
     /// A weak reference to the machine that this operating system is installed.
     /// </summary>
-    public WeakReference<Machine?> Machine { get; set; }
+    public Machine Machine { get; set; }
 }

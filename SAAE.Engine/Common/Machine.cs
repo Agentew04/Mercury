@@ -14,14 +14,22 @@ namespace SAAE.Engine.Common;
 public abstract class Machine : IAsyncClockable, IDisposable
 {
     /// <summary>
-    /// The object that simulates the RAM of this machine.
+    /// A reference to the memory object that holds all data
+    /// that the program operates on. It may be the same object
+    /// as <see cref="InstructionMemory"/>.
     /// </summary>
-    public IMemory Memory { get; init; } = null!;
+    public IMemory DataMemory { get; init; } = null!;
+
+    /// <summary>
+    /// A reference to the memory object that contains instructions.
+    /// It may be the same object as <see cref="DataMemory"/>.
+    /// </summary>
+    public IMemory InstructionMemory { get; init; } = null!;
 
     /// <summary>
     /// The object that executes code.
     /// </summary>
-    public Monocycle Cpu { get; init; } = null!;
+    public ICpu Cpu { get; init; }
 
     /// <summary>
     /// A link to the RegisterBank present on the <see cref="Cpu"/>
@@ -31,22 +39,22 @@ public abstract class Machine : IAsyncClockable, IDisposable
     /// <summary>
     /// The Operating System that answers syscalls of this machine.
     /// </summary>
-    public IOperatingSystem Os { get; init; } = null!;
+    public required IOperatingSystem Os { get; init; }
 
     /// <summary>
     /// The standard input that gives data to the program being run.
     /// </summary>
-    public Channel<char>? StdIn { get; init; }
+    public required Channel<char> StdIn { get; init; }
     
     /// <summary>
     /// The standard output that programs can write to.
     /// </summary>
-    public Channel<char>? StdOut { get; init; }
+    public required Channel<char> StdOut { get; init; }
     
     /// <summary>
     /// The standard channels where errors from the program and machine are written to.
     /// </summary>
-    public Channel<char>? StdErr { get; init; }
+    public required Channel<char> StdErr { get; init; }
 
     /// <summary>
     /// The current architecture of this machine.
@@ -76,21 +84,21 @@ public abstract class Machine : IAsyncClockable, IDisposable
     public event EventHandler<MemoryAccessEventArgs>? MemoryAccessed;
 
     /// <summary>
-    /// Loads a ELF executable into the <see cref="Memory"/>.
+    /// Loads a ELF executable into the <see cref="DataMemory"/>.
     /// </summary>
     /// <param name="elf">The ELF file to be loaded</param>
     public abstract void LoadElf(ELF<uint> elf);
     
     protected uint Load(Span<byte> data, uint address) {
         for(ulong i=0;i<(ulong)data.Length; i++) {
-            Memory.WriteByte(address + i, data[(int)i]);
+            DataMemory.WriteByte(address + i, data[(int)i]);
         }
         return address + (uint)data.Length;
     }
     
     protected uint Load(Span<int> bytes, uint address) {
         for (ulong i = 0; i < (ulong)bytes.Length; i++) {
-            Memory.WriteWord(address + i*4, bytes[(int)i]);
+            DataMemory.WriteWord(address + i*4, bytes[(int)i]);
         }
         return address + (uint)bytes.Length * 4;
     }
@@ -114,11 +122,12 @@ public abstract class Machine : IAsyncClockable, IDisposable
         IsDisposed = true;
         
         // remove links
-        Cpu.MipsMachine = null!;
-        Os.Machine.SetTarget(null);
+        Cpu.Machine = null!;
+        Os.Machine = null!;
         
         // dispose objects
-        if(Memory is IDisposable dispMem) dispMem.Dispose();        
+        if(DataMemory is IDisposable dispDMem) dispDMem.Dispose();
+        if(InstructionMemory is IDisposable dispIMem) dispIMem.Dispose();
         Os.Dispose();
     }
 

@@ -3,14 +3,14 @@ using SAAE.Generators;
 
 namespace SAAE.Engine.Mips.Runtime;
 
-[RegisterInfoDefinition(Architecture.Mips)]
+[RegisterBankDefinition(Architecture.Mips, Processor = 2)]
 public enum MipsSpecialRegisters {
-    [RegisterInfo(8, "vaddr", 32)]
+    [Register(8, "vaddr", 32, false)]
     Vaddr,
-    [RegisterInfo(12, "status",32 )]
+    [Register(12, "status",32,false)]
     Status,
-    [RegisterInfo(13, "cause",32)]
+    [Register(13, "cause",32,false)]
     Cause,
-    [RegisterInfo(14, "epc",32)]
+    [Register(14, "epc",32,false)]
     Epc
 }

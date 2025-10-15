@@ -10,6 +10,8 @@ namespace SAAE.Engine.Mips.Runtime;
 /// Extends the functionality of <see cref="Machine"/> to a <see cref="Architecture.Mips"/> machine.
 /// </summary>
 public sealed class MipsMachine : Machine {
+
+    public new required IMipsCpu Cpu { get; init; }
     
     public override void LoadElf(ELF<uint> elf) {
         Section<uint>? textSection = elf.GetSection(".text");
@@ -29,7 +31,7 @@ public sealed class MipsMachine : Machine {
             if (segment.Type != SegmentType.Load) {
                 continue;
             }
-            Memory.Write(segment.Address, segment.GetMemoryContents());
+            DataMemory.Write(segment.Address, segment.GetMemoryContents());
         }
     }
     

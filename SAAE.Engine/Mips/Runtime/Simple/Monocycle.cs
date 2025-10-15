@@ -1,5 +1,4 @@
 ﻿using SAAE.Engine.Common;
-using SAAE.Engine.Memory;
 using SAAE.Engine.Mips.Instructions;
 
 namespace SAAE.Engine.Mips.Runtime.Simple;
@@ -8,7 +7,7 @@ namespace SAAE.Engine.Mips.Runtime.Simple;
 /// A simplified version of the monocycle MIPS processor.
 /// Does not simulate every component of the processor.
 /// </summary>
-public sealed partial class Monocycle : IAsyncClockable {
+public sealed partial class Monocycle : IAsyncClockable, IMipsCpu {
     public Monocycle() {
         RegisterBank.DefineBank<MipsGprRegisters>(MipsRegisterHelper.GetMipsGprRegistersCount());
         RegisterBank.DefineBank<MipsFpuRegisters>(MipsRegisterHelper.GetMipsFpuRegistersCount());
@@ -23,20 +22,15 @@ public sealed partial class Monocycle : IAsyncClockable {
         _ = RegisterBank.GetDirty();
     }
 
-    /// <summary>
-    /// Represents the RAM memory
-    /// </summary>
-    public IMemory Memory { get; set; } = null!;
-
     public MipsMachine MipsMachine { get; set; } = null!;
 
     /// <summary>
     /// Structure that holds all the general purpose
     /// registers of the CPU.
     /// </summary>
-    public RegisterBank RegisterBank { get; private set; } = new(new MipsRegisterHelper());
+    public RegisterBank RegisterBank { get; } = new(new MipsRegisterHelper());
     
-    public bool[] Flags { get; private set; } = new bool[8];
+    public bool[] Flags { get; } = new bool[8];
     
     public bool UseBranchDelaySlot { get; set; }
     
@@ -59,13 +53,13 @@ public sealed partial class Monocycle : IAsyncClockable {
             return;
         }
         // read instruction from PC
-        int instructionBinary = Memory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc));
+        int instructionBinary = MipsMachine.InstructionMemory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc));
 
         // decode
         Instruction? instruction = Disassembler.Disassemble((uint)instructionBinary);
         if(instruction is null) {
-            if (OnSignalException is null) return;
-            await OnSignalException.Invoke(new SignalExceptionEventArgs {
+            if (SignalException is null) return;
+            await SignalException.Invoke(new SignalExceptionEventArgs {
                 Signal = SignalExceptionEventArgs.SignalType.InvalidInstruction,
                 ProgramCounter = RegisterBank.Get(MipsGprRegisters.Pc),
                 Instruction = instructionBinary
@@ -108,17 +102,17 @@ public sealed partial class Monocycle : IAsyncClockable {
         // tah certo invocar aqui? se for no meio do ciclo
         // os registradores nao estariam certo(branch)
         // mas tbm, soh da halt uma syscall, entao branch nunca executa esse sinal
-        if (OnSignalException is not null) {
-            await OnSignalException.Invoke(new SignalExceptionEventArgs {
+        if (SignalException is not null) {
+            await SignalException.Invoke(new SignalExceptionEventArgs {
                 Signal = SignalExceptionEventArgs.SignalType.Halt,
                 ProgramCounter = RegisterBank.Get(MipsGprRegisters.Pc),
-                Instruction = Memory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc))
+                Instruction = MipsMachine.InstructionMemory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc))
             });
             
         }
     }
     
-    public event Func<SignalExceptionEventArgs, Task>? OnSignalException;
+    public event Func<SignalExceptionEventArgs, Task>? SignalException;
 
     private ValueTask Execute(Instruction instruction) {
         switch (instruction) {
@@ -156,22 +150,4 @@ public sealed partial class Monocycle : IAsyncClockable {
             || isHalted;
     }
 
-    public class SignalExceptionEventArgs {
-        public SignalType Signal { get; init; }
-
-        public int ProgramCounter { get; init; }
-
-        public int Instruction { get; init; }
-
-        public enum SignalType {
-            Breakpoint,
-            SystemCall,
-            Trap,
-            IntegerOverflow,
-            AddressError,
-            Halt,
-            InvalidInstruction,
-            InvalidOperation,
-        }
-    }
 }

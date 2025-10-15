@@ -7,7 +7,7 @@ namespace SAAE.Engine.Mips.Runtime;
 
 public class MipsMachineBuilder : MachineBuilder
 {
-    private Monocycle? cpu;
+    private IMipsCpu? cpu;
     private MipsOperatingSystem? os;
     
     public MipsMachineBuilder(MachineBuilder builder) : base(builder){}
@@ -18,7 +18,12 @@ public class MipsMachineBuilder : MachineBuilder
         return this;
     }
 
-    public MipsMachineBuilder WithCpu(Monocycle cpu)
+    public MipsMachineBuilder WithMipsPipeline() {
+        cpu = new SimplePipeline();
+        return this;
+    }
+
+    public MipsMachineBuilder WithCpu(IMipsCpu cpu)
     {
         this.cpu = cpu;
         return this;
@@ -53,19 +58,18 @@ public class MipsMachineBuilder : MachineBuilder
 
         MipsMachine mipsMachine = new() {
             Cpu = cpu,
-            Memory = Memory,
+            DataMemory = Memory,
             Os = os,
-            StdIn = StdIn,
-            StdOut = StdOut,
-            StdErr = StdErr,
+            StdIn = StdIn ?? new NullChannel<char>(),
+            StdOut = StdOut ?? new NullChannel<char>(),
+            StdErr = StdErr ?? new NullChannel<char>(),
             Architecture = Architecture.Mips
         };
         
         // realiza links de hardware
-        cpu.Memory = Memory;
-        cpu.MipsMachine = mipsMachine;
-        os.Machine = new WeakReference<Machine?>(mipsMachine);
-        cpu.OnSignalException += async (e) => {
+        cpu.Machine = mipsMachine;
+        os.Machine = mipsMachine;
+        cpu.SignalException += async e => {
             await os.OnSignalBreak(e);
         };
         return mipsMachine;
