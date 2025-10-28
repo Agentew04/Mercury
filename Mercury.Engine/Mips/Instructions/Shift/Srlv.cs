@@ -1,0 +1,17 @@
+﻿using System.Text.RegularExpressions;
+
+namespace Mercury.Engine.Mips.Instructions;
+
+public partial class Srlv : TypeRInstruction {
+
+    public Srlv() {
+        Function = 0b000110;
+        ShiftAmount = 0;
+        ParseOptions = PopulationOptions.Rd | PopulationOptions.Rs | PopulationOptions.Rt;
+    }
+
+    [GeneratedRegex(@"\s*srlv\s+\$(?<rd>\S+)\s*,\s*\$(?<rt>\S+)\s*,\s*\$(?<rs>\S+)\s*$")]
+    public override partial Regex GetRegularExpression();
+    
+    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}, ${TranslateRegisterName(Rt)}, ${TranslateRegisterName(Rs)}" + FormatTrivia();
+}

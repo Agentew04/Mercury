@@ -1,0 +1,39 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:exec="clr-namespace:Mercury.Editor.ViewModels.Execute"
+             xmlns:loc="clr-namespace:Mercury.Editor.Localization"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Mercury.Editor.Views.ExecuteView.OutputView"
+             x:DataType="exec:OutputViewModel">
+    <Grid RowDefinitions="*,Auto">
+        <!-- output box -->
+        <TextBox Grid.Row="0"
+                 x:Name="OutputTextBox"
+                 Text="{Binding Text}"
+                 IsReadOnly="True" Margin="5"></TextBox>
+        
+        <!-- input row -->
+        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto" Margin="5">
+            <!-- textbox -->
+            <TextBox Grid.Column="0" 
+                     x:Name="InputTextBox"
+                     Margin="0,0,5,0"
+                     Text="{Binding InputText}">
+                <TextBox.KeyBindings>
+                    <KeyBinding Command="{Binding SendCommand}" Gesture="Enter"></KeyBinding>
+                </TextBox.KeyBindings>
+            </TextBox>
+            <!-- send button -->
+            <Button Grid.Column="1"
+                    Content="{loc:OutputResources SendButton}"
+                    Command="{Binding SendCommand}"
+                    Click="OnSend"/>
+            <!-- clear -->
+            <Button Grid.Column="2" Margin="5,0,0,0"
+                    Content="{loc:OutputResources ClearButton}"
+                    Command="{Binding ClearCommand}"/>
+        </Grid>
+    </Grid>
+</UserControl>

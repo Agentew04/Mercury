@@ -1,0 +1,5 @@
+﻿<linker>
+    <assembly fullname="Mercury.Engine">
+        <type fullname="Mercury.Engine.Mips.Instructions.*" preserve="all"/>
+    </assembly>
+</linker>

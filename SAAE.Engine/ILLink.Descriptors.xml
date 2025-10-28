@@ -1,5 +1,0 @@
-﻿<linker>
-    <assembly fullname="SAAE.Engine">
-        <type fullname="SAAE.Engine.Mips.Instructions.*" preserve="all"/>
-    </assembly>
-</linker>

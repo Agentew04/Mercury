@@ -1,0 +1,35 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Mercury.Editor.ViewModels"
+             xmlns:controls="clr-namespace:Mercury.Editor.Controls"
+             xmlns:localization="clr-namespace:Mercury.Editor.Localization"
+             xmlns:converters="clr-namespace:Mercury.Editor.Converters"
+             xmlns:code="clr-namespace:Mercury.Editor.ViewModels.Code"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="800"
+             x:Class="Mercury.Editor.Views.CodeView.GuideView"
+             x:DataType="code:GuideViewModel">
+    <Design.DataContext>
+        <code:GuideViewModel></code:GuideViewModel>
+    </Design.DataContext>
+    <UserControl.Resources>
+        <converters:IsGuideMenuConverter x:Key="IsGuideMenuConverter"></converters:IsGuideMenuConverter>
+        <converters:IsGuideChapterConverter x:Key="IsGuideChapterConverter"></converters:IsGuideChapterConverter>
+    </UserControl.Resources>
+    <ScrollViewer Margin="0" Padding="0">
+        <StackPanel Orientation="Vertical">
+            <!-- header -->
+            <TextBlock Text="{localization:GuideResources TitleText}" Margin="15" 
+                       FontSize="24" FontWeight="DemiBold"/>
+            
+            <!-- body -->
+            <controls:GuideMenu Chapters="{Binding GuideChapters}"
+                                IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideMenuConverter}}"
+                                OpenGuideCommand="{Binding OpenGuideCommand}"/>
+            <controls:ChapterControl CurrentGuide="{Binding CurrentGuide}"
+                                     GoBack="{Binding GoToMenuCommand}"
+                                     IsVisible="{Binding CurrentGuide, Converter={StaticResource IsGuideChapterConverter}}"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyClsCompliant>false</AssemblyClsCompliant>
+    <IsAotCompatible>true</IsAotCompatible>
+    <RootNamespace>Mercury.Engine</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- arquivo de dissasembly do mips -->
+    <None Remove="Mips\Instructions\Disassembly_Rules.json" />
+    <EmbeddedResource Include="Mips\Instructions\Disassembly_Rules.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    
+    <!-- arquivo que fala quais classes nao devem ser removidas no link -->
+    <TrimmerRootDescriptor Include="ILLink.Descriptors.xml"/>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Mercury.Engine.Generators\Mercury.Engine.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Mips\Runtime\Simulated\" />
+    <Folder Include="RiscV\RV128I\" />
+    <Folder Include="RiscV\RV64I\" />
+    <Folder Include="RiscV\RV32E\" />
+    <Folder Include="RiscV\RV32I\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ELFSharp" Version="2.17.3" />
+    <PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
+  </ItemGroup>
+
+</Project>
