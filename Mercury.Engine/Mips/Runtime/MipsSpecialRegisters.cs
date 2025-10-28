@@ -3,14 +3,14 @@ using Mercury.Generators;
 
 namespace Mercury.Engine.Mips.Runtime;
 
-[RegisterInfoDefinition(Architecture.Mips)]
+[RegisterBankDefinition(Architecture.Mips, Processor = 2)]
 public enum MipsSpecialRegisters {
-    [RegisterInfo(8, "vaddr")]
+    [Register(8, "vaddr", 32, false)]
     Vaddr,
-    [RegisterInfo(12, "status")]
+    [Register(12, "status",32,false)]
     Status,
-    [RegisterInfo(13, "cause")]
+    [Register(13, "cause",32,false)]
     Cause,
-    [RegisterInfo(14, "epc")]
+    [Register(14, "epc",32,false)]
     Epc
 }

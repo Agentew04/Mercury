@@ -1,7 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace Mercury.Engine.Mips.Instructions;
 
+[FormatExact<Instruction>(31,26,28)] // opcode
+[FormatExact<Instruction>(10,6,0)] // shamt
+[FormatExact<Instruction>(5,0,2)] // funct
 public partial class Mul : TypeRInstruction {
 
     public Mul() {

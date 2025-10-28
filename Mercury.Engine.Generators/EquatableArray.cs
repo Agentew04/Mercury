@@ -107,4 +107,6 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
     {
         return !left.Equals(right);
     }
+
+    public T this[int i] => _array![i];
 }

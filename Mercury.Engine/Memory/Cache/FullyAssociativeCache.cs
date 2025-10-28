@@ -34,36 +34,40 @@ public class FullyAssociativeCache : ICache {
     /// which block will be evicted when a new block is loaded and
     /// there are no free blocks available.
     /// </summary>
-    public SubstitutionStrategy SubstitutionStrategy { get; init; }
+    public ReplacementPolicyType ReplacementPolicyType { get; init; }
 
     public Endianess Endianess => backingMemory.Endianess;
+
+    private ulong hitCount = 0;
+    private ulong missCount = 0;
+    private ulong evictionCount = 0;
     
 
-    public FullyAssociativeCache(IMemory backingMemory, int blockCount, int blockSize, CacheWritePolicy writePolicy, SubstitutionStrategy substitutionStrategy) {
+    public FullyAssociativeCache(IMemory backingMemory, int blockCount, int blockSize, CacheWritePolicy writePolicy, ReplacementPolicyType replacementPolicyType) {
         this.backingMemory = backingMemory;
         WritePolicy = writePolicy;
-        SubstitutionStrategy = substitutionStrategy;
+        ReplacementPolicyType = replacementPolicyType;
         this.blockCount = blockCount;
         this.blockSize = blockSize;
 
-        switch (substitutionStrategy)
+        switch (replacementPolicyType)
         {
-            case SubstitutionStrategy.Fifo:
+            case ReplacementPolicyType.Fifo:
                 fifoBlockQueue = new Queue<uint>(blockCount);
                 break;
-            case SubstitutionStrategy.Lru:
+            case ReplacementPolicyType.Lru:
                 lruTimestamps = new List<uint>(blockCount);
                 for (int i = 0; i < blockCount; i++) {
                     lruTimestamps.Add(0);
                 }
                 break;
-            case SubstitutionStrategy.Lfu:
+            case ReplacementPolicyType.Lfu:
                 lfuFrequencies = new List<uint>(blockCount);
                 for (int i = 0; i < blockCount; i++) {
                     lfuFrequencies.Add(0);
                 }
                 break;
-            case SubstitutionStrategy.Random:
+            case ReplacementPolicyType.Random:
                 rng = new Random();
                 break;
             default:
@@ -91,17 +95,25 @@ public class FullyAssociativeCache : ICache {
     private readonly List<uint>? lfuFrequencies;
     private readonly Random? rng;
 
+    public CacheStatistics GetStatistics() {
+        return new CacheStatistics() {
+            Hits = hitCount,
+            Misses = missCount,
+            Evictions = evictionCount
+        };
+    }
+
     /// <summary>
     /// Decides which block to evict based on the substitution strategy.
     /// </summary>
     /// <returns></returns>
     private uint GetBlockToEvict()
     {
-        switch (SubstitutionStrategy)
+        switch (ReplacementPolicyType)
         {
-            case SubstitutionStrategy.Fifo:
+            case ReplacementPolicyType.Fifo:
                 return fifoBlockQueue!.Peek();
-            case SubstitutionStrategy.Lru:
+            case ReplacementPolicyType.Lru:
                 uint oldestTimestamp = uint.MaxValue;
                 uint oldestBlockIndex = 0;
                 for (uint i = 0; i < blockCount; i++)
@@ -113,7 +125,7 @@ public class FullyAssociativeCache : ICache {
                     }
                 }
                 return oldestBlockIndex;
-            case SubstitutionStrategy.Lfu:
+            case ReplacementPolicyType.Lfu:
                 uint leastFrequent = uint.MaxValue;
                 uint leastFrequentBlockIndex = 0;
                 for (uint i = 0; i < blockCount; i++)
@@ -125,7 +137,7 @@ public class FullyAssociativeCache : ICache {
                     }
                 }
                 return leastFrequentBlockIndex;
-            case SubstitutionStrategy.Random:
+            case ReplacementPolicyType.Random:
                 return (uint)rng!.Next(blockCount);
             default:
                 throw new NotSupportedException();
@@ -162,7 +174,7 @@ public class FullyAssociativeCache : ICache {
             blocks[index].Valid = true;
             blocks[index].Modified = false;
             backingMemory.Read(baseAddress, buffer);
-            if (SubstitutionStrategy == SubstitutionStrategy.Fifo)
+            if (ReplacementPolicyType == ReplacementPolicyType.Fifo)
             {
                 fifoBlockQueue!.Enqueue((uint)index);
             }
@@ -170,6 +182,7 @@ public class FullyAssociativeCache : ICache {
         }
         
         index = (int)GetBlockToEvict();
+        evictionCount++;
         OnCacheEvict?.Invoke(this, 
             new CacheEvictionEventArgs(baseAddress, blocks[index].Tag << tagShift));
         StoreBlock(index);
@@ -180,16 +193,16 @@ public class FullyAssociativeCache : ICache {
         blocks[index].Modified = false;
         backingMemory.Read(baseAddress, buffer);
 
-        switch (SubstitutionStrategy)
+        switch (ReplacementPolicyType)
         {
-            case SubstitutionStrategy.Fifo:
+            case ReplacementPolicyType.Fifo:
                 _ = fifoBlockQueue!.Dequeue(); // remove the oldest block
                 fifoBlockQueue!.Enqueue((uint)index); // add the new block to the end
                 break;
-            case SubstitutionStrategy.Lru:
+            case ReplacementPolicyType.Lru:
                 lruTimestamps![index] = lruHead;
                 break;
-            case SubstitutionStrategy.Lfu:
+            case ReplacementPolicyType.Lfu:
                 lfuFrequencies![index] = 0; // reset frequency to 1
                 break;
         }
@@ -235,17 +248,20 @@ public class FullyAssociativeCache : ICache {
         if (!IsHit(tag, out int index))
         {
             // miss
+            missCount++;
             OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
             index = LoadBlock(tag);
         }
+
+        hitCount++;
         
         // hit
-        switch (SubstitutionStrategy)
+        switch (ReplacementPolicyType)
         {
-            case SubstitutionStrategy.Lru:
+            case ReplacementPolicyType.Lru:
                 lruTimestamps![index] = lruHead++;
                 break;
-            case SubstitutionStrategy.Lfu:
+            case ReplacementPolicyType.Lfu:
                 lfuFrequencies![index]++;
                 if(lfuAccessCounter++ >= LfuHalflife) {
                     // halve the frequencies
@@ -266,17 +282,19 @@ public class FullyAssociativeCache : ICache {
         if (!IsHit(tag, out int index))
         {
             // miss
+            missCount++;
             OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
             index = LoadBlock(tag);
         }
         
         // hit
-        switch (SubstitutionStrategy)
+        hitCount++;
+        switch (ReplacementPolicyType)
         {
-            case SubstitutionStrategy.Lru:
+            case ReplacementPolicyType.Lru:
                 lruTimestamps![index] = lruHead++;
                 break;
-            case SubstitutionStrategy.Lfu:
+            case ReplacementPolicyType.Lfu:
                 lfuFrequencies![index]++;
                 if(lfuAccessCounter++ >= LfuHalflife) {
                     // halve the frequencies
@@ -359,7 +377,7 @@ public class FullyAssociativeCache : ICache {
     }
 
     public void Read(ulong address, Span<byte> bytes) {
-        if (bytes == null || bytes.Length <= 0) {
+        if (bytes.IsEmpty || bytes.Length <= 0) {
             throw new ArgumentOutOfRangeException(nameof(bytes), "Bytes span must be greater than zero.");
         }
 
@@ -369,7 +387,7 @@ public class FullyAssociativeCache : ICache {
     }
 
     public void Write(ulong address, Span<byte> bytes) {
-        if (bytes == null || bytes.Length <= 0) {
+        if (bytes.IsEmpty || bytes.Length <= 0) {
             throw new ArgumentOutOfRangeException(nameof(bytes), "Bytes span must be greater than zero.");
         }
 
@@ -379,7 +397,7 @@ public class FullyAssociativeCache : ICache {
     }
 
     public void Read(ulong address, Span<int> words) {
-        if (words == null || words.Length <= 0) {
+        if (words.IsEmpty || words.Length <= 0) {
             throw new ArgumentOutOfRangeException(nameof(words), "Words span must be greater than zero.");
         }
 
@@ -389,7 +407,7 @@ public class FullyAssociativeCache : ICache {
     }
 
     public void Write(ulong address, Span<int> words) {
-        if (words == null || words.Length <= 0) {
+        if (words.IsEmpty || words.Length <= 0) {
             throw new ArgumentOutOfRangeException(nameof(words), "Words span must be greater than zero.");
         }
 

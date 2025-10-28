@@ -125,6 +125,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel, Fi
         // message.ProjectNode?.IsEffectiveReadOnly ?? false pois a stdlib nunca deveria emitir um warning ou erro!!!
         OpenFile file = new(name, path, vm.CloseTabCommand, message.ProjectNode?.IsEffectiveReadOnly ?? false);
         file.TextDocument.Text = File.ReadAllText(path.ToString());
+        file.TextDocument.UndoStack.ClearAll();
         vm.OpenFiles.Add(file);
         vm.OnPropertyChanged(nameof(HasOpenFiles));
         vm.ChangeTab(file, line, column);
@@ -159,6 +160,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel, Fi
         openFile.IsActive = true;
         IsReadonlyEditor = openFile.IsReadonly;
         TextDocument = openFile.TextDocument;
+        
         
         // atualiza o cursor
         UpdateCursor(line, column);

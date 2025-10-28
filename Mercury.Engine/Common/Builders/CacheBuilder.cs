@@ -14,7 +14,7 @@ public class CacheBuilder : IBuilder<ICache>
     private int associativity = 1;
     private int blockCount = 64;
     private int blockSize = 4;
-    private SubstitutionStrategy strategy = SubstitutionStrategy.Fifo;
+    private ReplacementPolicyType strategy = ReplacementPolicyType.Fifo;
     private CacheWritePolicy writePolicy = CacheWritePolicy.WriteThrough;
     private IMemory? backingMemory;
     
@@ -36,9 +36,16 @@ public class CacheBuilder : IBuilder<ICache>
         return this;
     }
     
-    public CacheBuilder WithSubstitutionStrategy(SubstitutionStrategy strategy)
-    {
-        this.strategy = strategy;
+    public CacheBuilder WithReplacementPolicy(ReplacementPolicyType policyType) {
+        IReplacementPolicy policy = policyType switch {
+            ReplacementPolicyType.Fifo => new FifoReplacementPolicy(),
+            ReplacementPolicyType.Lru => new LruReplacementPolicy(),
+            ReplacementPolicyType.Lfu => new LfuReplacementPolicy(),
+            ReplacementPolicyType.Random => new RandomReplacementPolicy(),
+            ReplacementPolicyType.SecondChance => new SecondChanceReplacementPolicy(),
+            _ => throw new ArgumentOutOfRangeException(nameof(policyType), policyType, null)
+        };
+        this.strategy = policyType;
         return this;
     }
 

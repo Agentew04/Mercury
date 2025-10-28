@@ -14,8 +14,8 @@ public partial class Monocycle {
         if (instruction is Addi addi) {
             int result = RegisterBank.Get<MipsGprRegisters>(addi.Rs) + addi.Immediate;
             if (IsOverflowed(RegisterBank.Get<MipsGprRegisters>(addi.Rs), addi.Immediate, result)) {
-                if (OnSignalException is not null) {
-                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                if (SignalException is not null) {
+                    await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
                         Instruction = addi.ConvertToInt(),
                         ProgramCounter = RegisterBank.Get(MipsGprRegisters.Pc)
@@ -71,7 +71,7 @@ public partial class Monocycle {
         } else if (instruction is Xori xori) {
             RegisterBank.Set<MipsGprRegisters>(xori.Rt, RegisterBank.Get<MipsGprRegisters>(xori.Rs) ^ ZeroExtend(xori.Immediate));
         } else if(instruction is Lb lb) {
-            RegisterBank.Set<MipsGprRegisters>(lb.Rt, (sbyte)Memory.ReadByte((ulong)(RegisterBank.Get<MipsGprRegisters>(lb.Rs) + lb.Immediate)));
+            RegisterBank.Set<MipsGprRegisters>(lb.Rt, (sbyte)MipsMachine.DataMemory.ReadByte((ulong)(RegisterBank.Get<MipsGprRegisters>(lb.Rs) + lb.Immediate)));
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)(RegisterBank.Get<MipsGprRegisters>(lb.Rs) + lb.Immediate),
                 Size = 1,
@@ -79,7 +79,7 @@ public partial class Monocycle {
                 Source = MemoryAccessSource.Instruction
             });
         } else if(instruction is Lbu lbu) {
-            RegisterBank.Set<MipsGprRegisters>(lbu.Rt, Memory.ReadByte((ulong)(RegisterBank.Get<MipsGprRegisters>(lbu.Rs) + lbu.Immediate)));
+            RegisterBank.Set<MipsGprRegisters>(lbu.Rt, MipsMachine.DataMemory.ReadByte((ulong)(RegisterBank.Get<MipsGprRegisters>(lbu.Rs) + lbu.Immediate)));
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)(RegisterBank.Get<MipsGprRegisters>(lbu.Rs) + lbu.Immediate),
                 Size = 1,
@@ -89,8 +89,8 @@ public partial class Monocycle {
         }else if(instruction is Lh lh) {
             int address = RegisterBank.Get<MipsGprRegisters>(lh.Rs) + lh.Immediate;
             if (address % 2 != 0) {
-                if (OnSignalException is not null) {
-                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                if (SignalException is not null) {
+                    await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.AddressError,
                         Instruction = lh.ConvertToInt(),
                         ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
@@ -98,7 +98,7 @@ public partial class Monocycle {
                 }
                 return;
             }
-            RegisterBank.Set<MipsGprRegisters>(lh.Rt, (short)(Memory.ReadWord((ulong)address) & 0xFFFF));
+            RegisterBank.Set<MipsGprRegisters>(lh.Rt, (short)(MipsMachine.DataMemory.ReadWord((ulong)address) & 0xFFFF));
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)address,
                 Size = 2,
@@ -108,8 +108,8 @@ public partial class Monocycle {
         } else if(instruction is Lhu lhu) {
             int address = RegisterBank.Get<MipsGprRegisters>(lhu.Rs) + lhu.Immediate;
             if (address % 2 != 0) {
-                if (OnSignalException is not null) {
-                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                if (SignalException is not null) {
+                    await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.AddressError,
                         Instruction = lhu.ConvertToInt(),
                         ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
@@ -117,7 +117,7 @@ public partial class Monocycle {
                 }
                 return;
             }
-            RegisterBank.Set<MipsGprRegisters>(lhu.Rt, (ushort)(Memory.ReadWord((ulong)address) & 0xFFFF));
+            RegisterBank.Set<MipsGprRegisters>(lhu.Rt, (ushort)(MipsMachine.DataMemory.ReadWord((ulong)address) & 0xFFFF));
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)address,
                 Size = 2,
@@ -129,8 +129,8 @@ public partial class Monocycle {
         } else if(instruction is Lw lw) {
             int address = RegisterBank.Get<MipsGprRegisters>(lw.Rs) + lw.Immediate;
             if((address & 0b11) != 0) {
-                if (OnSignalException is not null) {
-                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                if (SignalException is not null) {
+                    await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.AddressError,
                         Instruction = lw.ConvertToInt(),
                         ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
@@ -138,7 +138,7 @@ public partial class Monocycle {
                 }
                 return;
             }
-            RegisterBank.Set<MipsGprRegisters>(lw.Rt, Memory.ReadWord((ulong)address));
+            RegisterBank.Set<MipsGprRegisters>(lw.Rt, MipsMachine.DataMemory.ReadWord((ulong)address));
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)address,
                 Size = 4,
@@ -146,7 +146,7 @@ public partial class Monocycle {
                 Source = MemoryAccessSource.Instruction
             });
         } else if(instruction is Sb sb) {
-            Memory.WriteByte((ulong)(RegisterBank.Get<MipsGprRegisters>(sb.Rs) + sb.Immediate), (byte)RegisterBank.Get<MipsGprRegisters>(sb.Rt));
+            MipsMachine.DataMemory.WriteByte((ulong)(RegisterBank.Get<MipsGprRegisters>(sb.Rs) + sb.Immediate), (byte)RegisterBank.Get<MipsGprRegisters>(sb.Rt));
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)(RegisterBank.Get<MipsGprRegisters>(sb.Rs) + sb.Immediate),
                 Size = 1,
@@ -156,8 +156,8 @@ public partial class Monocycle {
         } else if(instruction is Sh sh) {
             int address = RegisterBank.Get<MipsGprRegisters>(sh.Rs) + sh.Immediate;
             if((address & 0b1) != 0){
-                if (OnSignalException is not null) {
-                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                if (SignalException is not null) {
+                    await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.AddressError,
                         Instruction = sh.ConvertToInt(),
                         ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
@@ -166,8 +166,8 @@ public partial class Monocycle {
                 return;
             }
             // write two bytes
-            Memory.WriteByte((ulong)address, (byte)(RegisterBank.Get<MipsGprRegisters>(sh.Rt) >> 8));
-            Memory.WriteByte((ulong)(address + 1), (byte)(RegisterBank.Get<MipsGprRegisters>(sh.Rt) & 0xFF));
+            MipsMachine.DataMemory.WriteByte((ulong)address, (byte)(RegisterBank.Get<MipsGprRegisters>(sh.Rt) >> 8));
+            MipsMachine.DataMemory.WriteByte((ulong)(address + 1), (byte)(RegisterBank.Get<MipsGprRegisters>(sh.Rt) & 0xFF));
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)address,
                 Size = 2,
@@ -177,8 +177,8 @@ public partial class Monocycle {
         } else if(instruction is Sw sw) {
             int address = RegisterBank.Get<MipsGprRegisters>(sw.Rs) + sw.Immediate;
             if ((address & 0b11) != 0) {
-                if (OnSignalException is not null) {
-                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                if (SignalException is not null) {
+                    await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.AddressError,
                         Instruction = sw.ConvertToInt(),
                         ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
@@ -186,7 +186,7 @@ public partial class Monocycle {
                 }
                 return;
             }
-            Memory.WriteWord((ulong)address, RegisterBank.Get<MipsGprRegisters>(sw.Rt));
+            MipsMachine.DataMemory.WriteWord((ulong)address, RegisterBank.Get<MipsGprRegisters>(sw.Rt));
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
                 Address = (ulong)address,
                 Size = 4,
@@ -195,8 +195,8 @@ public partial class Monocycle {
             });
         } else if(instruction is Teqi teqi) {
             if (RegisterBank.Get<MipsGprRegisters>(teqi.Rs) == teqi.Immediate) {
-                if (OnSignalException is not null) {
-                    await OnSignalException.Invoke(new SignalExceptionEventArgs() {
+                if (SignalException is not null) {
+                    await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.Trap,
                         Instruction = teqi.ConvertToInt(),
                         ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
@@ -206,7 +206,7 @@ public partial class Monocycle {
         } else if (instruction is Lwcz lwcz)
         {
             ulong address = (ulong)(RegisterBank.Get<MipsGprRegisters>(lwcz.Base) + lwcz.Immediate);
-            int value = Memory.ReadWord(address);
+            int value = MipsMachine.DataMemory.ReadWord(address);
             if (lwcz.Coprocessor == 0) { // syscontrol
                 RegisterBank.Set<MipsSpecialRegisters>(lwcz.Rt, value);
             }else if (lwcz.Coprocessor == 1) { // fpu
@@ -238,7 +238,7 @@ public partial class Monocycle {
                 }
                 return;
             }
-            Memory.WriteWord(address, value);
+            MipsMachine.DataMemory.WriteWord(address, value);
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs()
             {
                 Address = address,

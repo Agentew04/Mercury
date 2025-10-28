@@ -3,70 +3,70 @@ using Mercury.Generators;
 
 namespace Mercury.Engine.Mips.Runtime;
 
-[RegisterInfoDefinition(Architecture.Mips)]
+[RegisterBankDefinition(Architecture.Mips, Processor = 1)]
 public enum MipsFpuRegisters {
-    [RegisterInfo(0, "f0")]
+    [Register(0, "f0",32,true)]
     F0,
-    [RegisterInfo(1, "f1")]
+    [Register(1, "f1",32,true)]
     F1,
-    [RegisterInfo(2, "f2")]
+    [Register(2, "f2",32,true)]
     F2,
-    [RegisterInfo(3, "f3")]
+    [Register(3, "f3",32,true)]
     F3,
-    [RegisterInfo(4, "f4")]
+    [Register(4, "f4",32,true)]
     F4,
-    [RegisterInfo(5, "f5")]
+    [Register(5, "f5",32,true)]
     F5,
-    [RegisterInfo(6, "f6")]
+    [Register(6, "f6",32,true)]
     F6,
-    [RegisterInfo(7, "f7")]
+    [Register(7, "f7",32,true)]
     F7,
-    [RegisterInfo(8, "f8")]
+    [Register(8, "f8",32,true)]
     F8,
-    [RegisterInfo(9, "f9")]
+    [Register(9, "f9",32,true)]
     F9,
-    [RegisterInfo(10, "f10")]
+    [Register(10, "f10",32,true)]
     F10,
-    [RegisterInfo(11, "f11")]
+    [Register(11, "f11",32,true)]
     F11,
-    [RegisterInfo(12, "f12")]
+    [Register(12, "f12",32,true)]
     F12,
-    [RegisterInfo(13, "f13")]
+    [Register(13, "f13",32,true)]
     F13,
-    [RegisterInfo(14, "f14")]
+    [Register(14, "f14",32,true)]
     F14,
-    [RegisterInfo(15, "f15")]
+    [Register(15, "f15",32,true)]
     F15,
-    [RegisterInfo(16, "f16")]
+    [Register(16, "f16",32,true)]
     F16,
-    [RegisterInfo(17, "f17")]
+    [Register(17, "f17",32,true)]
     F17,
-    [RegisterInfo(18, "f18")]
+    [Register(18, "f18",32,true)]
     F18,
-    [RegisterInfo(19, "f19")]
+    [Register(19, "f19",32,true)]
     F19,
-    [RegisterInfo(20, "f20")]
+    [Register(20, "f20",32,true)]
     F20,
-    [RegisterInfo(21, "f21")]
+    [Register(21, "f21",32,true)]
     F21,
-    [RegisterInfo(22, "f22")]
+    [Register(22, "f22",32,true)]
     F22,
-    [RegisterInfo(23, "f23")]
+    [Register(23, "f23",32,true)]
     F23,
-    [RegisterInfo(24, "f24")]
+    [Register(24, "f24",32,true)]
     F24,
-    [RegisterInfo(25, "f25")]
+    [Register(25, "f25",32,true)]
     F25,
-    [RegisterInfo(26, "f26")]
+    [Register(26, "f26",32,true)]
     F26,
-    [RegisterInfo(27, "f27")]
+    [Register(27, "f27",32,true)]
     F27,
-    [RegisterInfo(28, "f28")]
+    [Register(28, "f28",32,true)]
     F28,
-    [RegisterInfo(29, "f29")]
+    [Register(29, "f29",32,true)]
     F29,
-    [RegisterInfo(30, "f30")]
+    [Register(30, "f30",32,true)]
     F30,
-    [RegisterInfo(31, "f31")]
+    [Register(31, "f31",32,true)]
     F31
 }

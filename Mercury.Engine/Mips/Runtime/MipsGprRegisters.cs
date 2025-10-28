@@ -3,76 +3,76 @@ using Mercury.Generators;
 
 namespace Mercury.Engine.Mips.Runtime;
 
-[RegisterInfoDefinition(Architecture.Mips)]
+[RegisterBankDefinition(Architecture.Mips, Processor = 0)]
 public enum MipsGprRegisters {
-    [RegisterInfo(0, "zero")]
+    [Register(0, "zero",32, false)]
     Zero,
-    [RegisterInfo(1, "at")]
+    [Register(1, "at",32, false)]
     At,
-    [RegisterInfo(2, "v0")]
+    [Register(2, "v0",32, true)]
     V0,
-    [RegisterInfo(3, "v1")]
+    [Register(3, "v1",32,true)]
     V1,
-    [RegisterInfo(4, "a0")]
+    [Register(4, "a0",32,true)]
     A0,
-    [RegisterInfo(5, "a1")]
+    [Register(5, "a1",32,true)]
     A1,
-    [RegisterInfo(6, "a2")]
+    [Register(6, "a2",32,true)]
     A2,
-    [RegisterInfo(7, "a3")]
+    [Register(7, "a3",32,true)]
     A3,
-    [RegisterInfo(8, "t0")]
+    [Register(8, "t0",32,true)]
     T0,
-    [RegisterInfo(9, "t1")]
+    [Register(9, "t1",32,true)]
     T1,
-    [RegisterInfo(10, "t2")]
+    [Register(10, "t2",32,true)]
     T2,
-    [RegisterInfo(11, "t3")]
+    [Register(11, "t3",32,true)]
     T3,
-    [RegisterInfo(12, "t4")]
+    [Register(12, "t4",32,true)]
     T4,
-    [RegisterInfo(13, "t5")]
+    [Register(13, "t5",32,true)]
     T5,
-    [RegisterInfo(14, "t6")]
+    [Register(14, "t6",32,true)]
     T6,
-    [RegisterInfo(15, "t7")]
+    [Register(15, "t7",32,true)]
     T7,
-    [RegisterInfo(16, "s0")]
+    [Register(16, "s0",32,true)]
     S0,
-    [RegisterInfo(17, "s1")]
+    [Register(17, "s1",32,true)]
     S1,
-    [RegisterInfo(18, "s2")]
+    [Register(18, "s2",32,true)]
     S2,
-    [RegisterInfo(19, "s3")]
+    [Register(19, "s3",32,true)]
     S3,
-    [RegisterInfo(20, "s4")]
+    [Register(20, "s4",32,true)]
     S4,
-    [RegisterInfo(21, "s5")]
+    [Register(21, "s5",32,true)]
     S5,
-    [RegisterInfo(22, "s6")]
+    [Register(22, "s6",32,true)]
     S6,
-    [RegisterInfo(23, "s7")]
+    [Register(23, "s7",32,true)]
     S7,
-    [RegisterInfo(24, "t8")]
+    [Register(24, "t8",32,true)]
     T8,
-    [RegisterInfo(25, "t9")]
+    [Register(25, "t9",32,true)]
     T9,
-    [RegisterInfo(26, "k0")]
+    [Register(26, "k0",32, false)]
     K0,
-    [RegisterInfo(27, "k1")]
+    [Register(27, "k1",32,false)]
     K1,
-    [RegisterInfo(28, "gp")]
+    [Register(28, "gp",32,false)]
     Gp,
-    [RegisterInfo(29, "sp")]
+    [Register(29, "sp",32,false)]
     Sp,
-    [RegisterInfo(30, "fp")]
+    [Register(30, "fp",32,false)]
     Fp,
-    [RegisterInfo(31, "ra")]
+    [Register(31, "ra",32,false)]
     Ra,
-    [RegisterInfo("pc")]
+    [Register("pc",32,false)]
     Pc,
-    [RegisterInfo("hi")]
+    [Register("hi",32,false)]
     Hi,
-    [RegisterInfo("lo")]
+    [Register("lo",32,false)]
     Lo
 }

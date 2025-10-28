@@ -1,7 +1,10 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace Mercury.Engine.Mips.Instructions;
 
+[FormatExact<Instruction>(31,26,0)] // opcode
+[FormatExact<Instruction>(5,0,12)] // funct
 public partial class Syscall : TypeRInstruction {
 
     public Syscall() {

@@ -1,10 +1,12 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace Mercury.Engine.Mips.Instructions;
 
 /// <summary>
 /// The unconditional jump instruction
 /// </summary>
+[FormatExact<Instruction>(31,26,2)] // opcode
 public partial class J : TypeJInstruction {
 
     public J() {

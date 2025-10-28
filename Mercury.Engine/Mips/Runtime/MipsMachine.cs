@@ -1,16 +1,17 @@
 ﻿using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
 using ELFSharp.ELF.Segments;
-using Mercury.Engine.Common;
-using Common_Machine = Mercury.Engine.Common.Machine;
-using Machine = Mercury.Engine.Common.Machine;
+using SAAE.Engine.Common;
+using Machine = SAAE.Engine.Common.Machine;
 
-namespace Mercury.Engine.Mips.Runtime;
+namespace SAAE.Engine.Mips.Runtime;
 
 /// <summary>
-/// Extends the functionality of <see cref="Common.Machine"/> to a <see cref="Architecture.Mips"/> machine.
+/// Extends the functionality of <see cref="Machine"/> to a <see cref="Architecture.Mips"/> machine.
 /// </summary>
-public sealed class MipsMachine : Common_Machine {
+public sealed class MipsMachine : Machine {
+
+    public new required IMipsCpu Cpu { get; init; }
     
     public override void LoadElf(ELF<uint> elf) {
         Section<uint>? textSection = elf.GetSection(".text");
@@ -30,7 +31,7 @@ public sealed class MipsMachine : Common_Machine {
             if (segment.Type != SegmentType.Load) {
                 continue;
             }
-            Memory.Write(segment.Address, segment.GetMemoryContents());
+            DataMemory.Write(segment.Address, segment.GetMemoryContents());
         }
     }
     

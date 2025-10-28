@@ -1,7 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace Mercury.Engine.Mips.Instructions;
 
+[FormatExact<Instruction>(31,26,0)] // opcode
+[FormatExact<Instruction>(25,21,0)] // rs
+[FormatExact<Instruction>(5,0,3)] // funct
 public partial class Sra : TypeRInstruction {
 
     public Sra() {

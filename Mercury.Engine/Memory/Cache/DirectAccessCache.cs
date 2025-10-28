@@ -86,6 +86,18 @@ public class DirectAccessCache : ICache {
         
     public event EventHandler<CacheMissEventArgs>? OnCacheMiss;
     public event EventHandler<CacheEvictionEventArgs>? OnCacheEvict;
+    
+    private ulong hitCount = 0;
+    private ulong missCount = 0;
+    private ulong evictionCount = 0;
+    
+    public CacheStatistics GetStatistics() {
+        return new CacheStatistics() {
+            Hits = hitCount,
+            Misses = missCount,
+            Evictions = evictionCount
+        };
+    }
 
     private void LoadBlock(ulong address) {
         (int tag, int index) = GetAddressData(address);
@@ -99,6 +111,7 @@ public class DirectAccessCache : ICache {
             int indexSize = BitOperations.Log2((uint)blockCount);
             int skip = BitOperations.Log2((uint)blockSize);
             // ja havia algo aqui, atira evento de evict
+            evictionCount++;
             OnCacheEvict?.Invoke(this, 
                 new CacheEvictionEventArgs(
                     address, 
@@ -148,15 +161,20 @@ public class DirectAccessCache : ICache {
 
         if (!cacheBlocks[index].Valid) {
             // nao ha nada na cache, miss
+            missCount++;
             OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
             //load
             LoadBlock(address);
         }
         else if (cacheBlocks[index].Tag != tag) {
             // ha algo na cache, mas nao eh o que queremos, miss
+            missCount++;
             OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
             //load
             LoadBlock(address);
+        }
+        else {
+            hitCount++;
         }
         return GetByteFromBlock(cacheBlocks[index], address);
     }
@@ -165,11 +183,13 @@ public class DirectAccessCache : ICache {
         (int tag, int index) = GetAddressData(address);
         if (WritePolicy == CacheWritePolicy.WriteThrough) {
             if (IsHit(tag, index)) {
+                hitCount++;
                 cacheBlocks[index].Data[(int)(address % (ulong)blockSize)] = value;
                 backingMemory.Write(address, cacheBlocks[index].Data);
                 return;
             }
             // miss
+            missCount++;
             OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
             // load block
             LoadBlock(address);
@@ -180,11 +200,13 @@ public class DirectAccessCache : ICache {
         else {
             // WriteBack
             if (IsHit(tag, index)) {
+                hitCount++;
                 cacheBlocks[index].Data[(int)(address % (ulong)blockSize)] = value;
                 cacheBlocks[index].Modified = true;
                 return;
             }
             // miss
+            missCount++;
             OnCacheMiss?.Invoke(this, new CacheMissEventArgs(address));
             LoadBlock(address);
             cacheBlocks[index].Data[(int)(address % (ulong)blockSize)] = value;

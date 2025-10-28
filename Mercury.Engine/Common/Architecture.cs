@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Mercury.Engine.Mips.Runtime;
+using Mercury.Generators;
 
 namespace Mercury.Engine.Common;
 
@@ -8,7 +9,9 @@ namespace Mercury.Engine.Common;
 /// for the engine.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<Architecture>))]
+[Architecture]
 public enum Architecture {
+    [Invalid]
     [JsonStringEnumMemberName("unknown")]
     Unknown,
     [JsonStringEnumMemberName("mips")]

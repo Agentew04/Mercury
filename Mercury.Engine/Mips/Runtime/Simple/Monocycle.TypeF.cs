@@ -303,11 +303,11 @@ public partial class Monocycle
 
         Task InvalidOp()
         {
-            if (OnSignalException is not null)
+            if (SignalException is not null)
             {
-                return OnSignalException.Invoke(new SignalExceptionEventArgs
+                return SignalException.Invoke(new SignalExceptionEventArgs
                 {
-                    Instruction = Memory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc)),
+                    Instruction = MipsMachine.InstructionMemory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc)),
                     ProgramCounter = RegisterBank.Get(MipsGprRegisters.Pc),
                     Signal = SignalExceptionEventArgs.SignalType.InvalidOperation
                 });

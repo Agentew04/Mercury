@@ -1,6 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
-namespace Mercury.Engine.Mips.Instructions;
+namespace SAAE.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,26,28)] // opcode
+[FormatExact<Instruction>(5,0,4)] // funct
+[FormatExact<Instruction>(15,11,0)] // rd
 public partial class Msub : TypeRInstruction {
 
     public Msub() {

@@ -8,8 +8,18 @@ namespace Mercury.Engine.Mips.Runtime.OS;
 /// Specific version for MIPS archtecture.
 /// </summary>
 public abstract class MipsOperatingSystem : IOperatingSystem {
-    
-    public WeakReference<Machine?> Machine { get; set; }
+
+    public MipsMachine MipsMachine { get; set; } = null!;
+
+    public Machine Machine {
+        get => MipsMachine;
+        set {
+            if (value is not MipsMachine m) {
+                throw new InvalidOperationException();
+            }
+            MipsMachine = m;
+        }
+    }
 
     public Architecture CompatibleArchitecture => Architecture.Mips;
     
@@ -17,8 +27,8 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
     
     public abstract string Identifier { get; }
 
-    public async Task OnSignalBreak(Monocycle.SignalExceptionEventArgs eventArgs) {
-        if (eventArgs.Signal != Monocycle.SignalExceptionEventArgs.SignalType.SystemCall) {
+    public async Task OnSignalBreak(SignalExceptionEventArgs eventArgs) {
+        if (eventArgs.Signal != SignalExceptionEventArgs.SignalType.SystemCall) {
             return;
         }
 
@@ -31,11 +41,8 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
         }
         else {
             // this is normally used on mips
-            if (Machine.TryGetTarget(out Machine? target))
-            {
-                uint registerSignal = (uint)target.Registers[MipsGprRegisters.V0];
-                await OnSyscall(registerSignal);
-            }
+            uint registerSignal = (uint)Machine!.Registers[MipsGprRegisters.V0];
+            await OnSyscall(registerSignal);
         }
     }
 

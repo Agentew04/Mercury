@@ -22,6 +22,8 @@ public interface ICache : IMemory, IDisposable {
     /// up space for a new block.
     /// </summary>
     event EventHandler<CacheEvictionEventArgs>? OnCacheEvict;
+    
+    public CacheStatistics GetStatistics(); 
 }
 
 public class CacheMissEventArgs : EventArgs {

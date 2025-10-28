@@ -18,7 +18,7 @@ public class FullyAssociativeCacheTest
             Size = 512
         };
         using Engine.Memory.Memory memory = new(config);
-        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteThrough, SubstitutionStrategy.Fifo);
+        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteThrough, ReplacementPolicyType.Fifo);
 
         int missCount = 0;
         int evictionCount = 0;
@@ -48,7 +48,7 @@ public class FullyAssociativeCacheTest
             Size = 512
         };
         using Engine.Memory.Memory memory = new(config);
-        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteThrough, SubstitutionStrategy.Fifo);
+        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteThrough, ReplacementPolicyType.Fifo);
 
         int missCount = 0;
         int evictionCount = 0;
@@ -79,7 +79,7 @@ public class FullyAssociativeCacheTest
             Size = 512
         };
         using Engine.Memory.Memory memory = new(config);
-        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteThrough, SubstitutionStrategy.Fifo);
+        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteThrough, ReplacementPolicyType.Fifo);
 
         int missCount = 0;
         int evictionCount = 0;
@@ -110,7 +110,7 @@ public class FullyAssociativeCacheTest
             Size = 512
         };
         using Engine.Memory.Memory memory = new(config);
-        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteThrough, SubstitutionStrategy.Fifo);
+        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteThrough, ReplacementPolicyType.Fifo);
 
         int missCount = 0;
         int evictionCount = 0;
@@ -141,7 +141,7 @@ public class FullyAssociativeCacheTest
             Size = 512
         };
         using Engine.Memory.Memory memory = new(config);
-        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteThrough, SubstitutionStrategy.Fifo);
+        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteThrough, ReplacementPolicyType.Fifo);
 
         cache.WriteByte(0,0x01);
         cache.WriteByte(1,0x02);
@@ -166,7 +166,7 @@ public class FullyAssociativeCacheTest
             Size = 512
         };
         using Engine.Memory.Memory memory = new(config);
-        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteBack, SubstitutionStrategy.Fifo);
+        using FullyAssociativeCache cache = new(memory, 4, 1, CacheWritePolicy.WriteBack, ReplacementPolicyType.Fifo);
 
         cache.WriteByte(0,0x01);
         cache.WriteByte(1,0x02);

@@ -1,10 +1,12 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace Mercury.Engine.Mips.Instructions;
 
 /// <summary>
 /// Jump and link instruction. Jumps to the target address and stores the return address in $ra register.
 /// </summary>
+[FormatExact<Instruction>(31,26,3)] // opcode
 public partial class Jal : TypeJInstruction {
 
     public Jal() {

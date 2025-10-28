@@ -180,10 +180,10 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
             uint offset = (uint)(addr + i * BytesPerRow);
             RamRow row = new() {
                 RowAddress = offset,
-                Data0 = currentMachine.Memory.ReadWord(offset + 0x0),
-                Data4 = currentMachine.Memory.ReadWord(offset + 0x4),
-                Data8 = currentMachine.Memory.ReadWord(offset + 0x8),
-                DataC = currentMachine.Memory.ReadWord(offset + 0xC)
+                Data0 = currentMachine.DataMemory.ReadWord(offset + 0x0),
+                Data4 = currentMachine.DataMemory.ReadWord(offset + 0x4),
+                Data8 = currentMachine.DataMemory.ReadWord(offset + 0x8),
+                DataC = currentMachine.DataMemory.ReadWord(offset + 0xC)
             };
             Rows.Add(row);
         }
@@ -217,7 +217,7 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
                 case RamVisualization.Ascii:
                     Span<byte> bytes = stackalloc byte[4];
                     Span<char> chars = stackalloc char[4];
-                    switch (currentMachine!.Memory.Endianess) {
+                    switch (currentMachine!.DataMemory.Endianess) {
                         case Endianess.LittleEndian:
                             BinaryPrimitives.WriteInt32LittleEndian(bytes, data);
                             break;

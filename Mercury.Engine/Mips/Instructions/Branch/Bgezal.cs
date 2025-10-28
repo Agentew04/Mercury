@@ -1,6 +1,10 @@
 ﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
-namespace Mercury.Engine.Mips.Instructions;
+namespace SAAE.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,26,1)] // opcode
+[FormatExact<Instruction>(20,16,17)] // rt
 public partial class Bgezal : TypeIInstruction {
 
     public Bgezal() {

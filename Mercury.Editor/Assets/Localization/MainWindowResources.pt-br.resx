@@ -26,4 +26,7 @@
     <data name="ProjectTabHeader" xml:space="preserve">
         <value>_Projeto</value>
     </data>
+    <data name="LogoTooltip" xml:space="preserve">
+        <value>Clique para abrir o site do projeto</value>
+    </data>
 </root>

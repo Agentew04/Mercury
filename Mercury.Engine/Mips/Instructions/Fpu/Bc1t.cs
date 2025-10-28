@@ -1,5 +1,11 @@
-﻿namespace Mercury.Engine.Mips.Instructions;
+﻿using SAAE.Generators;
 
+namespace SAAE.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,26,17)] // opcode
+[FormatExact<Instruction>(25,21,8)] // rs
+[FormatExact<Instruction>(17,17,0)] // nd
+[FormatExact<Instruction>(16,16,1)] // tf
 public class Bc1t : TypeFInstruction
 {
     public byte Cc { get; private set; }

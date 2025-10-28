@@ -25,8 +25,9 @@ public class SetAssociativeCache : ICache
 
     public Endianess Endianess => backingMemory.Endianess;
     public CacheWritePolicy WritePolicy { get; }
-    /// <inheritdoc cref="FullyAssociativeCache.SubstitutionStrategy"/>
-    public SubstitutionStrategy SubstitutionStrategy { get; }
+
+    /// <inheritdoc cref="FullyAssociativeCache.ReplacementPolicyType"/>
+    private readonly IReplacementPolicy replacementPolicy;
     
     /// <summary>
     /// Creates a new hybrid cache with the specified parameters.
@@ -37,17 +38,17 @@ public class SetAssociativeCache : ICache
     /// <param name="associativity">The amount of blocks each how has.</param>
     /// <param name="writePolicy">The rule which dictates when a modified cache block will be written to
     /// the backing memory</param>
-    /// <param name="substitutionStrategy">Which algorithm to use when evicting a block from a row</param>
+    /// <param name="replacementPolicyType">Which algorithm to use when evicting a block from a row</param>
     /// <exception cref="ArgumentException">Thrown when blockSize, blockCount or associativity are invalid</exception>
-    public SetAssociativeCache(IMemory backingMemory, int blockSize, int blockCount, int associativity,
-        CacheWritePolicy writePolicy, SubstitutionStrategy substitutionStrategy)
+    internal SetAssociativeCache(IMemory backingMemory, int blockSize, int blockCount, int associativity,
+        CacheWritePolicy writePolicy, IReplacementPolicy replacementPolicy)
     {
         this.backingMemory = backingMemory;
         WritePolicy = writePolicy;
         this.blockSize = blockSize;
         this.blockCount = blockCount;
         this.associativity = associativity;
-        SubstitutionStrategy = substitutionStrategy;
+        this.replacementPolicy = replacementPolicy;
         
         if (blockSize <= 0 || blockCount <= 0 || associativity <= 0)
         {
@@ -70,8 +71,8 @@ public class SetAssociativeCache : ICache
         skipSize = (int)Math.Log2(blockSize);
         tagSize = sizeof(ulong) - indexSize - skipSize;
         
-        switch (substitutionStrategy)
-        {
+        // switch (replacementPolicyType)
+        // {
             // case SubstitutionStrategy.Fifo:
             //     fifoBlockQueue = new Queue<uint>(blockCount);
             //     break;
@@ -90,9 +91,9 @@ public class SetAssociativeCache : ICache
             // case SubstitutionStrategy.Random:
             //     rng = new Random();
             //     break;
-            default:
-                throw new NotSupportedException("SubstitutionStrategy not supported.");
-        }
+        //     default:
+        //         throw new NotSupportedException("SubstitutionStrategy not supported.");
+        // }
 
         lines = [];
         for (int i = 0; i < blockCount; i++)
@@ -118,6 +119,18 @@ public class SetAssociativeCache : ICache
     
     public event EventHandler<CacheMissEventArgs>? OnCacheMiss;
     public event EventHandler<CacheEvictionEventArgs>? OnCacheEvict;
+
+    private ulong hitCount = 0;
+    private ulong missCount = 0;
+    private ulong evictionCount = 0;
+    
+    public CacheStatistics GetStatistics() {
+        return new CacheStatistics {
+            Hits = hitCount,
+            Misses = missCount,
+            Evictions = evictionCount
+        };
+    }
 
     private (ulong tag, int index) GetAddressData(ulong address)
     {
@@ -212,19 +225,19 @@ public class SetAssociativeCache : ICache
     {
         // TODO: fazer isso
         // Use the substitution strategy to determine which block to evict
-        switch (SubstitutionStrategy)
+        switch (replacementPolicy)
         {
-            case SubstitutionStrategy.Fifo:
-                return -1;
-            case SubstitutionStrategy.Lru:
-                return -1;
-            case SubstitutionStrategy.Lfu:
-                return -1;
-            case SubstitutionStrategy.Random:
-                Random random = new();
-                return random.Next(0, associativity);
+            // case replacementPolicy.Fifo:
+            //     return -1;
+            // case replacementPolicy.Lru:
+            //     return -1;
+            // case replacementPolicy.Lfu:
+            //     return -1;
+            // case replacementPolicy.Random:
+            //     Random random = new();
+            //     return random.Next(0, associativity);
             default:
-                throw new NotSupportedException($"SubstitutionStrategy {SubstitutionStrategy} is not supported.");
+                throw new NotSupportedException($"SubstitutionStrategy {replacementPolicy} is not supported.");
         }
     }
     

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
+using SAAE.Generators;
 
 namespace Mercury.Engine.Mips.Instructions; 
 
+[FormatExact<Instruction>(31,26,0)]
+[FormatExact<Instruction>(5,0,32)]
 public partial class Add : TypeRInstruction {
 
     public Add() {

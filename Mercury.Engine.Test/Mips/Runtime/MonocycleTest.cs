@@ -23,7 +23,7 @@ public class MonocycleTest {
             .WithMarsOs()
             .Build();
         
-        Monocycle cpu = mipsMachine.Cpu; 
+        Monocycle cpu = (Monocycle)mipsMachine.Cpu; 
         int[] code = [
             0x2008_000f,
             0x2009_0014,
@@ -33,15 +33,14 @@ public class MonocycleTest {
             0x0000_004d
             ];
         mipsMachine.LoadProgram(code, Span<int>.Empty);
-        InstructionFactory factory = new();
         bool hasBreaked = false;
         
-        cpu.OnSignalException += (e) => {
-            if(e.Signal != Monocycle.SignalExceptionEventArgs.SignalType.Breakpoint) {
+        cpu.SignalException += (e) => {
+            if(e.Signal != SignalExceptionEventArgs.SignalType.Breakpoint) {
                 return Task.CompletedTask;
             }
 
-            Instruction inst = factory.Disassemble((uint)e.Instruction);
+            Instruction? inst = Disassembler.Disassemble((uint)e.Instruction);
             if(inst is not Break brk) {
                 return Task.CompletedTask;
             }
@@ -69,18 +68,20 @@ public class MonocycleTest {
             .WithMarsOs()
             .Build();
         
-        Assert.IsNotNull(mipsMachine.Memory);
+        Assert.IsNotNull(mipsMachine.DataMemory);
+        Assert.IsNotNull(mipsMachine.InstructionMemory);
         Assert.IsNotNull(mipsMachine.Cpu);
         Assert.IsNotNull(mipsMachine.Os);
+        Assert.IsNotNull(mipsMachine.Cpu.Machine);
         Assert.AreSame(mipsMachine.Cpu.RegisterBank, mipsMachine.Registers);
-        Assert.AreSame(mipsMachine.Cpu.Memory, mipsMachine.Memory);
+        Assert.IsNotNull(mipsMachine.Os.Machine);
         if(!mipsMachine.Os.Machine.TryGetTarget(out Machine? target)) {
             Assert.Fail("OS Machine weak reference is not set.");
         }
         Assert.AreSame(target, mipsMachine);
         
         const ulong gb = 1024 * 1024 * 1024;
-        Assert.AreEqual(4 * gb, (mipsMachine.Memory as Engine.Memory.Memory)!.Size);
+        Assert.AreEqual(4 * gb, (mipsMachine.DataMemory as Engine.Memory.Memory)!.Size);
         Assert.IsInstanceOfType<Monocycle>(mipsMachine.Cpu);
         Assert.IsInstanceOfType<Mars>(mipsMachine.Os);
     }

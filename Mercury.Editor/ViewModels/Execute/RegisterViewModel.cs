@@ -30,12 +30,12 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
 
     [ObservableProperty] private ObservableCollection<string> processorNames = [];
 
-    private readonly List<(Type, Enum)> highlightedRegisters = [];
+    private readonly List<(int, Enum)> highlightedRegisters = [];
 
     private ArchitectureMetadata architectureMetadata;
     private IRegisterHelper registerHelper = null!;
 
-    private Machine machine = null!;
+    private Machine? machine = null!;
 
     public RegisterViewModel()
     {
