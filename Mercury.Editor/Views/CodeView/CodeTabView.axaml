@@ -1,0 +1,46 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:view="clr-namespace:Mercury.Editor.Views"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+             xmlns:localization="clr-namespace:Mercury.Editor.Localization"
+             xmlns:codeView="clr-namespace:Mercury.Editor.Views.CodeView"
+             x:Class="Mercury.Editor.Views.CodeView.CodeTabView">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" MaxWidth="500" MinWidth="100"></ColumnDefinition>
+            <ColumnDefinition Width="2"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="2"></ColumnDefinition>
+            <ColumnDefinition Width="300" MaxWidth="500" MinWidth="100"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="2"></RowDefinition>
+            <RowDefinition Height="200" MinHeight="100" MaxHeight="300"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <!-- guide -->
+        <codeView:GuideView Grid.Column="4" Grid.Row="0" Grid.RowSpan="3" 
+                        MinWidth="200" MaxWidth="500"/>
+
+        <GridSplitter Grid.Column="3" Grid.Row="0" Grid.RowSpan="3"
+            ResizeDirection="Columns"/>
+        
+        <!-- problems window -->
+        <codeView:ProblemsView Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3"/>
+        
+        <GridSplitter Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
+                      ResizeDirection="Rows"/>
+        
+        <!-- project window -->
+        <codeView:ProjectView Grid.Column="0" Grid.Row="0"/>
+        
+        <GridSplitter Grid.Column="1" Grid.Row="0"
+                      ResizeDirection="Columns"/>
+        
+        <!-- open files window & toolbar -->
+        <codeView:FileEditorView Grid.Row="0" Grid.Column="2" Background="{StaticResource BackgroundGrey}"/>
+    </Grid>
+</UserControl>

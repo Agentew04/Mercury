@@ -127,7 +127,7 @@ internal static class Program {
                     File.Move(sourcePath, destinationPath);
                 }
                 catch (Exception ex) {
-                    Console.WriteLine($"Couldnt move file: {sourcePath}->{destinationPath}");
+                    Console.WriteLine($"Couldnt move file: {sourcePath}->{destinationPath}. Error: \"{ex.Message}\"");
                 }
             }
 

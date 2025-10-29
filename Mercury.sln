@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mercury.Engine", "Mercury.Engine\Mercury.Engine.csproj", "{5C609720-20C6-4659-9746-89FEC8CCE0BF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mercury.Engine.Test", "Mercury.Engine.Test\Mercury.Engine.Test.csproj", "{005E7D0E-8886-4A23-88A6-17AD4D52973A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mercury.Editor", "Mercury.Editor\Mercury.Editor.csproj", "{EF97CFA5-ACA6-45EE-93DB-6C1B514FD968}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mercury.Editor.Generators", "Mercury.Editor.Generators\Mercury.Editor.Generators.csproj", "{9EA4239D-18A5-4A71-89AA-C445DB149A34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mercury.Engine.Generators", "Mercury.Engine.Generators\Mercury.Engine.Generators.csproj", "{AD4494C8-F48F-45A7-8AD7-2113B3FDF9BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{824829B0-F778-46AA-8134-06ED4EF41C8C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5C609720-20C6-4659-9746-89FEC8CCE0BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C609720-20C6-4659-9746-89FEC8CCE0BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C609720-20C6-4659-9746-89FEC8CCE0BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C609720-20C6-4659-9746-89FEC8CCE0BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{005E7D0E-8886-4A23-88A6-17AD4D52973A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{005E7D0E-8886-4A23-88A6-17AD4D52973A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{005E7D0E-8886-4A23-88A6-17AD4D52973A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{005E7D0E-8886-4A23-88A6-17AD4D52973A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF97CFA5-ACA6-45EE-93DB-6C1B514FD968}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF97CFA5-ACA6-45EE-93DB-6C1B514FD968}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF97CFA5-ACA6-45EE-93DB-6C1B514FD968}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF97CFA5-ACA6-45EE-93DB-6C1B514FD968}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EA4239D-18A5-4A71-89AA-C445DB149A34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EA4239D-18A5-4A71-89AA-C445DB149A34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EA4239D-18A5-4A71-89AA-C445DB149A34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EA4239D-18A5-4A71-89AA-C445DB149A34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD4494C8-F48F-45A7-8AD7-2113B3FDF9BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD4494C8-F48F-45A7-8AD7-2113B3FDF9BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD4494C8-F48F-45A7-8AD7-2113B3FDF9BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD4494C8-F48F-45A7-8AD7-2113B3FDF9BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{824829B0-F778-46AA-8134-06ED4EF41C8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{824829B0-F778-46AA-8134-06ED4EF41C8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{824829B0-F778-46AA-8134-06ED4EF41C8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{824829B0-F778-46AA-8134-06ED4EF41C8C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4C2CF643-9536-4A28-80DB-F50422F0E86D}
+	EndGlobalSection
+EndGlobal

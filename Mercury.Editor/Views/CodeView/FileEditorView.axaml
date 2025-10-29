@@ -1,0 +1,81 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Mercury.Editor.ViewModels"
+             xmlns:model="clr-namespace:Mercury.Editor.Models"
+             xmlns:localization="clr-namespace:Mercury.Editor.Localization"
+             xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:code="clr-namespace:Mercury.Editor.ViewModels.Code"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="200"
+             x:Class="Mercury.Editor.Views.CodeView.FileEditorView"
+             x:DataType="code:FileEditorViewModel"
+             Background="{DynamicResource BackgroundGrey}"
+             Loaded="Control_OnLoaded">
+    <UserControl.Styles>
+        <StyleInclude Source="/Assets/Styles/FileEditorStyles.axaml"></StyleInclude>
+    </UserControl.Styles>
+    <Border BorderBrush="Black" BorderThickness="1" CornerRadius="0">
+        <Grid RowDefinitions="Auto,Auto,*">
+            <!-- toolbar -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,3" Spacing="5">
+                <Button Padding="5" ToolTip.Tip="{localization:FileEditorResources SaveButtonTooltip}"
+                        Command="{Binding SaveProjectCommand}"
+                        HotKey="Ctrl+S">
+                    <TextBlock FontFamily="{StaticResource PhosphorFont}"
+                               Text="&#xE248;" Margin="0"></TextBlock>
+                </Button>
+                <!-- build -->
+                <Button Padding="5" ToolTip.Tip="{localization:FileEditorResources BuildButtonTooltip}"
+                        Command="{Binding BuildProjectCommand}">
+                    <TextBlock FontFamily="{StaticResource PhosphorFont}"
+                               Text="&#xE80E;" Margin="0"></TextBlock>
+                </Button>
+                <!-- run -->
+                <Button Padding="5" ToolTip.Tip="{localization:FileEditorResources RunButtonTooltip}"
+                        Command="{Binding RunProjectCommand}"
+                        IsEnabled="{Binding CanRunProject}">
+                    <TextBlock FontFamily="{StaticResource PhosphorFont}"
+                               Text="&#xE3D0;" Margin="0"></TextBlock>
+                </Button>
+            </StackPanel>
+            
+            <TabStrip Grid.Row="1" Height="30"
+                      SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
+                      ItemsSource="{Binding OpenFiles}"
+                      Margin="0" Padding="0"
+                      Classes="fileStrip">
+                <TabStrip.ItemTemplate>
+                    <DataTemplate x:DataType="code:OpenFile">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="*,2"
+                              PointerPressed="File_PointerPressed">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Filename}"
+                                       Classes="fileStripTitle"/>
+                            <Button Grid.Row="0" Grid.Column="1" Classes="fileStripCloseButton"
+                                    Command="{Binding CloseFileCommand}" CommandParameter="{Binding}">
+                                <TextBlock/>
+                            </Button>
+                            <Rectangle Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                       IsVisible="{Binding IsActive}"
+                                       Fill="{StaticResource Purple1}"></Rectangle>
+                        </Grid>
+                    </DataTemplate>
+                </TabStrip.ItemTemplate>
+            </TabStrip>
+            
+            <!-- editor em si -->
+            <avaloniaEdit:TextEditor x:Name="TextEditor" Classes="textEditor"
+                                     Grid.Row="2"
+                                     IsVisible="{Binding HasOpenFiles, Mode=OneWay}"
+                                     Document="{Binding TextDocument}"
+                                     IsReadOnly="{Binding IsReadonlyEditor}"/>
+            <TextBlock Grid.Row="1" Grid.RowSpan="2"
+                IsVisible="{Binding !HasOpenFiles, Mode=OneWay}"
+                Text="{localization:FileEditorResources NoOpenFilesText}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="15"
+                FontWeight="SemiBold"></TextBlock>
+        </Grid>
+    </Border>
+</UserControl>

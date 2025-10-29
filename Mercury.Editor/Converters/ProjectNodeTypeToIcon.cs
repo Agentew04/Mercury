@@ -1,0 +1,30 @@
+﻿using System;
+using System.Globalization;
+using Avalonia.Data;
+using Avalonia.Data.Converters;
+using Mercury.Editor.Models;
+using Mercury.Editor.ViewModels;
+
+namespace Mercury.Editor.Converters;
+
+public class ProjectNodeTypeToIcon : IValueConverter {
+    
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        if (value is not ProjectNodeType nodeType) {
+            return BindingNotification.Null;
+        }
+
+        return nodeType switch {
+            ProjectNodeType.None => "",
+            ProjectNodeType.Category => ((char)0xE2CE).ToString(), // 'info' icon
+            ProjectNodeType.Folder => ((char)0xE24A).ToString(), // 'folder' icon
+            ProjectNodeType.AssemblyFile => ((char)0xE914).ToString(), // 'file-code' icon
+            ProjectNodeType.UnknownFile => ((char)0xE230).ToString(), // 'file' icon
+            _ => BindingNotification.Null
+        };
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        return BindingNotification.Null;
+    }
+}

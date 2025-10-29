@@ -1,0 +1,227 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Mercury.Editor.ViewModels"
+        xmlns:loc="clr-namespace:Mercury.Editor.Localization"
+        xmlns:controls="clr-namespace:Mercury.Editor.Controls"
+        xmlns:converters="clr-namespace:Mercury.Editor.Converters"
+        xmlns:engine="clr-namespace:Mercury.Engine;assembly=Mercury.Engine"
+        xmlns:models="clr-namespace:Mercury.Editor.Models"
+        xmlns:common="clr-namespace:Mercury.Engine.Common;assembly=Mercury.Engine"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+        Width="800" Height="500"
+        x:Class="Mercury.Editor.Views.ProjectSelectionView"
+        Background="{DynamicResource BackgroundGrey}"
+        CanResize="False"
+        x:DataType="vm:ProjectSelectionViewModel"
+        Icon="avares://Mercury.Editor/Assets/Images/icon-noborder-64.png"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        Title="Mercury"
+        Closing="Window_OnClosing">
+    <Window.Styles>
+        <StyleInclude Source="/Assets/Styles/ProjectSelectionStyles.axaml"/>
+    </Window.Styles>
+    <Window.Resources>
+        <converters:ArchitectureToString x:Key="ArchToStr"></converters:ArchitectureToString>
+        <converters:ArchitectureToIconSource x:Key="ArchToIcon"></converters:ArchitectureToIconSource>
+    </Window.Resources>
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="5*,2*">
+        <!-- title bar -->
+        <controls:TitleBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                           x:Name="TitleBar"/>
+        
+        <!-- app title -->
+        <TextBlock Text="Mercury" Classes="header"
+                   Margin="15" IsHitTestVisible="False"
+                   Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"></TextBlock>
+        
+        <!-- recent -->
+        <Grid Grid.Row="1" Grid.Column="0" IsVisible="{Binding !IsCreatingProject}"
+              RowDefinitions="Auto,Auto,*">
+            <TextBlock Grid.Row="0" 
+                       Text="{loc:ProjectResources OpenProject}" Classes="minorheader"/>
+            
+            <StackPanel Grid.Row="1" Margin="15,0">
+                <TextBox x:Name="SearchBox" Watermark="{loc:ProjectResources RecentProjectsWatermark}"
+                         Text="{Binding SearchQuery, Mode=TwoWay}"/>
+            </StackPanel>
+            <ListBox Grid.Row="2"
+                     Background="{DynamicResource BackgroundGrey}"
+                     Margin="15"
+                     IsVisible="{Binding !EmptyRecentProjects}"
+                     ItemsSource="{Binding FilteredRecentProjects}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ProjectFileVisualItem">
+                        <Button Classes="invisible fill"
+                                Command="{Binding OpenCommand}"
+                                CommandParameter="{Binding ProjectFile.ProjectPath}">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <Image Grid.Column="0"
+                                       HorizontalAlignment="Right"
+                                       Margin="5"
+                                       Width="50"
+                                       Source="{Binding ProjectFile.Architecture, Converter={StaticResource ArchToIcon}}"/>
+                                <StackPanel Grid.Column="1" Spacing="5">
+                                    <TextBlock Text="{Binding ProjectFile.ProjectName}"
+                                               FontSize="16"></TextBlock>
+                                    <TextBlock Text="{Binding ProjectFile.ProjectPath}"
+                                               FontSize="12"
+                                               TextWrapping="NoWrap"
+                                               TextTrimming="CharacterEllipsis"
+                                               Margin="5,0"></TextBlock>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding ProjectFile.LastAccessed}"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Top"
+                                           FontSize="12"/>
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBlock Grid.Row="2"
+                       IsVisible="{Binding EmptyRecentProjects}"
+                       Text="{loc:ProjectResources EmptyRecentProjects}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       FontSize="14"
+                       Padding="0,0,0,10"/>
+        </Grid>
+        
+        <!--sidebar -->
+        <StackPanel Grid.Row="1" Grid.Column="1"
+                    Margin="15"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="25"
+                    IsVisible="{Binding !IsCreatingProject}">
+            <Button Classes="bigbutton"
+                    Command="{Binding OpenProjectDialogCommand}">
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">
+                    <Svg Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                           Classes="fill"
+                           Width="40"
+                           Margin="15,0"
+                           Stretch="Uniform"
+                           Path="/Assets/Images/file-open.svg"/>
+                    <TextBlock Grid.Column="1" Grid.Row="0"
+                               Text="{loc:ProjectResources OpenProjectTitleButton}"
+                               Margin="5,8,0,0"></TextBlock>
+                    <TextBlock Grid.Column="1" Grid.Row="1"
+                               Text="{loc:ProjectResources OpenProjectDescButton}"
+                               FontSize="11" TextWrapping="Wrap"
+                               Margin="5,5,5,0"></TextBlock>
+                </Grid>
+            </Button>
+            <Button Classes="bigbutton"
+                Command="{Binding NewProjectStartCommand}">
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">
+                    <Svg Grid.Column="0" Grid.RowSpan="2"
+                           Classes="fill"
+                           Width="40"
+                           Margin="15,0"
+                           Stretch="Uniform"
+                           Path="/Assets/Images/note-add.svg"/>
+                    <TextBlock Grid.Column="1" Grid.Row="0"
+                               Text="{loc:ProjectResources CreateProjectTitleButton}"
+                               Margin="5,8,0,0"></TextBlock>
+                    <TextBlock Grid.Column="1" Grid.Row="1"
+                               Text="{loc:ProjectResources CreateProjectDescButton}"
+                               FontSize="11" TextWrapping="Wrap"
+                               Margin="5,5,5,0"></TextBlock>
+                </Grid>
+            </Button>
+        </StackPanel>
+        
+        <!-- creating menu -->
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+              IsVisible="{Binding IsCreatingProject}"
+              Margin="15">
+            <ScrollViewer>
+                <StackPanel HorizontalAlignment="Center" Width="300">
+                <Label Content="{loc:ProjectResources FolderLabel}"
+                       Target="PathTextbox"
+                       HorizontalAlignment="Left"></Label>
+                <Grid HorizontalAlignment="Stretch"
+                      ColumnDefinitions="*,Auto">
+                    <TextBox Grid.Column="0" x:Name="PathTextbox"
+                             HorizontalAlignment="Stretch"
+                             Text="{Binding NewProjectPath}"></TextBox>
+                    <Button Grid.Column="1" Content="{loc:ProjectResources BrowseButton}"
+                            Margin="3,0"
+                            Click="BrowseFolderOnNewProject"/>
+                </Grid>
+                <TextBlock Text="{Binding DirectoryNotice}"
+                           HorizontalAlignment="Left"
+                           TextWrapping="Wrap"
+                           FontSize="11" Margin="0,2,0,8"/>
+                <Label Content="{loc:ProjectResources NameLabel}"
+                       Target="NameTextbox"
+                       HorizontalAlignment="Left"></Label>
+                <TextBox x:Name="NameTextbox"
+                         HorizontalAlignment="Stretch"
+                         Margin="0,0,0,8"
+                         Text="{Binding NewProjectName}"></TextBox>
+                <Label Content="{loc:ProjectResources IsaLabel}"
+                       Target="IsaComboBox"
+                       HorizontalAlignment="Left"></Label>
+                <ComboBox x:Name="IsaComboBox"
+                          HorizontalAlignment="Stretch"
+                          ItemsSource="{Binding Isas}"
+                          SelectedIndex="{Binding SelectedIsaIndex}"
+                          Margin="0,0,0,8">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="common:Architecture">
+                            <StackPanel Orientation="Horizontal">
+                                <!-- comentar a Image e descomentar o Textblock para alternar entre
+                                     imagem e soh texto na combobox de arquitetura do novo projeto-->
+                                <Image Source="{Binding .,Converter={StaticResource ArchToIcon}}"
+                                       Stretch="UniformToFill" Height="20"></Image>
+                                <!-- <TextBlock Text="{Binding .,Converter={StaticResource ArchToStr}}"></TextBlock> -->
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Label Content="{loc:ProjectResources TemplateLabel}"
+                       Target="TemplateComboBox"
+                       HorizontalAlignment="Left"/>
+                <ComboBox x:Name="TemplateComboBox"
+                          HorizontalAlignment="Stretch"
+                          ItemsSource="{Binding Templates}"
+                          SelectedIndex="{Binding SelectedTemplateIndex}"
+                          Margin="0,0,0,8">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:Template">
+                            <TextBlock Text="{Binding Name^}"></TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Label Content="{loc:ProjectResources OsLabel}"
+                       Target="OsComboBox"
+                       HorizontalAlignment="Left"></Label>
+                <ComboBox x:Name="OsComboBox"
+                          HorizontalAlignment="Stretch"
+                          ItemsSource="{Binding OperatingSystems}"
+                          SelectedIndex="{Binding SelectedOperatingSystemIndex}"
+                          IsEnabled="{Binding CanChangeOperatingSystem}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="common:OperatingSystemType">
+                            <TextBlock Text="{Binding Name}"></TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Content="{loc:ProjectResources GoBack}"
+                            Command="{Binding NewProjectReturnCommand}"/>
+                    <Button Content="{loc:ProjectResources CreateProjectTitleButton}"
+                            Margin="15"
+                            IsEnabled="{Binding CanCreateProject}"
+                            Command="{Binding NewProjectEndCommand}"/>
+                </StackPanel>
+            </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>

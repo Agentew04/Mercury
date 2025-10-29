@@ -1,0 +1,126 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+<!--    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>-->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <IsPackable>false</IsPackable>
+    <Authors>Rodrigo Appelt</Authors>
+    <AssemblyVersion>0.2</AssemblyVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    
+    <!-- publish and trimming -->
+    <PublishAot>false</PublishAot>
+    <PublishTrimmed>true</PublishTrimmed>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <RootNamespace>Mercury.Editor</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+  </PropertyGroup>
+  
+  <!-- linker e trimmer -->
+  <ItemGroup>
+    <TrimmerRootDescriptor Include="ILLink.Descriptors.xml"/>
+  </ItemGroup>
+
+  <!-- fontes -->
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Fonts\Nunito\*.ttf"/>
+    <AvaloniaResource Include="Assets\Fonts\Phosphor\*.ttf"/>
+    <AvaloniaResource Include="Assets\Fonts\JetBrainsMono\*.ttf"/>
+    
+    <None Remove="Assets\Fonts\Nunito\*.ttf" />
+    <None Remove="Assets\Fonts\Nunito\*.ttf" />
+    <None Remove="Assets\Fonts\JetBrainsMono\*.ttf" />
+
+    <Folder Include="Assets\Fonts\Nunito\" />
+    <Folder Include="Assets\Fonts\Phosphor\" />
+    <Folder Include="Assets\Fonts\JetBrainsMono\" />
+  </ItemGroup>
+  
+  <!-- pacotes -->
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.1.0" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Controls.ItemsRepeater" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Svg" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="ELFSharp" Version="2.17.3" />
+    <PackageReference Include="Markdig" Version="0.40.0" />
+    <PackageReference Include="MessageBox.Avalonia" Version="3.1.6" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
+    <PackageReference Include="SharpCompress" Version="0.40.0" />
+    <PackageReference Include="Vecc.YamlDotNet.Analyzers.StaticGenerator" Version="16.3.0" />
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
+  </ItemGroup>
+
+  <!-- localizacao -->
+  <ItemGroup>
+    <ProjectReference Include="..\Mercury.Engine\Mercury.Engine.csproj" />
+    <ProjectReference Include="..\Mercury.Editor.Generators\Mercury.Editor.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <AdditionalFiles Include="Assets\Localization\*.resx" />
+  </ItemGroup>
+
+  <!-- guias -->
+  <ItemGroup>
+    <None Remove="Assets\Localization\Guides\*.md" />
+    <EmbeddedResource Include="Assets\Localization\Guides\*.md"  WithCulture="false"/>
+  </ItemGroup>
+  
+  <!-- syntax highlighting -->
+  <ItemGroup>
+    <None Remove="Assets\Grammars\*.xshd" />
+    <EmbeddedResource Include="Assets\Grammars\*.xshd" />
+  </ItemGroup>
+
+  <!-- imagens -->
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Images\*.png"/>
+    <None Remove="Assets\Images\*.png" />
+    <AvaloniaResource Include="Assets\Images\*.svg" />
+    <None Remove="Assets\Images\*.svg" />
+  </ItemGroup>
+  
+  <!-- licenca -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\LICENSE.txt"/>
+  </ItemGroup>
+
+  <!-- ainda nao sei se isso serve pra alguma coisa... -->
+  <ItemGroup>
+    <Compile Update="Views\CodeView\ProjectView.axaml.cs">
+      <DependentUpon>ProjectView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\CodeView\FileEditorView.axaml.cs">
+      <DependentUpon>FileEditorView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\CodeView\GuideView.axaml.cs">
+      <DependentUpon>GuideView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\CodeView\ProblemsView.axaml.cs">
+      <DependentUpon>ProblemsView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\CodeView\CodeTabView.axaml.cs">
+      <DependentUpon>CodeTabView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>

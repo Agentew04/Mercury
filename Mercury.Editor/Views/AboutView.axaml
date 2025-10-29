@@ -1,0 +1,39 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="clr-namespace:Mercury.Editor.Localization"
+        xmlns:vm="clr-namespace:Mercury.Editor.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="300"
+        x:Class="Mercury.Editor.Views.AboutView"
+        Width="550"
+        Height="400"
+        Title="{loc:AboutResources WindowTitle}"
+        Icon="avares://Mercury.Editor/Assets/Images/icon-noborder-64.png"
+        Background="{StaticResource BackgroundGrey}"
+        x:DataType="vm:AboutViewModel">
+    <Window.Styles>
+        <Style Selector="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"></Setter>
+        </Style>
+    </Window.Styles>
+    <ScrollViewer>
+        <!-- title -->
+        <StackPanel Margin="15" HorizontalAlignment="Stretch">
+            <TextBlock HorizontalAlignment="Center"
+                     Classes="header"
+                     Text="{loc:AboutResources AppName}"/>
+            <TextBlock HorizontalAlignment="Left"
+                       Text="{Binding CopyrightString}"/>
+            <TextBlock HorizontalAlignment="Left" Text="{Binding VersionString}"/>
+            <TextBlock HorizontalAlignment="Left" Text="{Binding BuildString}"></TextBlock>
+            
+            
+            <TextBlock Text="{loc:AboutResources LicenseHeader}" Margin="0,15,0,0"
+                       FontWeight="Bold"/>
+            <Border HorizontalAlignment="Stretch" Padding="10,0">
+                <TextBlock Text="{Binding LicenseString}"/>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

@@ -1,0 +1,84 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:localization="clr-namespace:Mercury.Editor.Localization"
+             xmlns:vm="clr-namespace:Mercury.Editor.ViewModels"
+             xmlns:conv="clr-namespace:Mercury.Editor.Converters"
+             xmlns:model="clr-namespace:Mercury.Editor.Models"
+             xmlns:view="clr-namespace:Mercury.Editor.Views"
+             xmlns:code="clr-namespace:Mercury.Editor.ViewModels.Code"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="500"
+             Background="{DynamicResource BackgroundGrey}"
+             x:Class="Mercury.Editor.Views.CodeView.ProjectView"
+             x:DataType="code:ProjectViewModel">
+    <Design.DataContext>
+        <code:ProjectViewModel></code:ProjectViewModel>
+    </Design.DataContext>
+    <UserControl.Styles>
+        <StyleInclude Source="/Assets/Styles/ProjectViewStyles.axaml"></StyleInclude>
+    </UserControl.Styles>
+    <Grid RowDefinitions="Auto,*" Margin="0">
+        <TextBlock Grid.Row="0" Classes="header"
+                   Text="{Binding Path=ProjectViewTitle, Source={x:Static localization:ProjectResources.Instance}}"/>
+    
+        <TreeView Grid.Row="1" ItemsSource="{Binding Nodes}"
+                  Classes="projectTree"
+                  Margin="15"
+                  DragDrop.AllowDrop="True"
+                  SelectedItem="{Binding SelectedNode}">
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Children}"
+                                  x:DataType="model:ProjectNode">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Stretch"
+                                Background="{Binding $parent[TreeViewItem].Background}"
+                                PointerPressed="ProjectNode_OnPointerPressed"
+                                PointerMoved="InputElement_OnPointerMoved"
+                                PointerReleased="ProjectNode_OnPointerReleased"
+                                PointerExited="InputElement_OnPointerExited">
+                        <StackPanel.ContextFlyout>
+                            <Flyout FlyoutPresenterClasses="menuflyoutslim">
+                                <ItemsControl ItemsSource="{Binding ContextOptions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="model:NodeContextOption">
+                                            <Button Classes="contextmenuitem"
+                                                    IsVisible="{Binding IsVisible}"
+                                                    Command="{Binding Command}"
+                                                    CommandParameter="{Binding $parent[TreeViewItem].DataContext}">
+                                                <TextBlock Text="{Binding Name, Mode=OneWay}"
+                                                           HorizontalAlignment="Left"
+                                                           Margin="0"
+                                                           Padding="0"
+                                                           VerticalAlignment="Center"></TextBlock>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Flyout>
+                        </StackPanel.ContextFlyout>
+                        <TextBlock Text="{Binding Type, Converter={StaticResource NodeTypeToIcon}}"
+                                   FontFamily="{DynamicResource PhosphorFont}"
+                                   DragDrop.AllowDrop="True"
+                                   VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding Name}"
+                            Margin="5,0,0,0"
+                            DragDrop.AllowDrop="True"
+                            VerticalAlignment="Center"></TextBlock>
+                    </StackPanel>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+        
+        <Border Padding="3,1" x:Name="GhostBorder"
+                Grid.Row="1"
+                IsVisible="True"
+                Background="#771F1F1F"
+                BorderBrush="#77383838"
+                BorderThickness="1"
+                CornerRadius="0">
+            <TextBlock x:Name="GhostTextBlock"
+                    VerticalAlignment="Center"></TextBlock>
+        </Border>
+    </Grid>
+</UserControl>

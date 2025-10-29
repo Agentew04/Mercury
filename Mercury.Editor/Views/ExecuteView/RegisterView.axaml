@@ -1,0 +1,177 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Mercury.Editor.ViewModels.Execute"
+             xmlns:loc="clr-namespace:Mercury.Editor.Localization"
+             xmlns:cv="clr-namespace:Mercury.Editor.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Mercury.Editor.Views.ExecuteView.RegisterView"
+             x:DataType="vm:RegisterViewModel">
+    <UserControl.Styles>
+        <StyleInclude Source="avares://Mercury.Editor/Assets/Styles/RegisterViewStyles.axaml"></StyleInclude>
+    </UserControl.Styles>
+    <UserControl.Resources>
+        <Flyout x:Key="RegisterFlyout" x:DataType="vm:Register">
+            <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*"
+                  Margin="5">
+                <Grid.Resources>
+                    <vm:RegisterValueDoubleConverter x:Key="DoubleConverter"/>
+                </Grid.Resources>
+                <!-- title -->
+                <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                            Orientation="Horizontal">
+                    <TextBlock Text="{loc:RegisterResources RegisterNoun}" FontSize="16"/>
+                    <TextBlock Text=" " FontSize="16"/>
+                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16"/>
+                    <TextBlock Text=" (" IsVisible="{Binding HasIndex}" FontSize="16"/>
+                    <TextBlock Text="{Binding Index}" IsVisible="{Binding HasIndex}" FontSize="16"/>
+                    <TextBlock Text=")" IsVisible="{Binding HasIndex}" FontSize="16"/>
+                </StackPanel>
+                <!-- left column -->
+                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical"
+                            Margin="0,0,5,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{loc:RegisterResources DecimalValue}"/>
+                        <TextBlock Text="{Binding Values.Decimal, Mode=OneWay}"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{loc:RegisterResources HexValue}"/>
+                        <TextBlock Text="{Binding Values.Hex, Mode=OneWay}"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{loc:RegisterResources AsciiValue}"/>
+                        <TextBlock Text="{Binding Values.Ascii, Mode=OneWay}"></TextBlock>
+                    </StackPanel>
+                </StackPanel>
+                <!-- right columns -->
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical"
+                            Margin="5,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{loc:RegisterResources FloatValue}"/>
+                        <TextBlock Text="{Binding Values.AsFloat, Mode=OneWay}"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{loc:RegisterResources DoubleValue}"/>
+                        <TextBlock Text="{Binding Values.AsDouble, Converter={StaticResource DoubleConverter}, 
+                        Mode=OneWay}"></TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Flyout>
+    </UserControl.Resources>
+    <Grid RowDefinitions="Auto,*" Margin="5">
+        <TabStrip Grid.Row="0" Classes="slim" Margin="5,0,5,0"
+                  SelectedIndex="{Binding SelectedProcessorIndex}"
+                  ItemsSource="{Binding ProcessorNames}"/>
+            <DataGrid Grid.Row="1"
+                      CanUserReorderColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False"
+                      GridLinesVisibility="Horizontal" IsReadOnly="True"
+                      ItemsSource="{Binding Registers}"
+                      HorizontalAlignment="Stretch"
+                      SelectionChanged="DataGrid_OnSelectionChanged"
+                      Classes="headerslim static nocellselect">
+            <DataGrid.Resources>
+                <cv:BoolToColorConverter x:Key="BoolToColorConverter"></cv:BoolToColorConverter>
+                <cv:ColorConverterParam x:Key="RowHighlightParam" TrueBrush="{StaticResource SelectionColor}" FalseBrush="Transparent"/>
+                <vm:RegisterNumberConverter x:Key="RegisterNumberConverter"></vm:RegisterNumberConverter>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{Binding Path=NameText, Source={x:Static loc:RegisterResources.Instance}}" 
+                                    Binding="{Binding Name}" Width="Auto"/>
+                <DataGridTextColumn Header="{Binding Path=NumberText, Source={x:Static loc:RegisterResources.Instance}}" 
+                                    Binding="{Binding Index, Converter={StaticResource RegisterNumberConverter}}" Width="Auto"/>
+                <DataGridTextColumn Header="{Binding Path=ValueText, Source={x:Static loc:RegisterResources.Instance}}" 
+                                    Binding="{Binding Values.Hex }" Width="*"/>
+            </DataGrid.Columns>
+            <DataGrid.Styles>
+                <Style Selector="DataGridRow" x:DataType="vm:Register">
+                    <Setter Property="Background" Value="{Binding Highlighted,
+                    Converter={StaticResource BoolToColorConverter},
+                    ConverterParameter={StaticResource RowHighlightParam}}">
+                    </Setter>
+                </Style>
+            </DataGrid.Styles>
+            <DataGrid.RowTheme>
+              <ControlTheme TargetType="DataGridRow">
+                <Setter Property="Background" Value="{Binding $parent[DataGrid].RowBackground}" />
+                <Setter Property="Template">
+                  <ControlTemplate>
+                    <Border x:Name="RowBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}">
+                      <DataGridFrozenGrid Name="PART_Root"
+                                          ColumnDefinitions="Auto,*"
+                                          RowDefinitions="*,Auto,Auto">
+
+                        <Rectangle Name="BackgroundRectangle"
+                                   Fill="{DynamicResource DataGridRowBackgroundBrush}"
+                                   Grid.RowSpan="2"
+                                   Grid.ColumnSpan="2" 
+                                   />
+                        <Rectangle x:Name="InvalidVisualElement"
+                                   Opacity="0"
+                                   Grid.ColumnSpan="2"
+                                   Fill="{DynamicResource DataGridRowInvalidBrush}" 
+                                   PointerPressed="RowBorder_OnPointerPressed"
+                                   FlyoutBase.AttachedFlyout="{StaticResource RegisterFlyout}"/>
+
+                        <DataGridRowHeader Name="PART_RowHeader"
+                                           Grid.RowSpan="3"
+                                           DataGridFrozenGrid.IsFrozen="True" />
+                        <DataGridCellsPresenter Name="PART_CellsPresenter"
+                                                Grid.Column="1"
+                                                IsHitTestVisible="False"
+                                                DataGridFrozenGrid.IsFrozen="True"/>
+                        <DataGridDetailsPresenter Name="PART_DetailsPresenter"
+                                                  Grid.Row="1"
+                                                  Grid.Column="1"
+                                                  Background="{DynamicResource DataGridDetailsPresenterBackgroundBrush}" />
+                        <Rectangle Name="PART_BottomGridLine"
+                                   Grid.Row="2"
+                                   Grid.Column="1"
+                                   Height="1"
+                                   HorizontalAlignment="Stretch" />
+
+                      </DataGridFrozenGrid>
+                    </Border>
+                  </ControlTemplate>
+                </Setter>
+                <Style Selector="^:invalid">
+                  <Style Selector="^ /template/ Rectangle#InvalidVisualElement">
+                    <Setter Property="Opacity" Value="0.4" />
+                  </Style>
+                  <Style Selector="^ /template/ Rectangle#BackgroundRectangle">
+                    <Setter Property="Opacity" Value="0" />
+                  </Style>
+                </Style>
+
+                <Style Selector="^:pointerover /template/ Rectangle#BackgroundRectangle">
+                  <Setter Property="Fill" Value="{DynamicResource DataGridRowHoveredBackgroundColor}" />
+                </Style>
+
+                <Style Selector="^:selected">
+                  <Style Selector="^ /template/ Rectangle#BackgroundRectangle">
+                    <Setter Property="Fill" Value="{DynamicResource DataGridRowSelectedUnfocusedBackgroundBrush}" />
+                    <Setter Property="Opacity" Value="{DynamicResource DataGridRowSelectedUnfocusedBackgroundOpacity}" />
+                  </Style>
+                  <Style Selector="^:pointerover /template/ Rectangle#BackgroundRectangle">
+                    <Setter Property="Fill" Value="{DynamicResource DataGridRowSelectedHoveredUnfocusedBackgroundBrush}" />
+                    <Setter Property="Opacity" Value="{DynamicResource DataGridRowSelectedHoveredUnfocusedBackgroundOpacity}" />
+                  </Style>
+                  <Style Selector="^:focus /template/ Rectangle#BackgroundRectangle">
+                    <Setter Property="Fill" Value="{DynamicResource DataGridRowSelectedBackgroundBrush}" />
+                    <Setter Property="Opacity" Value="{DynamicResource DataGridRowSelectedBackgroundOpacity}" />
+                  </Style>
+                  <Style Selector="^:pointerover:focus /template/ Rectangle#BackgroundRectangle">
+                    <Setter Property="Fill" Value="{DynamicResource DataGridRowSelectedHoveredBackgroundBrush}" />
+                    <Setter Property="Opacity" Value="{DynamicResource DataGridRowSelectedHoveredBackgroundOpacity}" />
+                  </Style>
+                </Style>
+              </ControlTheme>
+            </DataGrid.RowTheme>
+        </DataGrid>
+    </Grid>
+</UserControl>
