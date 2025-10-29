@@ -2,75 +2,74 @@
 using System.Net.Http.Headers;
 using Mercury.Editor.Services;
 using Mercury.Editor.ViewModels;
+using Mercury.Editor.ViewModels.Code;
 using Mercury.Editor.ViewModels.Execute;
+using Mercury.Editor.Views;
 using Mercury.Engine.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
-using Microsoft.Extensions.Options;
-using Mercury.Editor.Models;
-using Mercury.Editor.ViewModels.Code;
-using Mercury.Editor.Views;
-using Mercury.Engine;
-using FileEditorViewModel = Mercury.Editor.ViewModels.Code.FileEditorViewModel;
-using GuideViewModel = Mercury.Editor.ViewModels.Code.GuideViewModel;
-using ProblemsViewModel = Mercury.Editor.ViewModels.Code.ProblemsViewModel;
-using ProjectViewModel = Mercury.Editor.ViewModels.Code.ProjectViewModel;
 
 namespace Mercury.Editor;
 
-using FileEditorViewModel = ViewModels.Code.FileEditorViewModel;
-using GuideViewModel = ViewModels.Code.GuideViewModel;
-using ProblemsViewModel = ViewModels.Code.ProblemsViewModel;
-using ProjectViewModel = ViewModels.Code.ProjectViewModel;
-
 public static class ServiceCollectionExtensions {
-    public static IServiceCollection AddCommonServices(this IServiceCollection collection) {
 
-        #region ViewModels
+    private static IServiceCollection ConfigureViewModels(this IServiceCollection services) {
+        return services
+                // singletons
+            .AddSingleton<GuideViewModel>()
+            .AddSingleton<ProjectSelectionViewModel>()
+            .AddSingleton<ProjectViewModel>()
+            .AddSingleton<FileEditorViewModel>()
+            .AddSingleton<ProblemsViewModel>()
+            .AddSingleton<RegisterViewModel>()
+            .AddSingleton<OutputViewModel>()
+            .AddSingleton<RamViewModel>()
+            .AddSingleton<InstructionViewModel>()
+            .AddSingleton<LabelViewModel>()
+                //transient
+            .AddTransient<SplashScreenViewModel>()
+            .AddTransient<ProjectConfigurationViewModel>()
+            .AddTransient<AboutViewModel>()
+            .AddTransient<PreferencesViewModel>();
+    }
 
-        // singleton
-        collection.AddSingleton<GuideViewModel>();
-        collection.AddSingleton<ProjectSelectionViewModel>();
-        collection.AddSingleton<ProjectViewModel>();
-        collection.AddSingleton<FileEditorViewModel>();
-        collection.AddSingleton<ProblemsViewModel>();
-        collection.AddSingleton<RegisterViewModel>();
-        collection.AddSingleton<OutputViewModel>();
-        collection.AddSingleton<RamViewModel>();
-        collection.AddSingleton<InstructionViewModel>();
-        collection.AddSingleton<LabelViewModel>();
-        
-        // transient
-        collection.AddTransient<SplashScreenViewModel>();
-        collection.AddTransient<ProjectConfigurationViewModel>();
-        collection.AddTransient<AboutViewModel>(); 
-        collection.AddTransient<PreferencesViewModel>();
+    private static IServiceCollection ConfigureViews(this IServiceCollection services) {
+        return services
+            .AddTransient<SplashScreen>()
+            .AddTransient<ProjectSelectionView>();
 
-        #endregion
+    }
 
-        #region Services
+    private static IServiceCollection ConfigureServices(this IServiceCollection services) {
+        return services
+            .AddKeyedSingleton<ICompilerService, MipsCompiler>(Architecture.Mips)
+            .AddSingleton<SettingsService>()
+            .AddSingleton<GuideService>()
+            .AddSingleton<ProjectService>()
+            .AddSingleton<FileService>()
+            .AddSingleton<GrammarService>()
+            .AddSingleton<ExecuteService>()
+            .AddSingleton<UpdaterService>()
+            .ConfigureHttp();
+    }
 
-        collection.AddKeyedSingleton<ICompilerService, MipsCompiler>(Architecture.Mips);
-        collection.AddSingleton<SettingsService>();
-        collection.AddSingleton<GuideService>();
-        collection.AddSingleton<ProjectService>();
-        collection.AddSingleton<FileService>();
-        collection.AddSingleton<GrammarService>();
-        collection.AddSingleton<ExecuteService>();
-        collection.AddSingleton<UpdaterService>();
-
+    private static IServiceCollection ConfigureHttp(this IServiceCollection services) {
         HttpClient httpClient = new(); // reuse the same instance
         HttpRequestHeaders headers = httpClient.DefaultRequestHeaders;
         headers.UserAgent.ParseAdd("MercuryIDE/" + typeof(App).Assembly.GetName().Version);
-        collection.AddSingleton(httpClient);
-        
-        #endregion
-
-        return collection;
+        services.AddSingleton(httpClient);
+        return services;
+    }
+    
+    public static IServiceCollection Configure(this IServiceCollection services) {
+        return services
+            .ConfigureViewModels()
+            .ConfigureViews()
+            .ConfigureServices()
+            .ConfigureLogging();
     }
 
-    public static IServiceCollection ConfigureLogging(this IServiceCollection collection)
+    private static IServiceCollection ConfigureLogging(this IServiceCollection collection)
     {
         collection.AddLogging(logBuilder =>
         {

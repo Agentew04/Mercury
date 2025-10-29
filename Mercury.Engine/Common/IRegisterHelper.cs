@@ -1,5 +1,9 @@
 ﻿namespace Mercury.Engine.Common;
 
+/// <summary>
+/// Interface comum a classes que fazer mapeamento de valores inteiros e instâncias de <see cref="Enum"/>
+/// com os nomes fortemente tipados de uma arquitetura.
+/// </summary>
 public interface IRegisterHelper
 {
     /// <summary>
@@ -57,5 +61,6 @@ public interface IRegisterHelper
     /// <returns>Returns the register found or null if the type passed does not have any register with that number</returns>
     public static abstract Enum? GetRegisterFromNumber(int number, Type type);
     
+    /// <inheritdoc cref="GetRegisterFromNumber"/>
     public Enum? GetRegisterFromNumberX(int number, Type type);
 }

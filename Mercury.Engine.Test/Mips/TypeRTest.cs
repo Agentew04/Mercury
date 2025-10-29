@@ -1,7 +1,9 @@
 using System.Text.RegularExpressions;
 using Mercury.Engine.Mips.Instructions;
+using Mercury.Engine.Mips;
+using Mercury.Engine.Mips.Instructions;
 
-namespace Mercury.Engine.Test.Mips;
+namespace SAAE.Engine.Test.Mips;
 
 [TestClass]
 public class TypeRTest {

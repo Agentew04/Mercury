@@ -2,8 +2,6 @@
 using ELFSharp.ELF;
 using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Runtime;
-using Mercury.Engine.Mips.Runtime.Simple;
-using Mercury.Engine.Mips.Runtime.OS;
 
 namespace Mercury.Engine.Common;
 

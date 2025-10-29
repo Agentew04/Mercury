@@ -11,7 +11,7 @@ namespace Mercury.Editor.Views;
 public partial class SplashScreen : Window {
     public SplashScreen() {
         InitializeComponent();
-        ViewModel = App.Services.GetService<SplashScreenViewModel>() ?? throw new Exception("Could not resolve service");
+        ViewModel = App.Services.GetRequiredService<SplashScreenViewModel>();
         DataContext = ViewModel;
         ViewModel.SetView(this);
     }

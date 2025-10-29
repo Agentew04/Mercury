@@ -12,6 +12,7 @@
         <StyleInclude Source="avares://Mercury.Editor/Assets/Styles/RegisterViewStyles.axaml"></StyleInclude>
     </UserControl.Styles>
     <UserControl.Resources>
+        <!-- flyout de detalhes -->
         <Flyout x:Key="RegisterFlyout" x:DataType="vm:Register">
             <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*"
                   Margin="5">
@@ -59,6 +60,14 @@
                 </StackPanel>
             </Grid>
         </Flyout>
+        
+        <!-- colunas do datagrid -->
+        <DataGridTextColumn x:Key="ColumnName"
+                            Header="{loc:RegisterResources NameText}" Binding="{Binding Name, RelativeSource=}"  Width="2*"/>
+        <DataGridTextColumn Header="{Binding Path=NumberText, Source={x:Static loc:RegisterResources.Instance}}" 
+                            Binding="{Binding Index, Converter={StaticResource RegisterNumberConverter}}" Width="Auto"/>
+        <DataGridTextColumn Header="{Binding Path=ValueText, Source={x:Static loc:RegisterResources.Instance}}" 
+                            Binding="{Binding Values.Hex }" Width="*"/>
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,*" Margin="5">
         <TabStrip Grid.Row="0" Classes="slim" Margin="5,0,5,0"
@@ -69,7 +78,6 @@
                       GridLinesVisibility="Horizontal" IsReadOnly="True"
                       ItemsSource="{Binding Registers}"
                       HorizontalAlignment="Stretch"
-                      SelectionChanged="DataGrid_OnSelectionChanged"
                       Classes="headerslim static nocellselect">
             <DataGrid.Resources>
                 <cv:BoolToColorConverter x:Key="BoolToColorConverter"></cv:BoolToColorConverter>
@@ -77,12 +85,14 @@
                 <vm:RegisterNumberConverter x:Key="RegisterNumberConverter"></vm:RegisterNumberConverter>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="{Binding Path=NameText, Source={x:Static loc:RegisterResources.Instance}}" 
-                                    Binding="{Binding Name}" Width="Auto"/>
-                <DataGridTextColumn Header="{Binding Path=NumberText, Source={x:Static loc:RegisterResources.Instance}}" 
-                                    Binding="{Binding Index, Converter={StaticResource RegisterNumberConverter}}" Width="Auto"/>
-                <DataGridTextColumn Header="{Binding Path=ValueText, Source={x:Static loc:RegisterResources.Instance}}" 
-                                    Binding="{Binding Values.Hex }" Width="*"/>
+                <StaticResource ResourceKey="ColumnName" >
+                </StaticResource>
+                <!-- <DataGridTextColumn Header="{Binding Path=NameText, Source={x:Static loc:RegisterResources.Instance}}"  -->
+                <!--                     Binding="{Binding Name}" Width="Auto"/> -->
+                <!-- <DataGridTextColumn Header="{Binding Path=NumberText, Source={x:Static loc:RegisterResources.Instance}}"  -->
+                <!--                     Binding="{Binding Index, Converter={StaticResource RegisterNumberConverter}}" Width="Auto"/> -->
+                <!-- <DataGridTextColumn Header="{Binding Path=ValueText, Source={x:Static loc:RegisterResources.Instance}}"  -->
+                <!--                     Binding="{Binding Values.Hex }" Width="*"/> -->
             </DataGrid.Columns>
             <DataGrid.Styles>
                 <Style Selector="DataGridRow" x:DataType="vm:Register">

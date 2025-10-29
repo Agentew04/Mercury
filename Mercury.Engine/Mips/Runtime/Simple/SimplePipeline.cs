@@ -1,9 +1,6 @@
-﻿using Mercury.Engine.Common.Pipeline;
-using Mercury.Engine.Mips.Runtime;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Common.Pipeline;
 using Mercury.Engine.Mips.Runtime.Simple.Pipeline;
-using Mercury.Engine.Common;
-using Mercury.Engine.Memory;
-using Mercury.Engine.Mips.Instructions;
 
 namespace Mercury.Engine.Mips.Runtime.Simple;
 
@@ -201,6 +198,7 @@ public class SimplePipeline : IMipsCpu
             return new ExecuteMemoryData();
         }
 
+    private DecodeExecuteData DoDecode(FetchDecodeData data) {
         return default;
     }
 

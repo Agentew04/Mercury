@@ -19,22 +19,21 @@ public class App : Application {
         AvaloniaXamlLoader.Load(this);
     }
 
-    public static ServiceProvider Services { get; private set; } = null!;
+    public static IServiceProvider Services { get; private set; } = null!;
 
-    private static IClassicDesktopStyleApplicationLifetime? desktopLifetime;
+    private static IClassicDesktopStyleApplicationLifetime? _desktopLifetime;
     public override async void OnFrameworkInitializationCompleted() {
         // pq essa linha de baixo estava aqui?? esperar algo quebrar pra voltar com ela
         //BindingPlugins.DataValidators.RemoveAt(0);
 
         Services = new ServiceCollection()
-            .AddCommonServices()
-            .ConfigureLogging() // adiciona supporte para o Microsoft.Extensions.Logging
+            .Configure()
             .BuildServiceProvider();
             
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-            desktopLifetime = desktop;
+            _desktopLifetime = desktop;
             desktop.Exit += OnAppExit;
-            var splash = new SplashScreen();
+            var splash = Services.GetRequiredService<SplashScreen>();
             desktop.MainWindow = splash;
             splash.Show();
 
@@ -88,7 +87,7 @@ public class App : Application {
                 
             ProjectSelectionView? projectSelection = null;
             if (asmProjArg is null && directoryArg is null) {
-                projectSelection = new ProjectSelectionView();
+                projectSelection = Services.GetRequiredService<ProjectSelectionView>();
                 desktop.MainWindow = projectSelection;
                 projectSelection.Show();
                 splash.Close();
@@ -114,13 +113,13 @@ public class App : Application {
     }
 
     public static void Shutdown() {
-        desktopLifetime?.Shutdown();
+        _desktopLifetime?.Shutdown();
     }
 
     public static event Action? OnExit = null;
     
     private static void OnAppExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
         OnExit?.Invoke();
-        Services.Dispose();
+        if(Services is IDisposable dispose) dispose.Dispose();
     }
 }

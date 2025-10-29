@@ -24,23 +24,7 @@ public partial class RegisterView : UserControl
     }
 
     private RegisterViewModel viewModel;
-
-    // private void DataGrid_OnCellPointerPressed(object? sender, DataGridCellPointerPressedEventArgs e) {
-    //     e.PointerPressedEventArgs.Handled = true;
-    // }
-
-    private void DataGrid_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        // if(sender is DataGrid dataGrid && e.AddedItems.Count > 0){
-        //     if (e.AddedItems[0] is Register register)
-        //     {
-        //         FlyoutBase? flyout = FlyoutBase.GetAttachedFlyout(dataGrid);
-        //         FlyoutBase.ShowAttachedFlyout(dataGrid);
-        //         //dataGrid.SelectedIndex = -1;
-        //     }
-        // }
-    }
-
+    
     private void RowBorder_OnPointerPressed(object? sender, PointerPressedEventArgs e) {
         Control? control = (Control?)sender;
         Register? reg = (Register?)control?.DataContext;

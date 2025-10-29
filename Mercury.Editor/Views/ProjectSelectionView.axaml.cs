@@ -9,6 +9,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Mercury.Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor.Views;
 
@@ -20,12 +21,12 @@ public partial class ProjectSelectionView : Window {
         TitleBar.Window = this;
     }
 
+    private readonly ILogger<ProjectSelectionView> logger = App.Services.GetRequiredService<ILogger<ProjectSelectionView>>();
     public ProjectSelectionViewModel ViewModel { get; set; }
 
     private async void BrowseFolderOnNewProject(object? sender, RoutedEventArgs e) {
-        // TODO: mover isso para viewmodel
         if(!StorageProvider.CanOpen){
-            Console.WriteLine("FilePicker nao eh suportado nessa plataforma!");
+            logger.LogError("FilePicker is not supported on this platform");
             return;
         }
         

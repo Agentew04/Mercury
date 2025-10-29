@@ -26,11 +26,11 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
     private int selectedProcessorIndex;
 
     [ObservableProperty]
-    private ObservableCollection<Register> registers = [];
+    private ObservableCollection<RegisterGroup> registerGroups = [];
 
     [ObservableProperty] private ObservableCollection<string> processorNames = [];
 
-    private readonly List<(int, Enum)> highlightedRegisters = [];
+    private readonly List<RegisterReference> highlightedRegisters = [];
 
     private ArchitectureMetadata architectureMetadata;
     private IRegisterHelper registerHelper = null!;
@@ -60,51 +60,80 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
             vm.architectureMetadata.Processors.Length);
     }
 
+    private (RegisterDefinition def, Processor proc)? GetRegisterDefinition(Type t, Enum e) {
+        foreach (Processor proc in architectureMetadata.Processors) {
+            foreach (RegisterDefinition def in proc.Registers) {
+                if (def.Type == t
+                    && Equals(def.Reference, e)) {
+                    return (def, proc);
+                }
+            }
+        }
+        Logger.LogError("Could not find register definition for type {type} and enum {enum}", t, e);
+        return null;
+    }
+
     private void OnRegisterChange(List<(Type,Enum)> regs) {
         highlightedRegisters.Clear();
-        foreach ((Type,Enum) reg in regs) {
-            string registerName = registerHelper.GetRegisterNameX(reg.Item2);
-            int index = Registers.IndexOf(x => x.Name == registerName);
-            if (index >= 0) {
-                Registers[index].Values = GetRegisterValues(registerName, index);
+        int updated = 0;
+        foreach ((Type registerType, Enum registerReference) in regs) {
+            (RegisterDefinition def, Processor proc)? regDef = GetRegisterDefinition(registerType, registerReference);
+            if (!regDef.HasValue) {
+                continue;
             }
-            highlightedRegisters.Add(reg);
+            
+            RegisterReference regRef = new() {
+                Definition = regDef.Value.def,
+                Processor = regDef.Value.proc
+            };
+            highlightedRegisters.Add(regRef);
+
+            if (regDef.Value.proc != architectureMetadata.Processors[SelectedProcessorIndex]) {     
+                continue;
+            }
+
+            Register? register = RegisterGroups.SelectMany(x => x.Registers)
+                .FirstOrDefault(x => x.Definition == regDef.Value.def);
+            if (register is null) {
+                Logger.LogWarning("Could not find (probable) loaded register to update value. Name: {name}", regDef.Value.def.Name);
+                continue;
+            }
+            register.Values = GetRegisterValues(regRef);
+            updated++;
         }
-        Logger.LogInformation("Updated value of {count} registers", regs.Count);
+        Logger.LogInformation("Updated value of {count}/{total} registers", updated, regs.Count);
         Highlight();
     }
 
     private void Highlight() {
-        foreach (var register in Registers) {
-            register.Highlighted = false;
-        }
-        Type currentType = architectureMetadata.Processors[SelectedProcessorIndex].RegistersType;
-        foreach ((Type, Enum) highlight in highlightedRegisters) {
-            if (highlight.Item1 != currentType) {
-                continue;
+        foreach (RegisterGroup regGroup in RegisterGroups) {
+            foreach (Register register in regGroup.Registers) {
+                register.Highlighted = highlightedRegisters.Contains(register);
             }
-            string registerName = registerHelper.GetRegisterNameX(highlight.Item2);
-            Register? register = Registers.FirstOrDefault(x => x.Name == registerName);
-            if (register is null) {
-                continue;
-            }
-            register.Highlighted = true;
         }
     }
 
-    private void LoadRegisters(int processorIndex) {
-        Registers.Clear();
-        Processor proc = architectureMetadata.Processors[processorIndex];
-        foreach (RegisterDefinition reg in proc.Registers) {
-            Enum reg2 = registerHelper.GetRegisterFromNameX(reg.Name, proc.RegistersType);
-            Registers.Add(new Register {
-                Name = reg.Name,
-                Index = reg.Number,
-                Values = GetRegisterValues(reg.Name, reg.Number)
+    private void LoadRegisters(int processorTabIndex) {
+        RegisterGroups.Clear();
+        Processor proc = architectureMetadata.Processors[processorTabIndex];
+
+        IEnumerable<IGrouping<Type, RegisterDefinition>> groups = proc.Registers.GroupBy(x => x.Type);
+        foreach (IGrouping<Type, RegisterDefinition> regGroup in groups) {
+            IEnumerable<Register> regs = regGroup.Select(x => new Register {
+                Name = x.Name,
+                Index = x.Number,
+                Values = GetRegisterValues(x.Name, x.Number)
+            });
+            string group = regGroup.Key.Name;
+            
+            RegisterGroups.Add(new RegisterGroup() {
+                GroupName = group,
+                Registers = new ObservableCollection<Register>(regs)
             });
         }
+        Logger.LogInformation("Loaded {groups} register groups, totaling {total} registers.", 
+            RegisterGroups.Count, proc.Registers.Length);
         Highlight();
-        Logger.LogInformation("Loaded {registers} registers", proc.Registers.Length);
     }
 
     partial void OnSelectedProcessorIndexChanged(int value) {
@@ -112,7 +141,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         Highlight();
     }
     
-    public RegisterValues GetRegisterValues(string name, int index) {
+    public RegisterValues GetRegisterValues(RegisterReference reference) {
         Processor proc = architectureMetadata.Processors[SelectedProcessorIndex];
         Enum? regEnum = registerHelper.GetRegisterFromNameX(name, proc.RegistersType);
         if (regEnum is null) {
@@ -153,15 +182,20 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
     }
 }
 
-public partial class Register : ObservableObject
-{
-    [ObservableProperty] private string name = string.Empty;
+public partial class RegisterGroup : ObservableObject {
+    [ObservableProperty] private string groupName;
+    [ObservableProperty] private ObservableCollection<Register> registers;
+}
 
-    [ObservableProperty] 
-    [NotifyPropertyChangedFor(nameof(HasIndex))]
-    private int index;
+public class RegisterReference {
+    public required RegisterDefinition Definition { get; init; }
+    public required Processor Processor { get; init; }
+} 
 
-    public bool HasIndex => Index != -1;
+public partial class Register : ObservableObject {
+    [ObservableProperty] private RegisterDefinition definition;
+
+    public bool HasIndex => Definition.Number != -1;
 
     [ObservableProperty] private bool highlighted;
 
