@@ -43,9 +43,13 @@ public class MipsMachineBuilder : MachineBuilder
 
     public override MipsMachine Build()
     {
-        if (Memory is null)
+        if (DataMemory is null)
         {
-            throw new InvalidOperationException("Memory must be set.");
+            throw new InvalidOperationException("Data Memory must be set.");
+        }
+
+        if (InstructionMemory is null) {
+            throw new InvalidOperationException("Instruction Memory must be set.");
         }
         if (cpu is null)
         {
@@ -58,7 +62,8 @@ public class MipsMachineBuilder : MachineBuilder
 
         MipsMachine mipsMachine = new() {
             Cpu = cpu,
-            DataMemory = Memory,
+            DataMemory = DataMemory,
+            InstructionMemory = InstructionMemory,
             Os = os,
             StdIn = StdIn ?? new NullChannel<char>(),
             StdOut = StdOut ?? new NullChannel<char>(),

@@ -212,9 +212,7 @@ public partial class Monocycle {
             }else if (lwcz.Coprocessor == 1) { // fpu
                 RegisterBank.Set<MipsFpuRegisters>(lwcz.Rt, value);
             }else {
-                if (MipsMachine.StdErr is not null) {
-                    await MipsMachine.StdErr.Writer.WriteAsync($"Coprocessor {lwcz.Coprocessor} not supported. Instruction: {lwcz} @ PC={RegisterBank[MipsGprRegisters.Pc]:X8}\n");
-                }
+                await MipsMachine.StdErr.Writer.WriteAsync($"Coprocessor {lwcz.Coprocessor} not supported. Instruction: {lwcz} @ PC={RegisterBank[MipsGprRegisters.Pc]:X8}\n");
                 return;
             }
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs()
@@ -225,17 +223,15 @@ public partial class Monocycle {
                 Source = MemoryAccessSource.Instruction
             });
             
-        }else if (instruction is Swcz swc1) {
-            ulong address = (ulong)(RegisterBank.Get<MipsGprRegisters>(swc1.Base) + swc1.Immediate);
-            int value = 0;
-            if (swc1.Coprocessor == 0) { // syscontrol
-                value = RegisterBank.Get<MipsSpecialRegisters>(swc1.Rt);
-            }else if (swc1.Coprocessor == 1) { // fpu
-                value = RegisterBank.Get<MipsFpuRegisters>(swc1.Rt);
+        }else if (instruction is Swcz swcz) {
+            ulong address = (ulong)(RegisterBank.Get<MipsGprRegisters>(swcz.Base) + swcz.Immediate);
+            int value;
+            if (swcz.Coprocessor == 0) { // syscontrol
+                value = RegisterBank.Get<MipsSpecialRegisters>(swcz.Rt);
+            }else if (swcz.Coprocessor == 1) { // fpu
+                value = RegisterBank.Get<MipsFpuRegisters>(swcz.Rt);
             }else {
-                if (MipsMachine.StdErr is not null) {
-                    await MipsMachine.StdErr.Writer.WriteAsync($"Coprocessor {swc1.Coprocessor} not supported. Instruction: {swc1} @ PC={RegisterBank[MipsGprRegisters.Pc]:X8}\n");
-                }
+                await MipsMachine.StdErr.Writer.WriteAsync($"Coprocessor {swcz.Coprocessor} not supported. Instruction: {swcz} @ PC={RegisterBank[MipsGprRegisters.Pc]:X8}\n");
                 return;
             }
             MipsMachine.DataMemory.WriteWord(address, value);
@@ -247,9 +243,7 @@ public partial class Monocycle {
                 Source = MemoryAccessSource.Instruction
             });
         } else {
-            if (MipsMachine.StdErr is not null) {
-                await MipsMachine.StdErr.Writer.WriteAsync($"Type I instruction not implemented: {instruction} @ PC={RegisterBank[MipsGprRegisters.Pc]:X8}\n");
-            }
+            await MipsMachine.StdErr.Writer.WriteAsync($"Type I instruction not implemented: {instruction} @ PC={RegisterBank[MipsGprRegisters.Pc]:X8}\n");
             return;
         } 
     }

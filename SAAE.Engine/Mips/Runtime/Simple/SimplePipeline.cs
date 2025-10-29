@@ -1,6 +1,7 @@
 ﻿using SAAE.Engine.Common;
 using SAAE.Engine.Common.Pipeline;
 using SAAE.Engine.Memory;
+using SAAE.Engine.Mips.Instructions;
 using SAAE.Engine.Mips.Runtime.Simple.Pipeline;
 
 namespace SAAE.Engine.Mips.Runtime.Simple;
@@ -109,10 +110,10 @@ public class SimplePipeline : IMipsCpu
         writebackStage.Tick();
         
         // commit values produced
-        fetchIdBarrier.Advance();
-        idExecuteBarrier.Advance();
-        executeMemoryBarrier.Advance();
-        memoryWriteBackBarrier.Advance();
+        fetchIdBarrier.Commit();
+        idExecuteBarrier.Commit();
+        executeMemoryBarrier.Commit();
+        memoryWriteBackBarrier.Commit();
     }
 
     public ValueTask ClockAsync() {
@@ -121,7 +122,7 @@ public class SimplePipeline : IMipsCpu
     }
 
     public bool IsClockingFinished() {
-        return (uint)RegisterBank.Get(MipsGprRegisters.Pc) >= DropoffAddress
+        return (uint)RegisterBank.Get(MipsGprRegisters.Pc) >= (DropoffAddress+5*4)
                || isHalted;
     }
 
@@ -129,27 +130,82 @@ public class SimplePipeline : IMipsCpu
 
     #region Stages
 
-    private FetchDecodeData DoFetch(ExecuteMemoryData data)
+    private FetchDecodeData DoFetch(ExecuteMemoryData? data)
     {
-        // int instructionBinary = MipsMachine.DataMemory.ReadWord((ulong)pc);
+        uint pc = (uint)RegisterBank.Get(MipsGprRegisters.Pc);
+        
+        // fetch
+        uint instruction = (uint)MipsMachine.InstructionMemory.ReadWord(pc);
+        
+        // pc+4 or branched
+        uint newPc = pc+4;
+        if (data?.BranchTaken ?? false) {
+            newPc = data.AluResult;
+        }
+        
+        Console.WriteLine($"Fetch: {instruction:X8} @ {pc:X8} -> {newPc:X8}");
+        // set pc recursive
+        RegisterBank.Set(MipsGprRegisters.Pc, (int)newPc);
+        
+        return new FetchDecodeData {
+            NewPc = newPc,
+            Instruction = instruction
+        };
+    }
 
+    private DecodeExecuteData DoDecode(FetchDecodeData? data) {
 
+        // Decode. If null, nop
+        Instruction? inst = Disassembler.Disassemble(data?.Instruction ?? 0);
+        if (inst is null) {
+            Console.WriteLine("Invalid instruction! Replacing for NOP");
+        }
+        inst ??= new Nop();
+        
+        // read registers
+        int rs = 0;
+        int rt = 0;
+        int rd = 0;
+        if (inst is TypeRInstruction typeR) {
+            rs = typeR.Rs;
+            rt = typeR.Rt;
+            rd = typeR.Rd;
+        }else if (inst is TypeIInstruction typeI) {
+            rs = typeI.Rs;
+            rd = typeI.Rt; // RT is return in Type I
+        }
+        
+        // sign extend immediate
+        int immediate = 0;
+        if (inst is TypeIInstruction typeIInst) {
+            immediate = typeIInst.Immediate; // sign-extend
+        }
+        
+        int rsValue = RegisterBank.Get<MipsGprRegisters>(rs);
+        int rtValue = RegisterBank.Get<MipsGprRegisters>(rt);
+        
+        Console.WriteLine($"Decode: {inst.GetType().Name} RsValue:{rsValue} RtValue:{rtValue} Rd:{rd} Imm:{immediate}");
+
+        return new DecodeExecuteData() {
+            ImmediateExtended = immediate,
+            RsValue = rsValue,
+            RtValue = rtValue,
+            Instruction = inst,
+            WriteBackRegister = rd
+        };
+    }
+
+    private ExecuteMemoryData DoExecute(DecodeExecuteData? data) {
+        if (data is null) {
+            return new ExecuteMemoryData();
+        }
+    }
+
+    private MemoryWriteBackData DoMemory(ExecuteMemoryData? data) {
         return default;
     }
 
-    private DecodeExecuteData DoDecode(FetchDecodeData data) {
-        return default;
-    }
-
-    private ExecuteMemoryData DoExecute(DecodeExecuteData data) {
-        return default;
-    }
-
-    private MemoryWriteBackData DoMemory(ExecuteMemoryData data) {
-        return default;
-    }
-
-    private int DoWriteBack(MemoryWriteBackData data) {
+    private int DoWriteBack(MemoryWriteBackData? data) {
         return default;
     }
 

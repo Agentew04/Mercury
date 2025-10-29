@@ -2,4 +2,8 @@
 
 public class FetchDecodeData {
     
+    public uint NewPc { get; set; }
+    
+    public uint Instruction { get; set; }
+    
 }

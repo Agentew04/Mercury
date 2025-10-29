@@ -10,7 +10,8 @@ namespace SAAE.Engine.Common.Builders;
 /// </summary>
 public class MachineBuilder : IBuilder<Machine>
 {
-    protected IMemory? Memory { get; private set; }
+    protected IMemory? DataMemory { get; private set; }
+    protected IMemory? InstructionMemory { get; private set; }
     protected Channel<char>? StdIn { get; private set; }
     protected Channel<char>? StdOut { get; private set; }
     protected Channel<char>? StdErr { get; private set; }
@@ -22,7 +23,8 @@ public class MachineBuilder : IBuilder<Machine>
     
     protected MachineBuilder(MachineBuilder m)
     {
-        Memory = m.Memory;
+        DataMemory = m.DataMemory;
+        InstructionMemory = m.InstructionMemory;
         StdIn = m.StdIn;
         StdOut = m.StdOut;
         StdErr = m.StdErr;
@@ -30,7 +32,18 @@ public class MachineBuilder : IBuilder<Machine>
 
     public MachineBuilder WithMemory(IMemory memory)
     {
-        Memory = memory;
+        DataMemory = memory;
+        InstructionMemory = memory;
+        return this;
+    }
+
+    public MachineBuilder WithInstructionMemory(IMemory memory) {
+        InstructionMemory = memory;
+        return this;
+    }
+    
+    public MachineBuilder WithDataMemory(IMemory memory) {
+        DataMemory = memory;
         return this;
     }
 
@@ -41,7 +54,7 @@ public class MachineBuilder : IBuilder<Machine>
         return this;
     }
     
-    public MachineBuilder WithStdio(Channel<char> stdin, Channel<char> stdout, Channel<char> stderr)
+    public MachineBuilder WithStdio(Channel<char>? stdin, Channel<char>? stdout, Channel<char>? stderr)
     {
         StdIn = stdin;
         StdOut = stdout;

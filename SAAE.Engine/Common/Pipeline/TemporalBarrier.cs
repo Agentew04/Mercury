@@ -13,15 +13,19 @@ public class TemporalBarrier<T> {
     
     /// <summary>
     /// Indicates if there is a value written to this barrier
-    /// that has not yet been advanced.
+    /// that has not yet been commited.
     /// </summary>
     public bool HasNext => hasNext;
 
+    /// <summary>
+    /// Indicates if the barrier currently has a value that can be read
+    /// with the <see cref="Read"/> method.
+    /// </summary>
     public bool HasValue => hasValue;
 
     /// <summary>
     /// Writes a value to this barrier. The value will be available
-    /// when <see cref="Advance"/> is called.
+    /// when <see cref="Commit"/> is called.
     /// </summary>
     /// <param name="value">The new value</param>
     public void Write(T value) {
@@ -36,12 +40,12 @@ public class TemporalBarrier<T> {
     public T Read() => current;
 
     /// <summary>
-    /// Advances the barrier, making the value written
-    /// with <see cref="Write"/> available to be read
+    /// Advances the barrier, commiting the value written
+    /// with <see cref="Write"/>, making it available to be read
     /// with <see cref="Read"/>. If no value
     /// was written, this method does nothing.
     /// </summary>
-    public void Advance() {
+    public void Commit() {
         if (!hasNext) {
             hasValue = false;
             return;
