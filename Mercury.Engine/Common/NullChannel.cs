@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Channels;
 
-namespace SAAE.Engine.Common;
+namespace Mercury.Engine.Common;
 
 public class NullChannel<T> : Channel<T> {
     public NullChannel() {

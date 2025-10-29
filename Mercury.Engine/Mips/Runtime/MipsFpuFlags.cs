@@ -1,7 +1,7 @@
-﻿using SAAE.Engine.Common;
-using SAAE.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Generators;
 
-namespace SAAE.Engine.Mips.Runtime;
+namespace Mercury.Engine.Mips.Runtime;
 
 /// <summary>
 /// A set of flags for the MIPS Floating Point Unit (FPU) aka Coprocessor 1.

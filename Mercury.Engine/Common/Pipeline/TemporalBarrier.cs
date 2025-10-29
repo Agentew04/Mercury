@@ -1,4 +1,4 @@
-﻿namespace SAAE.Engine.Common.Pipeline;
+﻿namespace Mercury.Engine.Common.Pipeline;
 
 /// <summary>
 /// Represents a logical temporar barrier in a pipeline context.

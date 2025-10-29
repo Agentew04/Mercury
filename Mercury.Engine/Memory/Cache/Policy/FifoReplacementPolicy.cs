@@ -1,4 +1,4 @@
-﻿namespace SAAE.Engine.Memory.Cache;
+﻿namespace Mercury.Engine.Memory.Cache.Policy;
 
 public class FifoReplacementPolicy : IReplacementPolicy {
     public int ChooseVictim(int set) {

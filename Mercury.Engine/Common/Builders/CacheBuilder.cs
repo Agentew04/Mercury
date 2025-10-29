@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Mercury.Engine.Memory;
 using Mercury.Engine.Memory.Cache;
+using Mercury.Engine.Memory.Cache.Policy;
 
 namespace Mercury.Engine.Common.Builders;
 

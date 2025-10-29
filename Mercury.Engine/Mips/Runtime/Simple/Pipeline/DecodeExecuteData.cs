@@ -1,6 +1,6 @@
-﻿using SAAE.Engine.Mips.Instructions;
+﻿using Mercury.Engine.Mips.Instructions;
 
-namespace SAAE.Engine.Mips.Runtime.Simple.Pipeline;
+namespace Mercury.Engine.Mips.Runtime.Simple.Pipeline;
 
 public class DecodeExecuteData {
     

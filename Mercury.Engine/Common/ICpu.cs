@@ -1,6 +1,6 @@
-﻿using SAAE.Engine.Mips.Runtime;
+﻿using Mercury.Engine.Mips.Runtime;
 
-namespace SAAE.Engine.Common;
+namespace Mercury.Engine.Common;
 
 public interface ICpu : IAsyncClockable {
     

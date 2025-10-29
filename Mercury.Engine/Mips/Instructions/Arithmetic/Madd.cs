@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
-using SAAE.Generators;
+using Mercury.Generators;
 
-namespace SAAE.Engine.Mips.Instructions;
+namespace Mercury.Engine.Mips.Instructions;
 
 [FormatExact<Instruction>(31,26,28)]
 [FormatExact<Instruction>(15,11,0)]

@@ -1,4 +1,4 @@
-﻿namespace SAAE.Engine.Common.Pipeline;
+﻿namespace Mercury.Engine.Common.Pipeline;
 
 public class PipelineStage<TIn, TOut> {
     private readonly Func<TIn?,TOut> process;

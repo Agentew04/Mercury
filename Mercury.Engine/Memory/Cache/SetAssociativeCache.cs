@@ -1,4 +1,6 @@
-﻿namespace Mercury.Engine.Memory.Cache;
+﻿using Mercury.Engine.Memory.Cache.Policy;
+
+namespace Mercury.Engine.Memory.Cache;
 
 /// <summary>
 /// A hybrid cache between <see cref="DirectAccessCache"/> and <see cref="FullyAssociativeCache"/>.

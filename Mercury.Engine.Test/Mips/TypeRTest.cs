@@ -1,8 +1,7 @@
-using SAAE.Engine.Mips.Instructions;
 using System.Text.RegularExpressions;
-using SAAE.Engine.Mips;
+using Mercury.Engine.Mips.Instructions;
 
-namespace SAAE.Engine.Test.Mips;
+namespace Mercury.Engine.Test.Mips;
 
 [TestClass]
 public class TypeRTest {

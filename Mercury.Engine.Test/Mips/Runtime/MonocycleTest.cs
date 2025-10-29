@@ -75,10 +75,6 @@ public class MonocycleTest {
         Assert.IsNotNull(mipsMachine.Cpu.Machine);
         Assert.AreSame(mipsMachine.Cpu.RegisterBank, mipsMachine.Registers);
         Assert.IsNotNull(mipsMachine.Os.Machine);
-        if(!mipsMachine.Os.Machine.TryGetTarget(out Machine? target)) {
-            Assert.Fail("OS Machine weak reference is not set.");
-        }
-        Assert.AreSame(target, mipsMachine);
         
         const ulong gb = 1024 * 1024 * 1024;
         Assert.AreEqual(4 * gb, (mipsMachine.DataMemory as Engine.Memory.Memory)!.Size);

@@ -1,4 +1,4 @@
-﻿namespace SAAE.Engine.Mips.Runtime.Simple.Pipeline;
+﻿namespace Mercury.Engine.Mips.Runtime.Simple.Pipeline;
 
 public class FetchDecodeData {
     

@@ -1,7 +1,8 @@
 ﻿using System.Text.RegularExpressions;
-using SAAE.Generators;
+using Mercury.Engine.Mips.Instructions;
+using Mercury.Generators;
 
-namespace SAAE.Engine.Mips.Instructions;
+namespace Mercury.Engine.Mips.Instructions;
 
 [FormatExact<Instruction>(31,26,0)] // opcode
 [FormatExact<Instruction>(25,16,0)] // rs

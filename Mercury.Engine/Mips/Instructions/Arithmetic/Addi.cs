@@ -1,8 +1,8 @@
 ﻿using System.Reflection.Emit;
 using System.Text.RegularExpressions;
-using SAAE.Generators;
+using Mercury.Generators;
 
-namespace SAAE.Engine.Mips.Instructions;
+namespace Mercury.Engine.Mips.Instructions;
 
 [FormatExact<Instruction>(31,26,8)]
 public partial class Addi : TypeIInstruction {

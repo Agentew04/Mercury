@@ -1,15 +1,13 @@
 ﻿using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
 using ELFSharp.ELF.Segments;
-using SAAE.Engine.Common;
-using Machine = SAAE.Engine.Common.Machine;
 
-namespace SAAE.Engine.Mips.Runtime;
+namespace Mercury.Engine.Mips.Runtime;
 
 /// <summary>
-/// Extends the functionality of <see cref="Machine"/> to a <see cref="Architecture.Mips"/> machine.
+/// Extends the functionality of <see cref="Machine"/> to a <see cref="Mercury.Engine.Common.Architecture.Mips"/> machine.
 /// </summary>
-public sealed class MipsMachine : Machine {
+public sealed class MipsMachine : Mercury.Engine.Common.Machine {
 
     public new required IMipsCpu Cpu { get; init; }
     

@@ -1,4 +1,4 @@
-﻿namespace SAAE.Engine.Mips.Runtime;
+﻿namespace Mercury.Engine.Mips.Runtime;
 
 public class SignalExceptionEventArgs {
     public SignalType Signal { get; init; }

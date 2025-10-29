@@ -1,4 +1,4 @@
-﻿namespace SAAE.Engine.Memory.Cache;
+﻿namespace Mercury.Engine.Memory.Cache;
 
 /// <summary>
 /// Represents a substitution strategy for cache row/block replacement.

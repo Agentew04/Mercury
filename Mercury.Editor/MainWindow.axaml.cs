@@ -72,7 +72,7 @@ namespace Mercury.Editor {
         }
 
         private void LogoClicked(object? sender, PointerPressedEventArgs e) {
-            Process.Start(new ProcessStartInfo("https://github.com/Agentew04/SAAE") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://github.com/Agentew04/Mercury") { UseShellExecute = true });
         }
     }
 }

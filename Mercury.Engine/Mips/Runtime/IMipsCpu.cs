@@ -1,6 +1,7 @@
-﻿using SAAE.Engine.Common;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Mips.Runtime;
 
-namespace SAAE.Engine.Mips.Runtime;
+namespace Mercury.Engine.Mips.Runtime;
 
 public interface IMipsCpu : ICpu {
     

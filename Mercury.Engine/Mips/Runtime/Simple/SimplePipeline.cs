@@ -1,10 +1,11 @@
-﻿using SAAE.Engine.Common;
-using SAAE.Engine.Common.Pipeline;
-using SAAE.Engine.Memory;
-using SAAE.Engine.Mips.Instructions;
-using SAAE.Engine.Mips.Runtime.Simple.Pipeline;
+﻿using Mercury.Engine.Common.Pipeline;
+using Mercury.Engine.Mips.Runtime;
+using Mercury.Engine.Mips.Runtime.Simple.Pipeline;
+using Mercury.Engine.Common;
+using Mercury.Engine.Memory;
+using Mercury.Engine.Mips.Instructions;
 
-namespace SAAE.Engine.Mips.Runtime.Simple;
+namespace Mercury.Engine.Mips.Runtime.Simple;
 
 /// <summary>
 /// Simple version of the MIPS CPU but with a standard 5-stage
@@ -199,6 +200,8 @@ public class SimplePipeline : IMipsCpu
         if (data is null) {
             return new ExecuteMemoryData();
         }
+
+        return default;
     }
 
     private MemoryWriteBackData DoMemory(ExecuteMemoryData? data) {
