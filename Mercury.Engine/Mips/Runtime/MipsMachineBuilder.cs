@@ -60,11 +60,9 @@ public class MipsMachineBuilder : MachineBuilder
             throw new InvalidOperationException("Operating System must be set.");
         }
 
-        MipsMachine mipsMachine = new() {
-            Cpu = cpu,
+        MipsMachine mipsMachine = new(cpu, os) {
             DataMemory = DataMemory,
             InstructionMemory = InstructionMemory,
-            Os = os,
             StdIn = StdIn ?? new NullChannel<char>(),
             StdOut = StdOut ?? new NullChannel<char>(),
             StdErr = StdErr ?? new NullChannel<char>(),

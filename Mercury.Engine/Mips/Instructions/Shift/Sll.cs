@@ -6,6 +6,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact<Instruction>(31,26,0)] // opcode
 [FormatExact<Instruction>(25,21,0)] // rs
 [FormatExact<Instruction>(5,0,0)] // funct
+[FormatDifferent<Instruction>(20,6,0)] // differ from nop
 public partial class Sll : TypeRInstruction {
 
     public Sll() {

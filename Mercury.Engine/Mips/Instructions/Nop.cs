@@ -4,8 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Mercury.Generators;
 
-namespace Mercury.Engine.Mips.Instructions; 
+namespace Mercury.Engine.Mips.Instructions;
+
+[FormatExact<Instruction>(31,0,0)]
 internal partial class Nop : Instruction {
     public override int ConvertToInt() {
         return 0;

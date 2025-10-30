@@ -14,6 +14,10 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
     public Machine Machine {
         get => MipsMachine;
         set {
+            if (value is null) {
+                MipsMachine = null!;
+                return;
+            }
             if (value is not MipsMachine m) {
                 throw new InvalidOperationException();
             }

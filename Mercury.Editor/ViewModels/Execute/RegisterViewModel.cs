@@ -55,9 +55,9 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         vm.registerHelper = RegisterHelperProvider.ProvideHelper(msg.MipsMachine.Architecture);
         vm.LoadRegisters(vm.SelectedProcessorIndex);
         vm.machine.OnRegisterChanged += vm.OnRegisterChange;
-        vm.Logger.LogInformation("Initialized register view with {registers} and {processors}", 
-            vm.Registers.Count, 
-            vm.architectureMetadata.Processors.Length);
+        // vm.Logger.LogInformation("Initialized register view with {registers} and {processors}", 
+        //     vm.Registers.Count, 
+        //     vm.architectureMetadata.Processors.Length);
     }
 
     private (RegisterDefinition def, Processor proc)? GetRegisterDefinition(Type t, Enum e) {
@@ -88,7 +88,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
             };
             highlightedRegisters.Add(regRef);
 
-            if (regDef.Value.proc != architectureMetadata.Processors[SelectedProcessorIndex]) {     
+            if (!regDef.Value.proc.Equals(architectureMetadata.Processors[SelectedProcessorIndex])) {     
                 continue;
             }
 
@@ -98,7 +98,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
                 Logger.LogWarning("Could not find (probable) loaded register to update value. Name: {name}", regDef.Value.def.Name);
                 continue;
             }
-            register.Values = GetRegisterValues(regRef);
+            register.Values = GetRegisterValues(regRef.Definition);
             updated++;
         }
         Logger.LogInformation("Updated value of {count}/{total} registers", updated, regs.Count);
@@ -106,11 +106,15 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
     }
 
     private void Highlight() {
+        int highlighted = 0;
         foreach (RegisterGroup regGroup in RegisterGroups) {
             foreach (Register register in regGroup.Registers) {
-                register.Highlighted = highlightedRegisters.Contains(register);
+                register.Highlighted = highlightedRegisters.Any(x => x.Definition == register.Definition
+                    && x.Processor == architectureMetadata.Processors[SelectedProcessorIndex]);
+                if(register.Highlighted) highlighted++;
             }
         }
+        Logger.LogInformation("Highlighted {reg} registers", highlighted);
     }
 
     private void LoadRegisters(int processorTabIndex) {
@@ -120,9 +124,8 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         IEnumerable<IGrouping<Type, RegisterDefinition>> groups = proc.Registers.GroupBy(x => x.Type);
         foreach (IGrouping<Type, RegisterDefinition> regGroup in groups) {
             IEnumerable<Register> regs = regGroup.Select(x => new Register {
-                Name = x.Name,
-                Index = x.Number,
-                Values = GetRegisterValues(x.Name, x.Number)
+                Definition = x,
+                Values = GetRegisterValues(x)
             });
             string group = regGroup.Key.Name;
             
@@ -141,23 +144,8 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         Highlight();
     }
     
-    public RegisterValues GetRegisterValues(RegisterReference reference) {
-        Processor proc = architectureMetadata.Processors[SelectedProcessorIndex];
-        Enum? regEnum = registerHelper.GetRegisterFromNameX(name, proc.RegistersType);
-        if (regEnum is null) {
-            foreach (Processor processor in architectureMetadata.Processors) {
-                regEnum = registerHelper.GetRegisterFromNameX(name, processor.RegistersType);
-                if (regEnum is not null) {
-                    break;
-                }
-            }
-
-            if (regEnum is null) {
-                Logger.LogError("Could not find any register with id: {name}/{index}", name, index);
-                return new RegisterValues();
-            }
-        }
-        int regValue = machine.Registers.Get(regEnum, proc.RegistersType);
+    public RegisterValues GetRegisterValues(RegisterDefinition definition) {
+        int regValue = machine!.Registers.Get(definition.Reference, definition.Type);
         Span<byte> r = stackalloc byte[4];
         _ = BitConverter.TryWriteBytes(r, regValue);
         string s = Encoding.ASCII.GetString(r);
@@ -167,13 +155,13 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
             Ascii = s.Escape(),
             AsFloat = BitConverter.Int32BitsToSingle(regValue)
         };
-        if (index != -1)
+        if (definition.Number != -1)
         {
             // get next register
-            Enum? nextRegEnum = registerHelper.GetRegisterFromNumberX(index+1, proc.RegistersType);
+            Enum? nextRegEnum = registerHelper.GetRegisterFromNumberX(definition.Number+1, definition.Type);
             if (nextRegEnum is not null)
             {
-                int nextRegValue = machine.Registers.Get(nextRegEnum, proc.RegistersType);
+                int nextRegValue = machine.Registers.Get(nextRegEnum, definition.Type);
                 long combined = ((long)regValue << 32) | (uint)nextRegValue;
                 values.AsDouble = BitConverter.Int64BitsToDouble(combined);
             }

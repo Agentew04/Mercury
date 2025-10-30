@@ -118,7 +118,7 @@ public class SetAssociativeCache : ICache
             lines.Add(set);
         }
     }
-    
+
     public event EventHandler<CacheMissEventArgs>? OnCacheMiss;
     public event EventHandler<CacheEvictionEventArgs>? OnCacheEvict;
 

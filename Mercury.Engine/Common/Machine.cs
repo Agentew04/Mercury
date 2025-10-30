@@ -10,7 +10,7 @@ namespace Mercury.Engine.Common;
 /// to function.
 /// </summary>
 public abstract class Machine : IAsyncClockable, IDisposable
-{
+{   
     /// <summary>
     /// A reference to the memory object that holds all data
     /// that the program operates on. It may be the same object
@@ -27,17 +27,17 @@ public abstract class Machine : IAsyncClockable, IDisposable
     /// <summary>
     /// The object that executes code.
     /// </summary>
-    public ICpu Cpu { get; init; }
+    public abstract ICpu Cpu { get; }
 
     /// <summary>
     /// A link to the RegisterBank present on the <see cref="Cpu"/>
     /// </summary>
-    public RegisterBank Registers => Cpu.RegisterBank;
+    public virtual RegisterBank Registers => Cpu.RegisterBank;
 
     /// <summary>
     /// The Operating System that answers syscalls of this machine.
     /// </summary>
-    public required IOperatingSystem Os { get; init; }
+    public abstract IOperatingSystem Os { get; }
 
     /// <summary>
     /// The standard input that gives data to the program being run.
