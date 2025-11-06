@@ -5,112 +5,112 @@ namespace Mercury.Engine.Mips.Runtime.Simple;
 public partial class Monocycle {
     private async ValueTask ExecuteTypeR(TypeRInstruction instruction) {
         if (instruction is Add add) {
-            RegisterBank.Set<MipsGprRegisters>(add.Rd, RegisterBank.Get<MipsGprRegisters>(add.Rs) + RegisterBank.Get<MipsGprRegisters>(add.Rt));
-            if (IsOverflowed(RegisterBank.Get<MipsGprRegisters>(add.Rs), RegisterBank.Get<MipsGprRegisters>(add.Rt), RegisterBank.Get<MipsGprRegisters>(add.Rd))){
+            Registers.Set<MipsGprRegisters>(add.Rd, Registers.Get<MipsGprRegisters>(add.Rs) + Registers.Get<MipsGprRegisters>(add.Rt));
+            if (IsOverflowed(Registers.Get<MipsGprRegisters>(add.Rs), Registers.Get<MipsGprRegisters>(add.Rt), Registers.Get<MipsGprRegisters>(add.Rd))){
                 if (SignalException is not null) {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
                         Instruction = add.ConvertToInt(),
-                        ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
+                        ProgramCounter = Registers[MipsGprRegisters.Pc]
                     });
                 }
             }
         } else if (instruction is Addu addu) {
-            RegisterBank.Set<MipsGprRegisters>(addu.Rd, RegisterBank.Get<MipsGprRegisters>(addu.Rs) + RegisterBank.Get<MipsGprRegisters>(addu.Rt));
+            Registers.Set<MipsGprRegisters>(addu.Rd, Registers.Get<MipsGprRegisters>(addu.Rs) + Registers.Get<MipsGprRegisters>(addu.Rt));
         } else if (instruction is Div div) {
-            if (RegisterBank.Get<MipsGprRegisters>(div.Rt) == 0) {
-                RegisterBank[MipsGprRegisters.Hi] = Random.Shared.Next(); // simulated undefined behaviour
-                RegisterBank[MipsGprRegisters.Lo] = Random.Shared.Next();
+            if (Registers.Get<MipsGprRegisters>(div.Rt) == 0) {
+                Registers[MipsGprRegisters.Hi] = Random.Shared.Next(); // simulated undefined behaviour
+                Registers[MipsGprRegisters.Lo] = Random.Shared.Next();
             } else {
-                RegisterBank[MipsGprRegisters.Hi] = RegisterBank.Get<MipsGprRegisters>(div.Rs) % RegisterBank.Get<MipsGprRegisters>(div.Rt);
-                RegisterBank[MipsGprRegisters.Lo] = RegisterBank.Get<MipsGprRegisters>(div.Rs) / RegisterBank.Get<MipsGprRegisters>(div.Rt);
+                Registers[MipsGprRegisters.Hi] = Registers.Get<MipsGprRegisters>(div.Rs) % Registers.Get<MipsGprRegisters>(div.Rt);
+                Registers[MipsGprRegisters.Lo] = Registers.Get<MipsGprRegisters>(div.Rs) / Registers.Get<MipsGprRegisters>(div.Rt);
             }
         } else if (instruction is Divu divu) {
-            if (RegisterBank.Get<MipsGprRegisters>(divu.Rt) == 0) {
-                RegisterBank[MipsGprRegisters.Hi] = Random.Shared.Next(); // simulated undefined behaviour
-                RegisterBank[MipsGprRegisters.Lo] = Random.Shared.Next();
+            if (Registers.Get<MipsGprRegisters>(divu.Rt) == 0) {
+                Registers[MipsGprRegisters.Hi] = Random.Shared.Next(); // simulated undefined behaviour
+                Registers[MipsGprRegisters.Lo] = Random.Shared.Next();
             } else {
-                RegisterBank[MipsGprRegisters.Hi] = RegisterBank.Get<MipsGprRegisters>(divu.Rs) % RegisterBank.Get<MipsGprRegisters>(divu.Rt);
-                RegisterBank[MipsGprRegisters.Lo] = RegisterBank.Get<MipsGprRegisters>(divu.Rs) / RegisterBank.Get<MipsGprRegisters>(divu.Rt);
+                Registers[MipsGprRegisters.Hi] = Registers.Get<MipsGprRegisters>(divu.Rs) % Registers.Get<MipsGprRegisters>(divu.Rt);
+                Registers[MipsGprRegisters.Lo] = Registers.Get<MipsGprRegisters>(divu.Rs) / Registers.Get<MipsGprRegisters>(divu.Rt);
             }
         }// MADD e MADDU sao para o coproc1
         else if (instruction is Mfhi mfhi) {
-            RegisterBank.Set<MipsGprRegisters>(mfhi.Rd, RegisterBank[MipsGprRegisters.Hi]);
+            Registers.Set<MipsGprRegisters>(mfhi.Rd, Registers[MipsGprRegisters.Hi]);
         } else if (instruction is Mthi mthi) {
-            RegisterBank.Set<MipsGprRegisters>(mthi.Rd, RegisterBank[MipsGprRegisters.Hi]);
+            Registers.Set<MipsGprRegisters>(mthi.Rd, Registers[MipsGprRegisters.Hi]);
         } else if (instruction is Mtlo mtlo) {
-            RegisterBank.Set<MipsGprRegisters>(mtlo.Rd, RegisterBank[MipsGprRegisters.Lo]);
+            Registers.Set<MipsGprRegisters>(mtlo.Rd, Registers[MipsGprRegisters.Lo]);
         } else if (instruction is Mflo mflo) {
-            RegisterBank.Set<MipsGprRegisters>(mflo.Rd, RegisterBank[MipsGprRegisters.Lo]);
+            Registers.Set<MipsGprRegisters>(mflo.Rd, Registers[MipsGprRegisters.Lo]);
         } else if (instruction is Movn movn) {
-            if (RegisterBank.Get<MipsGprRegisters>(movn.Rt) != 0) {
-                RegisterBank.Set<MipsGprRegisters>(movn.Rd, RegisterBank.Get<MipsGprRegisters>(movn.Rs));
+            if (Registers.Get<MipsGprRegisters>(movn.Rt) != 0) {
+                Registers.Set<MipsGprRegisters>(movn.Rd, Registers.Get<MipsGprRegisters>(movn.Rs));
             }
         } else if (instruction is Movz movz) {
-            if (RegisterBank.Get<MipsGprRegisters>(movz.Rt) == 0) {
-                RegisterBank.Set<MipsGprRegisters>(movz.Rd, RegisterBank.Get<MipsGprRegisters>(movz.Rs));
+            if (Registers.Get<MipsGprRegisters>(movz.Rt) == 0) {
+                Registers.Set<MipsGprRegisters>(movz.Rd, Registers.Get<MipsGprRegisters>(movz.Rs));
             }
         } else if (instruction is Mul mul) {
-            RegisterBank.Set<MipsGprRegisters>(mul.Rd, RegisterBank.Get<MipsGprRegisters>(mul.Rs) * RegisterBank.Get<MipsGprRegisters>(mul.Rt));
+            Registers.Set<MipsGprRegisters>(mul.Rd, Registers.Get<MipsGprRegisters>(mul.Rs) * Registers.Get<MipsGprRegisters>(mul.Rt));
         } else if (instruction is Mult mult) {
-            long result = (long)RegisterBank.Get<MipsGprRegisters>(mult.Rs) * RegisterBank.Get<MipsGprRegisters>(mult.Rt);
-            RegisterBank[MipsGprRegisters.Hi] = (int)(result >> 32);
-            RegisterBank[MipsGprRegisters.Lo] = (int)(result & 0xFFFFFFFF);
+            long result = (long)Registers.Get<MipsGprRegisters>(mult.Rs) * Registers.Get<MipsGprRegisters>(mult.Rt);
+            Registers[MipsGprRegisters.Hi] = (int)(result >> 32);
+            Registers[MipsGprRegisters.Lo] = (int)(result & 0xFFFFFFFF);
         } else if (instruction is Multu multu) {
-            ulong result = (ulong)RegisterBank.Get<MipsGprRegisters>(multu.Rs) * (ulong)RegisterBank.Get<MipsGprRegisters>(multu.Rt);
-            RegisterBank[MipsGprRegisters.Hi] = (int)(result >> 32);
-            RegisterBank[MipsGprRegisters.Lo] = (int)(result & 0xFFFFFFFF);
+            ulong result = (ulong)Registers.Get<MipsGprRegisters>(multu.Rs) * (ulong)Registers.Get<MipsGprRegisters>(multu.Rt);
+            Registers[MipsGprRegisters.Hi] = (int)(result >> 32);
+            Registers[MipsGprRegisters.Lo] = (int)(result & 0xFFFFFFFF);
         } else if (instruction is Slt slt) {
-            RegisterBank.Set<MipsGprRegisters>(slt.Rd, RegisterBank.Get<MipsGprRegisters>(slt.Rs) < RegisterBank.Get<MipsGprRegisters>(slt.Rt) ? 1 : 0);
+            Registers.Set<MipsGprRegisters>(slt.Rd, Registers.Get<MipsGprRegisters>(slt.Rs) < Registers.Get<MipsGprRegisters>(slt.Rt) ? 1 : 0);
         } else if (instruction is Sltu sltu) {
-            RegisterBank.Set<MipsGprRegisters>(sltu.Rd, (uint)RegisterBank.Get<MipsGprRegisters>(sltu.Rs) < (uint)RegisterBank.Get<MipsGprRegisters>(sltu.Rt) ? 1 : 0);
+            Registers.Set<MipsGprRegisters>(sltu.Rd, (uint)Registers.Get<MipsGprRegisters>(sltu.Rs) < (uint)Registers.Get<MipsGprRegisters>(sltu.Rt) ? 1 : 0);
         } else if (instruction is Sub sub) {
-            int result = RegisterBank.Get<MipsGprRegisters>(sub.Rs) - RegisterBank.Get<MipsGprRegisters>(sub.Rt);
-            if(IsOverflowed(RegisterBank.Get<MipsGprRegisters>(sub.Rs), RegisterBank.Get<MipsGprRegisters>(sub.Rt), result)) {
+            int result = Registers.Get<MipsGprRegisters>(sub.Rs) - Registers.Get<MipsGprRegisters>(sub.Rt);
+            if(IsOverflowed(Registers.Get<MipsGprRegisters>(sub.Rs), Registers.Get<MipsGprRegisters>(sub.Rt), result)) {
                 // dont change rd, trap
                 if (SignalException is not null) {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
                         Instruction = sub.ConvertToInt(),
-                        ProgramCounter = RegisterBank[MipsGprRegisters.Pc],
+                        ProgramCounter = Registers[MipsGprRegisters.Pc],
                     });
                 }
             } else {
-                RegisterBank.Set<MipsGprRegisters>(sub.Rd, result);
+                Registers.Set<MipsGprRegisters>(sub.Rd, result);
             }
         } else if (instruction is Subu subu) {
-            RegisterBank.Set<MipsGprRegisters>(subu.Rd, RegisterBank.Get<MipsGprRegisters>(subu.Rs) - RegisterBank.Get<MipsGprRegisters>(subu.Rt));
+            Registers.Set<MipsGprRegisters>(subu.Rd, Registers.Get<MipsGprRegisters>(subu.Rs) - Registers.Get<MipsGprRegisters>(subu.Rt));
         } else if(instruction is Jalr1 or Jalr2) {
-            RegisterBank.Set<MipsGprRegisters>(instruction.Rd, RegisterBank[MipsGprRegisters.Pc]);
-            RegisterBank[MipsGprRegisters.Pc] = RegisterBank.Get<MipsGprRegisters>(instruction.Rs);
+            Registers.Set<MipsGprRegisters>(instruction.Rd, Registers[MipsGprRegisters.Pc]);
+            Registers[MipsGprRegisters.Pc] = Registers.Get<MipsGprRegisters>(instruction.Rs);
         } else if(instruction is And and) {
-            RegisterBank.Set<MipsGprRegisters>(and.Rd, RegisterBank.Get<MipsGprRegisters>(and.Rs) & RegisterBank.Get<MipsGprRegisters>(and.Rt));
+            Registers.Set<MipsGprRegisters>(and.Rd, Registers.Get<MipsGprRegisters>(and.Rs) & Registers.Get<MipsGprRegisters>(and.Rt));
         } else if(instruction is Nor nor) {
-            RegisterBank.Set<MipsGprRegisters>(nor.Rd, ~(RegisterBank.Get<MipsGprRegisters>(nor.Rs) | RegisterBank.Get<MipsGprRegisters>(nor.Rt)));
+            Registers.Set<MipsGprRegisters>(nor.Rd, ~(Registers.Get<MipsGprRegisters>(nor.Rs) | Registers.Get<MipsGprRegisters>(nor.Rt)));
         } else if(instruction is Or or) {
-            RegisterBank.Set<MipsGprRegisters>(or.Rd, RegisterBank.Get<MipsGprRegisters>(or.Rs) | RegisterBank.Get<MipsGprRegisters>(or.Rt));
+            Registers.Set<MipsGprRegisters>(or.Rd, Registers.Get<MipsGprRegisters>(or.Rs) | Registers.Get<MipsGprRegisters>(or.Rt));
         } else if(instruction is Xor xor) {
-            RegisterBank.Set<MipsGprRegisters>(xor.Rd, RegisterBank.Get<MipsGprRegisters>(xor.Rs) ^ RegisterBank.Get<MipsGprRegisters>(xor.Rt));
+            Registers.Set<MipsGprRegisters>(xor.Rd, Registers.Get<MipsGprRegisters>(xor.Rs) ^ Registers.Get<MipsGprRegisters>(xor.Rt));
         } else if(instruction is Sll sll) {
-            RegisterBank.Set<MipsGprRegisters>(sll.Rd, RegisterBank.Get<MipsGprRegisters>(sll.Rt) << sll.ShiftAmount);
+            Registers.Set<MipsGprRegisters>(sll.Rd, Registers.Get<MipsGprRegisters>(sll.Rt) << sll.ShiftAmount);
         } else if(instruction is Sllv sllv) {
-            RegisterBank.Set<MipsGprRegisters>(sllv.Rd, RegisterBank.Get<MipsGprRegisters>(sllv.Rt) << RegisterBank.Get<MipsGprRegisters>(sllv.Rs));
+            Registers.Set<MipsGprRegisters>(sllv.Rd, Registers.Get<MipsGprRegisters>(sllv.Rt) << Registers.Get<MipsGprRegisters>(sllv.Rs));
         } else if(instruction is Sra sra) {
-            int filling = (RegisterBank.Get<MipsGprRegisters>(sra.Rt) < 0 ? -1 : 0) << (32-sra.ShiftAmount);
-            RegisterBank.Set<MipsGprRegisters>(sra.Rd, filling | (RegisterBank.Get<MipsGprRegisters>(sra.Rt) >> sra.ShiftAmount));
+            int filling = (Registers.Get<MipsGprRegisters>(sra.Rt) < 0 ? -1 : 0) << (32-sra.ShiftAmount);
+            Registers.Set<MipsGprRegisters>(sra.Rd, filling | (Registers.Get<MipsGprRegisters>(sra.Rt) >> sra.ShiftAmount));
         } else if(instruction is Srav srav) {
-            int filling = (RegisterBank.Get<MipsGprRegisters>(srav.Rt) < 0 ? -1 : 0) << (32 - RegisterBank.Get<MipsGprRegisters>(srav.Rs));
-            RegisterBank.Set<MipsGprRegisters>(srav.Rd, filling | (RegisterBank.Get<MipsGprRegisters>(srav.Rt) >> RegisterBank.Get<MipsGprRegisters>(srav.Rs)));
+            int filling = (Registers.Get<MipsGprRegisters>(srav.Rt) < 0 ? -1 : 0) << (32 - Registers.Get<MipsGprRegisters>(srav.Rs));
+            Registers.Set<MipsGprRegisters>(srav.Rd, filling | (Registers.Get<MipsGprRegisters>(srav.Rt) >> Registers.Get<MipsGprRegisters>(srav.Rs)));
         } else if(instruction is Srl srl) {
-            RegisterBank.Set<MipsGprRegisters>(srl.Rd, RegisterBank.Get<MipsGprRegisters>(srl.Rt) >>> srl.ShiftAmount);
+            Registers.Set<MipsGprRegisters>(srl.Rd, Registers.Get<MipsGprRegisters>(srl.Rt) >>> srl.ShiftAmount);
         } else if(instruction is Srlv srlv) {
-            RegisterBank.Set<MipsGprRegisters>(srlv.Rd, RegisterBank.Get<MipsGprRegisters>(srlv.Rt) >>> RegisterBank.Get<MipsGprRegisters>(srlv.Rs));
+            Registers.Set<MipsGprRegisters>(srlv.Rd, Registers.Get<MipsGprRegisters>(srlv.Rt) >>> Registers.Get<MipsGprRegisters>(srlv.Rs));
         } else if(instruction is Break @break) {
             if (SignalException is not null) {
                 await SignalException.Invoke(new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.Breakpoint,
                     Instruction = @break.ConvertToInt(),
-                    ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
+                    ProgramCounter = Registers[MipsGprRegisters.Pc]
                 });
             }
         } else if(instruction is Syscall syscall) {
@@ -118,19 +118,19 @@ public partial class Monocycle {
                 await SignalException.Invoke(new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.SystemCall,
                     Instruction = syscall.ConvertToInt(),
-                    ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
+                    ProgramCounter = Registers[MipsGprRegisters.Pc]
                 });
             }
-        } else if (instruction is Teq teq && RegisterBank.Get<MipsGprRegisters>(teq.Rs) == RegisterBank.Get<MipsGprRegisters>(teq.Rt)) {
+        } else if (instruction is Teq teq && Registers.Get<MipsGprRegisters>(teq.Rs) == Registers.Get<MipsGprRegisters>(teq.Rt)) {
             if (SignalException is not null) {
                 await SignalException.Invoke(new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.Trap,
                     Instruction = teq.ConvertToInt(),
-                    ProgramCounter = RegisterBank[MipsGprRegisters.Pc]
+                    ProgramCounter = Registers[MipsGprRegisters.Pc]
                 });
             }
         }else if(instruction is Jr jr) {
-            RegisterBank[MipsGprRegisters.Pc] = RegisterBank.Get<MipsGprRegisters>(jr.Rs);
+            Registers[MipsGprRegisters.Pc] = Registers.Get<MipsGprRegisters>(jr.Rs);
         }
     }
 }

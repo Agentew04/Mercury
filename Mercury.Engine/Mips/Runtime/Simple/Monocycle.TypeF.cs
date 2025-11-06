@@ -179,11 +179,11 @@ public partial class Monocycle
         }
         else if (instruction is Cfc1 cfc1)
         {
-            RegisterBank.Set<MipsGprRegisters>(cfc1.Rt, RegisterBank.Get<MipsFpuControlRegisters>(cfc1.Fs));
+            Registers.Set<MipsGprRegisters>(cfc1.Rt, Registers.Get<MipsFpuControlRegisters>(cfc1.Fs));
         }
         else if (instruction is Ctc1 ctc1)
         {
-            RegisterBank.Set<MipsFpuControlRegisters>(ctc1.Fs, RegisterBank.Get<MipsGprRegisters>(ctc1.Rt));
+            Registers.Set<MipsFpuControlRegisters>(ctc1.Fs, Registers.Get<MipsGprRegisters>(ctc1.Rt));
         }
         else if (instruction is Cvt_D ctvd)
         {
@@ -220,7 +220,7 @@ public partial class Monocycle
         }
         else if (instruction is Mfc1 mfc1)
         {
-            RegisterBank.Set<MipsGprRegisters>(mfc1.Rt, RegisterBank.Get<MipsFpuRegisters>(mfc1.Fs));
+            Registers.Set<MipsGprRegisters>(mfc1.Rt, Registers.Get<MipsFpuRegisters>(mfc1.Fs));
         }else if (instruction is Mov mov)
         {
             if (mov.IsDouble)
@@ -230,11 +230,11 @@ public partial class Monocycle
             }
             else
             {
-                RegisterBank.Set<MipsFpuRegisters>(mov.Fd, RegisterBank.Get<MipsFpuRegisters>(mov.Fs));
+                Registers.Set<MipsFpuRegisters>(mov.Fd, Registers.Get<MipsFpuRegisters>(mov.Fs));
             }
         }else if (instruction is Mtc1 mtc1)
         {
-            RegisterBank.Set<MipsFpuRegisters>(mtc1.Fs, RegisterBank.Get<MipsGprRegisters>(mtc1.Rt));
+            Registers.Set<MipsFpuRegisters>(mtc1.Fs, Registers.Get<MipsGprRegisters>(mtc1.Rt));
         }else if (instruction is Mul_float mul)
         {
             if (mul.IsDouble)
@@ -255,7 +255,7 @@ public partial class Monocycle
         {
             // otimizacao, manipula bit do sinal diretamente
             // nao precisa pensar no double pq o bit do sinal fica no 1o registrador mesmo
-            uint val = (uint)RegisterBank.Get<MipsFpuRegisters>(neg.Fs);
+            uint val = (uint)Registers.Get<MipsFpuRegisters>(neg.Fs);
             if (val >> 31 > 0)
             {
                 // eh negativo. tem que setar msb para 0
@@ -266,7 +266,7 @@ public partial class Monocycle
                 // eh positivo. tem que setar msb para 1
                 val = (val & 0x7FFF_FFFF) | 0x8000_0000;
             }
-            RegisterBank.Set<MipsFpuRegisters>(neg.Fd, (int)val);
+            Registers.Set<MipsFpuRegisters>(neg.Fd, (int)val);
         }else if (instruction is Sqrt sqrt)
         {
             if (sqrt.IsDouble)
@@ -307,8 +307,8 @@ public partial class Monocycle
             {
                 return SignalException.Invoke(new SignalExceptionEventArgs
                 {
-                    Instruction = MipsMachine.InstructionMemory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc)),
-                    ProgramCounter = RegisterBank.Get(MipsGprRegisters.Pc),
+                    Instruction = MipsMachine.InstructionMemory.ReadWord((ulong)Registers.Get(MipsGprRegisters.Pc)),
+                    ProgramCounter = Registers.Get(MipsGprRegisters.Pc),
                     Signal = SignalExceptionEventArgs.SignalType.InvalidOperation
                 });
             }
@@ -317,28 +317,28 @@ public partial class Monocycle
         
         double ReadDouble(int reg)
         {
-            long l = ((long)RegisterBank.Get<MipsFpuRegisters>(reg) << 32)
-                     | (uint)RegisterBank.Get<MipsFpuRegisters>(reg+1);
+            long l = ((long)Registers.Get<MipsFpuRegisters>(reg) << 32)
+                     | (uint)Registers.Get<MipsFpuRegisters>(reg+1);
             return BitConverter.Int64BitsToDouble(l);
         }
         
         void WriteDouble(int reg, double value)
         {
             long res = BitConverter.DoubleToInt64Bits(value);
-            RegisterBank.Set<MipsFpuRegisters>(
+            Registers.Set<MipsFpuRegisters>(
                 reg, (int)((res >> 32) & 0xFFFF_FFFF));
-            RegisterBank.Set<MipsFpuRegisters>(
+            Registers.Set<MipsFpuRegisters>(
                 reg+1, (int)(res & 0xFFFF_FFFF));
         }
         
         float ReadFloat(int reg)
         {
-            return BitConverter.Int32BitsToSingle(RegisterBank.Get<MipsFpuRegisters>(reg));
+            return BitConverter.Int32BitsToSingle(Registers.Get<MipsFpuRegisters>(reg));
         }
         
         void WriteFloat(int reg, float value)
         {
-            RegisterBank.Set<MipsFpuRegisters>(
+            Registers.Set<MipsFpuRegisters>(
                 reg, BitConverter.SingleToInt32Bits(value));
         }
     }

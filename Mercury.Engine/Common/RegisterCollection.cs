@@ -6,11 +6,11 @@ namespace Mercury.Engine.Common;
 /// A class to represent an architecture agnostic collection of registers.
 /// Separates them by type called banks.
 /// </summary>
-public class RegisterBank {
+public class RegisterCollection {
     private readonly Dictionary<Type, Array> banks = [];
     private IRegisterHelper provider;
 
-    public RegisterBank(IRegisterHelper provider)
+    public RegisterCollection(IRegisterHelper provider)
     {
         this.provider = provider;
     }
@@ -20,7 +20,7 @@ public class RegisterBank {
     /// </summary>
     /// <param name="count">The amount of registers to allocate in this bank.</param>
     /// <typeparam name="TRegister">The type key of this bank</typeparam>
-    public void DefineBank<TRegister>(int count) where TRegister : struct, Enum {
+    public void DefineGroup<TRegister>(int count) where TRegister : struct, Enum {
         banks[typeof(TRegister)] = new int[count];
     }
 

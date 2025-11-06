@@ -14,17 +14,17 @@ public class SimplePipeline : IMipsCpu
     public SimplePipeline()
     {
         // Initialize the registers
-        RegisterBank.DefineBank<MipsGprRegisters>(MipsRegisterHelper.GetMipsGprRegistersCount());
-        RegisterBank.DefineBank<MipsFpuRegisters>(MipsRegisterHelper.GetMipsFpuRegistersCount());
-        RegisterBank.DefineBank<MipsFpuControlRegisters>(MipsRegisterHelper.GetMipsFpuControlRegistersCount());
-        RegisterBank.DefineBank<MipsSpecialRegisters>(MipsRegisterHelper.GetMipsSpecialRegistersCount());
+        Registers.DefineGroup<MipsGprRegisters>(MipsRegisterHelper.GetMipsGprRegistersCount());
+        Registers.DefineGroup<MipsFpuRegisters>(MipsRegisterHelper.GetMipsFpuRegistersCount());
+        Registers.DefineGroup<MipsFpuControlRegisters>(MipsRegisterHelper.GetMipsFpuControlRegistersCount());
+        Registers.DefineGroup<MipsSpecialRegisters>(MipsRegisterHelper.GetMipsSpecialRegistersCount());
 
-        RegisterBank.Set(MipsGprRegisters.Sp, 0x7FFF_EFFC);
-        RegisterBank.Set(MipsGprRegisters.Fp, 0x0000_0000);
-        RegisterBank.Set(MipsGprRegisters.Gp, 0x1000_8000);
-        RegisterBank.Set(MipsGprRegisters.Ra, 0x0000_0000);
-        RegisterBank.Set(MipsGprRegisters.Pc, 0x0040_0000);
-        _ = RegisterBank.GetDirty();
+        Registers.Set(MipsGprRegisters.Sp, 0x7FFF_EFFC);
+        Registers.Set(MipsGprRegisters.Fp, 0x0000_0000);
+        Registers.Set(MipsGprRegisters.Gp, 0x1000_8000);
+        Registers.Set(MipsGprRegisters.Ra, 0x0000_0000);
+        Registers.Set(MipsGprRegisters.Pc, 0x0040_0000);
+        _ = Registers.GetDirty();
         
         // Initialize the pipeline stages
         fetchStage = new PipelineStage<ExecuteMemoryData, FetchDecodeData>(executeMemoryBarrier, fetchIdBarrier, DoFetch);
@@ -49,7 +49,7 @@ public class SimplePipeline : IMipsCpu
     /// <summary>
     /// Structure that holds all the registers of the CPU.
     /// </summary>
-    public RegisterBank RegisterBank { get; set; } = new(new MipsRegisterHelper());
+    public RegisterCollection Registers { get; set; } = new(new MipsRegisterHelper());
 
     public int ExitCode { get; set; }
     public async ValueTask Halt(int code = 0) {
@@ -61,8 +61,8 @@ public class SimplePipeline : IMipsCpu
         if (SignalException is not null) {
             await SignalException.Invoke(new SignalExceptionEventArgs {
                 Signal = SignalExceptionEventArgs.SignalType.Halt,
-                ProgramCounter = RegisterBank.Get(MipsGprRegisters.Pc),
-                Instruction = MipsMachine.InstructionMemory.ReadWord((ulong)RegisterBank.Get(MipsGprRegisters.Pc))
+                ProgramCounter = Registers.Get(MipsGprRegisters.Pc),
+                Instruction = MipsMachine.InstructionMemory.ReadWord((ulong)Registers.Get(MipsGprRegisters.Pc))
             });
         }
     }
@@ -121,7 +121,7 @@ public class SimplePipeline : IMipsCpu
     }
 
     public bool IsClockingFinished() {
-        return (uint)RegisterBank.Get(MipsGprRegisters.Pc) >= (DropoffAddress+5*4)
+        return (uint)Registers.Get(MipsGprRegisters.Pc) >= (DropoffAddress+5*4)
                || isHalted;
     }
 
@@ -131,7 +131,7 @@ public class SimplePipeline : IMipsCpu
 
     private FetchDecodeData DoFetch(ExecuteMemoryData? data)
     {
-        uint pc = (uint)RegisterBank.Get(MipsGprRegisters.Pc);
+        uint pc = (uint)Registers.Get(MipsGprRegisters.Pc);
         
         // fetch
         uint instruction = (uint)MipsMachine.InstructionMemory.ReadWord(pc);
@@ -144,7 +144,7 @@ public class SimplePipeline : IMipsCpu
         
         Console.WriteLine($"Fetch: {instruction:X8} @ {pc:X8} -> {newPc:X8}");
         // set pc recursive
-        RegisterBank.Set(MipsGprRegisters.Pc, (int)newPc);
+        Registers.Set(MipsGprRegisters.Pc, (int)newPc);
         
         return new FetchDecodeData {
             NewPc = newPc,
@@ -180,8 +180,8 @@ public class SimplePipeline : IMipsCpu
             immediate = typeIInst.Immediate; // sign-extend
         }
         
-        int rsValue = RegisterBank.Get<MipsGprRegisters>(rs);
-        int rtValue = RegisterBank.Get<MipsGprRegisters>(rt);
+        int rsValue = Registers.Get<MipsGprRegisters>(rs);
+        int rtValue = Registers.Get<MipsGprRegisters>(rt);
         
         Console.WriteLine($"Decode: {inst.GetType().Name} RsValue:{rsValue} RtValue:{rtValue} Rd:{rd} Imm:{immediate}");
 

@@ -32,7 +32,7 @@ public abstract class Machine : IAsyncClockable, IDisposable
     /// <summary>
     /// A link to the RegisterBank present on the <see cref="Cpu"/>
     /// </summary>
-    public virtual RegisterBank Registers => Cpu.RegisterBank;
+    public virtual RegisterCollection Registers => Cpu.Registers;
 
     /// <summary>
     /// The Operating System that answers syscalls of this machine.

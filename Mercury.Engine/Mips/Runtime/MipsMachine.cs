@@ -6,10 +6,8 @@ using Mercury.Engine.Mips.Runtime.OS;
 
 namespace Mercury.Engine.Mips.Runtime;
 
-/// <summary>
-/// Extends the functionality of <see cref="ELFSharp.ELF.Machine"/> to a <see cref="Mercury.Engine.Common.Architecture.Mips"/> machine.
-/// </summary>
-public sealed class MipsMachine : Mercury.Engine.Common.Machine {
+
+public sealed class MipsMachine : Common.Machine {
 
     public MipsMachine(IMipsCpu cpu, MipsOperatingSystem os) {
         Cpu = cpu;
@@ -20,19 +18,19 @@ public sealed class MipsMachine : Mercury.Engine.Common.Machine {
     
     public override MipsOperatingSystem  Os { get;  }
     
-    public override RegisterBank Registers => Cpu.RegisterBank;
+    public override RegisterCollection Registers => Cpu.Registers;
     
     public override void LoadElf(ELF<uint> elf) {
         Section<uint>? textSection = elf.GetSection(".text");
         uint textStart = textSection!.LoadAddress;
         uint textLength = textSection.Size;
-        Cpu.RegisterBank[MipsGprRegisters.Pc] = (int)elf.EntryPoint;
+        Cpu.Registers[MipsGprRegisters.Pc] = (int)elf.EntryPoint;
         SymbolTable<uint>? symbolTable = elf.GetSections<SymbolTable<uint>>().First();
         Cpu.DropoffAddress = symbolTable?.Entries?.First(x => x.Name == "__end")?.Value ?? textStart + textLength;
         SymbolEntry<uint>? gpSymbol = symbolTable?.Entries?.First(x => x.Name == "_gp");
         if (gpSymbol is not null)
         {
-            Cpu.RegisterBank[MipsGprRegisters.Gp] = (int)gpSymbol.Value;
+            Cpu.Registers[MipsGprRegisters.Gp] = (int)gpSymbol.Value;
         }
 
         // use segments to load data into memory

@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using System.Collections.Generic;
 using Avalonia.Svg;
 
 namespace Mercury.Editor {
@@ -20,6 +21,13 @@ namespace Mercury.Editor {
                 .UsePlatformDetect()
                 .WithInterFont()
                 .LogToTrace();
+        }
+
+        public IEnumerable<string> a() {
+            for (int i = 0; i < 20; i++) {
+                yield return (2 * i).ToString();
+                yield return "dadad";
+            }
         }
     }
 }

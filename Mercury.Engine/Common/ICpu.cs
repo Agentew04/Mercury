@@ -8,7 +8,7 @@ public interface ICpu : IAsyncClockable {
     
     public uint DropoffAddress { get; set; }
     
-    public RegisterBank RegisterBank { get; }
+    public RegisterCollection Registers { get; }
     
     public int ExitCode { get; }
     

@@ -73,7 +73,7 @@ public class MonocycleTest {
         Assert.IsNotNull(mipsMachine.Cpu);
         Assert.IsNotNull(mipsMachine.Os);
         Assert.IsNotNull(mipsMachine.Cpu.Machine);
-        Assert.AreSame(mipsMachine.Cpu.RegisterBank, mipsMachine.Registers);
+        Assert.AreSame(mipsMachine.Cpu.Registers, mipsMachine.Registers);
         Assert.IsNotNull(mipsMachine.Os.Machine);
         
         const ulong gb = 1024 * 1024 * 1024;
