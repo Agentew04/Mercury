@@ -120,8 +120,8 @@ public abstract class Machine : IAsyncClockable, IDisposable
         IsDisposed = true;
         
         // remove links
-        Cpu.Machine = null!;
-        Os.Machine = null!;
+        //Cpu.Machine = null!;
+        //Os.Machine = null!;
         
         // dispose objects
         if(DataMemory is IDisposable dispDMem) dispDMem.Dispose();

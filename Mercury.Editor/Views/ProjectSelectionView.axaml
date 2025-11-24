@@ -155,6 +155,12 @@
                            HorizontalAlignment="Left"
                            TextWrapping="Wrap"
                            FontSize="11" Margin="0,2,0,8"/>
+                <TextBlock Text="{loc:ProjectResources DirAlreadyExists}"
+                           IsVisible="{Binding IsInvalidFolder}"
+                           Foreground="Red"
+                           HorizontalAlignment="Left"
+                           TextWrapping="Wrap"
+                           FontSize="11" Margin="0,2,0,8"/>
                 <Label Content="{loc:ProjectResources NameLabel}"
                        Target="NameTextbox"
                        HorizontalAlignment="Left"></Label>

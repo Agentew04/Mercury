@@ -138,7 +138,12 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel, Problem
         
         // sanitize folder name
         char[] invalidChars = Path.GetInvalidPathChars();
-        string foldername = result.Result.Sanitize(invalidChars);
+        string foldername = result.Result.Trim().Sanitize(invalidChars);
+
+        if (string.IsNullOrWhiteSpace(foldername)) {
+            Logger.LogInformation("Tried creating folder with invalid name. Aborting.");
+            return;
+        }
         
         ProjectNode folder = new() {
             Name = foldername,
@@ -182,7 +187,13 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel, Problem
         
         // sanitize file name
         char[] invalidChars = Path.GetInvalidFileNameChars();
-        string filename = result.Result.Sanitize(invalidChars);
+        string filename = result.Result.Trim().Sanitize(invalidChars);
+        
+        // invalid file name
+        if (string.IsNullOrWhiteSpace(result.Result)) {
+            Logger.LogInformation("Tried creating file with invalid name. Aborting.");
+            return;
+        }
         
         string ext = Path.GetExtension(result.Result);
         ProjectNode file = new() {

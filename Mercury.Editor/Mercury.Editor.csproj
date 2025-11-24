@@ -8,7 +8,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <IsPackable>false</IsPackable>
     <Authors>Rodrigo Appelt</Authors>
-    <AssemblyVersion>0.2</AssemblyVersion>
+    <AssemblyVersion>0.3</AssemblyVersion>
     <NeutralLanguage>en</NeutralLanguage>
     
     <!-- publish and trimming -->

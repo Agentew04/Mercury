@@ -200,6 +200,22 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
         SelectedOperatingSystemIndex = osIndex;
     }
 
+    [ObservableProperty] private bool isInvalidFolder = true;
+    
+    partial void OnNewProjectNameChanged(string value) {
+        string path = SanitizeProjectPath(NewProjectPath);
+        string name = SanitizeProjectName(value);
+        string effective = Path.Combine(path, name);
+        IsInvalidFolder = Directory.Exists(effective);
+    }
+    
+    partial void OnNewProjectPathChanged(string value) {
+        string path = SanitizeProjectPath(value);
+        string name = SanitizeProjectName(NewProjectName);
+        string effective = Path.Combine(path, name);
+        IsInvalidFolder = Directory.Exists(effective);
+    }
+
     [RelayCommand]
     private async Task NewProjectEnd() {
         string path = SanitizeProjectPath(NewProjectPath);
@@ -269,7 +285,11 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
     }
 
     private static string SanitizeProjectPath(string path) {
-        return Path.GetInvalidPathChars().Aggregate(path, (current, illegal) => current.Replace(illegal.ToString(), ""));
+        char[] illegals = Path.GetInvalidPathChars();
+        char[] dividers = ['/', '\\'];
+        string valid = illegals.Aggregate(path, (current, illegal) => current.Replace(illegal.ToString(), ""));
+        string normalized = dividers.Aggregate(valid, (current, div) => current.Replace(div.ToString(), Path.DirectorySeparatorChar.ToString()));
+        return normalized;
     }
     
     public void OverrideTaskCompletion() {

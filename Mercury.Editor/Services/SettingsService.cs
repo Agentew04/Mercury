@@ -20,6 +20,7 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     public string AppDirectory { get; }
     
     public PathObject ResourcesDirectory { get; }
+    public PathObject ThemesDirectory { get; }
     
     /// <summary>
     /// The path to the config file. It is a file named 'config.json' that
@@ -54,6 +55,7 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
         Preferences = null!;
         AppDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".mercury");
         ResourcesDirectory = AppDirectory.ToDirectoryPath().Folder("resources");
+        ThemesDirectory = AppDirectory.ToDirectoryPath().Folder("themes");
         PreferencesPath = Path.Combine(AppDirectory, "config.json");
         StdLibSettingsPath = Path.Combine(AppDirectory, "stdlib.json");
         GuideSettingsPath = Path.Combine(AppDirectory, "guide.json");

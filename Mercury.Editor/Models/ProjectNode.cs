@@ -40,14 +40,14 @@ public partial class ProjectNode : ObservableObject {
     [NotifyPropertyChangedFor(nameof(HasContextMenu))]
     private ObservableCollection<NodeContextOption> contextOptions = [];
 
-    public WeakReference<ProjectNode> ParentReference { get; set; } = null!;
+    public WeakReference<ProjectNode>? ParentReference { get; set; } = null!;
     
     public bool HasContextMenu => ContextOptions.Count > 0;
 
     [ObservableProperty] 
     private bool isReadOnly;
     
-    public bool IsEffectiveReadOnly => IsReadOnly || (ParentReference.TryGetTarget(out ProjectNode? parent) && parent.IsEffectiveReadOnly);
+    public bool IsEffectiveReadOnly => IsReadOnly || (ParentReference?.TryGetTarget(out ProjectNode? parent) == true && parent.IsEffectiveReadOnly);
 }
 
 /// <summary>
