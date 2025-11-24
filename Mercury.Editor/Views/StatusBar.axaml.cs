@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
@@ -11,7 +9,6 @@ using Mercury.Editor.Models.Compilation;
 using Mercury.Editor.Models.Messages;
 using Mercury.Editor.Services;
 using Mercury.Engine.Common;
-using Mercury.Engine;
 
 namespace Mercury.Editor.Views;
 

@@ -299,7 +299,7 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
             }
         }
 
-        return new EnumToGenerate(enumSymbol!.ToDisplayString(), enumSymbol.Name, regs, architectureFieldName, fullArchitectureClassName);
+        return new EnumToGenerate(enumSymbol.ToDisplayString(), enumSymbol.Name, regs, architectureFieldName, fullArchitectureClassName);
     }
 
     private static void Execute(EnumToGenerate enumToGenerate, SourceProductionContext ctx) {

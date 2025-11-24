@@ -1,19 +1,19 @@
 namespace Mercury.Engine.Memory;
 
 public readonly struct MemoryConfiguration {
-    private const ulong KB = 1024;
-    private const ulong MB = 1024 * KB;
-    private const ulong GB = 1024 * MB;
+    private const ulong Kb = 1024;
+    private const ulong Mb = 1024 * Kb;
+    private const ulong Gb = 1024 * Mb;
 
     /// <summary>
     /// The total amount of bytes of this memory.
     /// </summary>
-    public ulong Size { get; init; } = 4*GB;
+    public ulong Size { get; init; } = 4*Gb;
 
     /// <summary>
     /// The size of each page.
     /// </summary>
-    public ulong PageSize { get; init; } = 4*KB;
+    public ulong PageSize { get; init; } = 4*Kb;
 
     /// <summary>
     /// The maximum amount of loaded pages(frames) in memory.

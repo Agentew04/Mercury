@@ -3,13 +3,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Models.Messages;
 using Mercury.Editor.Views.ExecuteView;
-using Microsoft.Extensions.Logging;
 using Mercury.Engine.Common;
 
 namespace Mercury.Editor.ViewModels.Execute;
@@ -51,9 +49,9 @@ public partial class OutputViewModel : BaseViewModel<OutputViewModel, OutputView
         vm.sb.Clear();
 
         // create new objects
-        vm.swIn = msg.MipsMachine.StdIn?.Writer;
-        vm.srOut = msg.MipsMachine.StdOut?.Reader;
-        vm.srErr = msg.MipsMachine.StdErr?.Reader;
+        vm.swIn = msg.MipsMachine.StdIn.Writer;
+        vm.srOut = msg.MipsMachine.StdOut.Reader;
+        vm.srErr = msg.MipsMachine.StdErr.Reader;
 
         _ = vm.ReadStdOut(vm.cts.Token);
         _ = vm.ReadStdErr(vm.cts.Token);

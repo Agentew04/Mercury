@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Avalonia.Controls;
-using Avalonia.Controls.Documents;
 using Avalonia.Controls.Templates;
-using Avalonia.Media;
 using Mercury.Editor.Models;
 using Mercury.Editor.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,8 +13,8 @@ public sealed class GuideChapterDataTemplate : IDataTemplate, IDisposable {
     
     private readonly GuideService guideService = App.Services.GetService<GuideService>()!;
 
-    private StackPanel? stackPanel = null;
-    private GuideChapter? chapter = null; 
+    private StackPanel? stackPanel;
+    private GuideChapter? chapter; 
     
     public Control? Build(object? param) {
         stackPanel ??= new StackPanel();

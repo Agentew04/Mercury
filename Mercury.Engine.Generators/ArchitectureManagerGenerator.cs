@@ -286,27 +286,6 @@ public class ArchitectureManagerGenerator : IIncrementalGenerator
             #endregion
         }}
         """;
-
-    private const string InitializationText =
-        """
-            private static ArchitectureMetadata Init{0}() {{
-                return new ArchitectureMetadata([
-                    // processors
-        {1}
-                );
-            }
-        """;
-    
-    private const string ProcessorInitializationText =
-        """
-                    new Processor({0}, "{1}", [
-                        // Registers
-        {2}
-                    ], [
-                        // Flags
-        {3}
-                    ]),
-        """;
     
     private const string RegisterInitializationText =
         """

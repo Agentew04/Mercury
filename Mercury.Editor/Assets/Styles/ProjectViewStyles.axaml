@@ -1,8 +1,6 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:view="clr-namespace:Mercury.Editor.Views"
         xmlns:converters="clr-namespace:Mercury.Editor.Converters"
-        xmlns:vm="clr-namespace:Mercury.Editor.ViewModels"
         xmlns:model="clr-namespace:Mercury.Editor.Models">
     <Styles.Resources>
         <converters:ProjectNodeTypeToIcon x:Key="NodeTypeToIcon"></converters:ProjectNodeTypeToIcon>

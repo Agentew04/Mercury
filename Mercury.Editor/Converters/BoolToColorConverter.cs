@@ -18,7 +18,7 @@ public class BoolToColorConverter : IValueConverter{
         return input ? param.TrueBrush : param.FalseBrush;
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value is not IBrush brushInput || parameter is not ColorConverterParam param) {
             return BindingNotification.Null;
         }
@@ -26,7 +26,7 @@ public class BoolToColorConverter : IValueConverter{
             return BindingNotification.Null;
         }
 
-        return brushInput == param.TrueBrush;
+        return ReferenceEquals(brushInput, param.TrueBrush);
     }
 }
 

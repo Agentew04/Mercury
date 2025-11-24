@@ -6,7 +6,6 @@
         xmlns:loc="clr-namespace:Mercury.Editor.Localization"
         xmlns:controls="clr-namespace:Mercury.Editor.Controls"
         xmlns:converters="clr-namespace:Mercury.Editor.Converters"
-        xmlns:engine="clr-namespace:Mercury.Engine;assembly=Mercury.Engine"
         xmlns:models="clr-namespace:Mercury.Editor.Models"
         xmlns:common="clr-namespace:Mercury.Engine.Common;assembly=Mercury.Engine"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
@@ -25,7 +24,6 @@
         <StyleInclude Source="/Assets/Styles/ProjectSelectionStyles.axaml"/>
     </Window.Styles>
     <Window.Resources>
-        <converters:ArchitectureToString x:Key="ArchToStr"></converters:ArchitectureToString>
         <converters:ArchitectureToIconSource x:Key="ArchToIcon"></converters:ArchitectureToIconSource>
     </Window.Resources>
     <Grid RowDefinitions="Auto,*" ColumnDefinitions="5*,2*">

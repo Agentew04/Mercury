@@ -53,7 +53,7 @@ public sealed class Memory : IDisposable, IMemory
     
     private readonly IStorage coldStorage;
 
-    private int ticks = 0;
+    private int ticks;
 
 
     public Memory(MemoryConfiguration config)

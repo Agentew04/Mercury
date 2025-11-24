@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Mercury.Engine.Mips.Instructions;
+﻿using Mercury.Engine.Mips.Instructions;
 using Mercury.Engine.Common;
 
 namespace Mercury.Engine.Mips.Runtime.Simple;
@@ -244,7 +239,6 @@ public partial class Monocycle {
             });
         } else {
             await MipsMachine.StdErr.Writer.WriteAsync($"Type I instruction not implemented: {instruction} @ PC={Registers[MipsGprRegisters.Pc]:X8}\n");
-            return;
         } 
     }
 }

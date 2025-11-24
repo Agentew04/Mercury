@@ -115,7 +115,7 @@ public class App : Application {
         _desktopLifetime?.Shutdown();
     }
 
-    public static event Action? OnExit = null;
+    public static event Action? OnExit;
     
     private static void OnAppExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
         OnExit?.Invoke();

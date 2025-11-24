@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using Avalonia.Controls;
 
 namespace Mercury.Editor;
@@ -27,8 +26,8 @@ public class Navigation
     private readonly ContentControl host;
     private readonly Dictionary<NavigationTarget, Type> registeredTypes = [];
     private readonly Dictionary<NavigationTarget, Control> createdTargets = [];
-    private NavigationTarget current = default;
-    private bool hasCurrent = false;
+    private NavigationTarget current;
+    private bool hasCurrent;
 
     public void Register<TControl>(NavigationTarget target, bool initialize = false) where TControl : Control, new(){
         registeredTypes.Add(target, typeof(TControl));

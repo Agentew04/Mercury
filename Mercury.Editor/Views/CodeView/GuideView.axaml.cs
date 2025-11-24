@@ -1,8 +1,6 @@
 ﻿using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
-using Mercury.Editor.ViewModels;
 using Code_GuideViewModel = Mercury.Editor.ViewModels.Code.GuideViewModel;
-using GuideViewModel = Mercury.Editor.ViewModels.Code.GuideViewModel;
 
 namespace Mercury.Editor.Views.CodeView;
 

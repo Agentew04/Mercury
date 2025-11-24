@@ -13,7 +13,7 @@ public partial class LabelViewModel : BaseViewModel<LabelViewModel, LabelView> {
 
     private List<Symbol> allSymbols = [];
     [ObservableProperty] private ObservableCollection<Symbol> symbols = [];
-    [ObservableProperty] private int selectedTabIndex = 0;
+    [ObservableProperty] private int selectedTabIndex;
     // 0 -> instrucoes
     // 1 -> data
 

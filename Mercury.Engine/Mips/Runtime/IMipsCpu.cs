@@ -1,6 +1,4 @@
 ﻿using Mercury.Engine.Common;
-using Mercury.Engine.Mips.Runtime;
-using Mercury.Engine.Common;
 
 namespace Mercury.Engine.Mips.Runtime;
 

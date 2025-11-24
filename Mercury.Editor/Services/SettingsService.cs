@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using Mercury.Editor.Converters;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Models;
-using Microsoft.Extensions.Logging;
-using SkiaSharp;
 
 namespace Mercury.Editor.Services;
 

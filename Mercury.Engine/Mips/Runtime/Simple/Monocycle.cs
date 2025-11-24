@@ -1,5 +1,4 @@
 ﻿using Mercury.Engine.Common;
-using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Instructions;
 
 namespace Mercury.Engine.Mips.Runtime.Simple;

@@ -17,11 +17,11 @@ public class IsGuideMenuConverter : IValueConverter{
 }
 
 public class IsGuideChapterConverter : IValueConverter {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
         return value is GuideChapter;
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         return BindingNotification.Null;
     }
 }

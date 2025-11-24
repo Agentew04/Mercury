@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
-using Avalonia.Controls.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -17,8 +15,6 @@ using Mercury.Editor.Services;
 using Mercury.Editor.Views.CodeView;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Mercury.Engine.Common;
-using YamlDotNet.Serialization;
 using Path = System.IO.Path;
 
 namespace Mercury.Editor.ViewModels.Code;
@@ -29,12 +25,12 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel, Problem
     private readonly FileService fileService = App.Services.GetRequiredService<FileService>();
 
     public ProjectViewModel() {
-        List<ProjectNode> nodes = fileService.GetProjectTree();
-        foreach (ProjectNode node in nodes) {
+        List<ProjectNode> tree = fileService.GetProjectTree();
+        foreach (ProjectNode node in tree) {
             SetCommands(node);
         }
 
-        Nodes = new ObservableCollection<ProjectNode>(nodes);
+        Nodes = new ObservableCollection<ProjectNode>(tree);
     }
 
     private void SetCommands(ProjectNode node) {

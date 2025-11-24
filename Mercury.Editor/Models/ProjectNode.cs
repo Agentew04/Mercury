@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Windows.Input;
-using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mercury.Editor.Localization;
@@ -47,9 +45,9 @@ public partial class ProjectNode : ObservableObject {
     public bool HasContextMenu => ContextOptions.Count > 0;
 
     [ObservableProperty] 
-    private bool isReadOnly = false;
+    private bool isReadOnly;
     
-    public bool IsEffectiveReadOnly => IsReadOnly || (ParentReference?.TryGetTarget(out ProjectNode? parent) == true && parent.IsEffectiveReadOnly);
+    public bool IsEffectiveReadOnly => IsReadOnly || (ParentReference.TryGetTarget(out ProjectNode? parent) && parent.IsEffectiveReadOnly);
 }
 
 /// <summary>

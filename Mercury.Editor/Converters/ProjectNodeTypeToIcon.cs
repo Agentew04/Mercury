@@ -3,13 +3,12 @@ using System.Globalization;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Mercury.Editor.Models;
-using Mercury.Editor.ViewModels;
 
 namespace Mercury.Editor.Converters;
 
 public class ProjectNodeTypeToIcon : IValueConverter {
     
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value is not ProjectNodeType nodeType) {
             return BindingNotification.Null;
         }
@@ -24,7 +23,7 @@ public class ProjectNodeTypeToIcon : IValueConverter {
         };
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         return BindingNotification.Null;
     }
 }

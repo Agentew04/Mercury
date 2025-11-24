@@ -16,7 +16,6 @@ using Mercury.Engine.Mips.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mercury.Editor.Extensions;
-using Mercury.Engine;
 
 namespace Mercury.Editor.Services;
 

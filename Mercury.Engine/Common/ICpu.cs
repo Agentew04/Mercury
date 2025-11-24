@@ -1,6 +1,4 @@
-﻿using Mercury.Engine.Mips.Runtime;
-
-namespace Mercury.Engine.Common;
+﻿namespace Mercury.Engine.Common;
 
 public interface ICpu : IAsyncClockable {
     

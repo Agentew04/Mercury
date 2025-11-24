@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
-using Mercury.Engine.Mips.Runtime;
 
 namespace Mercury.Engine.Common;
 
@@ -70,7 +69,7 @@ public class RegisterCollection {
     }
 
     /// <summary>
-    /// Operator to <see cref="Get{TRegister}"/> and <see cref="Set{TRegister}"/>
+    /// Operator to <see cref="Get(Enum,Type)"/> and <see cref="Set(Enum,Type,int)"/>
     /// values from registers.
     /// </summary>
     /// <param name="reg">The register to read/write.</param>

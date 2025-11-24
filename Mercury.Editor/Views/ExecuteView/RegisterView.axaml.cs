@@ -22,7 +22,6 @@ public partial class RegisterView : UserControl
         if (reg is null || control is null) {
             return;
         }
-        FlyoutBase? flyout = FlyoutBase.GetAttachedFlyout(control);
         FlyoutBase.ShowAttachedFlyout(control);
     }
 }

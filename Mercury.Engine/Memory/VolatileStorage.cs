@@ -52,7 +52,7 @@ internal sealed class VolatileStorage : IStorage
 
         if (Pages.TryGetValue(pageNumber, out Page? page))
         {
-            return page!;
+            return page;
         }
 
         page = new Page(Config.PageSize, pageNumber);

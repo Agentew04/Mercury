@@ -3,22 +3,22 @@
 namespace Mercury.Engine.Memory;
 
 internal sealed class OptimizedColdStorage : IStorage {
-    private FileStream fs;
-    private BinaryReader br;
-    private BinaryWriter bw;
+    private readonly FileStream fs;
+    private readonly BinaryReader br;
+    private readonly BinaryWriter bw;
 
     // VM\0COLD\0STORAGE\0
-    private readonly byte[] _fileSignature = [86, 77, 0, 67, 79, 76, 68, 0, 83, 84, 79, 82, 65, 71, 69, 0];
+    private readonly byte[] fileSignature = [86, 77, 0, 67, 79, 76, 68, 0, 83, 84, 79, 82, 65, 71, 69, 0];
 
-    private readonly InfoHeader _header = new();
+    private readonly InfoHeader header = new();
     /// <summary>
     /// Array that defines if a page is registered on the file or not
     /// </summary>
-    private byte[] _registerTable = null!;
-    private ulong _registerTableAddress = ulong.MinValue;
+    private byte[] registerTable = null!;
+    private ulong registerTableAddress = ulong.MinValue;
 
-    private ulong[] _regionTable = null!;
-    private ulong _regionTableAddress = ulong.MinValue;
+    private ulong[] regionTable = null!;
+    private ulong regionTableAddress = ulong.MinValue;
 
     private const uint PagesPerJumpTable = 256;
     
@@ -60,74 +60,74 @@ internal sealed class OptimizedColdStorage : IStorage {
 
     private void ReadFromFile() {
         byte[] signature = br.ReadBytes(16);
-        if (!signature.SequenceEqual(_fileSignature)) {
+        if (!signature.SequenceEqual(fileSignature)) {
             throw new InvalidDataException("Invalid file signature.");
         }
         
-        _header.PageSize = br.ReadUInt32();
-        _header.PageCount = br.ReadUInt32();
+        header.PageSize = br.ReadUInt32();
+        header.PageCount = br.ReadUInt32();
         
-        int registerTableByteSize = (int)Math.Ceiling(_header.PageCount / 8.0);
-        _registerTableAddress = (ulong)fs.Position;
-        _registerTable = br.ReadBytes(registerTableByteSize);
-        uint regionCount = (uint)MathF.Ceiling(_header.PageCount / (float)PagesPerJumpTable);
-        _regionTable = new ulong[regionCount];
-        _regionTableAddress = (ulong)fs.Position;
+        int registerTableByteSize = (int)Math.Ceiling(header.PageCount / 8.0);
+        registerTableAddress = (ulong)fs.Position;
+        registerTable = br.ReadBytes(registerTableByteSize);
+        uint regionCount = (uint)MathF.Ceiling(header.PageCount / (float)PagesPerJumpTable);
+        regionTable = new ulong[regionCount];
+        regionTableAddress = (ulong)fs.Position;
         for (int i = 0; i < regionCount; i++) {
-            _regionTable[i] = br.ReadUInt64();
+            regionTable[i] = br.ReadUInt64();
         }
     }
 
     private void CreateNew(MemoryConfiguration config) {
-        bw.Write(_fileSignature);
-        _header.PageSize = (uint)config.PageSize;
-        bw.Write(_header.PageSize);
-        _header.PageCount = (uint)(config.Size / config.PageSize); // garantido que eh multiplo
-        bw.Write(_header.PageCount);
-        _registerTable = new byte[(int)Math.Ceiling(_header.PageCount / 8.0)];
-        _registerTableAddress = (ulong)fs.Position;
-        bw.Write(_registerTable);
+        bw.Write(fileSignature);
+        header.PageSize = (uint)config.PageSize;
+        bw.Write(header.PageSize);
+        header.PageCount = (uint)(config.Size / config.PageSize); // garantido que eh multiplo
+        bw.Write(header.PageCount);
+        registerTable = new byte[(int)Math.Ceiling(header.PageCount / 8.0)];
+        registerTableAddress = (ulong)fs.Position;
+        bw.Write(registerTable);
         //Console.WriteLine($"RegisterTableAddress: {_regionTableAddress}");
-        uint regionCount = (uint)MathF.Ceiling(_header.PageCount / (float)PagesPerJumpTable);
-        _regionTable = new ulong[regionCount];
-        _regionTableAddress = (ulong)fs.Position;
+        uint regionCount = (uint)MathF.Ceiling(header.PageCount / (float)PagesPerJumpTable);
+        regionTable = new ulong[regionCount];
+        regionTableAddress = (ulong)fs.Position;
         //Console.WriteLine($"Region count: {regionCount}; RegionTable Address: {_regionTableAddress}");
         for (int i = 0; i < regionCount; i++) {
-            _regionTable[i] = ulong.MinValue;
-            bw.Write(_regionTable[i]);
+            regionTable[i] = ulong.MinValue;
+            bw.Write(regionTable[i]);
         }
         bw.Flush();
     }
 
     private bool IsPageRegistered(int pageNumber) {
-        if (pageNumber >= _header.PageCount) {
+        if (pageNumber >= header.PageCount) {
             throw new ArgumentOutOfRangeException(nameof(pageNumber), "Page number out of bounds.");
         }
         int byteIndex = pageNumber / 8;
         int bitIndex = pageNumber % 8;
         byte mask = (byte)(1 << bitIndex);
-        return (_registerTable[byteIndex] & mask) != 0;
+        return (registerTable[byteIndex] & mask) != 0;
     }
 
     private void RegisterPage(int pageNumber) {
-        if (pageNumber >= _header.PageCount) {
+        if (pageNumber >= header.PageCount) {
             throw new ArgumentOutOfRangeException(nameof(pageNumber), "Page number out of bounds.");
         }
         int byteIndex = pageNumber / 8;
         int bitIndex = pageNumber % 8;
         byte mask = (byte)(1 << bitIndex);
-        _registerTable[byteIndex] |= mask;
+        registerTable[byteIndex] |= mask;
         long pastPos = fs.Position;
-        fs.Seek((long)_registerTableAddress+byteIndex, SeekOrigin.Begin);
-        bw.Write(_registerTable[byteIndex]);
+        fs.Seek((long)registerTableAddress+byteIndex, SeekOrigin.Begin);
+        bw.Write(registerTable[byteIndex]);
         bw.Flush();
         fs.Seek(pastPos, SeekOrigin.Begin);
     }
 
     public void WritePage(Page page) {
-        if (page.Number < 0 || page.Number >= _header.PageCount) {
+        if (page.Number < 0 || page.Number >= header.PageCount) {
             throw new ArgumentOutOfRangeException(nameof(page),
-                $"Page number out of range! Got: {page.Number}. Expected: [0,{_header.PageCount}[");
+                $"Page number out of range! Got: {page.Number}. Expected: [0,{header.PageCount}[");
         }
         
         if (!page.IsDirty && IsPageRegistered(page.Number)) {
@@ -137,16 +137,16 @@ internal sealed class OptimizedColdStorage : IStorage {
         
         uint regionIndex = (uint)page.Number / PagesPerJumpTable;
         uint pageNumberOffset = (uint)page.Number % PagesPerJumpTable;
-        if (_regionTable[regionIndex] == ulong.MinValue) {
+        if (regionTable[regionIndex] == ulong.MinValue) {
             Console.WriteLine("Jump table did not exist. Creating one at: {0}", fs.Position);
             // update region table
-            _regionTable[regionIndex] = (ulong)fs.Length;
-            fs.Seek((long)(_regionTableAddress + regionIndex * sizeof(ulong)), SeekOrigin.Begin);
-            bw.Write(_regionTable[regionIndex]);
+            regionTable[regionIndex] = (ulong)fs.Length;
+            fs.Seek((long)(regionTableAddress + regionIndex * sizeof(ulong)), SeekOrigin.Begin);
+            bw.Write(regionTable[regionIndex]);
             bw.Flush();
             
             // create empty jump table
-            fs.Seek((int)_regionTable[regionIndex], SeekOrigin.Begin);
+            fs.Seek((int)regionTable[regionIndex], SeekOrigin.Begin);
             for (int i = 0; i < PagesPerJumpTable; i++) {
                 bw.Write(ulong.MinValue);
             }
@@ -157,7 +157,7 @@ internal sealed class OptimizedColdStorage : IStorage {
         // write page
         if (IsPageRegistered(page.Number)) {
             // get page address
-            ulong jumpTableAddress = _regionTable[regionIndex];
+            ulong jumpTableAddress = regionTable[regionIndex];
             fs.Seek((long)jumpTableAddress, SeekOrigin.Begin);
             fs.Seek(pageNumberOffset * sizeof(ulong), SeekOrigin.Current);
             ulong pageAddress = br.ReadUInt64();
@@ -173,7 +173,7 @@ internal sealed class OptimizedColdStorage : IStorage {
             
             // update jump table
             ulong pageAddress = (ulong)fs.Length;
-            fs.Seek((long)_regionTable[regionIndex], SeekOrigin.Begin);
+            fs.Seek((long)regionTable[regionIndex], SeekOrigin.Begin);
             fs.Seek(pageNumberOffset * sizeof(ulong), SeekOrigin.Current);
             bw.Write(pageAddress);
             bw.Flush();
@@ -188,23 +188,23 @@ internal sealed class OptimizedColdStorage : IStorage {
     }
 
     public Page ReadPage(int pageNumber) {
-        if (pageNumber < 0 || pageNumber >= _header.PageCount) {
+        if (pageNumber < 0 || pageNumber >= header.PageCount) {
             throw new ArgumentOutOfRangeException(nameof(pageNumber),
-                $"Page number out of range! Got: {pageNumber}. Expected: [0,{_header.PageCount}[");
+                $"Page number out of range! Got: {pageNumber}. Expected: [0,{header.PageCount}[");
         }
         
         uint regionIndex = (uint)pageNumber / PagesPerJumpTable;
         uint pageNumberOffset = (uint)pageNumber % PagesPerJumpTable;
         // check if jump table for region exists
-        if (_regionTable[regionIndex] == ulong.MinValue) {
+        if (regionTable[regionIndex] == ulong.MinValue) {
             //Console.WriteLine($"Creating jump table for region {regionIndex}");
             // update region table
-            _regionTable[regionIndex] = (ulong)fs.Length;
-            fs.Seek((long)(_regionTableAddress + regionIndex * sizeof(ulong)), SeekOrigin.Begin);
-            bw.Write(_regionTable[regionIndex]);
+            regionTable[regionIndex] = (ulong)fs.Length;
+            fs.Seek((long)(regionTableAddress + regionIndex * sizeof(ulong)), SeekOrigin.Begin);
+            bw.Write(regionTable[regionIndex]);
             
             // create empty jump table
-            fs.Seek((int)_regionTable[regionIndex], SeekOrigin.Begin);
+            fs.Seek((int)regionTable[regionIndex], SeekOrigin.Begin);
             for (int i = 0; i < PagesPerJumpTable; i++) {
                 bw.Write(ulong.MinValue);
             }
@@ -214,13 +214,13 @@ internal sealed class OptimizedColdStorage : IStorage {
         if (IsPageRegistered(pageNumber)) {
             Console.WriteLine($"Page {pageNumber} already exists, reading");
             // page exists, read data
-            ulong jumpTableAddress = _regionTable[regionIndex];
+            ulong jumpTableAddress = regionTable[regionIndex];
             fs.Seek((long)jumpTableAddress, SeekOrigin.Begin);
             fs.Seek(pageNumberOffset * sizeof(ulong), SeekOrigin.Current);
             ulong pageAddress = br.ReadUInt64();
             fs.Seek((long)pageAddress, SeekOrigin.Begin);
-            byte[] data = br.ReadBytes((int)_header.PageSize);
-            return new Page(_header.PageSize, pageNumber) {
+            byte[] data = br.ReadBytes((int)header.PageSize);
+            return new Page(header.PageSize, pageNumber) {
                 IsDirty = false,
                 Data = data
             };
@@ -231,7 +231,7 @@ internal sealed class OptimizedColdStorage : IStorage {
             RegisterPage(pageNumber);
             // update jump table
             ulong pageAddress = (ulong)fs.Length;
-            ulong jumpTableAddress = _regionTable[regionIndex];
+            ulong jumpTableAddress = regionTable[regionIndex];
             fs.Seek((long)jumpTableAddress, SeekOrigin.Begin);
             fs.Seek(pageNumberOffset * sizeof(ulong), SeekOrigin.Current);
             bw.Write(pageAddress);
@@ -239,10 +239,10 @@ internal sealed class OptimizedColdStorage : IStorage {
 
             // create empty and return
             fs.Seek((long)pageAddress, SeekOrigin.Begin);
-            byte[] data = new byte[_header.PageSize];
+            byte[] data = new byte[header.PageSize];
             fs.Write(data);
             fs.Flush();
-            return new Page(_header.PageSize, pageNumber) {
+            return new Page(header.PageSize, pageNumber) {
                 Data = data,
                 IsDirty = false
             };

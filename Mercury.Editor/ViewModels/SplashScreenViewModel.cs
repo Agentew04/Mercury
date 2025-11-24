@@ -6,13 +6,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Resources;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Threading;
-using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Localization;
@@ -408,11 +404,10 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         
         // se o remote tem mais templates que nos
         bool doDownload = templatesProperty.GetArrayLength() > settings.TemplateSettings.Templates.Count;
-        List<Template> remoteTemplates = [];
         if (!doDownload) {
             // ou algum dos nossos templates esta desatualzado
             foreach (JsonElement templateElement in arrayEnumerator) {
-                int version = templateElement.GetProperty("version").GetInt32();
+                int templateVersion = templateElement.GetProperty("version").GetInt32();
                 string id = templateElement.GetProperty("id").GetString() ?? string.Empty;
                 Template? localTemplate = settings.TemplateSettings.Templates.FirstOrDefault(x => x.Identifier == id);
                 if (localTemplate is null) {
@@ -420,7 +415,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
                     break;
                 }
 
-                if (localTemplate.Version < version) {
+                if (localTemplate.Version < templateVersion) {
                     doDownload = true;
                     break;
                 }
@@ -438,11 +433,11 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         await RequestDownload();
         
         arrayEnumerator.Reset();
-        remoteTemplates = arrayEnumerator
+        List<Template> remoteTemplates = arrayEnumerator
             .Select(x => x.Deserialize(SettingsSerializerContext.Default.Template))
             .Where(x => x is not null)
             .ToList()!;
-        
+
         // atualiza settings dos templates
         settings.TemplateSettings.Templates.ForEach(x => x.Dispose());
         settings.TemplateSettings.Templates.Clear();

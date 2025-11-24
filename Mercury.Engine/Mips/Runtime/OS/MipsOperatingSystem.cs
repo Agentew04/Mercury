@@ -1,5 +1,4 @@
 ﻿using Mercury.Engine.Common;
-using Mercury.Engine.Mips.Runtime.Simple;
 
 namespace Mercury.Engine.Mips.Runtime.OS;
 
@@ -14,12 +13,8 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
     public Machine Machine {
         get => MipsMachine;
         set {
-            if (value is null) {
-                MipsMachine = null!;
-                return;
-            }
             if (value is not MipsMachine m) {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Tried setting a not mips machine in MipsOperatingSystem.");
             }
             MipsMachine = m;
         }
@@ -45,7 +40,7 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
         }
         else {
             // this is normally used on mips
-            uint registerSignal = (uint)Machine!.Registers[MipsGprRegisters.V0];
+            uint registerSignal = (uint)Machine.Registers[MipsGprRegisters.V0];
             await OnSyscall(registerSignal);
         }
     }

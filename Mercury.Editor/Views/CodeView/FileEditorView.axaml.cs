@@ -1,20 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.Xml;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using AvaloniaEdit.CodeCompletion;
-using AvaloniaEdit.Highlighting;
-using AvaloniaEdit.Highlighting.Xshd;
 using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Models;
 using Mercury.Editor.Models.Messages;
 using Mercury.Editor.Services;
 using Mercury.Editor.ViewModels.Code;
 using Microsoft.Extensions.DependencyInjection;
-using Mercury.Editor.ViewModels;
 using Code_FileEditorViewModel = Mercury.Editor.ViewModels.Code.FileEditorViewModel;
-using FileEditorViewModel = Mercury.Editor.ViewModels.Code.FileEditorViewModel;
 
 namespace Mercury.Editor.Views.CodeView;
 

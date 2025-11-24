@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Globalization;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Mercury.Editor.Models;

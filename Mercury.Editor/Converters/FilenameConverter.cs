@@ -11,7 +11,7 @@ namespace Mercury.Editor.Converters;
 /// Converter that gets the filename from an absolute path.
 /// </summary>
 public class FilenameConverter : IValueConverter {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
         return value switch {
             string strPath => Path.GetFileName(strPath),
             PathObject objPath => objPath.FullFileName,
@@ -19,7 +19,7 @@ public class FilenameConverter : IValueConverter {
         };
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         return BindingNotification.Null;
     }
 }

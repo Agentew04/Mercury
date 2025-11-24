@@ -11,7 +11,7 @@ namespace Mercury.Editor.ViewModels.Code;
 
 public sealed partial class GuideViewModel : BaseViewModel<GuideViewModel, GuideView> {
 
-    private readonly GuideService _guideService = App.Services.GetService<GuideService>()!;
+    private readonly GuideService guideService = App.Services.GetService<GuideService>()!;
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentGuide))]
@@ -23,7 +23,7 @@ public sealed partial class GuideViewModel : BaseViewModel<GuideViewModel, Guide
     private GuideMenu guideMenu;
     
     public GuideViewModel() {
-        ReadOnlyCollection<GuideChapter> guides = _guideService.GetAvailableGuides();
+        ReadOnlyCollection<GuideChapter> guides = guideService.GetAvailableGuides();
         _ = guides.ForEachExt(x => x.GoBackCommand = GoToMenuCommand);
         GuideChapters = new ObservableCollection<GuideChapter>(guides);
             

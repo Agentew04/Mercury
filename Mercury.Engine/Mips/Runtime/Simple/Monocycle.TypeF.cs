@@ -39,18 +39,18 @@ public partial class Monocycle
                 WriteFloat(add.Fd, fd);
             }
         }
-        else if (instruction is Bc1f bc1f)
+        else if (instruction is Bc1f bc1F)
         {
-            if (!Flags[bc1f.Cc])
+            if (!Flags[bc1F.Cc])
             {
-                BranchTo(bc1f.Offset);
+                BranchTo(bc1F.Offset);
             }
         }
-        else if (instruction is Bc1t bc1t)
+        else if (instruction is Bc1t bc1T)
         {
-            if (Flags[bc1t.Cc])
+            if (Flags[bc1T.Cc])
             {
-                BranchTo(bc1t.Offset);
+                BranchTo(bc1T.Offset);
             }
         }
         else if (instruction is C c)

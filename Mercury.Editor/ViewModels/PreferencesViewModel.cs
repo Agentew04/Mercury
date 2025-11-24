@@ -24,7 +24,7 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
     [ObservableProperty] private string compilerPath = string.Empty;
 
     [ObservableProperty] private string onlineCheck = string.Empty;
-    private string? onlineCheckError = null; 
+    private string? onlineCheckError; 
 
     [ObservableProperty] private int configVersion;
     
@@ -62,7 +62,7 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
     }
 
     partial void OnOnlineCheckChanged(string value) {
-        bool result = TimeSpan.TryParse(value, out TimeSpan ts);
+        bool result = TimeSpan.TryParse(value, out TimeSpan _);
         onlineCheckError = result ? null : PreferencesResources.OnlineCheckErrorValue;
         ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(OnlineCheck)));
     }
