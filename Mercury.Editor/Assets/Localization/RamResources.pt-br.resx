@@ -21,7 +21,7 @@
         <value>Próxima página</value>
     </data>
     <data name="RamSegmentsText" xml:space="preserve">
-        <value>Segmentos:</value>
+        <value>Segmento:</value>
     </data>
     <data name="RamDecMode" xml:space="preserve">
         <value>Decimal</value>

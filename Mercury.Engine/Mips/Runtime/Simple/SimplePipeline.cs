@@ -24,7 +24,7 @@ public class SimplePipeline : IMipsCpu
         Registers.Set(MipsGprRegisters.Gp, 0x1000_8000);
         Registers.Set(MipsGprRegisters.Ra, 0x0000_0000);
         Registers.Set(MipsGprRegisters.Pc, 0x0040_0000);
-        _ = Registers.GetDirty();
+        _ = Registers.GetDirty(out _);
         
         // Initialize the pipeline stages
         fetchStage = new PipelineStage<ExecuteMemoryData, FetchDecodeData>(executeMemoryBarrier, fetchIdBarrier, DoFetch);
@@ -62,7 +62,7 @@ public class SimplePipeline : IMipsCpu
             await SignalException.Invoke(new SignalExceptionEventArgs {
                 Signal = SignalExceptionEventArgs.SignalType.Halt,
                 ProgramCounter = Registers.Get(MipsGprRegisters.Pc),
-                Instruction = MipsMachine.InstructionMemory.ReadWord((ulong)Registers.Get(MipsGprRegisters.Pc))
+                Instruction = MipsMachine.Memory.ReadWord((ulong)Registers.Get(MipsGprRegisters.Pc))
             });
         }
     }
@@ -74,7 +74,7 @@ public class SimplePipeline : IMipsCpu
     /// <summary>
     /// The first invalid address that the program cannot execute.
     /// </summary>
-    public uint DropoffAddress { get; set; } = 0;
+    public uint ProgramEnd { get; set; } = 0;
     
     /// <summary>
     /// Defines if the cpu is halted or not.
@@ -121,7 +121,7 @@ public class SimplePipeline : IMipsCpu
     }
 
     public bool IsClockingFinished() {
-        return (uint)Registers.Get(MipsGprRegisters.Pc) >= (DropoffAddress+5*4)
+        return (uint)Registers.Get(MipsGprRegisters.Pc) >= (ProgramEnd+5*4)
                || isHalted;
     }
 
@@ -134,7 +134,7 @@ public class SimplePipeline : IMipsCpu
         uint pc = (uint)Registers.Get(MipsGprRegisters.Pc);
         
         // fetch
-        uint instruction = (uint)MipsMachine.InstructionMemory.ReadWord(pc);
+        uint instruction = (uint)MipsMachine.Memory.ReadWord(pc);
         
         // pc+4 or branched
         uint newPc = pc+4;

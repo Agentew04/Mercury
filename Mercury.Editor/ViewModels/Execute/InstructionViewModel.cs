@@ -58,7 +58,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, 
         recipient.Instructions.Clear();
         for (int i = 0; i < meta.Files.Count; i++) {
             uint start = meta.Files[i].StartAddress;
-            uint end = i < meta.Files.Count-1 ? meta.Files[i + 1].StartAddress : msg.MipsMachine.Cpu.DropoffAddress;
+            uint end = i < meta.Files.Count-1 ? meta.Files[i + 1].StartAddress : msg.MipsMachine.Cpu.ProgramEnd;
             recipient.ProcessFile(meta, meta.Files[i], start, end, msg.MipsMachine.DataMemory, msg.Elf.EntryPoint, userLabels);
         }
         int index = recipient.Instructions.IndexOf(x => x.Address == msg.Elf.EntryPoint);

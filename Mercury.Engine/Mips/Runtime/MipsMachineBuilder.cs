@@ -62,7 +62,7 @@ public class MipsMachineBuilder : MachineBuilder
 
         MipsMachine mipsMachine = new(cpu, os) {
             DataMemory = DataMemory,
-            InstructionMemory = InstructionMemory,
+            Memory = InstructionMemory,
             StdIn = StdIn ?? new NullChannel<char>(),
             StdOut = StdOut ?? new NullChannel<char>(),
             StdErr = StdErr ?? new NullChannel<char>(),

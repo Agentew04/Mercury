@@ -9,7 +9,7 @@ using Mercury.Editor.Views;
 
 namespace Mercury.Editor.ViewModels;
 
-public partial class AboutViewModel : BaseViewModel<AboutViewModel, AboutView>, IDisposable
+public sealed partial class AboutViewModel : BaseViewModel<AboutViewModel, AboutView>, IDisposable
 {
     [ObservableProperty] private string copyrightString = string.Empty;
     [ObservableProperty] private string versionString = string.Empty;

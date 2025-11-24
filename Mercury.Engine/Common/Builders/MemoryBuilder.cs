@@ -16,13 +16,13 @@ public class MemoryBuilder : IBuilder<Memory>
     private string storagePath = "memory.bin";
     private StorageType storageType;
 
-    public MemoryBuilder WithPageSize(ulong pageSize)
+    public MemoryBuilder WithBlockSize(ulong pageSize)
     {
         this.pageSize = pageSize;
         return this;
     }
     
-    public MemoryBuilder WithPageCapacity(int pageCapacity)
+    public MemoryBuilder WithBlockCapacity(int pageCapacity)
     {
         if (pageCapacity < 1)
         {

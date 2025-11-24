@@ -6,7 +6,7 @@ public interface ICpu : IAsyncClockable {
     
     public Machine Machine { get; set; }
     
-    public uint DropoffAddress { get; set; }
+    public uint ProgramEnd { get; set; }
     
     public RegisterCollection Registers { get; }
     

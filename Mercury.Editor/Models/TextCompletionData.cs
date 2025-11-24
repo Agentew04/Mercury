@@ -28,6 +28,15 @@ public class TextCompletionData : ICompletionData
             return tb;
         }
     }
-    public object Description => $"Descrição de {Text}";
+    public object Description {
+        get {
+            return Text switch {
+                ".ascii" => "Define uma string ASCII sem terminador \\0.",
+                ".asciiz" => "Define uma string ASCII com terminador \\0.",
+                _ => $"Descrição de {Text}"
+            };
+        }
+    }
+
     public double Priority => Random.Shared.NextDouble();
 }

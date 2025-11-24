@@ -14,7 +14,7 @@ public abstract class Machine : IAsyncClockable, IDisposable
     /// <summary>
     /// A reference to the memory object that holds all data
     /// that the program operates on. It may be the same object
-    /// as <see cref="InstructionMemory"/>.
+    /// as <see cref="Memory"/>.
     /// </summary>
     public IMemory DataMemory { get; init; } = null!;
 
@@ -22,7 +22,7 @@ public abstract class Machine : IAsyncClockable, IDisposable
     /// A reference to the memory object that contains instructions.
     /// It may be the same object as <see cref="DataMemory"/>.
     /// </summary>
-    public IMemory InstructionMemory { get; init; } = null!;
+    public IMemory Memory { get; init; } = null!;
 
     /// <summary>
     /// The object that executes code.
@@ -63,9 +63,9 @@ public abstract class Machine : IAsyncClockable, IDisposable
     
     public async ValueTask ClockAsync() {
         await Cpu.ClockAsync();
-        List<(Type, Enum)> dirty = Registers.GetDirty();
+        (Type, Enum)[] dirty = Registers.GetDirty(out int count);
         // invoke even with 0 dirty to unselect last changed register on ui
-        OnRegisterChanged?.Invoke(dirty);
+        OnRegisterChanged?.Invoke(dirty,count);
     }
     
     public bool IsClockingFinished() => Cpu.IsClockingFinished();
@@ -74,7 +74,7 @@ public abstract class Machine : IAsyncClockable, IDisposable
     /// Raised every cycle with a list of the changed registers. Contains
     /// the enum type of the register and the actual register as a base <see cref="Enum"/>.
     /// </summary>
-    public event Action<List<(Type,Enum)>>? OnRegisterChanged;
+    public event Action<(Type,Enum)[], int>? OnRegisterChanged;
     
     /// <summary>
     /// Event fired when any access to the memory is made.
@@ -125,7 +125,7 @@ public abstract class Machine : IAsyncClockable, IDisposable
         
         // dispose objects
         if(DataMemory is IDisposable dispDMem) dispDMem.Dispose();
-        if(InstructionMemory is IDisposable dispIMem) dispIMem.Dispose();
+        if(Memory is IDisposable dispIMem) dispIMem.Dispose();
         Os.Dispose();
     }
 

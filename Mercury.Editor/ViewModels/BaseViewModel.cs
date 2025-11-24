@@ -6,9 +6,6 @@ using Microsoft.Extensions.Logging;
 namespace Mercury.Editor.ViewModels;
 
 public class BaseViewModel<TViewModel,TView> : ObservableObject where TView: class{
-    
-    // TODO: estudar um codegen, partial e essa funcao para automaticamente chamar localizacao de elementos calculados
-    // protected virtual void Localize(){}
 
     private ILogger<TViewModel>? logger;
 

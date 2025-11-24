@@ -307,7 +307,7 @@ public partial class Monocycle
             {
                 return SignalException.Invoke(new SignalExceptionEventArgs
                 {
-                    Instruction = MipsMachine.InstructionMemory.ReadWord((ulong)Registers.Get(MipsGprRegisters.Pc)),
+                    Instruction = MipsMachine.Memory.ReadWord((ulong)Registers.Get(MipsGprRegisters.Pc)),
                     ProgramCounter = Registers.Get(MipsGprRegisters.Pc),
                     Signal = SignalExceptionEventArgs.SignalType.InvalidOperation
                 });

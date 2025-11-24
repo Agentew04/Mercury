@@ -159,7 +159,7 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel, Problem
     private bool CanAddFolder(ProjectNode? node) {
         if (node is null) return false;
         if (node.Type == ProjectNodeType.Category) {
-            return node.Id == fileService.ProjectCategoryId;
+            return node.Id == FileService.ProjectCategoryId;
         }
         return !node.IsEffectiveReadOnly;
     }
@@ -204,7 +204,7 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel, Problem
     private bool CanAddFile(ProjectNode? node) {
         if (node is null) return false;
         if (node.Type == ProjectNodeType.Category) {
-            return node.Id == fileService.ProjectCategoryId;
+            return node.Id == FileService.ProjectCategoryId;
         }
         return !node.IsEffectiveReadOnly;
     }

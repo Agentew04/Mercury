@@ -5,8 +5,11 @@ namespace Mercury.Engine.Mips.Runtime.Simple;
 public partial class Monocycle {
     private async ValueTask ExecuteTypeR(TypeRInstruction instruction) {
         if (instruction is Add add) {
-            Registers.Set<MipsGprRegisters>(add.Rd, Registers.Get<MipsGprRegisters>(add.Rs) + Registers.Get<MipsGprRegisters>(add.Rt));
-            if (IsOverflowed(Registers.Get<MipsGprRegisters>(add.Rs), Registers.Get<MipsGprRegisters>(add.Rt), Registers.Get<MipsGprRegisters>(add.Rd))){
+            Registers.Set<MipsGprRegisters>(number: add.Rd, 
+                value: Registers.Get<MipsGprRegisters>(add.Rs) + Registers.Get<MipsGprRegisters>(add.Rt));
+            if (IsOverflowed(
+                    a: Registers.Get<MipsGprRegisters>(add.Rs), b: Registers.Get<MipsGprRegisters>(add.Rt), 
+                    result: Registers.Get<MipsGprRegisters>(add.Rd))){
                 if (SignalException is not null) {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
@@ -16,24 +19,29 @@ public partial class Monocycle {
                 }
             }
         } else if (instruction is Addu addu) {
-            Registers.Set<MipsGprRegisters>(addu.Rd, Registers.Get<MipsGprRegisters>(addu.Rs) + Registers.Get<MipsGprRegisters>(addu.Rt));
+            Registers.Set<MipsGprRegisters>(number: addu.Rd, 
+                value: Registers.Get<MipsGprRegisters>(addu.Rs) + Registers.Get<MipsGprRegisters>(addu.Rt));
         } else if (instruction is Div div) {
             if (Registers.Get<MipsGprRegisters>(div.Rt) == 0) {
                 Registers[MipsGprRegisters.Hi] = Random.Shared.Next(); // simulated undefined behaviour
                 Registers[MipsGprRegisters.Lo] = Random.Shared.Next();
             } else {
-                Registers[MipsGprRegisters.Hi] = Registers.Get<MipsGprRegisters>(div.Rs) % Registers.Get<MipsGprRegisters>(div.Rt);
-                Registers[MipsGprRegisters.Lo] = Registers.Get<MipsGprRegisters>(div.Rs) / Registers.Get<MipsGprRegisters>(div.Rt);
+                Registers[MipsGprRegisters.Hi] = 
+                    Registers.Get<MipsGprRegisters>(div.Rs) % Registers.Get<MipsGprRegisters>(div.Rt);
+                Registers[MipsGprRegisters.Lo] = 
+                    Registers.Get<MipsGprRegisters>(div.Rs) / Registers.Get<MipsGprRegisters>(div.Rt);
             }
         } else if (instruction is Divu divu) {
             if (Registers.Get<MipsGprRegisters>(divu.Rt) == 0) {
                 Registers[MipsGprRegisters.Hi] = Random.Shared.Next(); // simulated undefined behaviour
                 Registers[MipsGprRegisters.Lo] = Random.Shared.Next();
             } else {
-                Registers[MipsGprRegisters.Hi] = Registers.Get<MipsGprRegisters>(divu.Rs) % Registers.Get<MipsGprRegisters>(divu.Rt);
-                Registers[MipsGprRegisters.Lo] = Registers.Get<MipsGprRegisters>(divu.Rs) / Registers.Get<MipsGprRegisters>(divu.Rt);
+                Registers[MipsGprRegisters.Hi] = (int)
+                    ((uint)Registers.Get<MipsGprRegisters>(divu.Rs) % (uint)Registers.Get<MipsGprRegisters>(divu.Rt));
+                Registers[MipsGprRegisters.Lo] = (int)
+                    ((uint)Registers.Get<MipsGprRegisters>(divu.Rs) / (uint)Registers.Get<MipsGprRegisters>(divu.Rt));
             }
-        }// MADD e MADDU sao para o coproc1
+        }
         else if (instruction is Mfhi mfhi) {
             Registers.Set<MipsGprRegisters>(mfhi.Rd, Registers[MipsGprRegisters.Hi]);
         } else if (instruction is Mthi mthi) {

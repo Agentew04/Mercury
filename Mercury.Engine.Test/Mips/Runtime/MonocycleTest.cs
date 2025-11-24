@@ -69,7 +69,7 @@ public class MonocycleTest {
             .Build();
         
         Assert.IsNotNull(mipsMachine.DataMemory);
-        Assert.IsNotNull(mipsMachine.InstructionMemory);
+        Assert.IsNotNull(mipsMachine.Memory);
         Assert.IsNotNull(mipsMachine.Cpu);
         Assert.IsNotNull(mipsMachine.Os);
         Assert.IsNotNull(mipsMachine.Cpu.Machine);

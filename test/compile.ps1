@@ -1,0 +1,1 @@
+clang --target=mips-linux-gnu -O0 -fno-pic -mno-abicalls -nostartfiles -Wl -T linker.ld -nostdlib -static -fuse-ld=lld -modd-spreg -o output.elf helloworld.s a.s

@@ -50,11 +50,10 @@ public class App : Application {
             // se nao foi passado por argumentos
             string? asmProjArg = desktop.Args?.FirstOrDefault(x => x.EndsWith(".asmproj"));
             string? directoryArg = desktop.Args?.Where(Directory.Exists)
-                .Where(x => {
+                .FirstOrDefault(x => {
                     IEnumerable<string> files = Directory.EnumerateFiles(x);
                     return files.Any(f => f.EndsWith(".asmproj"));
-                })
-                .FirstOrDefault();
+                });
 
             if (asmProjArg is not null) {
                 var projectService = Services.GetRequiredService<ProjectService>();

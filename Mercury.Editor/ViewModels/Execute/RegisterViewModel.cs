@@ -73,10 +73,11 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         return null;
     }
 
-    private void OnRegisterChange(List<(Type,Enum)> regs) {
+    private void OnRegisterChange((Type,Enum)[] regs, int regCount) {
         highlightedRegisters.Clear();
         int updated = 0;
-        foreach ((Type registerType, Enum registerReference) in regs) {
+        for(int i=0;i<regCount;i++) {
+            (Type registerType, Enum registerReference) = regs[i];
             (RegisterDefinition def, Processor proc)? regDef = GetRegisterDefinition(registerType, registerReference);
             if (!regDef.HasValue) {
                 continue;
@@ -101,7 +102,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
             register.Values = GetRegisterValues(regRef.Definition);
             updated++;
         }
-        Logger.LogInformation("Updated value of {count}/{total} registers", updated, regs.Count);
+        Logger.LogInformation("Updated value of {count}/{total} registers", updated, regCount);
         Highlight();
     }
 

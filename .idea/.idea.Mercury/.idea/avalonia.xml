@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="Mercury.Editor/App.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />
+        <entry key="Mercury.Editor/Assets/Styles/DefaultStyles.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />
+        <entry key="Mercury.Editor/Views/CodeView/ProjectView.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />
+        <entry key="Mercury.Editor/Views/ExecuteView/RegisterView.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />
+      </map>
+    </option>
+  </component>
+</project>

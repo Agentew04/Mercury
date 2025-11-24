@@ -240,7 +240,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel, Fi
             new CompilationStartedMessage(input.CalculateId()));
         CompilationResult result = await compilerService.CompileAsync(input);
         WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result));
-        Logger.LogInformation("Compilation Finished. sucess? {res}", result.IsSuccess);
+        Logger.LogInformation("Compilation Finished. sucess? {Result}", result.IsSuccess);
         if (result.IsSuccess) {
             CanRunProject = true;
         }
@@ -264,12 +264,10 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel, Fi
         OpenFiles.Remove(file);
         
         // salvar arquivo ao fechar
-        if (!file.IsReadonly)
+        if (!file.IsReadonly && File.Exists(file.Path.ToString()))
         {
             // salva o conteudo no disco se o arquivo ainda existe
-            if (File.Exists(file.Path.ToString())) {
-                File.WriteAllText(file.Path.ToString(), file.TextDocument.Text);
-            }
+            File.WriteAllText(file.Path.ToString(), file.TextDocument.Text);
         }
         
         if (selectedIndex == index)

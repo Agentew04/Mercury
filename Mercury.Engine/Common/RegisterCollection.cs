@@ -1,4 +1,6 @@
-﻿using Mercury.Engine.Mips.Runtime;
+﻿using System.Buffers;
+using System.Runtime.CompilerServices;
+using Mercury.Engine.Mips.Runtime;
 
 namespace Mercury.Engine.Common;
 
@@ -31,7 +33,7 @@ public class RegisterCollection {
     /// <typeparam name="TRegister">The type of the bank to search</typeparam>
     /// <returns>The value from the register</returns>
     public int Get<TRegister>(TRegister reg) where TRegister : struct, Enum {
-        return ((int[])banks[typeof(TRegister)])[Convert.ToInt32(reg)];
+        return ((int[])banks[typeof(TRegister)])[Unsafe.As<TRegister,int>(ref reg)];
     }
 
     public int Get<TRegister>(int number) where TRegister : struct, Enum {
@@ -50,7 +52,7 @@ public class RegisterCollection {
     /// <param name="value">The value to put inside the register</param>
     /// <typeparam name="TRegister">The type key of the bank</typeparam>
     public void Set<TRegister>(TRegister reg, int value) where TRegister : struct, Enum {
-        ((int[])banks[typeof(TRegister)])[Convert.ToInt32(reg)] = value;
+        ((int[])banks[typeof(TRegister)])[Unsafe.As<TRegister,int>(ref reg)] = value;
         dirty.Add((typeof(TRegister), reg));
     }
 
@@ -80,10 +82,19 @@ public class RegisterCollection {
     }
 
     private readonly List<(Type, Enum)> dirty = [];
+    private (Type, Enum)[]? lastArray;
+    private readonly ArrayPool<(Type,Enum)> arrayPool = ArrayPool<(Type,Enum)>.Shared;
 
-    public List<(Type, Enum)> GetDirty() {
-        List<(Type, Enum)> newList = [..dirty];
+    public (Type, Enum)[] GetDirty(out int count) {
+        if (lastArray is not null) {
+            arrayPool.Return(lastArray);
+        }
+        lastArray = arrayPool.Rent(dirty.Count);
+        count = dirty.Count;
+        for (int i = 0; i < dirty.Count; i++) {
+            lastArray[i] = dirty[i];
+        }
         dirty.Clear();
-        return newList;
+        return lastArray;
     }
 }
