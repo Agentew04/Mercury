@@ -6,6 +6,8 @@
 publish/
 test/*.elf
 test/*.o
+Mercury.*/bin/
+Mercury.*/obj/
 
 # User-specific files
 *.rsuser
