@@ -70,12 +70,14 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         return null;
     }
 
-    private void OnRegisterChange((Type,Enum)[] regs, int regCount) {
+    private void OnRegisterChange(ValueTuple<Type,int>[] regs, int regCount) {
         highlightedRegisters.Clear();
         int updated = 0;
         for(int i=0;i<regCount;i++) {
-            (Type registerType, Enum registerReference) = regs[i];
-            (RegisterDefinition def, Processor proc)? regDef = GetRegisterDefinition(registerType, registerReference);
+            (Type registerType, int registerReference) = regs[i];
+            // linha malevola!!!! mas 
+            Enum boxedEnum = (Enum)Enum.ToObject(registerType, registerReference);
+            (RegisterDefinition def, Processor proc)? regDef = GetRegisterDefinition(registerType, boxedEnum);
             if (!regDef.HasValue) {
                 continue;
             }

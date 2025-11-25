@@ -14,7 +14,7 @@ public partial class Monocycle {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
                         Instruction = add.ConvertToInt(),
-                        ProgramCounter = Registers[MipsGprRegisters.Pc]
+                        ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                 }
             }
@@ -23,33 +23,33 @@ public partial class Monocycle {
                 value: Registers.Get<MipsGprRegisters>(addu.Rs) + Registers.Get<MipsGprRegisters>(addu.Rt));
         } else if (instruction is Div div) {
             if (Registers.Get<MipsGprRegisters>(div.Rt) == 0) {
-                Registers[MipsGprRegisters.Hi] = Random.Shared.Next(); // simulated undefined behaviour
-                Registers[MipsGprRegisters.Lo] = Random.Shared.Next();
+                Registers.Set(MipsGprRegisters.Hi, Random.Shared.Next()); // simulated undefined behaviour
+                Registers.Set(MipsGprRegisters.Lo, Random.Shared.Next());
             } else {
-                Registers[MipsGprRegisters.Hi] = 
-                    Registers.Get<MipsGprRegisters>(div.Rs) % Registers.Get<MipsGprRegisters>(div.Rt);
-                Registers[MipsGprRegisters.Lo] = 
-                    Registers.Get<MipsGprRegisters>(div.Rs) / Registers.Get<MipsGprRegisters>(div.Rt);
+                Registers.Set(MipsGprRegisters.Hi, 
+                    Registers.Get<MipsGprRegisters>(div.Rs) % Registers.Get<MipsGprRegisters>(div.Rt));
+                Registers.Set(MipsGprRegisters.Lo, 
+                    Registers.Get<MipsGprRegisters>(div.Rs) / Registers.Get<MipsGprRegisters>(div.Rt));
             }
         } else if (instruction is Divu divu) {
             if (Registers.Get<MipsGprRegisters>(divu.Rt) == 0) {
-                Registers[MipsGprRegisters.Hi] = Random.Shared.Next(); // simulated undefined behaviour
-                Registers[MipsGprRegisters.Lo] = Random.Shared.Next();
+                Registers.Set(MipsGprRegisters.Hi, Random.Shared.Next()); // simulated undefined behaviour
+                Registers.Set(MipsGprRegisters.Lo, Random.Shared.Next());
             } else {
-                Registers[MipsGprRegisters.Hi] = (int)
-                    ((uint)Registers.Get<MipsGprRegisters>(divu.Rs) % (uint)Registers.Get<MipsGprRegisters>(divu.Rt));
-                Registers[MipsGprRegisters.Lo] = (int)
-                    ((uint)Registers.Get<MipsGprRegisters>(divu.Rs) / (uint)Registers.Get<MipsGprRegisters>(divu.Rt));
+                Registers.Set(MipsGprRegisters.Hi, (int)
+                    ((uint)Registers.Get<MipsGprRegisters>(divu.Rs) % (uint)Registers.Get<MipsGprRegisters>(divu.Rt)));
+                Registers.Set(MipsGprRegisters.Lo, (int)
+                    ((uint)Registers.Get<MipsGprRegisters>(divu.Rs) / (uint)Registers.Get<MipsGprRegisters>(divu.Rt)));
             }
         }
         else if (instruction is Mfhi mfhi) {
-            Registers.Set<MipsGprRegisters>(mfhi.Rd, Registers[MipsGprRegisters.Hi]);
+            Registers.Set<MipsGprRegisters>(mfhi.Rd, Registers.Get(MipsGprRegisters.Hi));
         } else if (instruction is Mthi mthi) {
-            Registers.Set<MipsGprRegisters>(mthi.Rd, Registers[MipsGprRegisters.Hi]);
+            Registers.Set<MipsGprRegisters>(mthi.Rd, Registers.Get(MipsGprRegisters.Hi));
         } else if (instruction is Mtlo mtlo) {
-            Registers.Set<MipsGprRegisters>(mtlo.Rd, Registers[MipsGprRegisters.Lo]);
+            Registers.Set<MipsGprRegisters>(mtlo.Rd, Registers.Get(MipsGprRegisters.Lo));
         } else if (instruction is Mflo mflo) {
-            Registers.Set<MipsGprRegisters>(mflo.Rd, Registers[MipsGprRegisters.Lo]);
+            Registers.Set<MipsGprRegisters>(mflo.Rd, Registers.Get(MipsGprRegisters.Lo));
         } else if (instruction is Movn movn) {
             if (Registers.Get<MipsGprRegisters>(movn.Rt) != 0) {
                 Registers.Set<MipsGprRegisters>(movn.Rd, Registers.Get<MipsGprRegisters>(movn.Rs));
@@ -62,12 +62,12 @@ public partial class Monocycle {
             Registers.Set<MipsGprRegisters>(mul.Rd, Registers.Get<MipsGprRegisters>(mul.Rs) * Registers.Get<MipsGprRegisters>(mul.Rt));
         } else if (instruction is Mult mult) {
             long result = (long)Registers.Get<MipsGprRegisters>(mult.Rs) * Registers.Get<MipsGprRegisters>(mult.Rt);
-            Registers[MipsGprRegisters.Hi] = (int)(result >> 32);
-            Registers[MipsGprRegisters.Lo] = (int)(result & 0xFFFFFFFF);
+            Registers.Set(MipsGprRegisters.Hi, (int)(result >> 32));
+            Registers.Set(MipsGprRegisters.Lo, (int)(result & 0xFFFFFFFF));
         } else if (instruction is Multu multu) {
             ulong result = (ulong)Registers.Get<MipsGprRegisters>(multu.Rs) * (ulong)Registers.Get<MipsGprRegisters>(multu.Rt);
-            Registers[MipsGprRegisters.Hi] = (int)(result >> 32);
-            Registers[MipsGprRegisters.Lo] = (int)(result & 0xFFFFFFFF);
+            Registers.Set(MipsGprRegisters.Hi, (int)(result >> 32));
+            Registers.Set(MipsGprRegisters.Lo, (int)(result & 0xFFFFFFFF));
         } else if (instruction is Slt slt) {
             Registers.Set<MipsGprRegisters>(slt.Rd, Registers.Get<MipsGprRegisters>(slt.Rs) < Registers.Get<MipsGprRegisters>(slt.Rt) ? 1 : 0);
         } else if (instruction is Sltu sltu) {
@@ -80,7 +80,7 @@ public partial class Monocycle {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
                         Instruction = sub.ConvertToInt(),
-                        ProgramCounter = Registers[MipsGprRegisters.Pc],
+                        ProgramCounter = Registers.Get(MipsGprRegisters.Pc),
                     });
                 }
             } else {
@@ -89,8 +89,8 @@ public partial class Monocycle {
         } else if (instruction is Subu subu) {
             Registers.Set<MipsGprRegisters>(subu.Rd, Registers.Get<MipsGprRegisters>(subu.Rs) - Registers.Get<MipsGprRegisters>(subu.Rt));
         } else if(instruction is Jalr1 or Jalr2) {
-            Registers.Set<MipsGprRegisters>(instruction.Rd, Registers[MipsGprRegisters.Pc]);
-            Registers[MipsGprRegisters.Pc] = Registers.Get<MipsGprRegisters>(instruction.Rs);
+            Registers.Set<MipsGprRegisters>(instruction.Rd, Registers.Get(MipsGprRegisters.Pc));
+            Registers.Set(MipsGprRegisters.Pc, Registers.Get<MipsGprRegisters>(instruction.Rs));
         } else if(instruction is And and) {
             Registers.Set<MipsGprRegisters>(and.Rd, Registers.Get<MipsGprRegisters>(and.Rs) & Registers.Get<MipsGprRegisters>(and.Rt));
         } else if(instruction is Nor nor) {
@@ -118,7 +118,7 @@ public partial class Monocycle {
                 await SignalException.Invoke(new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.Breakpoint,
                     Instruction = @break.ConvertToInt(),
-                    ProgramCounter = Registers[MipsGprRegisters.Pc]
+                    ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                 });
             }
         } else if(instruction is Syscall syscall) {
@@ -126,7 +126,7 @@ public partial class Monocycle {
                 await SignalException.Invoke(new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.SystemCall,
                     Instruction = syscall.ConvertToInt(),
-                    ProgramCounter = Registers[MipsGprRegisters.Pc]
+                    ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                 });
             }
         } else if (instruction is Teq teq && Registers.Get<MipsGprRegisters>(teq.Rs) == Registers.Get<MipsGprRegisters>(teq.Rt)) {
@@ -134,11 +134,11 @@ public partial class Monocycle {
                 await SignalException.Invoke(new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.Trap,
                     Instruction = teq.ConvertToInt(),
-                    ProgramCounter = Registers[MipsGprRegisters.Pc]
+                    ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                 });
             }
         }else if(instruction is Jr jr) {
-            Registers[MipsGprRegisters.Pc] = Registers.Get<MipsGprRegisters>(jr.Rs);
+            Registers.Set(MipsGprRegisters.Pc, Registers.Get<MipsGprRegisters>(jr.Rs));
         }
     }
 }

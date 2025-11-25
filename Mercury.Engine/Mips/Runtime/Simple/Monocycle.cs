@@ -68,6 +68,7 @@ public sealed partial class Monocycle : IMipsCpu {
             return;
         }
 
+        // execute
         int pcBefore = Registers.Get(MipsGprRegisters.Pc);
         await Execute(instruction);
 
@@ -84,7 +85,7 @@ public sealed partial class Monocycle : IMipsCpu {
             Registers.Set(MipsGprRegisters.Pc, pcBefore + 4);
         }else {
             // instrucao sem branch
-            Registers[MipsGprRegisters.Pc] += 4;
+            Registers.Set(MipsGprRegisters.Pc, Registers.Get(MipsGprRegisters.Pc) + 4);
         }
     }
 
@@ -131,10 +132,10 @@ public sealed partial class Monocycle : IMipsCpu {
 
     private void BranchTo(int immediate) {
         isExecutingBranch = true;
-        branchAddress = (uint)(Registers[MipsGprRegisters.Pc] + 4 + (immediate << 2));
+        branchAddress = (uint)(Registers.Get(MipsGprRegisters.Pc) + 4 + (immediate << 2));
     }
     private void Link(MipsGprRegisters register = MipsGprRegisters.Ra) {
-        Registers[register] = Registers[MipsGprRegisters.Pc] + (UseBranchDelaySlot ? 8 : 4);
+        Registers.Set(register, Registers.Get(MipsGprRegisters.Pc) + (UseBranchDelaySlot ? 8 : 4));
     }
 
     private static int ZeroExtend(short value) {

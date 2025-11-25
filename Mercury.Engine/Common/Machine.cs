@@ -61,11 +61,25 @@ public abstract class Machine : IAsyncClockable, IDisposable
 
     public bool IsDisposed { get; private set; }
     
-    public async ValueTask ClockAsync() {
-        await Cpu.ClockAsync();
-        (Type, Enum)[] dirty = Registers.GetDirty(out int count);
-        // invoke even with 0 dirty to unselect last changed register on ui
-        OnRegisterChanged?.Invoke(dirty,count);
+    public ValueTask ClockAsync() {
+        ValueTask vt = Cpu.ClockAsync();
+        if (!vt.IsCompletedSuccessfully) {
+            return Awaited(this, vt);
+        }
+
+        CompleteFast(this);
+        return default;
+
+        static async ValueTask Awaited(Machine self, ValueTask vt) {
+            await vt;
+            CompleteFast(self);
+        }
+
+        static void CompleteFast(Machine self) {
+            // invoke even with 0 dirty to unselect last changed register on ui
+            ValueTuple<Type, int>[] dirty = self.Registers.GetDirty(out int count);
+            self.OnRegisterChanged?.Invoke(dirty,count);
+        }
     }
     
     public bool IsClockingFinished() => Cpu.IsClockingFinished();
@@ -74,7 +88,7 @@ public abstract class Machine : IAsyncClockable, IDisposable
     /// Raised every cycle with a list of the changed registers. Contains
     /// the enum type of the register and the actual register as a base <see cref="Enum"/>.
     /// </summary>
-    public event Action<(Type,Enum)[], int>? OnRegisterChanged;
+    public event Action<ValueTuple<Type,int>[], int>? OnRegisterChanged;
     
     /// <summary>
     /// Event fired when any access to the memory is made.

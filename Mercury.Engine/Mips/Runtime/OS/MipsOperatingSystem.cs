@@ -40,7 +40,7 @@ public abstract class MipsOperatingSystem : IOperatingSystem {
         }
         else {
             // this is normally used on mips
-            uint registerSignal = (uint)Machine.Registers[MipsGprRegisters.V0];
+            uint registerSignal = (uint)Machine.Registers.Get(MipsGprRegisters.V0);
             await OnSyscall(registerSignal);
         }
     }

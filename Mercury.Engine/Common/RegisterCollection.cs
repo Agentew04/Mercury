@@ -41,8 +41,10 @@ public class RegisterCollection {
     }
 
     public int Get(Enum reg, Type type) {
-        return ((int[])banks[type])[Convert.ToInt32(reg)];
+        // return ((int[])banks[type])[Convert.ToInt32(reg)];
+        return ((int[])banks[type])[Unsafe.As<Enum,int>(ref reg)];
     }
+    
 
     /// <summary>
     /// Sets the value of a register.
@@ -52,7 +54,7 @@ public class RegisterCollection {
     /// <typeparam name="TRegister">The type key of the bank</typeparam>
     public void Set<TRegister>(TRegister reg, int value) where TRegister : struct, Enum {
         ((int[])banks[typeof(TRegister)])[Unsafe.As<TRegister,int>(ref reg)] = value;
-        dirty.Add((typeof(TRegister), reg));
+        dirty.Add((typeof(TRegister), Unsafe.As<TRegister,int>(ref reg)));
     }
 
     public void Set<TRegister>(int number, int value) where TRegister : struct, Enum {
@@ -63,28 +65,28 @@ public class RegisterCollection {
         Set(reg.Value,value);
     }
 
-    public void Set(Enum reg, Type type, int value) {
-        ((int[])banks[type])[Convert.ToInt32(reg)] = value;
-        dirty.Add((type, reg));
-    }
+    // public void Set(Enum reg, Type type, int value) {
+    //     ((int[])banks[type])[Convert.ToInt32(reg)] = value;
+    //     dirty.Add((type, reg));
+    // }
 
-    /// <summary>
-    /// Operator to <see cref="Get(Enum,Type)"/> and <see cref="Set(Enum,Type,int)"/>
-    /// values from registers.
-    /// </summary>
-    /// <param name="reg">The register to read/write.</param>
-    /// <exception cref="KeyNotFoundException">Thrown when the
-    /// type of the Enum passed is not present in any bank.</exception>
-    public int this[Enum reg] {
-        get => Get(reg, reg.GetType());
-        set => Set(reg, reg.GetType(), value);
-    }
+    // /// <summary>
+    // /// Operator to <see cref="Get(Enum,Type)"/> and <see cref="Set(Enum,Type,int)"/>
+    // /// values from registers.
+    // /// </summary>
+    // /// <param name="reg">The register to read/write.</param>
+    // /// <exception cref="KeyNotFoundException">Thrown when the
+    // /// type of the Enum passed is not present in any bank.</exception>
+    // public int this[Enum reg] {
+    //     get => Get(reg, reg.GetType());
+    //     set => Set(reg, reg.GetType(), value);
+    // }
 
-    private readonly List<(Type, Enum)> dirty = [];
-    private (Type, Enum)[]? lastArray;
-    private readonly ArrayPool<(Type,Enum)> arrayPool = ArrayPool<(Type,Enum)>.Shared;
+    private readonly List<ValueTuple<Type, int>> dirty = [];
+    private (Type, int)[]? lastArray;
+    private readonly ArrayPool<(Type,int)> arrayPool = ArrayPool<(Type,int)>.Shared;
 
-    public (Type, Enum)[] GetDirty(out int count) {
+    public ValueTuple<Type, int>[] GetDirty(out int count) {
         if (lastArray is not null) {
             arrayPool.Return(lastArray);
         }
