@@ -105,22 +105,26 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
 
     public ProjectSelectionViewModel() {
         foreach (ProjectFile project in projectService.GetRecentProjects()) {
-            filteredRecentProjects.Add(new ProjectFileVisualItem(project, OpenProjectCommand));
             allRecentProjects.Add(new ProjectFileVisualItem(project, OpenProjectCommand));
         }
+        OnSearchQueryChanged("");
     }
     
     partial void OnSearchQueryChanged(string value) {
         // atualiza a lista de projetos recentes
         filteredRecentProjects.Clear();
+        List<ProjectFileVisualItem> unordered = [];
         foreach (ProjectFileVisualItem proj in allRecentProjects) {
             bool nameCheck = proj.ProjectFile.ProjectName.Contains(value, StringComparison.OrdinalIgnoreCase);
             bool pathCheck = proj.ProjectFile.ProjectPath.Parts.Any(x => x.Contains(value, StringComparison.OrdinalIgnoreCase));
             
             if (nameCheck || pathCheck) {
-                filteredRecentProjects.Add(proj);
+                unordered.Add(proj);
             }
         }
+
+        filteredRecentProjects.AddRange(unordered.OrderByDescending(x => x.ProjectFile.LastAccessed));
+        OnPropertyChanged(nameof(FilteredRecentProjects));
     }
 
     public Task WaitForProjectSelection() {
