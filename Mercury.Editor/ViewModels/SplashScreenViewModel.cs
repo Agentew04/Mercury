@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Localization;
@@ -35,6 +36,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
     private readonly SettingsService settings = App.Services.GetRequiredService<SettingsService>();
     private readonly HttpClient http = App.Services.GetRequiredService<HttpClient>();
     private readonly UpdaterService updater = App.Services.GetRequiredService<UpdaterService>();
+    private readonly ThemeService theme = App.Services.GetRequiredService<ThemeService>();
 
     [ObservableProperty]
     private string statusText = "";
@@ -50,19 +52,19 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         Version = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0,0);
         LocalizationManager.CultureChanged += Localize;
 
-        Directory.CreateDirectory(settings.AppDirectory);
+        Directory.CreateDirectory(settings.AppDirectory.ToString());
         
         await settings.LoadSettings();
-        if(!File.Exists(settings.PreferencesPath) || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.PreferencesPath))) {
+        if(!settings.PreferencesPath.Exists() || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.PreferencesPath.ToString()))) {
             // write default configuration
             StatusText = SplashScreenResources.StdSettingsDefineValue;
             settings.Preferences = settings.GetDefaultPreferences();
             await settings.SaveSettings();
         }
 
-        if (!File.Exists(settings.StdLibSettingsPath) || !File.Exists(settings.GuideSettingsPath)
-            || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.StdLibSettingsPath))
-            || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.GuideSettingsPath))) {
+        if (!settings.StdLibSettingsPath.Exists() || !settings.GuideSettingsPath.Exists()
+            || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.StdLibSettingsPath.ToString()))
+            || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.GuideSettingsPath.ToString()))) {
             settings.StdLibSettings = new StandardLibrarySettings();
             settings.GuideSettings = new GuideSettings();
             await settings.SaveSettings();
@@ -98,6 +100,16 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         await settings.SaveSettings();
         
         StatusText = SplashScreenResources.DoneValue;
+        
+        SetUserTheme();
+    }
+
+    private void SetUserTheme() {
+        string name = settings.Preferences.Theme;
+        IReadOnlyList<ThemeVariant> variants = theme.GetAvailableThemes();
+        ThemeVariant selectedTheme = variants.FirstOrDefault(x => (string)x.Key == name) ?? ThemeVariant.Dark;
+        
+        theme.SetApplicationTheme(selectedTheme);
     }
 
     private void Localize(CultureInfo cultureInfo) {

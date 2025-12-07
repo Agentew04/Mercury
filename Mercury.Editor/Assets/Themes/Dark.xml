@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Theme xmlns="https://rodrigoappelt.com/mercury/theme" name="Dark" inherits="Dark">
+    <Color name="BackgroundGrey" value="#1F1F1F"/>
+    <Color name="AlternateGrey" value="#383838"/>
+    <Color name="AlternateGreyLight" value="#484f4f"/>
+    <Color name="BlueLight" value="#0b779c"/>
+    <Color name="PrimaryForeground" value="#dddddd"/>
+    <Color name="SecondaryForeground" value="#666666"/>
+    <Color name="SelectionColor" value="#0077ff"/>
+    <Color name="Purple1" value="#7950f2"/>
+    <Color name="Purple2" value="#4b3296"/>
+    <Color name="Purple3" value="#3a2775"/>
+    <Color name="CloseRed" value="#e81123"/>
+</Theme>

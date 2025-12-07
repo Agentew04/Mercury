@@ -63,7 +63,7 @@
             </Button>
 
             <!-- divider -->
-            <Rectangle Width="1" Fill="{StaticResource AlternateGrey}"/>
+            <Rectangle Width="1" Fill="{DynamicResource AlternateGrey}"/>
             
             <Label Target="DataModeComboBox"
                    VerticalAlignment="Center"

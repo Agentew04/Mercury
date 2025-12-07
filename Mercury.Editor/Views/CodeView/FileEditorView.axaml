@@ -55,7 +55,7 @@
                             </Button>
                             <Rectangle Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                        IsVisible="{Binding IsActive}"
-                                       Fill="{StaticResource Purple1}"></Rectangle>
+                                       Fill="{DynamicResource Purple1}"></Rectangle>
                         </Grid>
                     </DataTemplate>
                 </TabStrip.ItemTemplate>

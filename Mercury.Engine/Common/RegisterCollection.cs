@@ -42,7 +42,7 @@ public class RegisterCollection {
 
     public int Get(Enum reg, Type type) {
         // return ((int[])banks[type])[Convert.ToInt32(reg)];
-        return ((int[])banks[type])[Unsafe.As<Enum,int>(ref reg)];
+        return ((int[])banks[type])[(int)(object)reg];
     }
     
 

@@ -29,6 +29,9 @@ public class App : Application {
         Services = new ServiceCollection()
             .Configure()
             .BuildServiceProvider();
+
+        var themeService = Services.GetRequiredService<ThemeService>();
+        themeService.LoadThemes(Resources);
             
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             _desktopLifetime = desktop;

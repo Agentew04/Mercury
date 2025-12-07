@@ -80,6 +80,12 @@
     <None Remove="Assets\Localization\Guides\*.md" />
     <EmbeddedResource Include="Assets\Localization\Guides\*.md"  WithCulture="false"/>
   </ItemGroup>
+    
+  <!-- themes -->
+  <ItemGroup>
+    <None Remove="Assets\Themes\*.xml" />
+    <EmbeddedResource Include="Assets\Themes\*.xml" />
+  </ItemGroup>
   
   <!-- syntax highlighting -->
   <ItemGroup>
@@ -98,29 +104,5 @@
   <!-- licenca -->
   <ItemGroup>
     <EmbeddedResource Include="..\LICENSE.txt"/>
-  </ItemGroup>
-
-  <!-- ainda nao sei se isso serve pra alguma coisa... -->
-  <ItemGroup>
-    <Compile Update="Views\CodeView\ProjectView.axaml.cs">
-      <DependentUpon>ProjectView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\CodeView\FileEditorView.axaml.cs">
-      <DependentUpon>FileEditorView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\CodeView\GuideView.axaml.cs">
-      <DependentUpon>GuideView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\CodeView\ProblemsView.axaml.cs">
-      <DependentUpon>ProblemsView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\CodeView\CodeTabView.axaml.cs">
-      <DependentUpon>CodeTabView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
 </Project>

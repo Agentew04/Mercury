@@ -89,7 +89,7 @@
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
                                             VerticalAlignment="Center" Spacing="5">
                                     <TextBlock Text="{Binding Source.File, Mode=OneWay}"
-                                               Foreground="{StaticResource SecondaryForeground}"
+                                               Foreground="{DynamicResource SecondaryForeground}"
                                                VerticalAlignment="Center"></TextBlock>
                                     <!-- entry point icon -->
                                     <TextBlock Text="&#xE428;"

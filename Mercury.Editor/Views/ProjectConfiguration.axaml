@@ -8,7 +8,7 @@
         x:Class="Mercury.Editor.Views.ProjectConfiguration"
         x:DataType="vm:ProjectConfigurationViewModel"
         Title="{loc:ProjectConfigurationResources WindowTitle}"
-        Background="{StaticResource BackgroundGrey}"
+        Background="{DynamicResource BackgroundGrey}"
         Width="500"
         Icon="avares://Mercury.Editor/Assets/Images/icon-noborder-64.png"
         Height="700"
@@ -74,7 +74,7 @@
         
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Content="{loc:ProjectConfigurationResources ApplyButton}"
-                    Background="{StaticResource Purple1}"
+                    Background="{DynamicResource Purple1}"
                     Command="{Binding ApplyCommand}"
                     Margin="15"></Button>
         </StackPanel>

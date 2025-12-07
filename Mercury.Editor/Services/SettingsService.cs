@@ -17,8 +17,7 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// The directory where the application stores its configuration files
     /// and is the default location for the compiler and stdlib.
     /// </summary>
-    public string AppDirectory { get; }
-    
+    public PathObject AppDirectory { get; }
     public PathObject ResourcesDirectory { get; }
     public PathObject ThemesDirectory { get; }
     
@@ -26,10 +25,10 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// The path to the config file. It is a file named 'config.json' that
     /// lives inside <see cref="AppDirectory"/>.
     /// </summary>
-    public string PreferencesPath { get; }
-    public string StdLibSettingsPath { get; }
-    public string GuideSettingsPath { get; }
-    public string TemplateSettingsPath { get; }
+    public PathObject PreferencesPath { get; }
+    public PathObject StdLibSettingsPath { get; }
+    public PathObject GuideSettingsPath { get; }
+    public PathObject TemplateSettingsPath { get; }
 
     /// <summary>
     /// The current user settings
@@ -53,27 +52,28 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
 
     public SettingsService() {
         Preferences = null!;
-        AppDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".mercury");
-        ResourcesDirectory = AppDirectory.ToDirectoryPath().Folder("resources");
-        ThemesDirectory = AppDirectory.ToDirectoryPath().Folder("themes");
-        PreferencesPath = Path.Combine(AppDirectory, "config.json");
-        StdLibSettingsPath = Path.Combine(AppDirectory, "stdlib.json");
-        GuideSettingsPath = Path.Combine(AppDirectory, "guide.json");
-        TemplateSettingsPath = Path.Combine(AppDirectory, "templates.json");
+        AppDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToDirectoryPath()
+            .Folder(".mercury");
+        ResourcesDirectory = AppDirectory.Folder("resources");
+        ThemesDirectory = AppDirectory.Folder("themes");
+        PreferencesPath = AppDirectory.File("config.json");
+        StdLibSettingsPath = AppDirectory.File("stdlib.json");
+        GuideSettingsPath = AppDirectory.File("guide.json");
+        TemplateSettingsPath = AppDirectory.File("templates.json");
     }
 
     public async Task SaveSettings() {
         // parallel serialization
-        await using Stream sPref = File.OpenWrite(PreferencesPath);
+        await using Stream sPref = File.OpenWrite(PreferencesPath.ToString());
         Task prefTask = JsonSerializer.SerializeAsync(sPref, Preferences, SettingsSerializerContext.Default.UserPreferences);
         sPref.SetLength(sPref.Position);
-        await using Stream sStd = File.OpenWrite(StdLibSettingsPath);
+        await using Stream sStd = File.OpenWrite(StdLibSettingsPath.ToString());
         Task stdTask = JsonSerializer.SerializeAsync(sStd, StdLibSettings, SettingsSerializerContext.Default.StandardLibrarySettings);
         sStd.SetLength(sStd.Position);
-        await using Stream sGuide = File.OpenWrite(GuideSettingsPath);
+        await using Stream sGuide = File.OpenWrite(GuideSettingsPath.ToString());
         Task guideTask = JsonSerializer.SerializeAsync(sGuide, GuideSettings, SettingsSerializerContext.Default.GuideSettings);
         sGuide.SetLength(sGuide.Position);
-        await using Stream sTemplate = File.OpenWrite(TemplateSettingsPath);
+        await using Stream sTemplate = File.OpenWrite(TemplateSettingsPath.ToString());
         Task templateTask = JsonSerializer.SerializeAsync(sTemplate, TemplateSettings, SettingsSerializerContext.Default.TemplateSettings);
         sTemplate.SetLength(sTemplate.Position);
 
@@ -82,13 +82,13 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
 
     public async Task LoadSettings() {
         // parallel async loading
-        Task<UserPreferences> prefTask = Deserialize(PreferencesPath, SettingsSerializerContext.Default.UserPreferences,
+        Task<UserPreferences> prefTask = Deserialize(PreferencesPath.ToString(), SettingsSerializerContext.Default.UserPreferences,
             GetDefaultPreferences);
-        Task<StandardLibrarySettings> stdlibTask = Deserialize(StdLibSettingsPath,
+        Task<StandardLibrarySettings> stdlibTask = Deserialize(StdLibSettingsPath.ToString(),
             SettingsSerializerContext.Default.StandardLibrarySettings, () => new StandardLibrarySettings());
-        Task<GuideSettings> guideTask = Deserialize(GuideSettingsPath, SettingsSerializerContext.Default.GuideSettings,
+        Task<GuideSettings> guideTask = Deserialize(GuideSettingsPath.ToString(), SettingsSerializerContext.Default.GuideSettings,
             () => new GuideSettings());
-        Task<TemplateSettings> templateTask = Deserialize(TemplateSettingsPath,
+        Task<TemplateSettings> templateTask = Deserialize(TemplateSettingsPath.ToString(),
             SettingsSerializerContext.Default.TemplateSettings, () => new TemplateSettings());
 
         await Task.WhenAll(prefTask, stdlibTask, guideTask, templateTask);
@@ -120,10 +120,11 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// Returns the default settings and preferences for a fresh installation.
     /// </summary>
     public UserPreferences GetDefaultPreferences() => new(){
-        CompilerPath = Path.Combine(AppDirectory, "compiler"),
+        CompilerPath = AppDirectory.Folder("compiler").ToString(),
         Language = CultureInfo.InstalledUICulture,
-        OnlineCheckFrequency = TimeSpan.FromSeconds(1), // TODO: mudar isso antes da producao
+        OnlineCheckFrequency = TimeSpan.FromDays(1),
         LastOnlineCheck = DateTime.MinValue,
+        Theme = "Dark"
     };
 
     private bool UpdatePreferences(UserPreferences preferences) {
@@ -138,7 +139,7 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     public void Dispose() {
         // ATENCAO: nao dah pra usar async aqui por algum motivo obscuro.
         // faz escrita blocking
-        File.WriteAllText(PreferencesPath, JsonSerializer.Serialize(Preferences, SettingsSerializerContext.Default.UserPreferences));
+        File.WriteAllText(PreferencesPath.ToString(), JsonSerializer.Serialize(Preferences, SettingsSerializerContext.Default.UserPreferences));
     }
 }
 

@@ -57,6 +57,7 @@ public static class PathExtensions {
     /// </summary>
     /// <param name="path">The path to check</param>
     /// <returns>Wether the path exists or not in the disk</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Exists(this PathObject path) {
         return path.IsFile ? File.Exists(path.ToString()) : Directory.Exists(path.ToString());
     }

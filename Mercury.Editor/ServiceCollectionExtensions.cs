@@ -50,6 +50,7 @@ public static class ServiceCollectionExtensions {
             .AddSingleton<GrammarService>()
             .AddSingleton<ExecuteService>()
             .AddSingleton<UpdaterService>()
+            .AddSingleton<ThemeService>()
             .ConfigureHttp();
     }
 

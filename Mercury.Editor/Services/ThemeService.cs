@@ -1,146 +1,294 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Metadata;
+using System.Xml;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Styling;
-using Microsoft.Extensions.DependencyInjection;
+using Mercury.Editor.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor.Services;
 
-// untested. :o
-// alguma hora aplicar, dps do dia 17 
+/// <summary>
+/// Service responsible for parsing theme files on startup and
+/// registering them to the app's ResourceDictionary as theme
+/// variants.
+/// </summary>
+/// <remarks>
+/// Automatically includes a XML schema on theme folder. This schema is not
+/// used by the parser. Only there to help anyone that wants to extend the app.
+/// </remarks>
 public class ThemeService : BaseService<ThemeService> {
 
-    private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
+    private readonly SettingsService settingsService;
+    private readonly ILogger<ThemeService> logger;
+    private readonly List<ThemeVariant> variants = [];
 
-    private readonly List<(ThemeVariant,ResourceDictionary)> themes = [];
+    public ThemeService(SettingsService settings, ILogger<ThemeService> logger) {
+        settingsService = settings;
+        this.logger = logger;
+    }
     
-    public void LoadThemes(ResourceDictionary dict) {
+    /// <summary>
+    /// Loads all available themes from the disk and adds them to the
+    /// <see cref="ResourceDictionary.ThemeDictionaries"/> of the passed dictionary.
+    /// </summary>
+    /// <param name="dict">The <see cref="ResourceDictionary"/> that will receive the variants.</param>
+    public void LoadThemes(IResourceDictionary dict) {
         string dir = settingsService.ThemesDirectory.ToString();
 
         if (!Directory.Exists(dir)) {
             Directory.CreateDirectory(dir);
-            // already know there are no files
-            return;
+            // no files exist. add schema for anyone that wants to add a new file
+            File.WriteAllText(Path.Combine(dir,"schema.xsd"), ThemeSchema);
         }
 
+        // dir exists, create schema if it does not exist
+        if (!File.Exists(Path.Combine(dir, "schema.xsd"))) {
+            File.WriteAllText(Path.Combine(dir,"schema.xsd"), ThemeSchema);
+        }
+        
+        PopulateDefaultThemes();
+        
+        List<Theme> themes = [];
         foreach (string file in Directory.EnumerateFiles(dir)) {
-            ResourceDictionary themeDict = ReadTheme(file);
-            string name = Path.GetFileNameWithoutExtension(file);
-            ThemeVariant variant = name switch {
+            if (Path.GetExtension(file) != ".xml") {
+                continue;
+            }
+            Theme? theme;
+            try {
+                theme = ReadTheme(file);
+            }
+            catch (XmlException ex) {
+                logger.LogWarning("Could not parse theme. File: {File}; Error: {Error}", file, ex.Message);
+                continue;
+            }
+            themes.Add(theme);
+        }
+        
+        // all themes read. check for duplicate names
+        IEnumerable<string> duplicates = themes.GroupBy(x => x.Name)
+            .Where(x => x.Count() > 1)
+            .Select(x => x.Key);
+        if (duplicates.Any()) {
+            logger.LogWarning("Found two or more themes with the same name.");
+        }
+
+        IEnumerable<Theme> deduplicated = themes.DistinctBy(x => x.Name);
+        foreach (Theme theme in deduplicated) {
+            ThemeVariant variant = theme.Name switch {
                 "Light" or "light" => ThemeVariant.Light,
                 "Dark" or "dark" => ThemeVariant.Dark,
-                _ => new ThemeVariant(name, ThemeVariant.Dark)
+                _ => new ThemeVariant(theme.Name, theme.Inherits == ThemeInheritance.Light ? ThemeVariant.Light : ThemeVariant.Dark)
             };
-            themes.Add((variant, dict));
-        }
-
-        foreach ((ThemeVariant variant, ResourceDictionary themeDict) in themes) {
-            dict.ThemeDictionaries.Add(variant, themeDict);
+            variants.Add(variant);
+            ResourceDictionary themeDictionary = CreateDictionary(theme);
+            logger.LogInformation("Registered theme: {theme}", variant.Key);
+            dict.ThemeDictionaries.Add(variant, themeDictionary);
         }
     }
     
-    private ResourceDictionary ReadTheme(string file) {
-        // reads a file like .ini or .properties
-        // each line is a name = #rrggbb or name=#aarrggbb
-        List<ColorData> colors = [];
-        bool needsTutorial = false;
-        FileStream fs = File.Open(file, FileMode.Open, FileAccess.Read);
-        StreamReader sr = new(fs);
-        string? line = sr.ReadLine()?.Trim();
-        if (!line?.StartsWith(FirstDocumentationLine) ?? true) {
-            needsTutorial = true;
+    /// <summary>
+    /// Returns a list with all registered theme variants.
+    /// </summary>
+    public IReadOnlyList<ThemeVariant> GetAvailableThemes() {
+        return variants;
+    }
+
+    public void SetApplicationTheme(ThemeVariant theme) {
+        if (Application.Current is not null) {
+            logger.LogInformation("Setting RequestedThemeVariant: {Variant}", theme.Key);
+            Application.Current.RequestedThemeVariant = theme;
+        }
+    }
+    
+    private Theme ReadTheme(string file) {
+        using FileStream fs = File.OpenRead(file);
+        Theme theme = new();
+        
+        XmlReader reader = XmlReader.Create(fs, new XmlReaderSettings() {
+            IgnoreComments = true,
+            IgnoreWhitespace = true
+        });
+        
+        reader.MoveToContent();
+        if (reader.NodeType != XmlNodeType.Element || reader.Name != "Theme") {
+            throw new XmlException("Root element must be <Theme>");
+        }
+        
+        theme.Name = reader.GetAttribute("name") 
+                     ?? throw new XmlException("Theme missing required attribute 'name'");
+        
+        string? inheritsAttr = reader.GetAttribute("inherits");
+        if (inheritsAttr != null)
+        {
+            theme.Inherits = inheritsAttr switch
+            {
+                "Light" or "light" => ThemeInheritance.Light,
+                "Dark" or "dark" => ThemeInheritance.Dark,
+                _ => throw new XmlException($"Invalid inherits value '{inheritsAttr}'")
+            };
+        }
+        else {
+            throw new XmlException("Missing inherits value for theme.");
+        }
+        
+        // Entra no elemento
+        if (reader.IsEmptyElement) {
+            return theme;
         }
 
-        do {
-            line ??= string.Empty;
-            StringBuilder nameSb = new();
-            StringBuilder colorSb = new();
-            int stage = 0;
-            foreach (char c in line) {
-                if(c == '#') break;
-                switch (stage) {
-                    case 0: {
-                        // reading name
-                        if (c == '=') {
-                            stage++;
-                            break;
-                        }
-                        if (!char.IsWhiteSpace(c)) {
-                            nameSb.Append(c);
-                        }
-                        break;
-                    }
-                    case 1: {
-                        // reading color
-                        if(c == '\n' || colorSb.Length == 8) {
-                            stage++;
-                            break;
-                        }
-                        if (char.IsWhiteSpace(c) || char.IsControl(c)) {
-                            continue;
-                        }
+        reader.Read(); // entra no conteúdo
 
-                        if (c is >= '0' and <= '9' or >= 'a' and <= 'f' or >= 'A' and <= 'F') {
-                            colorSb.Append(c);
-                        }
-                        break;
-                    }
-                }
+        // Loop pelos filhos
+        while (reader.ReadState == ReadState.Interactive) {
+            if (reader is { NodeType: XmlNodeType.EndElement, Name: "Theme" }) {
+                break;
             }
 
-            if (stage != 2 || (colorSb.Length != 6 && colorSb.Length != 8)
-                || nameSb.Length == 0) {
-                line = sr.ReadLine()?.Trim();
-                continue;
+            if (reader is { NodeType: XmlNodeType.Element, Name: "Color" }) {
+                var c = new Color {
+                    Name  = reader.GetAttribute("name") 
+                            ?? throw new XmlException("Color missing 'name' attribute"),
+                    Value = reader.GetAttribute("value") 
+                            ?? throw new XmlException("Color missing 'value' attribute")
+                };
+
+                theme.Colors.Add(c);
             }
+
+            reader.Read();
+        }
+
+        return theme;
+        
+    }
+
+    private ResourceDictionary CreateDictionary(Theme theme) {
+        ResourceDictionary dict = new();
+        foreach (Color colorElement in theme.Colors) {
+            Avalonia.Media.Color color = ParseColor(colorElement.Value);
+            
+            // add brush
+            dict.Add(colorElement.Name, new SolidColorBrush(color));
             
             // add color
-            colors.Add(new ColorData(nameSb.ToString(), colorSb.ToString()));
-            line = sr.ReadLine()?.Trim();
-        } while (line is not null);
-
-        sr.Dispose();
-        fs.Dispose();
-
-        if (needsTutorial) {
-            using FileStream fs2 = new(file, FileMode.Open);
-            using StreamWriter sr2 = new(fs2,leaveOpen:true);
-            sr2.WriteLine(DocumentationText);
-            foreach (ColorData color in colors) {
-                sr2.WriteLine($"{color.Name} = {color.Color}");
-            }
+            dict.Add(colorElement.Name + "Color", color);
         }
 
-        ResourceDictionary dict = new();
-        foreach (ColorData color in colors) {
-            string colorName = color.Name + "Color";
-            Color color2 = Color.Parse(color.Color);
-            dict.Add(color.Name, new SolidColorBrush(color2));
-            dict.Add(colorName, color2);
-        }
         return dict;
     }
 
-    private readonly record struct ColorData(string Name, string Color);
+    private Avalonia.Media.Color ParseColor(string str) {
+        if (string.IsNullOrWhiteSpace(str) || str[0] != '#') {
+            throw new Exception("Invalid color format");
+        }
 
-    private const string FirstDocumentationLine = "# Mercury Theming Tutorial";
-    private const string DocumentationText = FirstDocumentationLine +
+        // #RRGGBB
+        if (str.Length == 7) {
+            byte r = Convert.ToByte(str.Substring(1, 2), 16);
+            byte g = Convert.ToByte(str.Substring(3, 2), 16);
+            byte b = Convert.ToByte(str.Substring(5, 2), 16);
+
+            return new Avalonia.Media.Color(255, r, g, b);
+        }
+        logger.LogError("Could not parse input \"{input}\" as a color. Defaulting to magenta.", str);
+        return new Avalonia.Media.Color(255, 255, 0, 255);
+    }
+
+    private void PopulateDefaultThemes() {
+        PathObject dir = settingsService.ThemesDirectory;
+
+        PathObject dark = dir.File("Dark.xml"); 
+        PathObject light = dir.File("Light.xml");
+        
+        if (!dark.Exists()) {
+            using Stream? s = typeof(ThemeService).Assembly.GetManifestResourceStream("Mercury.Editor.Assets.Themes.Dark.xml");
+            if (s is null) {
+                logger.LogWarning("Could not find resource name for default dark theme");
+            } else {
+                using FileStream fs = File.OpenWrite(dark.ToString());
+                s.CopyTo(fs);
+                logger.LogInformation("Creating default Dark theme file: {file}", dark);
+                fs.SetLength(fs.Position);
+            }
+        }
+        if (!light.Exists()) {
+            using Stream? s = typeof(ThemeService).Assembly.GetManifestResourceStream("Mercury.Editor.Assets.Themes.Light.xml");
+            if (s is null) {
+                logger.LogWarning("Could not find resource name for default light theme");
+            } else {
+                using FileStream fs = File.OpenWrite(light.ToString());
+                s.CopyTo(fs);
+                logger.LogInformation("Creating default Light theme file: {file}", light);
+                fs.SetLength(fs.Position);
+            }
+        }
+    }
+    
+    private sealed class Theme
+    {
+        public string Name { get; set; } = "";
+        public List<Color> Colors { get; } = [];
+        public ThemeInheritance Inherits { get; set; } = ThemeInheritance.None;
+    }
+
+    private sealed class Color
+    {
+        public string Name { get; init; } = "";
+        public string Value { get; init; } = "";
+    }
+
+    private const string ThemeSchema =
         """
+        <?xml version="1.0" encoding="utf-8"?>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="https://rodrigoappelt.com/mercury/theme"
+                   xmlns="https://rodrigoappelt.com/mercury/theme"
+                   elementFormDefault="qualified">
 
-        # 
-        # A theme file for the Mercury IDE consists of a list
-        # of key-value pairs. The keys are names and the values
-        # are hex colors. Hex colors are either 6 characters long
-        # (representing RRGGBB) or 8 characters long (AARRGGBB)
-        # for an alpha channel. Each character must be in the 
-        # range [0-9] or [A-F] or [a-f]. Each line must follow 
-        # the format:
-        # propertyName = color
-        # Text after a '#' character is ignored until end of line.
-        # Consult default themes('Light' or 'Dark') for an example
-        # of which propertyNames exist.
+          <!-- cor valor -->
+          <xs:simpleType name="hexColorType">
+            <xs:restriction base="xs:string">
+              <xs:pattern value="#[A-Fa-f0-9]{6}"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <!-- enum heranca -->
+          <xs:simpleType name="inheritMode">
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="Light"/>
+              <xs:enumeration value="Dark"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <!-- cor elemento -->
+          <xs:element name="Color">
+            <xs:complexType>
+              <xs:attribute name="name" type="xs:string" use="required"/>
+              <xs:attribute name="value" type="hexColorType" use="required"/>
+            </xs:complexType>
+          </xs:element>
+          <!-- elemento tema -->
+          <xs:element name="Theme">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element ref="Color" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:sequence>
+              <xs:attribute name="inherits" type="inheritMode" use="required"/>
+              <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:complexType>
+          </xs:element>
+        </xs:schema>
         """;
+    
+    private enum ThemeInheritance
+    {
+        None,
+        Light,
+        Dark
+    }
 }

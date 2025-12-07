@@ -14,7 +14,7 @@
         <conv:DiagnosticTypeToColor x:Key="DiagToColor"/>
         <conv:FilenameConverter x:Key="FilenameConverter"></conv:FilenameConverter>
     </UserControl.Resources>
-    <Grid RowDefinitions="Auto,*" Background="{StaticResource BackgroundGrey}">
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource BackgroundGrey}">
         <DataGrid Grid.Row="1" ItemsSource="{Binding Diagnostics}"
                   x:Name="ProblemsDataGrid"
                   IsReadOnly="True" GridLinesVisibility="Horizontal"
