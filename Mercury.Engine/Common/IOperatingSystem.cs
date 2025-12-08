@@ -1,6 +1,4 @@
-﻿using Mercury.Engine.Common;
-
-namespace Mercury.Engine;
+﻿namespace Mercury.Engine.Common;
 
 /// <summary>
 /// Base interface for all operating systems across

@@ -31,11 +31,11 @@ public class UserPreferences {
     public DateTime LastOnlineCheck { get; set; }
     
     public TimeSpan OnlineCheckFrequency { get; set; }
-    
+
     /// <summary>
     /// The string key of the preferred theme variant.
     /// </summary>
-    public string Theme { get; set; }
+    public string Theme { get; set; } = string.Empty;
 
     /// <summary>
     /// A list with the most recent project opened by the user

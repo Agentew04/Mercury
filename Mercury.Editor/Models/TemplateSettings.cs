@@ -24,7 +24,7 @@ public class TemplateSettings {
 /// <summary>
 /// Represents an installed template on the system.
 /// </summary>
-public sealed class Template : IDisposable{
+public sealed class Template : IDisposable {
 
     public Template() {
         WeakReferenceMessenger.Default.Register<Template,LocalizationChangedMessage>(this, OnLocalizationChange);
@@ -33,7 +33,7 @@ public sealed class Template : IDisposable{
         }
         else {
             Console.WriteLine("Could not get localization for a template");
-            nameSub = new BehaviorSubject<string>("localization error. "+LocalizationManager.CurrentCulture.ToString());
+            nameSub = new BehaviorSubject<string>("localization error. "+LocalizationManager.CurrentCulture);
         }
         Name = nameSub;
     }

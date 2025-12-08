@@ -25,7 +25,7 @@ public class TypeITest {
     [DataRow(8, 0, 0xF, 0x2008000F)]
     [DataRow(0, 10, 0x8F, 0x2140008F)]
     [DataRow(23,29, 0xFFE4, 0x23B7FFE4)]
-    [DataTestMethod]
+    [TestMethod]
     public void AddiAssembly(int rt, int rs, int immediate, int expected) {
         var instruction = new Addi() {
             Rt = (byte)rt,
@@ -39,7 +39,7 @@ public class TypeITest {
     [DataRow((uint)0x2008000F)]
     [DataRow((uint)0x2140008F)]
     [DataRow((uint)0x23B7FFE4)]
-    [DataTestMethod]
+    [TestMethod]
     public void AddiDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -66,7 +66,7 @@ public class TypeITest {
     [DataRow(8, 0, 0xF, 0x2408000F)]
     [DataRow(0, 10, 0x8F, 0x2540008F)]
     [DataRow(23,29, 0x7FE4, 0x27B77FE4)]
-    [DataTestMethod]
+    [TestMethod]
     public void AddiuAssembly(int rt, int rs, int immediate, int expected) {
         Addiu instruction = new() {
             Rt = (byte)rt,
@@ -80,7 +80,7 @@ public class TypeITest {
     [DataRow((uint)0x2408000F)]
     [DataRow((uint)0x2540008F)]
     [DataRow((uint)0x27B77FE4)]
-    [DataTestMethod]
+    [TestMethod]
     public void AddiuDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -107,7 +107,7 @@ public class TypeITest {
     [DataRow(8, 0, 0xF, 0x2808000F)]
     [DataRow(0, 10, 0x8F, 0x2940008F)]
     [DataRow(23,29, 0xFFE4, 0x2BB7FFE4)]
-    [DataTestMethod]
+    [TestMethod]
     public void SltiAssembly(int rt, int rs, int immediate, int expected) {
         var instruction = new Slti() {
             Rt = (byte)rt,
@@ -121,7 +121,7 @@ public class TypeITest {
     [DataRow((uint)0x2808000F)]
     [DataRow((uint)0x2940008F)]
     [DataRow((uint)0x2BB7FFE4)]
-    [DataTestMethod]
+    [TestMethod]
     public void SltiDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -148,7 +148,7 @@ public class TypeITest {
     [DataRow(8, 0, 0xF, 0x2C08000F)]
     [DataRow(0, 10, 0x8F, 0x2D40008F)]
     [DataRow(23,29, 0xFFE4, 0x2FB7FFE4)]
-    [DataTestMethod]
+    [TestMethod]
     public void SltiuAssembly(int rt, int rs, int immediate, int expected) {
         var instruction = new Sltiu() {
             Rt = (byte)rt,
@@ -162,7 +162,7 @@ public class TypeITest {
     [DataRow((uint)0x2C08000F)]
     [DataRow((uint)0x2D40008F)]
     [DataRow((uint)0x2FB7FFE4)]
-    [DataTestMethod]
+    [TestMethod]
     public void SltiuDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -191,7 +191,7 @@ public class TypeITest {
     [DataRow(8, 0, 0xF, 0x3008000F)]
     [DataRow(0, 10, 0x8F, 0x3140008F)]
     /*[DataRow(23,29, 0xFFE4, 0x3C01FFFF)]*/ // andi with negative immediate is pseudo instruction of lui and ori
-    [DataTestMethod]
+    [TestMethod]
     public void AndiAssembly(int rt, int rs, int immediate, int expected) {
         var instruction = new Andi() {
             Rt = (byte)rt,
@@ -204,7 +204,7 @@ public class TypeITest {
     [TestCategory("Andi")]
     [DataRow((uint)0x3008000F)]
     [DataRow((uint)0x3140008F)]
-    [DataTestMethod]
+    [TestMethod]
     public void AndiDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -231,7 +231,7 @@ public class TypeITest {
     [TestCategory("Ori")]
     [DataRow(8, 0, 0xF, 0x3408000F)]
     [DataRow(0, 10, 0x8F, 0x3540008F)]
-    [DataTestMethod]
+    [TestMethod]
     public void OriAssembly(int rt, int rs, int immediate, int expected) {
         var instruction = new Ori() {
             Rt = (byte)rt,
@@ -244,7 +244,7 @@ public class TypeITest {
     [TestCategory("Ori")]
     [DataRow((uint)0x3408000F)]
     [DataRow((uint)0x3540008F)]
-    [DataTestMethod]
+    [TestMethod]
     public void OriDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -271,7 +271,7 @@ public class TypeITest {
     [TestCategory("Xori")]
     [DataRow(8, 0, 0xF, 0x3808000F)]
     [DataRow(0, 10, 0x8F, 0x3940008F)]
-    [DataTestMethod]
+    [TestMethod]
     public void XoriAssembly(int rt, int rs, int immediate, int expected) {
         var instruction = new Xori() {
             Rt = (byte)rt,
@@ -284,7 +284,7 @@ public class TypeITest {
     [TestCategory("Xori")]
     [DataRow((uint)0x3808000F)]
     [DataRow((uint)0x3940008F)]
-    [DataTestMethod]
+    [TestMethod]
     public void XoriDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -311,7 +311,7 @@ public class TypeITest {
     [DataRow(1, 0xF, 11, 0x8161000F)]
     [DataRow(27, 0xFFF1, 28, 0x839BFFF1)]
     [DataRow(31, 0x1, 23, 0x82FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void LbAssembly(int rt, int immediate, int rs, uint expected) {
         var instruction = new Lb() {
             Rt = (byte)rt,
@@ -325,7 +325,7 @@ public class TypeITest {
     [DataRow((uint)0x8161000F)]
     [DataRow((uint)0x839BFFF1)]
     [DataRow((uint)0x82FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void LbDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -352,7 +352,7 @@ public class TypeITest {
     [DataRow(1, 0xF, 11, 0x9161000F)]
     [DataRow(27, 0xFFF1, 28, 0x939BFFF1)]
     [DataRow(31, 0x1, 23, 0x92FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void LbuAssembly(int rt, int immediate, int rs, uint expected) {
         var instruction = new Lbu() {
             Rt = (byte)rt,
@@ -366,7 +366,7 @@ public class TypeITest {
     [DataRow((uint)0x9161000F)]
     [DataRow((uint)0x939BFFF1)]
     [DataRow((uint)0x92FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void LbuDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -393,7 +393,7 @@ public class TypeITest {
     [DataRow(1, 0xF, 11, 0x8561000F)]
     [DataRow(27, 0xFFF1, 28, 0x879BFFF1)]
     [DataRow(31, 0x1, 23, 0x86FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void LhAssembly(int rt, int immediate, int rs, uint expected) {
         var instruction = new Lh() {
             Rt = (byte)rt,
@@ -407,7 +407,7 @@ public class TypeITest {
     [DataRow((uint)0x8561000F)]
     [DataRow((uint)0x879BFFF1)]
     [DataRow((uint)0x86FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void LhDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -434,7 +434,7 @@ public class TypeITest {
     [DataRow(1, 0xF, 11, 0x9561000F)]
     [DataRow(27, 0xFFF1, 28, 0x979BFFF1)]
     [DataRow(31, 0x1, 23, 0x96FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void LhuAssembly(int rt, int immediate, int rs, uint expected) {
         var instruction = new Lhu() {
             Rt = (byte)rt,
@@ -448,7 +448,7 @@ public class TypeITest {
     [DataRow((uint)0x9561000F)]
     [DataRow((uint)0x979BFFF1)]
     [DataRow((uint)0x96FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void LhuDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -476,7 +476,7 @@ public class TypeITest {
     [DataRow(1, 0xF, 0x3C01000F)]
     [DataRow(27, 0, 0x3C1B0000)]
     [DataRow(31, 0xFA, 0x3C1F00FA)]
-    [DataTestMethod]
+    [TestMethod]
     public void LuiAssembly(int rt, int immediate, int expected) {
         var instruction = new Lui() {
             Rt = (byte)rt,
@@ -489,7 +489,7 @@ public class TypeITest {
     [DataRow((uint)0x3C01000F)]
     [DataRow((uint)0x3C1B0000)]
     [DataRow((uint)0x3C1F00FA)]
-    [DataTestMethod]
+    [TestMethod]
     public void LuiDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -518,7 +518,7 @@ public class TypeITest {
     [DataRow(1, 0xF, 11, 0x8D61000F)]
     [DataRow(27, 0x7FF1, 28, 0x8F9B7FF1)]
     [DataRow(31, 0x1, 23, 0x8EFF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void LwAssembly(int rt, int immediate, int rs, uint expected) {
         var instruction = new Lw() {
             Rt = (byte)rt,
@@ -532,7 +532,7 @@ public class TypeITest {
     [DataRow((uint)0x8D61000F)]
     [DataRow((uint)0x8F9B7FF1)]
     [DataRow((uint)0x8EFF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void LwDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -560,7 +560,7 @@ public class TypeITest {
     [DataRow(1, 0xF, 11, 0xA161000F)]
     [DataRow(27, 0x7FF1, 28, 0xA39B7FF1)]
     [DataRow(31, 0x1, 23, 0xA2FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void SbAssembly(int rt, int immediate, int rs, uint expected) {
         var instruction = new Sb() {
             Rt = (byte)rt,
@@ -574,7 +574,7 @@ public class TypeITest {
     [DataRow((uint)0xA161000F)]
     [DataRow((uint)0xA39B7FF1)]
     [DataRow((uint)0xA2FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void SbDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -602,7 +602,7 @@ public class TypeITest {
     [DataRow(1, 0xF, 11, 0xA561000F)]
     [DataRow(27, 0x7FF1, 28, 0xA79B7FF1)]
     [DataRow(31, 0x1, 23, 0xA6FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void ShAssembly(int rt, int immediate, int rs, uint expected) {
         var instruction = new Sh() {
             Rt = (byte)rt,
@@ -616,7 +616,7 @@ public class TypeITest {
     [DataRow((uint)0xA561000F)]
     [DataRow((uint)0xA79B7FF1)]
     [DataRow((uint)0xA6FF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void ShDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -644,7 +644,7 @@ public class TypeITest {
     [DataRow(1, 0xF, 11, 0xAD61000F)]
     [DataRow(27, 0x7FF1, 28, 0xAF9B7FF1)]
     [DataRow(31, 0x1, 23, 0xAEFF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void SwAssembly(int rt, int immediate, int rs, uint expected) {
         var instruction = new Sw() {
             Rt = (byte)rt,
@@ -658,7 +658,7 @@ public class TypeITest {
     [DataRow((uint)0xAD61000F)]
     [DataRow((uint)0xAF9B7FF1)]
     [DataRow((uint)0xAEFF0001)]
-    [DataTestMethod]
+    [TestMethod]
     public void SwDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -686,7 +686,7 @@ public class TypeITest {
     [DataRow(22, 12, 0x18, 0x12CC0018)]
     [DataRow(0, 3, 0x03F03FFD, 0x10033FFD)]
     [DataRow(10, 8, 0x2, 0x11480002)]
-    [DataTestMethod]
+    [TestMethod]
     public void BeqAssembly(int rs, int rt, int immediate, int expected) {
         var instruction = new Beq() {
             Rs = (byte)rs,
@@ -698,7 +698,7 @@ public class TypeITest {
 
     [TestCategory("Beq")]
     [DataRow("beq $t2, $t0, 0x2", 10, 8, 0x2)]
-    [DataTestMethod]
+    [TestMethod]
     public void BeqPopulate(string line, int rs, int rt, int immediate) {
         var instruction = new Beq();
         instruction.PopulateFromLine(line);
@@ -726,7 +726,7 @@ public class TypeITest {
     [DataRow(7, 0x03F03FFF, 0x04E13FFF)]
     [DataRow(22, 0x18, 0x06C10018)]
     [DataRow(0, 0x03F03FFD, 0x04013FFD)]
-    [DataTestMethod]
+    [TestMethod]
     public void BgezAssembly(int rs, int immediate, int expected) {
         var instruction = new Bgez() {
             Rs = (byte)rs,
@@ -739,7 +739,7 @@ public class TypeITest {
     [DataRow((uint)0x04E13FFF)]
     [DataRow((uint)0x06C10018)]
     [DataRow((uint)0x04013FFD)]
-    [DataTestMethod]
+    [TestMethod]
     public void BgezDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -766,7 +766,7 @@ public class TypeITest {
     [DataRow(7, 0x03F03FFF, 0x1CE03FFF)]
     [DataRow(22, 0x18, 0x1EC00018)]
     [DataRow(0, 0x03F03FFD, 0x1C003FFD)]
-    [DataTestMethod]
+    [TestMethod]
     public void BgtzAssembly(int rs, int immediate, int expected) {
         var instruction = new Bgtz() {
             Rs = (byte)rs,
@@ -779,7 +779,7 @@ public class TypeITest {
     [DataRow((uint)0x1CE03FFF)]
     [DataRow((uint)0x1EC00018)]
     [DataRow((uint)0x1C003FFD)]
-    [DataTestMethod]
+    [TestMethod]
     public void BgtzDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -806,7 +806,7 @@ public class TypeITest {
     [DataRow(7, 0x03F03FFF, 0x18E03FFF)]
     [DataRow(22, 0x18, 0x1AC00018)]
     [DataRow(0, 0x03F03FFD, 0x18003FFD)]
-    [DataTestMethod]
+    [TestMethod]
     public void BlezAssembly(int rs, int immediate, int expected) {
         var instruction = new Blez() {
             Rs = (byte)rs,
@@ -819,7 +819,7 @@ public class TypeITest {
     [DataRow((uint)0x18E03FFF)]
     [DataRow((uint)0x1AC00018)]
     [DataRow((uint)0x18003FFD)]
-    [DataTestMethod]
+    [TestMethod]
     public void BlezDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -846,7 +846,7 @@ public class TypeITest {
     [DataRow(7, 0x03F03FFF, 0x04E03FFF)]
     [DataRow(22, 0x18, 0x06C00018)]
     [DataRow(0, 0x03F03FFD, 0x04003FFD)]
-    [DataTestMethod]
+    [TestMethod]
     public void BltzAssembly(int rs, int immediate, int expected) {
         var instruction = new Bltz() {
             Rs = (byte)rs,
@@ -859,7 +859,7 @@ public class TypeITest {
     [DataRow((uint)0x04E03FFF)]
     [DataRow((uint)0x06C00018)]
     [DataRow((uint)0x04003FFD)]
-    [DataTestMethod]
+    [TestMethod]
     public void BltzDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -886,7 +886,7 @@ public class TypeITest {
     [DataRow(7, 28, 0x03F03FFF, 0x14FC3FFF)]
     [DataRow(22, 12, 0x18, 0x16CC0018)]
     [DataRow(0, 3, 0x03F03FFD, 0x14033FFD)]
-    [DataTestMethod]
+    [TestMethod]
     public void BneAssembly(int rs, int rt, int immediate, int expected) {
         var instruction = new Bne() {
             Rs = (byte)rs,
@@ -900,7 +900,7 @@ public class TypeITest {
     [DataRow((uint)0x14FC3FFF)]
     [DataRow((uint)0x16CC0018)]
     [DataRow((uint)0x14033FFD)]
-    [DataTestMethod]
+    [TestMethod]
     public void BneDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -911,7 +911,7 @@ public class TypeITest {
     [TestCategory("Lwcz")]
     [DataRow(1, 10, 0, 5, 0xC540_0005)]
     [DataRow(2, 10, 0, 5, 0xC940_0005)]
-    [DataTestMethod]
+    [TestMethod]
     public void LwczAssembly(int coproc, int @base, int rt, int offset, uint expected)
     {
         Lwcz instruction = new() {
@@ -926,7 +926,7 @@ public class TypeITest {
     [TestCategory("Lwcz")]
     [DataRow(0xC540_0005, 1, 10, 0, 5)]
     [DataRow(0xC940_0005, 2, 10, 0, 5)]
-    [DataTestMethod]
+    [TestMethod]
     public void LwczFromInt(uint binary, int coproc, int @base, int rt, int offset)
     {
         Lwcz instruction = new();
@@ -940,7 +940,7 @@ public class TypeITest {
     [TestCategory("Lwcz")]
     [DataRow((uint)0xC540_0005)]
     [DataRow((uint)0xC940_0005)]
-    [DataTestMethod]
+    [TestMethod]
     public void LwczDisassembly(uint instruction)
     {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
@@ -952,7 +952,7 @@ public class TypeITest {
     [TestCategory("Swcz")]
     [DataRow(1, 10, 0, 5, 0xE540_0005)]
     [DataRow(2, 10, 0, 5, 0xE940_0005)]
-    [DataTestMethod]
+    [TestMethod]
     public void SwczAssembly(int coproc, int @base, int rt, int offset, uint expected)
     {
         Swcz instruction = new() {
@@ -967,7 +967,7 @@ public class TypeITest {
     [TestCategory("swcz")]
     [DataRow(0xE540_0005, 1, 10, 0, 5)]
     [DataRow(0xE940_0005, 2, 10, 0, 5)]
-    [DataTestMethod]
+    [TestMethod]
     public void SwczFromInt(uint binary, int coproc, int @base, int rt, int offset)
     {
         Swcz instruction = new();
@@ -981,7 +981,7 @@ public class TypeITest {
     [TestCategory("Swcz")]
     [DataRow((uint)0xE540_0005)]
     [DataRow((uint)0xE940_0005)]
-    [DataTestMethod]
+    [TestMethod]
     public void SwczDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);

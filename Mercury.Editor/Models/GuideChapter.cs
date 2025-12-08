@@ -26,8 +26,4 @@ public partial class GuideChapter : ObservableObject, IGuidePart {
     [ObservableProperty] private ICommand goBackCommand = null!;
 
     [ObservableProperty] private string localizedTitle = "";
-    
-    
-    public GuideChapter() {
-    }
 }

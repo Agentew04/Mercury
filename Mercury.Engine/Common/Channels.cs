@@ -54,7 +54,6 @@ public class ChannelStream : Stream {
 /// <summary>
 /// A channel that uses a stream as the underlying device.
 /// </summary>
-/// <typeparam name="T">The type of data trasferred</typeparam>
 public sealed class StreamChannel : Channel<char>, IDisposable {
 
     public StreamChannel(Stream stream) {

@@ -18,7 +18,7 @@
   </Styles.Resources>
 
   <Style Selector="TabControl">
-    <Setter Property="Background" Value="{StaticResource BackgroundGrey}"/>
+    <Setter Property="Background" Value="{DynamicResource BackgroundGrey}"/>
   </Style>
   <Style Selector="TabItem.tab">
     <Setter Property="Foreground" Value="White"/>

@@ -6,6 +6,7 @@
         <entry key="Mercury.Editor/App.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />
         <entry key="Mercury.Editor/Assets/Styles/DefaultStyles.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />
         <entry key="Mercury.Editor/Assets/Styles/ProjectViewStyles.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />
+        <entry key="Mercury.Editor/Assets/Styles/VisualStudioDark.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />
         <entry key="Mercury.Editor/Controls/BoolPopup.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />
         <entry key="Mercury.Editor/Controls/ChapterControl.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />
         <entry key="Mercury.Editor/Controls/GuideMenu.axaml" value="Mercury.Editor/Mercury.Editor.csproj" />

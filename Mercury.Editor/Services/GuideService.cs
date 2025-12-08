@@ -146,7 +146,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
             MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions()
                 .UseYamlFrontMatter()
                 .Build();
-            MarkdownDocument markdownDocument = Markdig.Markdown.Parse(await sr.ReadToEndAsync(), pipeline);
+            MarkdownDocument markdownDocument = Markdown.Parse(await sr.ReadToEndAsync(), pipeline);
             YamlFrontMatterBlock? yamlBlock = markdownDocument.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
             if (yamlBlock is null) {
                 Logger.LogError("Nao achei Yaml Front Matter no markdown: {Name}/{Lang}", key.name, key.culture);
@@ -199,7 +199,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
             .UseAdvancedExtensions()
             .UseYamlFrontMatter()
             .Build();
-        MarkdownDocument markdownDocument = Markdig.Markdown.Parse(guideContent, pipeline);
+        MarkdownDocument markdownDocument = Markdown.Parse(guideContent, pipeline);
 
         List<Control> controls = [];
         foreach (Block block in markdownDocument)

@@ -692,7 +692,7 @@ public sealed class Mars : MipsOperatingSystem {
     #endregion
     
     public override void Dispose() {
-        foreach ((int descriptor, Stream? stream) in fileDescriptors) {
+        foreach ((int descriptor, Stream stream) in fileDescriptors) {
             if (descriptor <= 2) {
                 continue;
             }

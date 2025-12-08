@@ -9,26 +9,26 @@ using Memory = Memory.Memory;
 /// </summary>
 public class MemoryBuilder : IBuilder<Memory>
 {
-    private ulong pageSize = 4096; // Default page size
+    private ulong blockSize = 4096; // Default page size
     private ulong size = 1024ul * 1024 * 1024 * 4; // Default size (4 GB)
     private Endianess endianess = Endianess.LittleEndian;
-    private int pageCapacity = 16;
+    private int blockCapacity = 16;
     private string storagePath = "memory.bin";
     private StorageType storageType;
 
-    public MemoryBuilder WithBlockSize(ulong pageSize)
+    public MemoryBuilder WithBlockSize(ulong blockSize)
     {
-        this.pageSize = pageSize;
+        this.blockSize = blockSize;
         return this;
     }
     
-    public MemoryBuilder WithBlockCapacity(int pageCapacity)
+    public MemoryBuilder WithBlockCapacity(int blockCapacity)
     {
-        if (pageCapacity < 1)
+        if (blockCapacity < 1)
         {
-            throw new ArgumentOutOfRangeException(nameof(pageCapacity), "Page capacity must be at least 1.");
+            throw new ArgumentOutOfRangeException(nameof(blockCapacity), "Page capacity must be at least 1.");
         }
-        this.pageCapacity = pageCapacity;
+        this.blockCapacity = blockCapacity;
         return this;
     }
     
@@ -77,12 +77,12 @@ public class MemoryBuilder : IBuilder<Memory>
     {
         MemoryConfiguration config = new()
         {
-            PageSize = pageSize,
+            PageSize = blockSize,
             Size = size,
             Endianess = endianess,
             StorageType = storageType,
             ColdStoragePath = storagePath,
-            MaxLoadedPages = (uint)pageCapacity,
+            MaxLoadedPages = (uint)blockCapacity,
         };
         return new Memory(config);
     }

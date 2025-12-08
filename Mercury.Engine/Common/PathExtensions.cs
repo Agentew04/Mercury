@@ -298,7 +298,7 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
         return this with { IsAbsolute = false, Parts = Parts[root.Parts.Length..] };
     }
 
-    public XmlSchema? GetSchema() => null!;
+    public XmlSchema GetSchema() => null!;
 
     public void ReadXml(XmlReader reader)
     {
