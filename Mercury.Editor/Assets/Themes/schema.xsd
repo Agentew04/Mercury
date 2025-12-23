@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://rodrigoappelt.com/mercury/theme"
+           xmlns="https://rodrigoappelt.com/mercury/theme"
+           elementFormDefault="qualified">
+
+    <!-- cor valor -->
+    <xs:simpleType name="hexColorType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="#[0-9A-Fa-f]{6}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- enum heranca -->
+    <xs:simpleType name="inheritMode">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Light"/>
+            <xs:enumeration value="Dark"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <!-- cor elemento -->
+    <xs:element name="Color">
+        <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="value" type="hexColorType" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <!-- elemento tema -->
+    <xs:element name="Theme">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="Color" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="inherits" type="inheritMode" use="required"/>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
-using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media.Imaging;
 using Markdig;
@@ -138,8 +137,8 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
             try {
                 fs = File.OpenRead(path.ToString());
             }
-            catch (Exception e) {
-                Logger.LogError("Nao consegui ler manifesto '{name}.{culture}': {path}. Erro: {err}", key.name, key.culture.ToString(), path.ToString(), e.Message);
+            catch (Exception ex) {
+                Logger.LogError(ex, "Nao consegui ler manifesto '{Name}.{Culture}': {Path}. Erro: {Err}", key.name, key.culture.ToString(), path.ToString(), ex.Message);
                 continue;
             }
 
@@ -147,10 +146,10 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
             MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions()
                 .UseYamlFrontMatter()
                 .Build();
-            MarkdownDocument markdownDocument = Markdig.Markdown.Parse(await sr.ReadToEndAsync(), pipeline);
+            MarkdownDocument markdownDocument = Markdown.Parse(await sr.ReadToEndAsync(), pipeline);
             YamlFrontMatterBlock? yamlBlock = markdownDocument.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
             if (yamlBlock is null) {
-                Logger.LogError("Nao achei Yaml Front Matter no markdown: {name}/{lang}", key.name, key.culture);
+                Logger.LogError("Nao achei Yaml Front Matter no markdown: {Name}/{Lang}", key.name, key.culture);
                 continue;
             }
             string yaml = yamlBlock.Lines.ToString();
@@ -180,8 +179,8 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
             using StreamReader sr = new(fs);
             return sr.ReadToEnd();
         }
-        catch (Exception e) {
-            Logger.LogError("Could not read guide file: {file}. Error: {err}", path.ToString(), e.Message);
+        catch (Exception ex) {
+            Logger.LogError(ex, "Could not read guide file: {File}. Error: {Err}", path.ToString(), ex.Message);
             return "";
         }
 
@@ -200,7 +199,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
             .UseAdvancedExtensions()
             .UseYamlFrontMatter()
             .Build();
-        MarkdownDocument markdownDocument = Markdig.Markdown.Parse(guideContent, pipeline);
+        MarkdownDocument markdownDocument = Markdown.Parse(guideContent, pipeline);
 
         List<Control> controls = [];
         foreach (Block block in markdownDocument)
@@ -216,7 +215,6 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
 
     private Control? ParseBlock(Block block)
     {
-        List<Control> controls = [];
         if (block is YamlFrontMatterBlock) {
             return null;
         }
@@ -265,7 +263,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                 textblock.Classes.Add("quote");
                 foreach (Block quoteContent in quoteBlock) {
                     if (quoteContent is not ParagraphBlock paragraph) {
-                        Logger.LogWarning("Nao sei processar bloco dentro de quote: {type}", quoteContent.GetType().FullName);
+                        Logger.LogWarning("Nao sei processar bloco dentro de quote: {Type}", quoteContent.GetType().FullName);
                         continue;
                     }
                     List<Inline> inlines = ParseInlines(paragraph.Inline!);
@@ -336,7 +334,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                 return grid;
             }
             default:
-                Logger.LogWarning("Nao sei processar bloco do tipo: {type}", block.GetType().FullName);
+                Logger.LogWarning("Nao sei processar bloco do tipo: {Type}", block.GetType().FullName);
                 break;
         }
         return null;
@@ -403,7 +401,7 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
                     result.Add(uicontainer);
                     break;
                 default:
-                    Logger.LogWarning("Nao sei processar Inline do tipo: {type}", inline.GetType().FullName);
+                    Logger.LogWarning("Nao sei processar Inline do tipo: {Type}", inline.GetType().FullName);
                     break;
             }
         }

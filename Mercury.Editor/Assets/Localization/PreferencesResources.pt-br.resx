@@ -35,4 +35,7 @@
     <data name="OnlineCheckError" xml:space="preserve">
         <value>Período de tempo inválido</value>
     </data>
+    <data name="Themes" xml:space="preserve">
+        <value>Tema</value>
+    </data>
 </root>

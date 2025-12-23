@@ -5,14 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
-using Avalonia.Controls.Shapes;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Models;
 using Mercury.Engine.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Mercury.Engine;
-using Path = Avalonia.Controls.Shapes.Path;
 
 namespace Mercury.Editor.Services;
 
@@ -130,14 +127,14 @@ public class ProjectService : BaseService<ProjectService> {
         void CopyFolder(PathObject old, PathObject @new) {
             Logger.LogInformation("Copying folder {old} to {new}", old.ToString(), @new.ToString());
             foreach (string file in Directory.EnumerateFiles(old.ToString())) {
-                string filename = System.IO.Path.GetFileName(file);
+                string filename = Path.GetFileName(file);
                 string newFile = @new.File(filename).ToString();
                 Logger.LogInformation("Copying file {old} to {new}", file, newFile);
                 File.Copy(file, newFile);
             }
 
             foreach (string folder in Directory.EnumerateDirectories(old.ToString())) {
-                string folderName = System.IO.Path.GetFileName(folder) ?? "error";
+                string folderName = Path.GetFileName(folder);
                 Directory.CreateDirectory(@new.Folder(folderName).ToString());
                 CopyFolder(old.Folder(folderName), @new.Folder(folderName));
             }

@@ -6,13 +6,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Resources;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Threading;
-using AvaloniaEdit.Utils;
+using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Localization;
@@ -39,6 +36,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
     private readonly SettingsService settings = App.Services.GetRequiredService<SettingsService>();
     private readonly HttpClient http = App.Services.GetRequiredService<HttpClient>();
     private readonly UpdaterService updater = App.Services.GetRequiredService<UpdaterService>();
+    private readonly ThemeService theme = App.Services.GetRequiredService<ThemeService>();
 
     [ObservableProperty]
     private string statusText = "";
@@ -54,19 +52,19 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         Version = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0,0);
         LocalizationManager.CultureChanged += Localize;
 
-        Directory.CreateDirectory(settings.AppDirectory);
+        Directory.CreateDirectory(settings.AppDirectory.ToString());
         
         await settings.LoadSettings();
-        if(!File.Exists(settings.PreferencesPath) || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.PreferencesPath))) {
+        if(!settings.PreferencesPath.Exists() || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.PreferencesPath.ToString()))) {
             // write default configuration
             StatusText = SplashScreenResources.StdSettingsDefineValue;
             settings.Preferences = settings.GetDefaultPreferences();
             await settings.SaveSettings();
         }
 
-        if (!File.Exists(settings.StdLibSettingsPath) || !File.Exists(settings.GuideSettingsPath)
-            || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.StdLibSettingsPath))
-            || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.GuideSettingsPath))) {
+        if (!settings.StdLibSettingsPath.Exists() || !settings.GuideSettingsPath.Exists()
+            || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.StdLibSettingsPath.ToString()))
+            || string.IsNullOrEmpty(await File.ReadAllTextAsync(settings.GuideSettingsPath.ToString()))) {
             settings.StdLibSettings = new StandardLibrarySettings();
             settings.GuideSettings = new GuideSettings();
             await settings.SaveSettings();
@@ -102,6 +100,16 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         await settings.SaveSettings();
         
         StatusText = SplashScreenResources.DoneValue;
+        
+        SetUserTheme();
+    }
+
+    private void SetUserTheme() {
+        string name = settings.Preferences.Theme;
+        IReadOnlyList<ThemeVariant> variants = theme.GetAvailableThemes();
+        ThemeVariant selectedTheme = variants.FirstOrDefault(x => (string)x.Key == name) ?? ThemeVariant.Dark;
+        
+        theme.SetApplicationTheme(selectedTheme);
     }
 
     private void Localize(CultureInfo cultureInfo) {
@@ -408,11 +416,10 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         
         // se o remote tem mais templates que nos
         bool doDownload = templatesProperty.GetArrayLength() > settings.TemplateSettings.Templates.Count;
-        List<Template> remoteTemplates = [];
         if (!doDownload) {
             // ou algum dos nossos templates esta desatualzado
             foreach (JsonElement templateElement in arrayEnumerator) {
-                int version = templateElement.GetProperty("version").GetInt32();
+                int templateVersion = templateElement.GetProperty("version").GetInt32();
                 string id = templateElement.GetProperty("id").GetString() ?? string.Empty;
                 Template? localTemplate = settings.TemplateSettings.Templates.FirstOrDefault(x => x.Identifier == id);
                 if (localTemplate is null) {
@@ -420,7 +427,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
                     break;
                 }
 
-                if (localTemplate.Version < version) {
+                if (localTemplate.Version < templateVersion) {
                     doDownload = true;
                     break;
                 }
@@ -438,11 +445,11 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         await RequestDownload();
         
         arrayEnumerator.Reset();
-        remoteTemplates = arrayEnumerator
+        List<Template> remoteTemplates = arrayEnumerator
             .Select(x => x.Deserialize(SettingsSerializerContext.Default.Template))
             .Where(x => x is not null)
             .ToList()!;
-        
+
         // atualiza settings dos templates
         settings.TemplateSettings.Templates.ForEach(x => x.Dispose());
         settings.TemplateSettings.Templates.Clear();

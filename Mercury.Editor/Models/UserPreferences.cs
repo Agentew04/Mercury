@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text.Json.Serialization;
-using Mercury.Editor.Extensions;
-using Mercury.Engine;
 
 namespace Mercury.Editor.Models;
 
@@ -34,6 +31,11 @@ public class UserPreferences {
     public DateTime LastOnlineCheck { get; set; }
     
     public TimeSpan OnlineCheckFrequency { get; set; }
+
+    /// <summary>
+    /// The string key of the preferred theme variant.
+    /// </summary>
+    public string Theme { get; set; } = string.Empty;
 
     /// <summary>
     /// A list with the most recent project opened by the user

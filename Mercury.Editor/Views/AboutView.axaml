@@ -10,7 +10,7 @@
         Height="400"
         Title="{loc:AboutResources WindowTitle}"
         Icon="avares://Mercury.Editor/Assets/Images/icon-noborder-64.png"
-        Background="{StaticResource BackgroundGrey}"
+        Background="{DynamicResource BackgroundGrey}"
         x:DataType="vm:AboutViewModel">
     <Window.Styles>
         <Style Selector="TextBlock">

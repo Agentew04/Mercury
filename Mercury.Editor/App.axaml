@@ -21,17 +21,5 @@
       <FontFamily x:Key="NunitoFont">avares://Mercury.Editor/Assets/Fonts/Nunito#Nunito</FontFamily>
       <FontFamily x:Key="PhosphorFont">avares://Mercury.Editor/Assets/Fonts/Phosphor#Phosphor</FontFamily>
       <FontFamily x:Key="JetBrainsFont">avares://Mercury.Editor/Assets/Fonts/JetBrainsMono#JetBrains Mono</FontFamily>
-      
-      <SolidColorBrush x:Key="BackgroundGrey">#1F1F1F</SolidColorBrush>
-      <SolidColorBrush x:Key="AlternateGrey" Color="#383838" />
-      <SolidColorBrush x:Key="AlternateGreyLight" Color="#484f4f" />
-      <SolidColorBrush x:Key="BlueLight">#0b779c</SolidColorBrush>
-      <SolidColorBrush x:Key="PrimaryForeground">#dddddd</SolidColorBrush>
-      <SolidColorBrush x:Key="SecondaryForeground">#666666</SolidColorBrush>
-      <SolidColorBrush x:Key="SelectionColor">#0077FF</SolidColorBrush>
-      <SolidColorBrush x:Key="Purple1" Color="#7950F2" />
-      <SolidColorBrush x:Key="Purple2" Color="#4B3296" />
-      <SolidColorBrush x:Key="Purple3" Color="#3A2775" />
-      <SolidColorBrush x:Key="CloseRed" Color="#E81123"></SolidColorBrush>
   </Application.Resources>
 </Application>

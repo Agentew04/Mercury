@@ -1,4 +1,5 @@
-﻿using Mercury.Engine.Mips.Runtime;
+﻿using System.Buffers;
+using System.Runtime.CompilerServices;
 
 namespace Mercury.Engine.Common;
 
@@ -31,7 +32,7 @@ public class RegisterCollection {
     /// <typeparam name="TRegister">The type of the bank to search</typeparam>
     /// <returns>The value from the register</returns>
     public int Get<TRegister>(TRegister reg) where TRegister : struct, Enum {
-        return ((int[])banks[typeof(TRegister)])[Convert.ToInt32(reg)];
+        return ((int[])banks[typeof(TRegister)])[Unsafe.As<TRegister,int>(ref reg)];
     }
 
     public int Get<TRegister>(int number) where TRegister : struct, Enum {
@@ -40,8 +41,10 @@ public class RegisterCollection {
     }
 
     public int Get(Enum reg, Type type) {
-        return ((int[])banks[type])[Convert.ToInt32(reg)];
+        // return ((int[])banks[type])[Convert.ToInt32(reg)];
+        return ((int[])banks[type])[(int)(object)reg];
     }
+    
 
     /// <summary>
     /// Sets the value of a register.
@@ -50,8 +53,8 @@ public class RegisterCollection {
     /// <param name="value">The value to put inside the register</param>
     /// <typeparam name="TRegister">The type key of the bank</typeparam>
     public void Set<TRegister>(TRegister reg, int value) where TRegister : struct, Enum {
-        ((int[])banks[typeof(TRegister)])[Convert.ToInt32(reg)] = value;
-        dirty.Add((typeof(TRegister), reg));
+        ((int[])banks[typeof(TRegister)])[Unsafe.As<TRegister,int>(ref reg)] = value;
+        dirty.Add((typeof(TRegister), Unsafe.As<TRegister,int>(ref reg)));
     }
 
     public void Set<TRegister>(int number, int value) where TRegister : struct, Enum {
@@ -62,28 +65,37 @@ public class RegisterCollection {
         Set(reg.Value,value);
     }
 
-    public void Set(Enum reg, Type type, int value) {
-        ((int[])banks[type])[Convert.ToInt32(reg)] = value;
-        dirty.Add((type, reg));
-    }
+    // public void Set(Enum reg, Type type, int value) {
+    //     ((int[])banks[type])[Convert.ToInt32(reg)] = value;
+    //     dirty.Add((type, reg));
+    // }
 
-    /// <summary>
-    /// Operator to <see cref="Get{TRegister}"/> and <see cref="Set{TRegister}"/>
-    /// values from registers.
-    /// </summary>
-    /// <param name="reg">The register to read/write.</param>
-    /// <exception cref="KeyNotFoundException">Thrown when the
-    /// type of the Enum passed is not present in any bank.</exception>
-    public int this[Enum reg] {
-        get => Get(reg, reg.GetType());
-        set => Set(reg, reg.GetType(), value);
-    }
+    // /// <summary>
+    // /// Operator to <see cref="Get(Enum,Type)"/> and <see cref="Set(Enum,Type,int)"/>
+    // /// values from registers.
+    // /// </summary>
+    // /// <param name="reg">The register to read/write.</param>
+    // /// <exception cref="KeyNotFoundException">Thrown when the
+    // /// type of the Enum passed is not present in any bank.</exception>
+    // public int this[Enum reg] {
+    //     get => Get(reg, reg.GetType());
+    //     set => Set(reg, reg.GetType(), value);
+    // }
 
-    private readonly List<(Type, Enum)> dirty = [];
+    private readonly List<ValueTuple<Type, int>> dirty = [];
+    private (Type, int)[]? lastArray;
+    private readonly ArrayPool<(Type,int)> arrayPool = ArrayPool<(Type,int)>.Shared;
 
-    public List<(Type, Enum)> GetDirty() {
-        List<(Type, Enum)> newList = [..dirty];
+    public ValueTuple<Type, int>[] GetDirty(out int count) {
+        if (lastArray is not null) {
+            arrayPool.Return(lastArray);
+        }
+        lastArray = arrayPool.Rent(dirty.Count);
+        count = dirty.Count;
+        for (int i = 0; i < dirty.Count; i++) {
+            lastArray[i] = dirty[i];
+        }
         dirty.Clear();
-        return newList;
+        return lastArray;
     }
 }

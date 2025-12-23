@@ -117,4 +117,7 @@
     <data name="NoTemplateText" xml:space="preserve">
         <value>Blank Project</value>
     </data>
+    <data name="DirAlreadyExists" xml:space="preserve">
+        <value>Directory already exists!</value>
+    </data>
 </root>

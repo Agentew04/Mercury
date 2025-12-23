@@ -29,6 +29,9 @@ public class App : Application {
         Services = new ServiceCollection()
             .Configure()
             .BuildServiceProvider();
+
+        var themeService = Services.GetRequiredService<ThemeService>();
+        themeService.LoadThemes(Resources);
             
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             _desktopLifetime = desktop;
@@ -50,11 +53,10 @@ public class App : Application {
             // se nao foi passado por argumentos
             string? asmProjArg = desktop.Args?.FirstOrDefault(x => x.EndsWith(".asmproj"));
             string? directoryArg = desktop.Args?.Where(Directory.Exists)
-                .Where(x => {
+                .FirstOrDefault(x => {
                     IEnumerable<string> files = Directory.EnumerateFiles(x);
                     return files.Any(f => f.EndsWith(".asmproj"));
-                })
-                .FirstOrDefault();
+                });
 
             if (asmProjArg is not null) {
                 var projectService = Services.GetRequiredService<ProjectService>();
@@ -116,7 +118,7 @@ public class App : Application {
         _desktopLifetime?.Shutdown();
     }
 
-    public static event Action? OnExit = null;
+    public static event Action? OnExit;
     
     private static void OnAppExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
         OnExit?.Invoke();

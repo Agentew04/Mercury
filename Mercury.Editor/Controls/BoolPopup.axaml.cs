@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Input;
 using Mercury.Editor.Models.Messages;
 

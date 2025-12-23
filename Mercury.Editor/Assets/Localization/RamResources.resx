@@ -28,7 +28,7 @@
         <value>Next page</value>
     </data>
     <data name="RamSegmentsText" xml:space="preserve">
-        <value>Segments:</value>
+        <value>Segment:</value>
     </data>
     <data name="RamHexMode" xml:space="preserve">
         <value>Hexadecimal</value>

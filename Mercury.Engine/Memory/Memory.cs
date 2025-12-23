@@ -53,6 +53,8 @@ public sealed class Memory : IDisposable, IMemory
     
     private readonly IStorage coldStorage;
 
+    private int ticks;
+
 
     public Memory(MemoryConfiguration config)
     {
@@ -89,7 +91,7 @@ public sealed class Memory : IDisposable, IMemory
         }
 
         int pageIndex = EnsureLoaded(pageNumber);
-        lastAccessTime[pageIndex] = DateTime.Now.Ticks;
+        lastAccessTime[pageIndex] = ticks++;
 
         Page page = loadedPages[pageIndex]!;
         int offset = (int)(address % pageSize);
@@ -110,7 +112,7 @@ public sealed class Memory : IDisposable, IMemory
         }
 
         int pageIndex = EnsureLoaded(pageNumber);
-        lastAccessTime[pageIndex] = DateTime.Now.Ticks;
+        lastAccessTime[pageIndex] = ticks++;
 
         Page page = loadedPages[pageIndex]!;
         int offset = (int)(address % pageSize);
@@ -132,7 +134,7 @@ public sealed class Memory : IDisposable, IMemory
         }
 
         int pageIndex = EnsureLoaded(pageNumber);
-        lastAccessTime[pageIndex] = DateTime.Now.Ticks;
+        lastAccessTime[pageIndex] = ticks++;
 
         Page page = loadedPages[pageIndex]!;
         int offset = (int)(address % pageSize);
@@ -156,7 +158,7 @@ public sealed class Memory : IDisposable, IMemory
         }
 
         int pageIndex = EnsureLoaded(pageNumber);
-        lastAccessTime[pageIndex] = DateTime.Now.Ticks;
+        lastAccessTime[pageIndex] = ticks++;
 
         Page page = loadedPages[pageIndex]!;
         int offset = (int)(address % pageSize);
@@ -332,7 +334,7 @@ public sealed class Memory : IDisposable, IMemory
         Page page = coldStorage.ReadPage(pageIndex);
         loadedPages[destinationIndex] = page;
         pageIndices[pageIndex] = destinationIndex;
-        lastAccessTime[destinationIndex] = DateTime.Now.Ticks;
+        lastAccessTime[destinationIndex] = ticks++;
     }
 
     public MemoryDebugInfo GetDebugInfo() {

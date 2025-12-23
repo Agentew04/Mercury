@@ -110,4 +110,7 @@
     <data name="NoTemplateText" xml:space="preserve">
         <value>Projeto vazio</value>
     </data>
+    <data name="DirAlreadyExists" xml:space="preserve">
+        <value>Pasta já existe!</value>
+    </data>
 </root>

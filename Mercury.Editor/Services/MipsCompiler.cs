@@ -129,7 +129,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
     private async Task<List<ProcessResult>> CompileFiles(List<string> sourceFiles) {
         List<ProcessResult> results = [];
         string assemblerPath = AssemblerPath;
-        await Parallel.ForEachAsync(sourceFiles, async (file, _) => {
+        await Parallel.ForEachAsync(sourceFiles, async (file, t) => {
             string outputName = Path.ChangeExtension(file, ".o");
             string commandArgs = $"--arch=mips --assemble --filetype=obj --no-exec-stack -o \"{outputName}\" \"{file}\"";
 
@@ -140,7 +140,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
             ms.Seek(0, SeekOrigin.Begin);
             if (result != CompilationError.None) {
                 StreamReader sr = new(ms, leaveOpen: true);
-                Logger.LogDebug("llvm-mc exit code non zero. output for {file}: {output}", file, await sr.ReadToEndAsync(_));
+                Logger.LogDebug("llvm-mc exit code non zero. output for {file}: {output}", file, await sr.ReadToEndAsync(t));
                 sr.Dispose();
                 ms.Seek(0, SeekOrigin.Begin);
             }

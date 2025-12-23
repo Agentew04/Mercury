@@ -1,5 +1,4 @@
 ﻿using Mercury.Engine.Common;
-using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Instructions;
 
 namespace Mercury.Engine.Mips.Runtime.Simple;
@@ -20,7 +19,7 @@ public sealed partial class Monocycle : IMipsCpu {
         Registers.Set(MipsGprRegisters.Gp, 0x1000_8000);
         Registers.Set(MipsGprRegisters.Ra, 0x0000_0000);
         Registers.Set(MipsGprRegisters.Pc, 0x0040_0000);
-        _ = Registers.GetDirty();
+        _ = Registers.GetDirty(out _);
     }
 
     public MipsMachine MipsMachine { get; set; } = null!;
@@ -35,7 +34,7 @@ public sealed partial class Monocycle : IMipsCpu {
     
     public bool UseBranchDelaySlot { get; set; }
     
-    public uint DropoffAddress { get; set; }
+    public uint ProgramEnd { get; set; }
 
     private bool isExecutingBranch;
     private bool isNextCycleBranch;
@@ -48,13 +47,13 @@ public sealed partial class Monocycle : IMipsCpu {
     /// </summary>
     public int ExitCode { get; private set; }
 
-    public async ValueTask ClockAsync()
-    {
+    public async ValueTask ClockAsync() {
         if (isHalted) {
             return;
         }
         // read instruction from PC
-        int instructionBinary = MipsMachine.InstructionMemory.ReadWord((ulong)Registers.Get(MipsGprRegisters.Pc));
+        int instructionBinary = MipsMachine.Memory.ReadWord(
+            (ulong)Registers.Get(MipsGprRegisters.Pc));
 
         // decode
         Instruction? instruction = Disassembler.Disassemble((uint)instructionBinary);
@@ -69,27 +68,24 @@ public sealed partial class Monocycle : IMipsCpu {
             return;
         }
 
+        // execute
         int pcBefore = Registers.Get(MipsGprRegisters.Pc);
         await Execute(instruction);
 
-        if (isExecutingBranch && isNextCycleBranch)
-        {
+        if (isExecutingBranch && isNextCycleBranch) {
             // estamos no proximo ciclo, faz o branch
             isExecutingBranch = false;
             isNextCycleBranch = false;
 
             Registers.Set(MipsGprRegisters.Pc, (int)branchAddress);
-        }else if (isExecutingBranch && !isNextCycleBranch)
-        {
+        }else if (isExecutingBranch && !isNextCycleBranch) {
             // estamos no cliclo do branch. 
             isNextCycleBranch = true;
             // pc+4
             Registers.Set(MipsGprRegisters.Pc, pcBefore + 4);
-        }
-        else
-        {
+        }else {
             // instrucao sem branch
-            Registers[MipsGprRegisters.Pc] += 4;
+            Registers.Set(MipsGprRegisters.Pc, Registers.Get(MipsGprRegisters.Pc) + 4);
         }
     }
 
@@ -107,7 +103,7 @@ public sealed partial class Monocycle : IMipsCpu {
             await SignalException.Invoke(new SignalExceptionEventArgs {
                 Signal = SignalExceptionEventArgs.SignalType.Halt,
                 ProgramCounter = Registers.Get(MipsGprRegisters.Pc),
-                Instruction = MipsMachine.InstructionMemory.ReadWord((ulong)Registers.Get(MipsGprRegisters.Pc))
+                Instruction = MipsMachine.Memory.ReadWord((ulong)Registers.Get(MipsGprRegisters.Pc))
             });
             
         }
@@ -136,10 +132,10 @@ public sealed partial class Monocycle : IMipsCpu {
 
     private void BranchTo(int immediate) {
         isExecutingBranch = true;
-        branchAddress = (uint)(Registers[MipsGprRegisters.Pc] + 4 + (immediate << 2));
+        branchAddress = (uint)(Registers.Get(MipsGprRegisters.Pc) + 4 + (immediate << 2));
     }
     private void Link(MipsGprRegisters register = MipsGprRegisters.Ra) {
-        Registers[register] = Registers[MipsGprRegisters.Pc] + (UseBranchDelaySlot ? 8 : 4);
+        Registers.Set(register, Registers.Get(MipsGprRegisters.Pc) + (UseBranchDelaySlot ? 8 : 4));
     }
 
     private static int ZeroExtend(short value) {
@@ -147,7 +143,7 @@ public sealed partial class Monocycle : IMipsCpu {
     }
 
     public bool IsClockingFinished() {
-        return Registers[MipsGprRegisters.Pc] >= DropoffAddress
+        return Registers.Get(MipsGprRegisters.Pc) >= ProgramEnd
             || isHalted;
     }
 

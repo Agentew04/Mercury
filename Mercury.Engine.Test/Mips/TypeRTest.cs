@@ -7,7 +7,7 @@ namespace Mercury.Engine.Test.Mips;
 public class TypeRTest {
 
     [TestCategory("Add")]
-    [TestMethod("Test Add Regex")]
+    [TestMethod(DisplayName = "Test Add Regex")]
     public void AddRegex()
     {
         var instruction = new Add();
@@ -23,7 +23,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x012A4020)]
     [DataRow(0, 9, 31, 0x013F0020)]
     [DataRow(23, 29, 26, 0x03BAB820)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void AddAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Add {
             Rd = (byte)rd,
@@ -37,7 +37,7 @@ public class TypeRTest {
     [DataRow((uint)0x012A4020)]
     [DataRow((uint)0x013F0020)]
     [DataRow((uint)0x03BAB820)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void AddDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -45,7 +45,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Addu")]
-    [TestMethod("Test Addu Regex")]
+    [TestMethod(DisplayName = "Test Addu Regex")]
     public void AdduRegex() {
         var instruction = new Addu();
         Regex? regex = instruction.GetRegularExpression();
@@ -60,7 +60,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x012A4021)]
     [DataRow(0, 9, 31, 0x013F0021)]
     [DataRow(23, 29, 26, 0x03BAB821)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void AdduAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Addu {
             Rd = (byte)rd,
@@ -74,7 +74,7 @@ public class TypeRTest {
     [DataRow((uint)0x012A4021)]
     [DataRow((uint)0x013F0021)]
     [DataRow((uint)0x03BAB821)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void AdduDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -82,7 +82,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Mul")]
-    [TestMethod("Test Mul Regex")]
+    [TestMethod(DisplayName = "Test Mul Regex")]
     public void MulRegex() {
         var instruction = new Mul();
         Regex? regex = instruction.GetRegularExpression();
@@ -97,7 +97,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x712A4002)]
     [DataRow(0, 9, 31, 0x713F0002)]
     [DataRow(23, 29, 26, 0x73BAB802)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MulAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Mul {
             Rd = (byte)rd,
@@ -111,7 +111,7 @@ public class TypeRTest {
     [DataRow((uint)0x712A4002)]
     [DataRow((uint)0x713F0002)]
     [DataRow((uint)0x73BAB802)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MulDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -120,7 +120,7 @@ public class TypeRTest {
     
 
     [TestCategory("Slt")]
-    [TestMethod("Test Slt Regex")]
+    [TestMethod(DisplayName = "Test Slt Regex")]
     public void SltRegex() {
         var instruction = new Slt();
         Regex? regex = instruction.GetRegularExpression();
@@ -134,7 +134,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x012A402A)]
     [DataRow(0, 9, 31, 0x013F002A)]
     [DataRow(23, 29, 26, 0x03BAB82A)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void SltAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Slt {
             Rd = (byte)rd,
@@ -148,7 +148,7 @@ public class TypeRTest {
     [DataRow((uint)0x012A402A)]
     [DataRow((uint)0x013F002A)]
     [DataRow((uint)0x03BAB82A)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SltDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -156,7 +156,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Sltu")]
-    [TestMethod("Test Sltu Regex")]
+    [TestMethod(DisplayName = "Test Sltu Regex")]
     public void SltuRegex() {
         var instruction = new Sltu();
         Regex? regex = instruction.GetRegularExpression();
@@ -171,7 +171,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x012A402B)]
     [DataRow(0, 9, 31, 0x013F002B)]
     [DataRow(23, 29, 26, 0x03BAB82B)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void SltuAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Sltu {
             Rd = (byte)rd,
@@ -185,7 +185,7 @@ public class TypeRTest {
     [DataRow((uint)0x012A402B)]
     [DataRow((uint)0x013F002B)]
     [DataRow((uint)0x03BAB82B)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SltuDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -193,7 +193,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Sub")]
-    [TestMethod("Test Sub Regex")]
+    [TestMethod(DisplayName = "Test Sub Regex")]
     public void SubRegex() {
         var instruction = new Sub();
         Regex? regex = instruction.GetRegularExpression();
@@ -208,7 +208,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x012A4022)]
     [DataRow(0, 9, 31, 0x013F0022)]
     [DataRow(23, 29, 26, 0x03BAB822)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void SubAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Sub {
             Rd = (byte)rd,
@@ -222,7 +222,7 @@ public class TypeRTest {
     [DataRow((uint)0x012A4022)]
     [DataRow((uint)0x013F0022)]
     [DataRow((uint)0x03BAB822)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SubDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -230,7 +230,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Subu")]
-    [TestMethod("Test Subu Regex")]
+    [TestMethod(DisplayName = "Test Subu Regex")]
     public void SubuRegex() {
         var instruction = new Subu();
         Regex? regex = instruction.GetRegularExpression();
@@ -245,7 +245,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x012A4023)]
     [DataRow(0, 9, 31, 0x013F0023)]
     [DataRow(23, 29, 26, 0x03BAB823)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void SubuAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Subu {
             Rd = (byte)rd,
@@ -259,7 +259,7 @@ public class TypeRTest {
     [DataRow((uint)0x012A4023)]
     [DataRow((uint)0x013F0023)]
     [DataRow((uint)0x03BAB823)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SubuDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -267,7 +267,7 @@ public class TypeRTest {
     }
 
     [TestCategory("And")]
-    [TestMethod("Test And Regex")]
+    [TestMethod(DisplayName = "Test And Regex")]
     public void AndRegex() {
         var instruction = new And();
         Regex? regex = instruction.GetRegularExpression();
@@ -282,7 +282,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x012A4024)]
     [DataRow(0, 9, 31, 0x013F0024)]
     [DataRow(23, 29, 26, 0x03BAB824)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void AndAssembly(int rd, int rs, int rt, int result) {
         var instruction = new And {
             Rd = (byte)rd,
@@ -296,7 +296,7 @@ public class TypeRTest {
     [DataRow((uint)0x012A4024)]
     [DataRow((uint)0x013F0024)]
     [DataRow((uint)0x03BAB824)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void AndDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -304,7 +304,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Nor")]
-    [TestMethod("Test Nor Regex")]
+    [TestMethod(DisplayName = "Test Nor Regex")]
     public void NorRegex() {
         var instruction = new Nor();
         Regex? regex = instruction.GetRegularExpression();
@@ -318,7 +318,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x012A4027)]
     [DataRow(0, 9, 31, 0x013F0027)]
     [DataRow(23, 29, 26, 0x03BAB827)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void NorAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Nor {
             Rd = (byte)rd,
@@ -332,7 +332,7 @@ public class TypeRTest {
     [DataRow((uint)0x012A4027)]
     [DataRow((uint)0x013F0027)]
     [DataRow((uint)0x03BAB827)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void NorDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -340,7 +340,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Or")]
-    [TestMethod("Test Or Regex")]
+    [TestMethod(DisplayName = "Test Or Regex")]
     public void OrRegex() {
         var instruction = new Or();
         Regex? regex = instruction.GetRegularExpression();
@@ -356,7 +356,7 @@ public class TypeRTest {
     [DataRow(0, 9, 31, 0x013F0025)]
     [DataRow(23, 29, 26, 0x03BAB825)]
     [DataRow(23, 26, 1, 0x0341B825)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void OrAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Or {
             Rd = (byte)rd,
@@ -371,7 +371,7 @@ public class TypeRTest {
     [DataRow((uint)0x013F0025)]
     [DataRow((uint)0x03BAB825)]
     [DataRow((uint)0x0341B825)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void OrDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -379,7 +379,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Xor")]
-    [TestMethod("Test Xor Regex")]
+    [TestMethod(DisplayName = "Test Xor Regex")]
     public void XorRegex() {
         var instruction = new Xor();
         Regex? regex = instruction.GetRegularExpression();
@@ -396,7 +396,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x012A4026)]
     [DataRow(0, 9, 31, 0x013F0026)]
     [DataRow(23, 29, 26, 0x03BAB826)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void XorAssembly(int rd, int rs, int rt, int result) {
         var instruction = new Xor {
             Rd = (byte)rd,
@@ -410,7 +410,7 @@ public class TypeRTest {
     [DataRow((uint)0x012A4026)]
     [DataRow((uint)0x013F0026)]
     [DataRow((uint)0x03BAB826)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void XorDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -418,7 +418,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Sll")]
-    [TestMethod("Test Sll Regex")]
+    [TestMethod(DisplayName = "Test Sll Regex")]
     public void SllRegex() {
         var instruction = new Sll();
         Regex? regex = instruction.GetRegularExpression();
@@ -433,7 +433,7 @@ public class TypeRTest {
     [DataRow(8, 9, 1, 0x00094040)]
     [DataRow(0, 9, 10, 0x00090280)]
     [DataRow(23, 29, 5, 0X001DB940)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void SllAssembly(int rd, int rt, int shamt, int result) {
         var instruction = new Sll {
             Rd = (byte)rd,
@@ -447,7 +447,7 @@ public class TypeRTest {
     [DataRow((uint)0x00094040)]
     [DataRow((uint)0x00090280)]
     [DataRow((uint)0x001DB940)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SllDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -455,7 +455,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Sllv")]
-    [TestMethod("Test Sllv Regex")]
+    [TestMethod(DisplayName = "Test Sllv Regex")]
     public void SllvRegex() {
         var instruction = new Sllv();
         Regex? regex = instruction.GetRegularExpression();
@@ -470,7 +470,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x01494004)]
     [DataRow(0, 9, 31, 0x03E90004)]
     [DataRow(23, 29, 26, 0x035DB804)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void SllvAssembly(int rd, int rt, int rs, int result) {
         var instruction = new Sllv {
             Rd = (byte)rd,
@@ -484,7 +484,7 @@ public class TypeRTest {
     [DataRow((uint)0x01494004)]
     [DataRow((uint)0x03E90004)]
     [DataRow((uint)0x035DB804)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SllvDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -492,7 +492,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Sra")]
-    [TestMethod("Test Sra Regex")]
+    [TestMethod(DisplayName = "Test Sra Regex")]
     public void SraRegex() {
         var instruction = new Sra();
         Regex? regex = instruction.GetRegularExpression();
@@ -509,7 +509,7 @@ public class TypeRTest {
     [DataRow(8, 9, 1, 0x00094043)]
     [DataRow(0, 9, 10, 0x00090283)]
     [DataRow(23, 29, 5, 0x001DB943)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void SraAssembly(int rd, int rt, int shamt, int result) {
         var instruction = new Sra {
             Rd = (byte)rd,
@@ -523,7 +523,7 @@ public class TypeRTest {
     [DataRow((uint)0x00094043)]
     [DataRow((uint)0x00090283)]
     [DataRow((uint)0x001DB943)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SraDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -531,7 +531,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Srav")]
-    [TestMethod("Test Srav Regex")]
+    [TestMethod(DisplayName = "Test Srav Regex")]
     public void SravRegex() {
         var instruction = new Srav();
         Regex? regex = instruction.GetRegularExpression();
@@ -548,7 +548,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x01494007)]
     [DataRow(0, 9, 31, 0x03E90007)]
     [DataRow(23, 29, 26, 0x035DB807)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void SravAssembly(int rd, int rt, int rs, int result) {
         var instruction = new Srav {
             Rd = (byte)rd,
@@ -562,7 +562,7 @@ public class TypeRTest {
     [DataRow((uint)0x01494007)]
     [DataRow((uint)0x03E90007)]
     [DataRow((uint)0x035DB807)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SravDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -570,7 +570,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Srl")]
-    [TestMethod("Test Srl Regex")]
+    [TestMethod(DisplayName = "Test Srl Regex")]
     public void SrlRegex() {
         var instruction = new Srl();
         Regex? regex = instruction.GetRegularExpression();
@@ -587,7 +587,7 @@ public class TypeRTest {
     [DataRow(8, 9, 1, 0x00094042)]
     [DataRow(0, 9, 10, 0x00090282)]
     [DataRow(23, 29, 5, 0x001DB942)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void SrlAssembly(int rd, int rt, int shamt, int result) {
         var instruction = new Srl {
             Rd = (byte)rd,
@@ -601,7 +601,7 @@ public class TypeRTest {
     [DataRow((uint)0x00094042)]
     [DataRow((uint)0x00090282)]
     [DataRow((uint)0x001DB942)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SrlDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -609,7 +609,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Srlv")]
-    [TestMethod("Test Srlv Regex")]
+    [TestMethod(DisplayName = "Test Srlv Regex")]
     public void SrlvRegex() {
         var instruction = new Srlv();
         Regex? regex = instruction.GetRegularExpression();
@@ -626,7 +626,7 @@ public class TypeRTest {
     [DataRow(8, 9, 10, 0x01494006)]
     [DataRow(0, 9, 31, 0x03E90006)]
     [DataRow(23, 29, 26, 0x035DB806)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void SrlvAssembly(int rd, int rt, int rs, int result) {
         var instruction = new Srlv {
             Rd = (byte)rd,
@@ -640,7 +640,7 @@ public class TypeRTest {
     [DataRow((uint)0x01494006)]
     [DataRow((uint)0x03E90006)]
     [DataRow((uint)0x035DB806)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SrlvDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -648,7 +648,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Div")]
-    [TestMethod("Test Div Regex")]
+    [TestMethod(DisplayName = "Test Div Regex")]
     public void DivRegex() {
         var instruction = new Div();
         Regex? regex = instruction.GetRegularExpression();
@@ -664,7 +664,7 @@ public class TypeRTest {
     [DataRow(8, 9, 0x0109001A)]
     [DataRow(0, 10, 0x000A001A)]
     [DataRow(23, 26, 0x02FA001A)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void DivAssembly(int rs, int rt, int result) {
         var instruction = new Div {
             Rs = (byte)rs,
@@ -677,7 +677,7 @@ public class TypeRTest {
     [DataRow((uint)0x0109001A)]
     [DataRow((uint)0x000A001A)]
     [DataRow((uint)0x02FA001A)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void DivDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -685,7 +685,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Divu")]
-    [TestMethod("Test Divu Regex")]
+    [TestMethod(DisplayName = "Test Divu Regex")]
     public void DivuRegex() {
         var instruction = new Divu();
         Regex? regex = instruction.GetRegularExpression();
@@ -701,7 +701,7 @@ public class TypeRTest {
     [DataRow(8, 9, 0x0109001B)]
     [DataRow(0, 10, 0x000A001B)]
     [DataRow(23, 26, 0x02FA001B)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void DivuAssembly(int rs, int rt, int result) {
         var instruction = new Divu {
             Rs = (byte)rs,
@@ -714,7 +714,7 @@ public class TypeRTest {
     [DataRow((uint)0x0109001B)]
     [DataRow((uint)0x000A001B)]
     [DataRow((uint)0x02FA001B)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void DivuDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -722,7 +722,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Madd")]
-    [TestMethod("Test Madd Regex")]
+    [TestMethod(DisplayName = "Test Madd Regex")]
     public void MaddRegex() {
         var instruction = new Madd();
         Regex? regex = instruction.GetRegularExpression();
@@ -738,7 +738,7 @@ public class TypeRTest {
     [DataRow(8, 9, 0x71090000)]
     [DataRow(0, 10, 0x700A0000)]
     [DataRow(23, 26, 0x72FA0000)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MaddAssembly(int rs, int rt, int result) {
         var instruction = new Madd {
             Rs = (byte)rs,
@@ -751,7 +751,7 @@ public class TypeRTest {
     [DataRow((uint)0x71090000)]
     [DataRow((uint)0x700A0000)]
     [DataRow((uint)0x72FA0000)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void MaddDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -759,7 +759,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Maddu")]
-    [TestMethod("Test Maddu Regex")]
+    [TestMethod(DisplayName = "Test Maddu Regex")]
     public void MadduRegex() {
         var instruction = new Maddu();
         Regex? regex = instruction.GetRegularExpression();
@@ -775,7 +775,7 @@ public class TypeRTest {
     [DataRow(8, 9, 0x71090001)]
     [DataRow(0, 10, 0x700A0001)]
     [DataRow(23, 26, 0x72FA0001)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MadduAssembly(int rs, int rt, int result) {
         var instruction = new Maddu {
             Rs = (byte)rs,
@@ -788,7 +788,7 @@ public class TypeRTest {
     [DataRow((uint)0x71090001)]
     [DataRow((uint)0x700A0001)]
     [DataRow((uint)0x72FA0001)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void MadduDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -796,7 +796,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Msub")]
-    [TestMethod("Test Msub Regex")]
+    [TestMethod(DisplayName = "Test Msub Regex")]
     public void MsubRegex() {
         var instruction = new Msub();
         Regex? regex = instruction.GetRegularExpression();
@@ -812,7 +812,7 @@ public class TypeRTest {
     [DataRow(8, 9, 0x71090004)]
     [DataRow(0, 10, 0x700A0004)]
     [DataRow(23, 26, 0x72FA0004)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MsubAssembly(int rs, int rt, int result) {
         var instruction = new Msub {
             Rs = (byte)rs,
@@ -825,7 +825,7 @@ public class TypeRTest {
     [DataRow((uint)0x71090004)]
     [DataRow((uint)0x700A0004)]
     [DataRow((uint)0x72FA0004)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void MsubDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -833,7 +833,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Msubu")]
-    [TestMethod("Test Msubu Regex")]
+    [TestMethod(DisplayName = "Test Msubu Regex")]
     public void MsubuRegex() {
         var instruction = new Msubu();
         Regex? regex = instruction.GetRegularExpression();
@@ -849,7 +849,7 @@ public class TypeRTest {
     [DataRow(8, 9, 0x71090005)]
     [DataRow(0, 10, 0x700A0005)]
     [DataRow(23, 26, 0x72FA0005)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MsubuAssembly(int rs, int rt, int result) {
         var instruction = new Msubu {
             Rs = (byte)rs,
@@ -862,7 +862,7 @@ public class TypeRTest {
     [DataRow((uint)0x71090005)]
     [DataRow((uint)0x700A0005)]
     [DataRow((uint)0x72FA0005)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void MsubuDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -870,7 +870,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Mult")]
-    [TestMethod("Test Mult Regex")]
+    [TestMethod(DisplayName = "Test Mult Regex")]
     public void MultRegex() {
         var instruction = new Mult();
         Regex? regex = instruction.GetRegularExpression();
@@ -886,7 +886,7 @@ public class TypeRTest {
     [DataRow(8, 9, 0x01090018)]
     [DataRow(0, 10, 0x000A0018)]
     [DataRow(23, 26, 0x02FA0018)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MultAssembly(int rs, int rt, int result) {
         var instruction = new Mult {
             Rs = (byte)rs,
@@ -899,7 +899,7 @@ public class TypeRTest {
     [DataRow((uint)0x01090018)]
     [DataRow((uint)0x000A0018)]
     [DataRow((uint)0x02FA0018)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void MultDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -907,7 +907,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Multu")]
-    [TestMethod("Test Multu Regex")]
+    [TestMethod(DisplayName = "Test Multu Regex")]
     public void MultuRegex() {
         var instruction = new Multu();
         Regex? regex = instruction.GetRegularExpression();
@@ -923,7 +923,7 @@ public class TypeRTest {
     [DataRow(8, 9, 0x01090019)]
     [DataRow(0, 10, 0x000A0019)]
     [DataRow(23, 26, 0x02FA0019)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MultuAssembly(int rs, int rt, int result) {
         var instruction = new Multu {
             Rs = (byte)rs,
@@ -936,7 +936,7 @@ public class TypeRTest {
     [DataRow((uint)0x01090019)]
     [DataRow((uint)0x000A0019)]
     [DataRow((uint)0x02FA0019)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void MultuDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -944,7 +944,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Mfhi")]
-    [TestMethod("Test Mfhi Regex")]
+    [TestMethod(DisplayName = "Test Mfhi Regex")]
     public void MfhiRegex() {
         var instruction = new Mfhi();
         Regex? regex = instruction.GetRegularExpression();
@@ -961,7 +961,7 @@ public class TypeRTest {
     [DataRow(31, 0x0000F810)]
     [DataRow(0, 0x00000010)]
     [DataRow(20, 0x0000A010)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MfhiAssembly(int rd, int result) {
         var instruction = new Mfhi {
             Rd = (byte)rd,
@@ -973,7 +973,7 @@ public class TypeRTest {
     [DataRow((uint)0x0000F810)]
     [DataRow((uint)0x00000010)]
     [DataRow((uint)0x0000A010)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void MfhiDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -981,7 +981,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Mflo")]
-    [TestMethod("Test Mflo Regex")]
+    [TestMethod(DisplayName = "Test Mflo Regex")]
     public void MfloRegex() {
         var instruction = new Mflo();
         Regex? regex = instruction.GetRegularExpression();
@@ -998,7 +998,7 @@ public class TypeRTest {
     [DataRow(31, 0x0000F812)]
     [DataRow(0, 0x00000012)]
     [DataRow(20, 0x0000A012)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MfloAssembly(int rd, int result) {
         var instruction = new Mflo {
             Rd = (byte)rd,
@@ -1010,7 +1010,7 @@ public class TypeRTest {
     [DataRow((uint)0x0000F812)]
     [DataRow((uint)0x00000012)]
     [DataRow((uint)0x0000A012)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void MfloDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -1018,7 +1018,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Mthi")]
-    [TestMethod("Test Mthi Regex")]
+    [TestMethod(DisplayName = "Test Mthi Regex")]
     public void MthiRegex() {
         var instruction = new Mthi();
         Regex? regex = instruction.GetRegularExpression();
@@ -1035,7 +1035,7 @@ public class TypeRTest {
     [DataRow(31, 0x03E00011)]
     [DataRow(0, 0x00000011)]
     [DataRow(20, 0x02800011)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MthiAssembly(int rs, int result) {
         var instruction = new Mthi {
             Rs = (byte)rs,
@@ -1047,7 +1047,7 @@ public class TypeRTest {
     [DataRow((uint)0x03E00011)]
     [DataRow((uint)0x00000011)]
     [DataRow((uint)0x02800011)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void MthiDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -1055,7 +1055,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Mtlo")]
-    [TestMethod("Test Mtlo Regex")]
+    [TestMethod(DisplayName = "Test Mtlo Regex")]
     public void MtloRegex() {
         var instruction = new Mtlo();
         Regex? regex = instruction.GetRegularExpression();
@@ -1072,7 +1072,7 @@ public class TypeRTest {
     [DataRow(31, 0x03E00013)]
     [DataRow(0, 0x00000013)]
     [DataRow(20, 0x02800013)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void MtloAssembly(int rs, int result) {
         var instruction = new Mtlo {
             Rs = (byte)rs,
@@ -1084,7 +1084,7 @@ public class TypeRTest {
     [DataRow((uint)0x03E00013)]
     [DataRow((uint)0x00000013)]
     [DataRow((uint)0x02800013)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void MtloDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -1092,7 +1092,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Clo")]
-    [TestMethod("Test Clo Regex")]
+    [TestMethod(DisplayName = "Test Clo Regex")]
     public void CloRegex() {
         var instruction = new Clo();
         Regex? regex = instruction.GetRegularExpression();
@@ -1108,7 +1108,7 @@ public class TypeRTest {
     [DataRow(31, 27, 0x7360F821)]
     [DataRow(18, 12, 0x71809021)]
     [DataRow(29, 0, 0x7000E821)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void CloAssembly(int rd, int rs, int result) {
         var instruction = new Clo {
             Rd = (byte)rd,
@@ -1121,7 +1121,7 @@ public class TypeRTest {
     [DataRow((uint)0x7360F821)]
     [DataRow((uint)0x71809021)]
     [DataRow((uint)0x7000E821)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void CloDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -1129,7 +1129,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Clz")]
-    [TestMethod("Test Clz Regex")]
+    [TestMethod(DisplayName = "Test Clz Regex")]
     public void ClzRegex() {
         var instruction = new Clz();
         Regex? regex = instruction.GetRegularExpression();
@@ -1145,7 +1145,7 @@ public class TypeRTest {
     [DataRow(31, 27, 0x7360F820)]
     [DataRow(18, 12, 0x71809020)]
     [DataRow(29, 0, 0x7000E820)]
-    [DataTestMethod("Test assembling")]
+    [TestMethod(DisplayName = "Test assembling")]
     public void ClzAssembly(int rd, int rs, int result) {
         var instruction = new Clz {
             Rd = (byte)rd,
@@ -1158,7 +1158,7 @@ public class TypeRTest {
     [DataRow((uint)0x7360F820)]
     [DataRow((uint)0x71809020)]
     [DataRow((uint)0x7000E820)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void ClzDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -1166,7 +1166,7 @@ public class TypeRTest {
     }
 
     [TestCategory("Jalr")]
-    [TestMethod("Test Jalr Regex")]
+    [TestMethod(DisplayName = "Test Jalr Regex")]
     public void JalrRegex() {
         var instruction1 = new Jalr1();
         var instruction2 = new Jalr2();
@@ -1189,7 +1189,7 @@ public class TypeRTest {
     [TestCategory("Jalr")]
     [DataRow(28, 0x0380F809)]
     [DataRow(19, 0x0260F809)]
-    [DataTestMethod]
+    [TestMethod]
     public void JalrAssemblySingle(int rs, int result) {
         var instruction = new Jalr1 {
             Rs = (byte)rs
@@ -1200,7 +1200,7 @@ public class TypeRTest {
     [TestCategory("Jalr")]
     [DataRow(28, 10, 0x0140E009)]
     [DataRow(19, 4, 0x00809809)]
-    [DataTestMethod]
+    [TestMethod]
     public void JalrAssemblyDouble(int rd, int rs, int result) {
         var instruction = new Jalr2 {
             Rd = (byte)rd,
@@ -1209,8 +1209,8 @@ public class TypeRTest {
         Assert.AreEqual(result, instruction.ConvertToInt());
     }
     
-    [TestCategory(("Syscall"))]
-    [TestMethod("Test Syscall Assembly")]
+    [TestCategory("Syscall")]
+    [TestMethod(DisplayName = "Test Syscall Assembly")]
     public void SyscallAssembly() {
         var instruction = new Syscall();
         instruction.Code = 0;
@@ -1222,7 +1222,7 @@ public class TypeRTest {
     [TestCategory("Jalr")]
     [DataRow((uint)0x0380F809)]
     [DataRow((uint)0x0260F809)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void JalrDisassemblySingle(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -1232,7 +1232,7 @@ public class TypeRTest {
     [TestCategory("Jalr")]
     [DataRow((uint)0x0140E009)]
     [DataRow((uint)0x00809809)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void JalrDisassemblyDouble(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);
@@ -1242,7 +1242,7 @@ public class TypeRTest {
     [TestCategory("Syscall")]
     [DataRow((uint)0x0000000C)]
     [DataRow((uint)0b000000_00000000000000000010_001100)]
-    [DataTestMethod("Test disassembling")]
+    [TestMethod(DisplayName = "Test disassembling")]
     public void SyscallDisassembly(uint instruction) {
         Instruction? disassembled = Disassembler.Disassemble(instruction);
         Assert.IsNotNull(disassembled);

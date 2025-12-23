@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using Avalonia;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
@@ -18,7 +19,7 @@ public class BoolToColorConverter : IValueConverter{
         return input ? param.TrueBrush : param.FalseBrush;
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value is not IBrush brushInput || parameter is not ColorConverterParam param) {
             return BindingNotification.Null;
         }
@@ -26,11 +27,26 @@ public class BoolToColorConverter : IValueConverter{
             return BindingNotification.Null;
         }
 
-        return brushInput == param.TrueBrush;
+        return ReferenceEquals(brushInput, param.TrueBrush);
     }
 }
 
-public class ColorConverterParam {
-    public IBrush? TrueBrush { get; set; }
-    public IBrush? FalseBrush { get; set; }
+public class ColorConverterParam : AvaloniaObject {
+    public static readonly StyledProperty<IBrush?> TrueBrushProperty =
+        AvaloniaProperty.Register<ColorConverterParam, IBrush?>(nameof(TrueBrush));
+
+    public static readonly StyledProperty<IBrush?> FalseBrushProperty =
+        AvaloniaProperty.Register<ColorConverterParam, IBrush?>(nameof(FalseBrush));
+
+    public IBrush? TrueBrush
+    {
+        get => GetValue(TrueBrushProperty);
+        set => SetValue(TrueBrushProperty, value);
+    }
+
+    public IBrush? FalseBrush
+    {
+        get => GetValue(FalseBrushProperty);
+        set => SetValue(FalseBrushProperty, value);
+    }
 }

@@ -1,5 +1,4 @@
-﻿using System.Reflection.Emit;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Mercury.Generators;
 
 namespace Mercury.Engine.Mips.Instructions;

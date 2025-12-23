@@ -1,9 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
-using AvaloniaEdit;
 using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,7 +15,6 @@ using Mercury.Editor.Views.CodeView;
 using Mercury.Engine.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Mercury.Engine;
 
 namespace Mercury.Editor.ViewModels.Code;
 
@@ -240,7 +237,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel, Fi
             new CompilationStartedMessage(input.CalculateId()));
         CompilationResult result = await compilerService.CompileAsync(input);
         WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result));
-        Logger.LogInformation("Compilation Finished. sucess? {res}", result.IsSuccess);
+        Logger.LogInformation("Compilation Finished. sucess? {Result}", result.IsSuccess);
         if (result.IsSuccess) {
             CanRunProject = true;
         }
@@ -264,12 +261,10 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel, Fi
         OpenFiles.Remove(file);
         
         // salvar arquivo ao fechar
-        if (!file.IsReadonly)
+        if (!file.IsReadonly && File.Exists(file.Path.ToString()))
         {
             // salva o conteudo no disco se o arquivo ainda existe
-            if (File.Exists(file.Path.ToString())) {
-                File.WriteAllText(file.Path.ToString(), file.TextDocument.Text);
-            }
+            File.WriteAllText(file.Path.ToString(), file.TextDocument.Text);
         }
         
         if (selectedIndex == index)

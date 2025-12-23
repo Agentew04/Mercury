@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Globalization;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Mercury.Editor.Models;
@@ -29,8 +26,4 @@ public partial class GuideChapter : ObservableObject, IGuidePart {
     [ObservableProperty] private ICommand goBackCommand = null!;
 
     [ObservableProperty] private string localizedTitle = "";
-    
-    
-    public GuideChapter() {
-    }
 }

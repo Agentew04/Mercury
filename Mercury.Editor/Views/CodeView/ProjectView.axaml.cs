@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
@@ -11,9 +9,7 @@ using Avalonia.Media;
 using Mercury.Editor.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Mercury.Editor.ViewModels;
 using Code_ProjectViewModel = Mercury.Editor.ViewModels.Code.ProjectViewModel;
-using ProjectViewModel = Mercury.Editor.ViewModels.Code.ProjectViewModel;
 
 namespace Mercury.Editor.Views.CodeView;
 
@@ -33,7 +29,7 @@ public partial class ProjectView : UserControl {
 
     private Point ghostPosition = new(0,0);
     private readonly Point mouseOffset = new(-5, -5);
-    private bool pressed = false;
+    private bool pressed;
     private TaskCompletionSource? moveCompletionSource;
 
     protected override void OnLoaded(RoutedEventArgs e) {

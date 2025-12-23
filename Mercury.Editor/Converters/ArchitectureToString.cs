@@ -3,12 +3,11 @@ using System.Globalization;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Mercury.Engine.Common;
-using Mercury.Engine;
 
 namespace Mercury.Editor.Converters;
 
 public class ArchitectureToString : IValueConverter {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value is not Architecture architecture) {
             return BindingNotification.Null;
         }
@@ -22,7 +21,7 @@ public class ArchitectureToString : IValueConverter {
         };
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value is not string architectureString) {
             return Architecture.Unknown;
         }

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using ELFSharp.ELF;
 
 namespace Mercury.Editor.Models.Compilation;
 
@@ -9,9 +7,6 @@ namespace Mercury.Editor.Models.Compilation;
 /// A structure with information about the result
 /// of a compilation process.
 /// </summary>
-/// <remarks>The <see cref="Dispose"/> method does not
-/// clean up <see cref="OutputStream"/> and <see cref="OutputElf"/>
-/// if they were generated</remarks>
 public readonly struct CompilationResult
 {
     /// <summary>

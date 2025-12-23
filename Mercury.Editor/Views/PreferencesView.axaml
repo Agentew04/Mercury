@@ -10,7 +10,7 @@
         Title="{loc:PreferencesResources WindowTitle}"
         Width="500"
         Icon="avares://Mercury.Editor/Assets/Images/icon-noborder-64.png"
-        Background="{StaticResource BackgroundGrey}"
+        Background="{DynamicResource BackgroundGrey}"
         Loaded="OnWindowLoad">
     <Grid RowDefinitions="*,Auto">
         <ScrollViewer Grid.Row="0"
@@ -21,7 +21,15 @@
                     <Label Target="LanguageCombobox" 
                            Content="{loc:PreferencesResources Language}"/>
                     <ComboBox x:Name="LanguageCombobox" ItemsSource="{Binding AvailableLanguages}"
-                              SelectedIndex="{Binding SelectedLanguageIndex}"></ComboBox>
+                              SelectedIndex="{Binding SelectedLanguageIndex, Mode=TwoWay}"/>
+                </StackPanel>
+                
+                <!-- tema -->
+                <StackPanel>
+                    <Label Target="ThemeComboBox"
+                           Content="{loc:PreferencesResources Themes}"/>
+                    <ComboBox x:Name="ThemeComboBox" ItemsSource="{Binding ThemeNames}"
+                              SelectedIndex="{Binding SelectedThemeIndex}"/>
                 </StackPanel>
                 
                 <!-- compiler -->
@@ -33,7 +41,7 @@
                 <!-- online check -->
                 <StackPanel>
                     <Label Target="OnlineCheckTextBox" Content="{loc:PreferencesResources OnlineCheck}"/>
-                    <TextBox x:Name="OnlineCheckTextBox" Text="{Binding OnlineCheck}"></TextBox>
+                    <TextBox x:Name="OnlineCheckTextBox" Text="{Binding OnlineCheck}"/>
                 </StackPanel>
                 
                 <!-- clear projects -->
@@ -44,14 +52,14 @@
                 <!-- manter por ultimo -->
                 <StackPanel>
                     <Label Content="{loc:PreferencesResources ConfigVersion}"/>
-                    <TextBlock Text="{Binding ConfigVersion, Mode=OneWay}"></TextBlock>
+                    <TextBlock Text="{Binding ConfigVersion, Mode=OneWay}"/>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
         
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Content="{loc:PreferencesResources Apply}"
-                    Background="{StaticResource Purple1}"
+                    Background="{DynamicResource Purple1}"
                     Command="{Binding ApplyCommand}"
                     Margin="15"></Button>
         </StackPanel>

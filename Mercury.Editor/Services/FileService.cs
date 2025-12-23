@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Xml;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Extensions;
@@ -18,8 +17,8 @@ namespace Mercury.Editor.Services;
 
 public class FileService : BaseService<FileService> {
 
-    public Guid StdLibCategoryId => Guid.Parse("408494E4-76DD-434C-97FF-6C40A4E9ED27");
-    public Guid ProjectCategoryId => Guid.Parse("C03D266B-3D00-486A-9517-D8A2F3065C53");
+    public static Guid StdLibCategoryId => Guid.Parse("408494E4-76DD-434C-97FF-6C40A4E9ED27");
+    public static Guid ProjectCategoryId => Guid.Parse("C03D266B-3D00-486A-9517-D8A2F3065C53");
     
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
@@ -161,7 +160,7 @@ public class FileService : BaseService<FileService> {
         }
         node.ContextOptions.Clear();
 
-        if (node.ParentReference is not null && first) {
+        if (first) {
             if (node.ParentReference.TryGetTarget(out ProjectNode? parent)) {
                 parent.Children.Remove(node);
             }else {
@@ -232,7 +231,7 @@ public class FileService : BaseService<FileService> {
         return path == proj.ProjectDirectory + proj.SourceDirectory + proj.EntryFile;
     }
 
-    public ProjectNode? GetNode(Guid nodeId)
+    public ProjectNode GetNode(Guid nodeId)
     {
         return nodeAcceleration[nodeId];
     }
@@ -342,7 +341,7 @@ public class FileService : BaseService<FileService> {
                 nodes.Add(node);
             }
             else {
-                Console.WriteLine("Uma entrada nao eh nem arquivo nem pasta! Ignorando: " + entry);
+                Logger.LogWarning("The entry {Entry} is not a file nor a folder. Ignoring.", entry);
             }
 
             if (node is null) {

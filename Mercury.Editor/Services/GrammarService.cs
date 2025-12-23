@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Xml;
@@ -9,7 +8,6 @@ using Mercury.Editor.Models;
 using Mercury.Engine.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Mercury.Engine;
 
 namespace Mercury.Editor.Services;
 
@@ -22,7 +20,7 @@ public class GrammarService : BaseService<GrammarService> {
         assembly = Assembly.GetExecutingAssembly();
     }
 
-    private Dictionary<Architecture, IHighlightingDefinition> highlightCache = [];
+    private readonly Dictionary<Architecture, IHighlightingDefinition> highlightCache = [];
     
     public IHighlightingDefinition? GetCurrentAssemblyHighlighting() {
         ProjectFile? project = projectService.GetCurrentProject();
@@ -44,7 +42,7 @@ public class GrammarService : BaseService<GrammarService> {
             case Architecture.RiscV:
             case Architecture.Unknown:
             default:
-                Logger.LogWarning("Tried to fetch unsupported syntax highlighting: {arch}", project.Architecture);
+                Logger.LogWarning("Tried to fetch unsupported syntax highlighting: {Arch}", project.Architecture);
                 return null;
         }
         

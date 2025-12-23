@@ -12,11 +12,8 @@ using Mercury.Editor.Localization;
 using Mercury.Editor.Models.Messages;
 using Mercury.Editor.Views.ExecuteView;
 using Mercury.Engine.Common;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mercury.Editor.Extensions;
-using Mercury.Editor.Services;
-using Mercury.Engine.Mips.Runtime;
 
 namespace Mercury.Editor.ViewModels.Execute;
 
@@ -35,7 +32,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
     private ArchitectureMetadata architectureMetadata;
     private IRegisterHelper registerHelper = null!;
 
-    private Machine? machine = null!;
+    private Machine? machine;
 
     public RegisterViewModel()
     {
@@ -73,11 +70,14 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         return null;
     }
 
-    private void OnRegisterChange(List<(Type,Enum)> regs) {
+    private void OnRegisterChange(ValueTuple<Type,int>[] regs, int regCount) {
         highlightedRegisters.Clear();
         int updated = 0;
-        foreach ((Type registerType, Enum registerReference) in regs) {
-            (RegisterDefinition def, Processor proc)? regDef = GetRegisterDefinition(registerType, registerReference);
+        for(int i=0;i<regCount;i++) {
+            (Type registerType, int registerReference) = regs[i];
+            // linha malevola!!!! mas 
+            Enum boxedEnum = (Enum)Enum.ToObject(registerType, registerReference);
+            (RegisterDefinition def, Processor proc)? regDef = GetRegisterDefinition(registerType, boxedEnum);
             if (!regDef.HasValue) {
                 continue;
             }
@@ -101,7 +101,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
             register.Values = GetRegisterValues(regRef.Definition);
             updated++;
         }
-        Logger.LogInformation("Updated value of {count}/{total} registers", updated, regs.Count);
+        Logger.LogInformation("Updated value of {count}/{total} registers", updated, regCount);
         Highlight();
     }
 
@@ -171,8 +171,8 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
 }
 
 public partial class RegisterGroup : ObservableObject {
-    [ObservableProperty] private string groupName;
-    [ObservableProperty] private ObservableCollection<Register> registers;
+    [ObservableProperty] private string groupName = string.Empty;
+    [ObservableProperty] private ObservableCollection<Register> registers = [];
 }
 
 public class RegisterReference {
@@ -200,7 +200,7 @@ public class RegisterValues
 }
 
 public class RegisterValueDoubleConverter : IValueConverter {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value is null) {
             return RegisterResources.NotAvailableValue;
         }
@@ -210,13 +210,13 @@ public class RegisterValueDoubleConverter : IValueConverter {
         return s;
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         return BindingNotification.Null;
     }
 }
 
 public class RegisterNumberConverter : IValueConverter {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value is null) {
             return "null";
         }
@@ -225,7 +225,7 @@ public class RegisterNumberConverter : IValueConverter {
         return index == -1 ? string.Empty : index.ToString();
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         return BindingNotification.Null;
     }
 }

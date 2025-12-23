@@ -123,7 +123,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the integer to be printed.
     /// </remarks>
     private ValueTask PrintInteger() {
-        string integer = MipsMachine.Registers[MipsGprRegisters.A0].ToString();
+        string integer = MipsMachine.Registers.Get(MipsGprRegisters.A0).ToString();
         return Print(integer);
     }
 
@@ -164,7 +164,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// </remarks>
     private ValueTask PrintString() {
        StringBuilder sb = new();
-        uint address = (uint)MipsMachine.Registers[MipsGprRegisters.A0];
+        uint address = (uint)MipsMachine.Registers.Get(MipsGprRegisters.A0);
         byte current;
         while ((current = MipsMachine.DataMemory.ReadByte(address++)) != 0) {
             sb.Append((char)current);
@@ -179,7 +179,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the character to print.
     /// </remarks>
     private async ValueTask PrintCharacter() {
-       byte character = (byte)MipsMachine.Registers[MipsGprRegisters.A0];
+       byte character = (byte)MipsMachine.Registers.Get(MipsGprRegisters.A0);
        await MipsMachine.StdOut.Writer.WriteAsync(Convert.ToChar(character));
     }
 
@@ -191,7 +191,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the integer to print.
     /// </remarks>
     private ValueTask PrintIntHex() {
-        string integer = MipsMachine.Registers[MipsGprRegisters.A0].ToString("X8");
+        string integer = MipsMachine.Registers.Get(MipsGprRegisters.A0).ToString("X8");
         return Print(integer);
     }
 
@@ -203,7 +203,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the integer to print.
     /// </remarks>
     private ValueTask PrintIntBinary() {
-        string integer = MipsMachine.Registers[MipsGprRegisters.A0].ToString("b32");
+        string integer = MipsMachine.Registers.Get(MipsGprRegisters.A0).ToString("b32");
         return Print(integer);
     }
 
@@ -214,7 +214,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the integer to print.
     /// </remarks>
     private ValueTask PrintUnsignedInt() {
-        string integer = ((uint)MipsMachine.Registers[MipsGprRegisters.A0]).ToString();
+        string integer = ((uint)MipsMachine.Registers.Get(MipsGprRegisters.A0)).ToString();
         return Print(integer);
     }
 
@@ -225,7 +225,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the boolean value to print.
     /// </remarks>
     private ValueTask PrintBoolean() {
-        bool value = MipsMachine.Registers[MipsGprRegisters.A0] != 0;
+        bool value = MipsMachine.Registers.Get(MipsGprRegisters.A0) != 0;
         return Print(value ? "true" : "false");
     }
     
@@ -243,10 +243,10 @@ public sealed class Mars : MipsOperatingSystem {
         string line = await MipsMachine.StdIn.Reader.ReadLine(); // blocking ateh achar \n
         
         if (!int.TryParse(line, out int value)) {
-            MipsMachine.Registers[MipsGprRegisters.V0] = int.MinValue;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, int.MinValue);
             return;
         }
-        MipsMachine.Registers[MipsGprRegisters.V0] = value;
+        MipsMachine.Registers.Set(MipsGprRegisters.V0, value);
     }
     
     /// <summary>
@@ -297,8 +297,8 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a1 contains the maximum number of characters to read
     /// </remarks>
     private async ValueTask ReadString() {
-        int n = MipsMachine.Registers[MipsGprRegisters.A1];
-        uint address = (uint)MipsMachine.Registers[MipsGprRegisters.A0];
+        int n = MipsMachine.Registers.Get(MipsGprRegisters.A1);
+        uint address = (uint)MipsMachine.Registers.Get(MipsGprRegisters.A0);
 
         if (n < 1) {
             return;
@@ -322,6 +322,12 @@ public sealed class Mars : MipsOperatingSystem {
         for (uint i = 0; i < n; i++) {
             MipsMachine.DataMemory.WriteByte(address + i, i < buffer.Length ? buffer[i] : (byte)0);
         }
+        MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
+            Address = address,
+            Size = n,
+            Mode = MemoryAccessMode.Write,
+            Source = MemoryAccessSource.OperatingSystem
+        });
     }
     
     /// <summary>
@@ -332,7 +338,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// </remarks>
     private async ValueTask ReadCharacter() {
         char c = await MipsMachine.StdIn.Reader.ReadAsync();
-        MipsMachine.Registers[MipsGprRegisters.V0] = c;
+        MipsMachine.Registers.Set(MipsGprRegisters.V0, c);
     }
 
     /// <summary>
@@ -346,16 +352,16 @@ public sealed class Mars : MipsOperatingSystem {
         
         // int representation
         if(int.TryParse(line, out int intValue)) {
-            MipsMachine.Registers[MipsGprRegisters.V0] = intValue != 0 ? 1 : 0;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, intValue != 0 ? 1 : 0);
             return;
         }
         // bool representation
         line = line.Trim().ToLower();
         if (line is "true" or "1" or "yes" or "y") {
-            MipsMachine.Registers[MipsGprRegisters.V0] = 1;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, 1);
             return;
         }
-        MipsMachine.Registers[MipsGprRegisters.V0] = 0;
+        MipsMachine.Registers.Set(MipsGprRegisters.V0, 0);
     }
 
     #endregion
@@ -387,7 +393,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the exit value.
     /// </remarks>
     private ValueTask ExitWithValue() {
-        int code = MipsMachine.Registers[MipsGprRegisters.A0];
+        int code = MipsMachine.Registers.Get(MipsGprRegisters.A0);
         return MipsMachine.Cpu.Halt(code);
     }
 
@@ -400,8 +406,8 @@ public sealed class Mars : MipsOperatingSystem {
     /// </remarks>
     private void SystemTime() {
         long ticks = DateTime.Now.Ticks;
-        MipsMachine.Registers[MipsGprRegisters.A0] = (int)(ticks & 0xFFFF_FFFF);
-        MipsMachine.Registers[MipsGprRegisters.A1] = (int)(ticks >> 32);
+        MipsMachine.Registers.Set(MipsGprRegisters.A0, (int)(ticks & 0xFFFF_FFFF));
+        MipsMachine.Registers.Set(MipsGprRegisters.A1, (int)(ticks >> 32));
     }
 
     /// <summary>
@@ -426,7 +432,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the time to sleep in milliseconds.
     /// </remarks>
     private Task Sleep() {
-        return Task.Delay(MipsMachine.Registers[MipsGprRegisters.A0]);
+        return Task.Delay(MipsMachine.Registers.Get(MipsGprRegisters.A0));
     }
 
     /// <summary>
@@ -465,7 +471,7 @@ public sealed class Mars : MipsOperatingSystem {
         }
 
         StringBuilder sb = new();
-        uint address = (uint)MipsMachine.Registers[MipsGprRegisters.A0];
+        uint address = (uint)MipsMachine.Registers.Get(MipsGprRegisters.A0);
         try {
             byte current = MipsMachine.DataMemory.ReadByte(address);
             while (current != 0) {
@@ -473,21 +479,21 @@ public sealed class Mars : MipsOperatingSystem {
                 current = MipsMachine.DataMemory.ReadByte(++address);
             }
         }catch (Exception) {
-            MipsMachine.Registers[MipsGprRegisters.V0] = -1;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, -1);
             return;
         }
         string path = sb.ToString();
         if (!File.Exists(path)) {
-            MipsMachine.Registers[MipsGprRegisters.V0] = -1;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, -1);
             return;
         }
-        int flags = MipsMachine.Registers[MipsGprRegisters.A1];
+        int flags = MipsMachine.Registers.Get(MipsGprRegisters.A1);
         // 0: read only
         // 1: write only with create
         // 9: write only with create and append
         if(flags != 0 && flags != 1 && flags != 9) {
             // que flag eh essa passada?
-            MipsMachine.Registers[MipsGprRegisters.V0] = -1;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, -1);
             return;
         }
         
@@ -498,7 +504,7 @@ public sealed class Mars : MipsOperatingSystem {
             9 => FileMode.Append,
             _ => throw new ArgumentOutOfRangeException(nameof(flags), "Invalid file open flag")
         });
-        MipsMachine.Registers[MipsGprRegisters.V0] = newDescriptor;
+        MipsMachine.Registers.Set(MipsGprRegisters.V0, newDescriptor);
     }
 
     /// <summary>
@@ -517,31 +523,37 @@ public sealed class Mars : MipsOperatingSystem {
             fileDescriptors[2] = new ChannelStream(MipsMachine.StdErr);
         }
         
-        int fileDescriptor = MipsMachine.Registers[MipsGprRegisters.A0];
-        int address = MipsMachine.Registers[MipsGprRegisters.A1];
-        int n = MipsMachine.Registers[MipsGprRegisters.A2];
+        int fileDescriptor = MipsMachine.Registers.Get(MipsGprRegisters.A0);
+        int address = MipsMachine.Registers.Get(MipsGprRegisters.A1);
+        int n = MipsMachine.Registers.Get(MipsGprRegisters.A2);
         
         if (!fileDescriptors.TryGetValue(fileDescriptor, out Stream? stream)) {
-            MipsMachine.Registers[MipsGprRegisters.V0] = -1;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, -1);
             return;
         }
 
         if (!stream.CanRead) {
-            MipsMachine.Registers[MipsGprRegisters.V0] = -1;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, -1);
             return;
         }
         
         byte[] buffer = new byte[n];
         int read = stream.Read(buffer, 0, n);
         if (read == 0) {
-            MipsMachine.Registers[MipsGprRegisters.V0] = 0;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, 0);
             return;
         }
         
         for (int i = 0; i < read; i++) {
             MipsMachine.DataMemory.WriteByte((uint)(address + i), buffer[i]);
         }
-        MipsMachine.Registers[MipsGprRegisters.V0] = read;
+        MipsMachine.Registers.Set(MipsGprRegisters.V0, read);
+        MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs() {
+            Address = (ulong)address,
+            Size = read,
+            Mode = MemoryAccessMode.Write,
+            Source = MemoryAccessSource.OperatingSystem
+        });
     }
     
     /// <summary>
@@ -560,17 +572,17 @@ public sealed class Mars : MipsOperatingSystem {
             fileDescriptors[2] = new ChannelStream(MipsMachine.StdErr);
         }
 
-        int fileDescriptor = MipsMachine.Registers[MipsGprRegisters.A0];
-        int address = MipsMachine.Registers[MipsGprRegisters.A1];
-        int n = MipsMachine.Registers[MipsGprRegisters.A2];
+        int fileDescriptor = MipsMachine.Registers.Get(MipsGprRegisters.A0);
+        int address = MipsMachine.Registers.Get(MipsGprRegisters.A1);
+        int n = MipsMachine.Registers.Get(MipsGprRegisters.A2);
         
         if (!fileDescriptors.TryGetValue(fileDescriptor, out Stream? stream)) {
-            MipsMachine.Registers[MipsGprRegisters.V0] = -1;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, -1);
             return;
         }
 
         if (!stream.CanWrite) {
-            MipsMachine.Registers[MipsGprRegisters.V0] = -1;
+            MipsMachine.Registers.Set(MipsGprRegisters.V0, -1);
             return;
         }
         
@@ -585,7 +597,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the file descriptor.
     /// </remarks>
     private void CloseFile() {
-        int fileDescriptor = MipsMachine.Registers[MipsGprRegisters.A0];
+        int fileDescriptor = MipsMachine.Registers.Get(MipsGprRegisters.A0);
         if (fileDescriptor <= 2) {
             // nao pode fechar stdin, stdout ou stderr
             return; 
@@ -610,8 +622,8 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>$a0 contains the id of the number generator and $a1 contains
     /// the seed.</remarks>
     private void SetRandomSeed() {
-        int id = MipsMachine.Registers[MipsGprRegisters.A0];
-        rngs[id] = new Random(MipsMachine.Registers[MipsGprRegisters.A1]);
+        int id = MipsMachine.Registers.Get(MipsGprRegisters.A0);
+        rngs[id] = new Random(MipsMachine.Registers.Get(MipsGprRegisters.A1));
     }
 
     /// <summary>
@@ -620,12 +632,12 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>$a0 containes the id of the generator. $a0 returns the next
     /// random value.</remarks>
     private void RandomInt() {
-        int id = MipsMachine.Registers[MipsGprRegisters.A0];
+        int id = MipsMachine.Registers.Get(MipsGprRegisters.A0);
         if (!rngs.TryGetValue(id, out Random? value)) {
             value = new Random();
             rngs[id] = value;
         }
-        MipsMachine.Registers[MipsGprRegisters.A0] = value.Next(); 
+        MipsMachine.Registers.Set(MipsGprRegisters.A0, value.Next()); 
     }
 
     /// <summary>
@@ -634,12 +646,12 @@ public sealed class Mars : MipsOperatingSystem {
     /// <remarks>The $a0 contains the id of the generator. $a1 contains the upper
     /// bound of the range. Value returned in $a0</remarks>
     private void RandomIntRange() {
-        int id = MipsMachine.Registers[MipsGprRegisters.A0];
+        int id = MipsMachine.Registers.Get(MipsGprRegisters.A0);
         if (!rngs.TryGetValue(id, out Random? value)) {
             value = new Random();
             rngs[id] = value;
         }
-        MipsMachine.Registers[MipsGprRegisters.A0] = value.Next(MipsMachine.Registers[MipsGprRegisters.A1]); 
+        MipsMachine.Registers.Set(MipsGprRegisters.A0, value.Next(MipsMachine.Registers.Get(MipsGprRegisters.A1))); 
     }
     
     /// <summary>
@@ -649,7 +661,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the id of the generator. $f0 contains the generated number in the range [0,1].
     /// </remarks>
     private void RandomFloat() {
-        int id = MipsMachine.Registers[MipsGprRegisters.A0];
+        int id = MipsMachine.Registers.Get(MipsGprRegisters.A0);
         if (!rngs.TryGetValue(id, out Random? value)) {
             value = new Random();
             rngs[id] = value;
@@ -666,7 +678,7 @@ public sealed class Mars : MipsOperatingSystem {
     /// $a0 contains the id of the generator. $f0 contains the generated number in the range [0,1].
     /// </remarks>
     private void RandomDouble() {
-        int id = MipsMachine.Registers[MipsGprRegisters.A0];
+        int id = MipsMachine.Registers.Get(MipsGprRegisters.A0);
         if (!rngs.TryGetValue(id, out Random? value)) {
             value = new Random();
             rngs[id] = value;
@@ -680,7 +692,7 @@ public sealed class Mars : MipsOperatingSystem {
     #endregion
     
     public override void Dispose() {
-        foreach ((int descriptor, Stream? stream) in fileDescriptors) {
+        foreach ((int descriptor, Stream stream) in fileDescriptors) {
             if (descriptor <= 2) {
                 continue;
             }

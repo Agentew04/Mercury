@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.IO;
+﻿using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -60,6 +57,7 @@ public static class PathExtensions {
     /// </summary>
     /// <param name="path">The path to check</param>
     /// <returns>Wether the path exists or not in the disk</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Exists(this PathObject path) {
         return path.IsFile ? File.Exists(path.ToString()) : Directory.Exists(path.ToString());
     }
@@ -300,7 +298,7 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
         return this with { IsAbsolute = false, Parts = Parts[root.Parts.Length..] };
     }
 
-    public XmlSchema? GetSchema() => null!;
+    public XmlSchema GetSchema() => null!;
 
     public void ReadXml(XmlReader reader)
     {

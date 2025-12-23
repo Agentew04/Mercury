@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 
 namespace Mercury.Engine.Common; 
 public static class Extensions {
 
     public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> collection, T splitter) {
         List<T> currentList = [];
-        foreach (T? item in collection) {
+        foreach (T item in collection) {
             if(EqualityComparer<T>.Default.Equals(item, splitter)) {
                 yield return new List<T>(currentList);
                 currentList.Clear();
@@ -26,7 +21,7 @@ public static class Extensions {
 
     public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> collection, Predicate<T> splitPredicate) {
         List<T> currentList = [];
-        foreach (T? item in collection) {
+        foreach (T item in collection) {
             if (splitPredicate.Invoke(item)) {
                 yield return new List<T>(currentList);
                 currentList.Clear();

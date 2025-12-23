@@ -24,7 +24,7 @@ public class TypeJTest {
     [TestCategory("J")]
     [DataRow(0x0040001C, 0x08100007)]
     [DataRow(0x00400018, 0x08100006)]
-    [DataTestMethod]
+    [TestMethod]
     public void JAssembly(int address, int expected) {
         var instruction = new J {
             Immediate = (address&0x3FFFFFF)>>2
@@ -35,7 +35,7 @@ public class TypeJTest {
     [TestCategory("J")]
     [DataRow((uint)0x08100007)]
     [DataRow((uint)0x08100006)]
-    [DataTestMethod]
+    [TestMethod]
     public void JDisassembly(uint instructionInt) {
         Instruction? instruction = Disassembler.Disassemble(instructionInt);
         Assert.IsNotNull(instruction);
@@ -46,7 +46,7 @@ public class TypeJTest {
     [TestCategory("J")]
     [DataRow("j 0x0040001c", 0x0040001C)]
     [DataRow("j 0x00400018", 0x00400018)]
-    [DataTestMethod]
+    [TestMethod]
     public void JPopulate(string line, int target) {
         var instruction = new J();
         instruction.PopulateFromLine(line);
@@ -66,7 +66,7 @@ public class TypeJTest {
     [TestCategory("Jal")]
     [DataRow(0x0040001C, 0x0C100007)]
     [DataRow(0x00400018, 0x0C100006)]
-    [DataTestMethod]
+    [TestMethod]
     public void JalAssembly(int address, int expected) {
         var instruction = new Jal {
             Immediate = (address&0x3FFFFFF)>>2
@@ -77,7 +77,7 @@ public class TypeJTest {
     [TestCategory("Jal")]
     [DataRow((uint)0x0C100007)]
     [DataRow((uint)0x0C100006)]
-    [DataTestMethod]
+    [TestMethod]
     public void JalDisassembly(uint instructionInt) {
         Instruction? instruction = Disassembler.Disassemble(instructionInt);
         Assert.IsNotNull(instruction);
@@ -88,7 +88,7 @@ public class TypeJTest {
     [TestCategory("Jal")]
     [DataRow("jal 0x0040001c", 0x0040001C)]
     [DataRow("jal 0x00400018", 0x00400018)]
-    [DataTestMethod]
+    [TestMethod]
     public void JalPopulate(string line, int target) {
         var instruction = new Jal();
         instruction.PopulateFromLine(line);

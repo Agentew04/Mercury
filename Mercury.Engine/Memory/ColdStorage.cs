@@ -1,8 +1,8 @@
 ﻿namespace Mercury.Engine.Memory;
 
-internal sealed class ColdStorage : IStorage, IDisposable {
+internal sealed class ColdStorage : IStorage {
 
-    private FileStream fs;
+    private readonly FileStream fs;
 
     private readonly ulong pageCount;
     private readonly ulong pageSize;

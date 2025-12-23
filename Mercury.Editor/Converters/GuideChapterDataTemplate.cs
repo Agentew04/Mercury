@@ -2,21 +2,19 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Avalonia.Controls;
-using Avalonia.Controls.Documents;
 using Avalonia.Controls.Templates;
-using Avalonia.Media;
 using Mercury.Editor.Models;
 using Mercury.Editor.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Converters;
 
-public class GuideChapterDataTemplate : IDataTemplate, IDisposable {
+public sealed class GuideChapterDataTemplate : IDataTemplate, IDisposable {
     
-    private readonly GuideService _guideService = App.Services.GetService<GuideService>()!;
+    private readonly GuideService guideService = App.Services.GetService<GuideService>()!;
 
-    private StackPanel? stackPanel = null;
-    private GuideChapter? chapter = null; 
+    private StackPanel? stackPanel;
+    private GuideChapter? chapter; 
     
     public Control? Build(object? param) {
         stackPanel ??= new StackPanel();
@@ -29,7 +27,7 @@ public class GuideChapterDataTemplate : IDataTemplate, IDisposable {
         
         Localization.LocalizationManager.CultureChanged += UpdateLocalization;
 
-        List<Control> controls = _guideService.BuildGuide(chapter);
+        List<Control> controls = guideService.BuildGuide(chapter);
         stackPanel.Children.Clear();
         stackPanel.Children.AddRange(controls);
         
@@ -37,7 +35,7 @@ public class GuideChapterDataTemplate : IDataTemplate, IDisposable {
     }
 
     private void UpdateLocalization(CultureInfo _) {
-        List<Control> controls = _guideService.BuildGuide(chapter!);
+        List<Control> controls = guideService.BuildGuide(chapter!);
         stackPanel!.Children.Clear();
         stackPanel!.Children.AddRange(controls);
     }

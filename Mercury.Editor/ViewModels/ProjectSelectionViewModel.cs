@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -19,7 +16,6 @@ using Mercury.Editor.Views;
 using Mercury.Engine.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Mercury.Engine;
 
 namespace Mercury.Editor.ViewModels;
 
@@ -109,22 +105,26 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
 
     public ProjectSelectionViewModel() {
         foreach (ProjectFile project in projectService.GetRecentProjects()) {
-            filteredRecentProjects.Add(new ProjectFileVisualItem(project, OpenProjectCommand));
             allRecentProjects.Add(new ProjectFileVisualItem(project, OpenProjectCommand));
         }
+        OnSearchQueryChanged("");
     }
     
     partial void OnSearchQueryChanged(string value) {
         // atualiza a lista de projetos recentes
         filteredRecentProjects.Clear();
+        List<ProjectFileVisualItem> unordered = [];
         foreach (ProjectFileVisualItem proj in allRecentProjects) {
             bool nameCheck = proj.ProjectFile.ProjectName.Contains(value, StringComparison.OrdinalIgnoreCase);
             bool pathCheck = proj.ProjectFile.ProjectPath.Parts.Any(x => x.Contains(value, StringComparison.OrdinalIgnoreCase));
             
             if (nameCheck || pathCheck) {
-                filteredRecentProjects.Add(proj);
+                unordered.Add(proj);
             }
         }
+
+        filteredRecentProjects.AddRange(unordered.OrderByDescending(x => x.ProjectFile.LastAccessed));
+        OnPropertyChanged(nameof(FilteredRecentProjects));
     }
 
     public Task WaitForProjectSelection() {
@@ -204,6 +204,22 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
         SelectedOperatingSystemIndex = osIndex;
     }
 
+    [ObservableProperty] private bool isInvalidFolder = true;
+    
+    partial void OnNewProjectNameChanged(string value) {
+        string path = SanitizeProjectPath(NewProjectPath);
+        string name = SanitizeProjectName(value);
+        string effective = Path.Combine(path, name);
+        IsInvalidFolder = Directory.Exists(effective);
+    }
+    
+    partial void OnNewProjectPathChanged(string value) {
+        string path = SanitizeProjectPath(value);
+        string name = SanitizeProjectName(NewProjectName);
+        string effective = Path.Combine(path, name);
+        IsInvalidFolder = Directory.Exists(effective);
+    }
+
     [RelayCommand]
     private async Task NewProjectEnd() {
         string path = SanitizeProjectPath(NewProjectPath);
@@ -273,7 +289,11 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
     }
 
     private static string SanitizeProjectPath(string path) {
-        return Path.GetInvalidPathChars().Aggregate(path, (current, illegal) => current.Replace(illegal.ToString(), ""));
+        char[] illegals = Path.GetInvalidPathChars();
+        char[] dividers = ['/', '\\'];
+        string valid = illegals.Aggregate(path, (current, illegal) => current.Replace(illegal.ToString(), ""));
+        string normalized = dividers.Aggregate(valid, (current, div) => current.Replace(div.ToString(), Path.DirectorySeparatorChar.ToString()));
+        return normalized;
     }
     
     public void OverrideTaskCompletion() {

@@ -42,4 +42,7 @@
     <data name="ConfigVersion" xml:space="preserve">
         <value>Configuration version</value>
     </data>
+    <data name="Themes" xml:space="preserve">
+        <value>Themes</value>
+    </data>
 </root>

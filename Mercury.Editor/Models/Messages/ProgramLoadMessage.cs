@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CommunityToolkit.Mvvm.Messaging.Messages;
 using ELFSharp.ELF;
 using Mercury.Editor.Extensions;
 using Mercury.Engine.Mips.Runtime;

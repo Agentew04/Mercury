@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Mercury.Engine.Mips.Instructions;
+﻿using Mercury.Engine.Mips.Instructions;
 using Mercury.Engine.Common;
 
 namespace Mercury.Engine.Mips.Runtime.Simple;
@@ -93,7 +88,7 @@ public partial class Monocycle {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.AddressError,
                         Instruction = lh.ConvertToInt(),
-                        ProgramCounter = Registers[MipsGprRegisters.Pc]
+                        ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                 }
                 return;
@@ -112,7 +107,7 @@ public partial class Monocycle {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.AddressError,
                         Instruction = lhu.ConvertToInt(),
-                        ProgramCounter = Registers[MipsGprRegisters.Pc]
+                        ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                 }
                 return;
@@ -133,7 +128,7 @@ public partial class Monocycle {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.AddressError,
                         Instruction = lw.ConvertToInt(),
-                        ProgramCounter = Registers[MipsGprRegisters.Pc]
+                        ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                 }
                 return;
@@ -160,7 +155,7 @@ public partial class Monocycle {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.AddressError,
                         Instruction = sh.ConvertToInt(),
-                        ProgramCounter = Registers[MipsGprRegisters.Pc]
+                        ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                 }
                 return;
@@ -181,7 +176,7 @@ public partial class Monocycle {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.AddressError,
                         Instruction = sw.ConvertToInt(),
-                        ProgramCounter = Registers[MipsGprRegisters.Pc]
+                        ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                 }
                 return;
@@ -199,7 +194,7 @@ public partial class Monocycle {
                     await SignalException.Invoke(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.Trap,
                         Instruction = teqi.ConvertToInt(),
-                        ProgramCounter = Registers[MipsGprRegisters.Pc]
+                        ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                 }
             }
@@ -212,7 +207,7 @@ public partial class Monocycle {
             }else if (lwcz.Coprocessor == 1) { // fpu
                 Registers.Set<MipsFpuRegisters>(lwcz.Rt, value);
             }else {
-                await MipsMachine.StdErr.Writer.WriteAsync($"Coprocessor {lwcz.Coprocessor} not supported. Instruction: {lwcz} @ PC={Registers[MipsGprRegisters.Pc]:X8}\n");
+                await MipsMachine.StdErr.Writer.WriteAsync($"Coprocessor {lwcz.Coprocessor} not supported. Instruction: {lwcz} @ PC={Registers.Get(MipsGprRegisters.Pc):X8}\n");
                 return;
             }
             MipsMachine.OnMemoryAccess(new MemoryAccessEventArgs()
@@ -231,7 +226,7 @@ public partial class Monocycle {
             }else if (swcz.Coprocessor == 1) { // fpu
                 value = Registers.Get<MipsFpuRegisters>(swcz.Rt);
             }else {
-                await MipsMachine.StdErr.Writer.WriteAsync($"Coprocessor {swcz.Coprocessor} not supported. Instruction: {swcz} @ PC={Registers[MipsGprRegisters.Pc]:X8}\n");
+                await MipsMachine.StdErr.Writer.WriteAsync($"Coprocessor {swcz.Coprocessor} not supported. Instruction: {swcz} @ PC={Registers.Get(MipsGprRegisters.Pc):X8}\n");
                 return;
             }
             MipsMachine.DataMemory.WriteWord(address, value);
@@ -243,8 +238,7 @@ public partial class Monocycle {
                 Source = MemoryAccessSource.Instruction
             });
         } else {
-            await MipsMachine.StdErr.Writer.WriteAsync($"Type I instruction not implemented: {instruction} @ PC={Registers[MipsGprRegisters.Pc]:X8}\n");
-            return;
+            await MipsMachine.StdErr.Writer.WriteAsync($"Type I instruction not implemented: {instruction} @ PC={Registers.Get(MipsGprRegisters.Pc):X8}\n");
         } 
     }
 }

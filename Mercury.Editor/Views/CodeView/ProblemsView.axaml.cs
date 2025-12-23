@@ -1,11 +1,7 @@
 ﻿using Avalonia.Controls;
-using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Models.Compilation;
 using Microsoft.Extensions.DependencyInjection;
-using Mercury.Editor.Models.Messages;
-using Mercury.Editor.ViewModels;
 using Code_ProblemsViewModel = Mercury.Editor.ViewModels.Code.ProblemsViewModel;
-using ProblemsViewModel = Mercury.Editor.ViewModels.Code.ProblemsViewModel;
 
 namespace Mercury.Editor.Views.CodeView;
 

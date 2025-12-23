@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Avalonia;
+﻿using System.Collections.Generic;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Mercury.Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;

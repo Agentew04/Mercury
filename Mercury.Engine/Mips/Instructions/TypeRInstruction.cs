@@ -49,7 +49,7 @@ public abstract class TypeRInstruction : Instruction {
     }
 
     public override void PopulateFromLine(string line) {
-        Match? match = GetRegularExpression().Match(line);
+        Match match = GetRegularExpression().Match(line);
 
         if (ParseOptions.HasFlag(PopulationOptions.Rs)) {
             if (byte.TryParse(match.Groups["rs"].Value, out byte rs)) {

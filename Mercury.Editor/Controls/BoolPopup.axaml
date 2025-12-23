@@ -14,7 +14,7 @@
             PointerPressed="Dismiss_OnPointerPressed">
         <Border HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Background="{StaticResource AlternateGrey}"
+                Background="{DynamicResource AlternateGrey}"
                 Padding="15,10"
                 CornerRadius="3">
             <Grid RowDefinitions="Auto,Auto">

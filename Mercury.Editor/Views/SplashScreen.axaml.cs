@@ -1,8 +1,4 @@
-﻿using System;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Controls;
 using Mercury.Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 

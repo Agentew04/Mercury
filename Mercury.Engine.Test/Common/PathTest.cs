@@ -79,7 +79,7 @@ public class PathTest {
     [TestMethod]
     public void TestFileWithExtensionTrailing() {
         string path = "folder1/file.txt/";
-        Assert.ThrowsException<NotSupportedException>(() => {
+        Assert.Throws<NotSupportedException>(() => {
             _ = path.ToFilePath();
         });
     }
@@ -101,7 +101,7 @@ public class PathTest {
     [TestMethod]
     public void TestFileWithoutExtensionTrailing() {
         string path = "folder1/file/";
-        Assert.ThrowsException<NotSupportedException>(() => {
+        Assert.Throws<NotSupportedException>(() => {
             _ = path.ToFilePath();
         });
     }
@@ -110,7 +110,7 @@ public class PathTest {
     [DataRow("folder1/folder2/", true)]
     [DataRow("/folder1/folder2", false)]
     [DataRow("/folder1/folder2/", false)]
-    [DataTestMethod]
+    [TestMethod]
     public void TestDirectoryAppendLinux(string path, bool relative) {
         PathObject obj1 = path.ToDirectoryPath();
 
@@ -126,7 +126,7 @@ public class PathTest {
     [DataRow("C:\\folder1/folder2/", false)]
     [DataRow("C:/folder1/folder2", false)]
     [DataRow("C:/folder1/folder2/", false)]
-    [DataTestMethod]
+    [TestMethod]
     public void TestDirectoryAppendWindows(string path, bool relative) {
         PathObject obj1 = path.ToDirectoryPath();
 
@@ -156,7 +156,7 @@ public class PathTest {
     public void TestFileFromFileThrows() {
         string path = "folder1/folder2/file.txt";
         PathObject obj1 = path.ToFilePath();
-        Assert.ThrowsException<NotSupportedException>(() => {
+        Assert.Throws<NotSupportedException>(() => {
             _ = obj1.File("file2.txt");
         });
     }
@@ -165,7 +165,7 @@ public class PathTest {
     public void TestDirectoryFromFileThrows() {
         string path = "folder1/folder2/file.txt";
         PathObject obj1 = path.ToFilePath();
-        Assert.ThrowsException<NotSupportedException>(() => {
+        Assert.Throws<NotSupportedException>(() => {
             _ = obj1.Folder("folder3");
         });
     }

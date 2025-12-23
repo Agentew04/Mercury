@@ -1,14 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 
@@ -130,24 +127,36 @@ public class ResxGenerator : IIncrementalGenerator {
                      /// <summary>
                      /// Returns a <see cref="IObservable{T}"/>
                      /// </summary>
+                     /// <remarks>
+                     /// {{entry.Comment}}
+                     /// </remarks>
                      public static IObservable<string> {{entry.Name}}Observable => Instance._{{entry.Name}};
                  
                      /// <summary>
                      /// Property that retrieves the value of the {{entry.Name}} resource in
                      /// the current culture.
                      /// </summary>
+                     /// <remarks>
+                     /// {{entry.Comment}}
+                     /// </remarks>
                      public string {{entry.Name}} => resourceManager.GetString("{{entry.Name}}", LocalizationManager.CurrentCulture) ?? "";
 
                      /// <summary>
                      /// Function that retrieves the newest value of the <see cref="{{entry.Name}}"/>
                      /// property in the current culture.
                      /// </summary>
+                     /// <remarks>
+                     /// {{entry.Comment}}
+                     /// </remarks>
                      public string Get{{entry.Name}}() => {{entry.Name}};
 
                      /// <summary>
                      /// Property that retrieves the value of the {{entry.Name}} resource in
                      /// the current culture.
                      /// </summary>
+                     /// <remarks>
+                     /// {{entry.Comment}}
+                     /// </remarks>
                      public static string {{entry.Name}}Value => Instance.{{entry.Name}};
                  """);
 

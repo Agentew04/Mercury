@@ -24,13 +24,13 @@ public sealed class MipsMachine : Common.Machine {
         Section<uint>? textSection = elf.GetSection(".text");
         uint textStart = textSection!.LoadAddress;
         uint textLength = textSection.Size;
-        Cpu.Registers[MipsGprRegisters.Pc] = (int)elf.EntryPoint;
+        Cpu.Registers.Set(MipsGprRegisters.Pc, (int)elf.EntryPoint);
         SymbolTable<uint>? symbolTable = elf.GetSections<SymbolTable<uint>>().First();
-        Cpu.DropoffAddress = symbolTable?.Entries?.First(x => x.Name == "__end")?.Value ?? textStart + textLength;
+        Cpu.ProgramEnd = symbolTable?.Entries?.FirstOrDefault(x => x.Name == "__end")?.Value ?? textStart + textLength;
         SymbolEntry<uint>? gpSymbol = symbolTable?.Entries?.First(x => x.Name == "_gp");
         if (gpSymbol is not null)
         {
-            Cpu.Registers[MipsGprRegisters.Gp] = (int)gpSymbol.Value;
+            Cpu.Registers.Set(MipsGprRegisters.Gp, (int)gpSymbol.Value);
         }
 
         // use segments to load data into memory
@@ -47,7 +47,7 @@ public sealed class MipsMachine : Common.Machine {
     
     public override void LoadProgram(Span<int> text, Span<int> data) {
         uint lastText = Load(text, TextSegmentAddress);
-        Cpu.DropoffAddress = lastText + 1;
+        Cpu.ProgramEnd = lastText + 1;
         _ = Load(data, DataSegmentAddress);
     }
 }
@@ -66,5 +66,6 @@ public enum MemoryAccessMode {
 
 public enum MemoryAccessSource {
     Code,
-    Instruction
+    Instruction,
+    OperatingSystem
 }

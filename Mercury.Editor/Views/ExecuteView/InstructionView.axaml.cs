@@ -1,11 +1,6 @@
-﻿using System;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls;
 using Mercury.Editor.ViewModels.Execute;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor.Views.ExecuteView;
 

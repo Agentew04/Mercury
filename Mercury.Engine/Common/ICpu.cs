@@ -1,12 +1,10 @@
-﻿using Mercury.Engine.Mips.Runtime;
-
-namespace Mercury.Engine.Common;
+﻿namespace Mercury.Engine.Common;
 
 public interface ICpu : IAsyncClockable {
     
     public Machine Machine { get; set; }
     
-    public uint DropoffAddress { get; set; }
+    public uint ProgramEnd { get; set; }
     
     public RegisterCollection Registers { get; }
     

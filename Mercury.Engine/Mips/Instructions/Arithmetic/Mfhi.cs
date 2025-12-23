@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using Mercury.Engine.Mips.Instructions;
 using Mercury.Generators;
 
 namespace Mercury.Engine.Mips.Instructions;

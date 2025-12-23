@@ -10,7 +10,7 @@ namespace Mercury.Editor.Converters;
 
 public class DiagnosticTypeToIcon : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not DiagnosticType diagnosticType)
         {
@@ -26,14 +26,14 @@ public class DiagnosticTypeToIcon : IValueConverter
         };
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         return BindingNotification.Null;
     }
 }
 
 public class DiagnosticTypeToColor : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not DiagnosticType diagnosticType)
         {
@@ -49,7 +49,7 @@ public class DiagnosticTypeToColor : IValueConverter
         };
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         return BindingNotification.Null;
     }
 }

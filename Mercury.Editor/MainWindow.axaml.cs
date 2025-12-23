@@ -1,21 +1,12 @@
-using System;
 using Avalonia.Controls;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
-using System.Threading.Tasks;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Threading;
-using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Models.Messages;
 using Mercury.Editor.Views;
 using Mercury.Editor.Views.CodeView;
 using Mercury.Editor.Views.ExecuteView;
-using Mercury.Editor.Localization;
-using Mercury.Editor.Models;
 
 namespace Mercury.Editor {
     

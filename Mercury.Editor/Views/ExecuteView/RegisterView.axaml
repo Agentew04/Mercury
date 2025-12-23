@@ -62,7 +62,7 @@
         </Flyout>
         <!-- coisas q datagrid usa -->
         <cv:BoolToColorConverter x:Key="BoolToColorConverter"></cv:BoolToColorConverter>
-        <cv:ColorConverterParam x:Key="RowHighlightParam" TrueBrush="{StaticResource SelectionColor}" FalseBrush="Transparent"/>
+        <cv:ColorConverterParam x:Key="RowHighlightParam" TrueBrush="{DynamicResource SelectionColor}" FalseBrush="Transparent"/>
         <vm:RegisterNumberConverter x:Key="RegisterNumberConverter"></vm:RegisterNumberConverter>
     </UserControl.Resources>
     <Grid RowDefinitions="Auto,*" Margin="5">
@@ -79,16 +79,16 @@
                               Padding="0" Margin="0,0,0,5">
                         <Expander.Styles>
                             <Style Selector="Expander ToggleButton#ExpanderHeader">
-                                <Setter Property="Background" Value="{StaticResource AlternateGrey}"/>
+                                <Setter Property="Background" Value="{DynamicResource AlternateGrey}"/>
                             </Style>
                             <Style Selector="Expander Border#ToggleButtonBackground">
-                                <Setter Property="Background" Value="{StaticResource AlternateGrey}"/>
+                                <Setter Property="Background" Value="{DynamicResource AlternateGrey}"/>
                             </Style>
                             <Style Selector="Expander ToggleButton#ExpanderHeader:pointerover">
-                                <Setter Property="Background" Value="{StaticResource AlternateGrey}"/>
+                                <Setter Property="Background" Value="{DynamicResource AlternateGrey}"/>
                             </Style>
                             <Style Selector="Expander ToggleButton#ExpanderHeader:pointerover Border#ToggleButtonBackground">
-                                <Setter Property="Background" Value="{StaticResource AlternateGrey}"/>
+                                <Setter Property="Background" Value="{DynamicResource AlternateGrey}"/>
                             </Style>
                         </Expander.Styles>
                         <DataGrid Classes="headerslim static nocellselect"

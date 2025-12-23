@@ -1,5 +1,4 @@
-﻿using Mercury.Engine.Common;
-using Mercury.Engine.Common.Builders;
+﻿using Mercury.Engine.Common.Builders;
 using Mercury.Engine.Mips.Instructions;
 using Mercury.Engine.Mips.Runtime;
 using Mercury.Engine.Mips.Runtime.OS;
@@ -69,7 +68,7 @@ public class MonocycleTest {
             .Build();
         
         Assert.IsNotNull(mipsMachine.DataMemory);
-        Assert.IsNotNull(mipsMachine.InstructionMemory);
+        Assert.IsNotNull(mipsMachine.Memory);
         Assert.IsNotNull(mipsMachine.Cpu);
         Assert.IsNotNull(mipsMachine.Os);
         Assert.IsNotNull(mipsMachine.Cpu.Machine);

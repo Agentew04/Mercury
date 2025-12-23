@@ -16,7 +16,6 @@ using Mercury.Engine.Mips.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mercury.Editor.Extensions;
-using Mercury.Engine;
 
 namespace Mercury.Editor.Services;
 
@@ -51,8 +50,8 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable {
         MemoryBuilder memoryBuilder = new MemoryBuilder()
             .With4Gb()
             .WithVolatileStorage()
-            .WithPageCapacity(16)
-            .WithPageSize(4096)
+            .WithBlockCapacity(16)
+            .WithBlockSize(4096)
             .WithEndianess(currentElf.Endianess == Endianess.BigEndian
                 ? Engine.Memory.Endianess.BigEndian
                 : Engine.Memory.Endianess.LittleEndian);
@@ -105,7 +104,7 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable {
             Symbols = symbol.Entries.Select(x => new Symbol(x.Name, x.Value)).ToList(),
             Files = objFiles
         };
-        Logger.LogInformation("ELF has {startCount} files and {symbolCount} symbols.",
+        Logger.LogInformation("ELF has {StartCount} files and {SymbolCount} symbols.",
             objFiles.Count,
             meta.Symbols.Count);
         

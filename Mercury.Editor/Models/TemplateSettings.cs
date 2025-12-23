@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Runtime.InteropServices.Marshalling;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Localization;
 using Mercury.Engine.Common;
-using Mercury.Engine;
 
 namespace Mercury.Editor.Models;
 
@@ -28,7 +24,7 @@ public class TemplateSettings {
 /// <summary>
 /// Represents an installed template on the system.
 /// </summary>
-public sealed class Template : IDisposable{
+public sealed class Template : IDisposable {
 
     public Template() {
         WeakReferenceMessenger.Default.Register<Template,LocalizationChangedMessage>(this, OnLocalizationChange);
@@ -37,7 +33,7 @@ public sealed class Template : IDisposable{
         }
         else {
             Console.WriteLine("Could not get localization for a template");
-            nameSub = new BehaviorSubject<string>("localization error. "+LocalizationManager.CurrentCulture.ToString());
+            nameSub = new BehaviorSubject<string>("localization error. "+LocalizationManager.CurrentCulture);
         }
         Name = nameSub;
     }
