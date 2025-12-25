@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.Json.Serialization;
 
 namespace Mercury.Editor.Models;
 
@@ -21,7 +22,11 @@ public class UserPreferences {
     /// <summary>
     /// The path to the compiler and linker executables.
     /// </summary>
-    public string CompilerPath { get; set; } = "";
+    public string CompilerDirectory { get; set; } = "";
+
+    [JsonIgnore] public static string CompilerFileName => $"clang{(OperatingSystem.IsWindows() ? ".exe" : string.Empty)}";
+    [JsonIgnore] public static string AssemblerFileName => $"llvm-mc{(OperatingSystem.IsWindows() ? ".exe" : string.Empty)}";
+    [JsonIgnore] public static string LinkerFileName => $"ld.lld{(OperatingSystem.IsWindows() ? ".exe" : string.Empty)}";
 
     /// <summary>
     /// The current language of the application.

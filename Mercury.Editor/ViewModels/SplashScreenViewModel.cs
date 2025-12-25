@@ -209,8 +209,8 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         linkerPath = CompilerGithubUrl + linkerPath;
         scriptPath = CompilerGithubUrl + scriptPath;
 
-        if (!Directory.Exists(settings.Preferences.CompilerPath)) {
-            Directory.CreateDirectory(settings.Preferences.CompilerPath);
+        if (!Directory.Exists(settings.Preferences.CompilerDirectory)) {
+            Directory.CreateDirectory(settings.Preferences.CompilerDirectory);
         }
 
         Task assemblerTask = Task.Run(async () => {
@@ -240,15 +240,20 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
 
             zipStream.Seek(0, SeekOrigin.Begin);
             using ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
-            ZipArchiveEntry? entry = archive.GetEntry("llvm-mc.exe");
+            ZipArchiveEntry? entry = archive.GetEntry(UserPreferences.AssemblerFileName);
             if (entry is null) {
+                Logger.LogError("Entry {Entry} not present on assembler zip file", UserPreferences.AssemblerFileName);
                 return;
             }
 
             await using Stream entryStream = entry.Open();
-            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "llvm-mc.exe"),
-                FileMode.OpenOrCreate);
+            string filepath = Path.Combine(settings.Preferences.CompilerDirectory, UserPreferences.AssemblerFileName);
+            await using var fs = new FileStream(filepath, FileMode.OpenOrCreate);
             await entryStream.CopyToAsync(fs);
+            if (OperatingSystem.IsLinux()) {
+                Logger.LogInformation("Execute permission set for file {File}", filepath);
+                File.SetUnixFileMode(filepath, UnixFileMode.UserExecute);
+            }
         });
         Task linkerTask = Task.Run(async () => {
             if (!getLinker) {
@@ -274,16 +279,21 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
 
             zipStream.Seek(0, SeekOrigin.Begin);
             using ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
-            ZipArchiveEntry? entry = archive.GetEntry("ld.lld.exe");
+            ZipArchiveEntry? entry = archive.GetEntry(UserPreferences.LinkerFileName);
             if (entry is null) {
+                Logger.LogError("Entry {Entry} not present on Linker Zip", UserPreferences.LinkerFileName);
                 return;
             }
 
             await using Stream entryStream = entry.Open();
-            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"),
-                FileMode.OpenOrCreate);
-            //progress?.AddNewQuota((ulong)entryStream.Length);
+            string filepath = Path.Combine(settings.Preferences.CompilerDirectory,
+                UserPreferences.LinkerFileName);
+            await using var fs = new FileStream(filepath, FileMode.OpenOrCreate);
             await entryStream.CopyToAsync(fs);
+            if (OperatingSystem.IsLinux()) {
+                Logger.LogInformation("Execute permission set for file {File}", filepath);
+                File.SetUnixFileMode(filepath, UnixFileMode.UserExecute);
+            }
         });
         Task scriptTask = Task.Run(async () => {
             if (!getScript) {
@@ -301,7 +311,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
                 
             Logger.LogInformation("Downloading linker script from {scriptPath}", scriptPath);
             await using Stream download = await response.Content.ReadAsStreamAsync();
-            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerPath, "linker.ld"),
+            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerDirectory, "linker.ld"),
                 FileMode.OpenOrCreate);
             await download.CopyToAsync(fs);
             Logger.LogInformation("Linker script downloaded successfully");
@@ -312,9 +322,9 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
     }
 
     private Task DownloadCompiler() {
-        bool hasAssembler = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "llvm-mc.exe"));
-        bool hasLinker = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "ld.lld.exe"));
-        bool hasLinkerScript = File.Exists(Path.Combine(settings.Preferences.CompilerPath, "linker.ld"));
+        bool hasAssembler = File.Exists(Path.Combine(settings.Preferences.CompilerDirectory, UserPreferences.AssemblerFileName));
+        bool hasLinker = File.Exists(Path.Combine(settings.Preferences.CompilerDirectory, UserPreferences.LinkerFileName));
+        bool hasLinkerScript = File.Exists(Path.Combine(settings.Preferences.CompilerDirectory, "linker.ld"));
 
         if (hasAssembler && hasLinker && hasLinkerScript) {
             return Task.CompletedTask;
@@ -344,6 +354,17 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         }
 
         await RequestDownload();
+        
+        // remove leading slash on read settings
+        // common, archs and os
+        guideSettings.Common = guideSettings.Common.Relativize(Path.DirectorySeparatorChar.ToString().ToDirectoryPath());
+        guideSettings.Architectures.ForEach(x => {
+            x.Path = x.Path.Relativize(Path.DirectorySeparatorChar.ToString().ToDirectoryPath());
+            x.Os.ForEach(y => {
+                y.Path = y.Path.Relativize(Path.DirectorySeparatorChar.ToString().ToDirectoryPath());
+            });
+        });
+        
         
         // update current guide settings with modified paths from new guide settings
         settings.GuideSettings.Version = guideSettings.Version;
@@ -397,6 +418,10 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         }
 
         await RequestDownload();
+        
+        libs.ForEach(x => {
+            x.Path = x.Path.Relativize(Path.DirectorySeparatorChar.ToString().ToDirectoryPath());
+        });
         
         // atualiza settings com as novas versoes
         settings.StdLibSettings.AvailableLibraries = libs.ForEachExt(x => {

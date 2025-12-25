@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Mercury.Editor.Extensions;
 using Mercury.Engine.Common;
@@ -22,12 +23,7 @@ public class GuideSettings {
     [JsonPropertyName("common")]
     public string CommonStr {
         get => Common.ToString();
-        set {
-            if (value.StartsWith('/') || value.StartsWith('\\')) {
-                value = value[1..];
-            }
-            Common = value.ToDirectoryPath();
-        }
+        set => Common = value.ToDirectoryPath();
     }
 
     /// <summary>
@@ -35,7 +31,6 @@ public class GuideSettings {
     /// </summary>
     [JsonPropertyName("architectures")]
     public List<GuideArchitecture> Architectures { get; set; } = [];
-
 }
 
 public class GuideArchitecture {
@@ -55,12 +50,7 @@ public class GuideArchitecture {
     [JsonPropertyName("path")]
     public string PathStr {
         get => Path.ToString();
-        set {
-            if (value.StartsWith('/') || value.StartsWith('\\')) {
-                value = value[1..];
-            }
-            Path = value.ToDirectoryPath();
-        }
+        set => Path = value.ToDirectoryPath();
     }
     
     /// <summary>
@@ -87,11 +77,6 @@ public class GuideOs {
     [JsonPropertyName("path")]
     public string PathStr {
         get => Path.ToString();
-        set {
-            if (value.StartsWith('/') || value.StartsWith('\\')) {
-                value = value[1..];
-            }
-            Path = value.ToDirectoryPath();
-        }
+        set => Path = value.ToDirectoryPath();
     }
 }

@@ -40,7 +40,7 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
     
     public void Load() {
         SelectedLanguageIndex = AvailableLanguages.IndexOf(LocalizationManager.CurrentCulture);
-        CompilerPath = settings.Preferences.CompilerPath;
+        CompilerPath = settings.Preferences.CompilerDirectory;
         ConfigVersion = settings.Preferences.ConfigVersion;
         OnlineCheck = settings.Preferences.OnlineCheckFrequency.ToString("g");
         
@@ -63,7 +63,7 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
             LocalizationManager.CurrentCulture = AvailableLanguages[SelectedLanguageIndex];
         }
 
-        settings.Preferences.CompilerPath = CompilerPath;
+        settings.Preferences.CompilerDirectory = CompilerPath;
         if (TimeSpan.TryParse(OnlineCheck, out TimeSpan check)) {
             settings.Preferences.OnlineCheckFrequency = check;
         }

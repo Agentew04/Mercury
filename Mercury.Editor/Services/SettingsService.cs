@@ -66,18 +66,18 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
         // parallel serialization
         await using Stream sPref = File.OpenWrite(PreferencesPath.ToString());
         Task prefTask = JsonSerializer.SerializeAsync(sPref, Preferences, SettingsSerializerContext.Default.UserPreferences);
-        sPref.SetLength(sPref.Position);
         await using Stream sStd = File.OpenWrite(StdLibSettingsPath.ToString());
         Task stdTask = JsonSerializer.SerializeAsync(sStd, StdLibSettings, SettingsSerializerContext.Default.StandardLibrarySettings);
-        sStd.SetLength(sStd.Position);
         await using Stream sGuide = File.OpenWrite(GuideSettingsPath.ToString());
         Task guideTask = JsonSerializer.SerializeAsync(sGuide, GuideSettings, SettingsSerializerContext.Default.GuideSettings);
-        sGuide.SetLength(sGuide.Position);
         await using Stream sTemplate = File.OpenWrite(TemplateSettingsPath.ToString());
         Task templateTask = JsonSerializer.SerializeAsync(sTemplate, TemplateSettings, SettingsSerializerContext.Default.TemplateSettings);
-        sTemplate.SetLength(sTemplate.Position);
 
         await Task.WhenAll(prefTask, stdTask, guideTask, templateTask);
+        sPref.SetLength(sPref.Position);
+        sStd.SetLength(sStd.Position);
+        sGuide.SetLength(sGuide.Position);
+        sTemplate.SetLength(sTemplate.Position);
     }
 
     public async Task LoadSettings() {
@@ -120,9 +120,9 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// Returns the default settings and preferences for a fresh installation.
     /// </summary>
     public UserPreferences GetDefaultPreferences() => new(){
-        CompilerPath = AppDirectory.Folder("compiler").ToString(),
+        CompilerDirectory = AppDirectory.Folder("compiler").ToString(),
         Language = CultureInfo.InstalledUICulture,
-        OnlineCheckFrequency = TimeSpan.FromDays(1),
+        OnlineCheckFrequency = TimeSpan.FromHours(24),
         LastOnlineCheck = DateTime.MinValue,
         Theme = "Dark"
     };

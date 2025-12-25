@@ -48,11 +48,6 @@ public class StandardLibrary {
     [JsonPropertyName("path")]
     public string PathStr {
         get => Path.ToString();
-        set {
-            if (value.StartsWith('/') || value.StartsWith('\\')) {
-                value = value[1..];
-            }
-            Path = value.ToDirectoryPath();
-        }
+        set => Path = value.ToDirectoryPath();
     }
 }

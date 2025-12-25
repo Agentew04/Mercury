@@ -18,12 +18,10 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
 
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
-    private string AssemblerPath => Path.Combine(settingsService.Preferences.CompilerPath,
-        OperatingSystem.IsWindows() ? "llvm-mc.exe" : "llvm-mc");
+    private string AssemblerPath => Path.Combine(settingsService.Preferences.CompilerDirectory, UserPreferences.AssemblerFileName);
     
-    private string LinkerPath => Path.Combine(settingsService.Preferences.CompilerPath, 
-        OperatingSystem.IsWindows() ? "ld.lld.exe" : "ld.lld");
-    private string LinkerScriptPath => Path.Combine(settingsService.Preferences.CompilerPath, "linker.ld");
+    private string LinkerPath => Path.Combine(settingsService.Preferences.CompilerDirectory, UserPreferences.LinkerFileName);
+    private string LinkerScriptPath => Path.Combine(settingsService.Preferences.CompilerDirectory, "linker.ld");
 
     private const string EntryPointPreambule = ".globl __start\n__start:\n";
     
@@ -82,6 +80,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
             .ToList();
         // se algum nao compilou corretamente, falha
         if (compilations.Any(x => !x.Success)) {
+            Logger.LogDebug("One of the compilations was not sucessfull: file {File}", compilations.First(x => !x.Success).OutputFilePath);
             return LastCompilationResult = new CompilationResult() {
                 Error = CompilationError.CompilationError,
                 OutputPath = null,
@@ -99,8 +98,10 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
             exePath.ToString());
         diagnostics.AddRange(link.Diagnostics is not null
             ? ParseDiagnostics(link.Diagnostics, pathMapping, injectedLinesMapping) : []);
+        link.Diagnostics?.Dispose();
         // se nao conseguiu linkar, da erro
         if (!link.Success) {
+            Logger.LogDebug("Link operation was not successful");
             return LastCompilationResult = new CompilationResult() {
                 Error = CompilationError.LinkError,
                 OutputPath = null,
@@ -111,7 +112,6 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         }
         
         // Libera recursos da compilacao
-        if (link.Diagnostics is not null) await link.Diagnostics.DisposeAsync();
         compilations.ForEach(x => x.Diagnostics?.Dispose());
         
         // 7. Retorna a compilacao
@@ -136,15 +136,16 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
             MemoryStream ms = new();
             CompilationError result = await RunCommand(assemblerPath, commandArgs,
                 TimeSpan.FromMilliseconds(300),
-                ms);
+                ms, null);
             ms.Seek(0, SeekOrigin.Begin);
             if (result != CompilationError.None) {
                 StreamReader sr = new(ms, leaveOpen: true);
-                Logger.LogDebug("llvm-mc exit code non zero. output for {file}: {output}", file, await sr.ReadToEndAsync(t));
+                Logger.LogDebug("llvm-mc exit code non zero. Code: {Code} output for {file}: {output}", result, file, await sr.ReadToEndAsync(t));
                 sr.Dispose();
                 ms.Seek(0, SeekOrigin.Begin);
             }
             lock (results) {
+                Logger.LogDebug("llvm-mc compilation sucess for file {File}", file);
                 results.Add(new ProcessResult() {
                     Success = result == CompilationError.None,
                     OutputFilePath = result == CompilationError.None ? outputName : null,
@@ -159,7 +160,14 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         string linker = LinkerPath;
         string args = $"-T \"{LinkerScriptPath}\" -static -O0 -oformat=elf --nostdlib --no-pie {string.Join(' ', objectFiles.Select(x => '"'+x+'"'))} -o \"{elfFile}\"";
         MemoryStream ms = new();
-        CompilationError result = await RunCommand(linker, args, TimeSpan.FromMilliseconds(500), ms);
+        CompilationError result = await RunCommand(linker, args, TimeSpan.FromMilliseconds(500), ms, settingsService.Preferences.CompilerDirectory);
+
+        if (result != CompilationError.None)
+        {
+            ms.Seek(0, SeekOrigin.Begin);
+            using StreamReader sr = new(ms, leaveOpen: true);
+            Logger.LogDebug("Link operation failed. Message: {Message}", sr.ReadToEnd());
+        }
         ms.Seek(0, SeekOrigin.Begin);
         return new ProcessResult() {
             Success = result == CompilationError.None,
@@ -228,7 +236,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
     [GeneratedRegex(@"^(?<path>.+):(?<line>\d+):(?<column>\d+): (?<type>error|warning): (?<message>.+)$")]
     private static partial Regex ClangDiagnosticRegex();
 
-    private async Task<CompilationError> RunCommand(string path, string arguments, TimeSpan timeout, Stream output)
+    private async Task<CompilationError> RunCommand(string path, string arguments, TimeSpan timeout, Stream output, string? workingDir)
     {
         ProcessStartInfo startInfo = new() {
             FileName = path,
@@ -238,6 +246,10 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
             UseShellExecute = false,
             CreateNoWindow = true
         };
+
+        if (workingDir is not null) {
+            startInfo.WorkingDirectory = workingDir;
+        }
         
         using CancellationTokenSource processCts = new(timeout);
         
@@ -245,11 +257,12 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         try {
             process = Process.Start(startInfo);
         }
-        catch (Exception) {
+        catch (Exception ex) {
+            Logger.LogError(ex, "Process.Start raised exception. Command: {Cmd}. Error Message: {Msg}", path+" "+arguments, ex.Message);
             return CompilationError.ProgramError;
         }
         if (process is null) {
-            // OS reutilizou um outro processo. nao deveria acontecer nunca
+            // OS reutilizou outro processo. nao deveria acontecer nunca
             Logger.LogError("Started process is null. This should never happen when UseShellExecute = false. Its joever");
             return CompilationError.InternalError;
         }
@@ -264,8 +277,8 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
             return CompilationError.TimeoutError;
         }
 
-        using CancellationTokenSource copyOutputCts = new(TimeSpan.FromMilliseconds(500));
-        await process.StandardError.BaseStream.CopyToAsync(output, copyOutputCts.Token);
+        //using CancellationTokenSource copyOutputCts = new(TimeSpan.FromMilliseconds(500));
+        await process.StandardError.BaseStream.CopyToAsync(output);
         CompilationError error = process.ExitCode == 0 ? CompilationError.None : CompilationError.CompilationError;
         process.Close();
         return error;

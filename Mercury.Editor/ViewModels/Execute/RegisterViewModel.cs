@@ -119,6 +119,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
 
     private void LoadRegisters(int processorTabIndex) {
         RegisterGroups.Clear();
+        if (architectureMetadata is null) return;
         Processor proc = architectureMetadata.Processors[processorTabIndex];
 
         IEnumerable<IGrouping<Type, RegisterDefinition>> groups = proc.Registers.GroupBy(x => x.Type);
