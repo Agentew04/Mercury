@@ -20,7 +20,7 @@
             "mc": "/linux-x64/llvm-mc.zip",
             "lld": "/linux-x64/ld.lld.zip",
             "linkerscript": "/linker.ld",
-            "version": 1,
+            "version": 2,
             "available": true
         }
     },
