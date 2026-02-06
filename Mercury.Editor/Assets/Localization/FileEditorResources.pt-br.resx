@@ -41,4 +41,40 @@
     <data name="NoOpenFilesText" xml:space="preserve">
         <value>Nenhum arquivo aberto</value>
     </data>
+    <data name="IntellisenseAsciizDataDescription" xml:space="preserve">
+        <value>Define uma string com terminador '\0'</value>
+    </data>
+    <data name="IntellisenseAsciiDataDescription" xml:space="preserve">
+        <value>Define uma string sem terminador '\0'</value>
+    </data>
+    <data name="IntellisenseDataSectionDescription" xml:space="preserve">
+        <value>Declara o início da seção de dados</value>
+    </data>
+    <data name="IntellisenseDoubleDataDescription" xml:space="preserve">
+        <value>Define um número de ponto flutuante de 64 bits</value>
+    </data>
+    <data name="IntellisenseFloatDataDescription" xml:space="preserve">
+        <value>Define um número de ponto flutuante de 32 bits</value>
+    </data>
+    <data name="IntellisenseGloblDescription" xml:space="preserve">
+        <value>Marca um símbolo como acessível em outros arquivos</value>
+    </data>
+    <data name="IntellisenseMacroEndDescription" xml:space="preserve">
+        <value>Termina uma definição de macro</value>
+    </data>
+    <data name="IntellisenseMacroStartDescription" xml:space="preserve">
+        <value>Começa uma definição de macro</value>
+    </data>
+    <data name="IntellisenseSpaceDataDescription" xml:space="preserve">
+        <value>Define um vetor de bytes</value>
+    </data>
+    <data name="IntellisenseTextSectionDescription" xml:space="preserve">
+        <value>Declara o início da seção de instruções</value>
+    </data>
+    <data name="IntellisenseWordDataDescription" xml:space="preserve">
+        <value>Define um número de 32 bits inteiro</value>
+    </data>
+    <data name="IntellisenseAlignDescription" xml:space="preserve">
+        <value>Determina o alinhamento dos dados</value>
+    </data>
 </root>

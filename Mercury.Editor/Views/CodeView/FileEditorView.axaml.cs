@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using AvaloniaEdit;
 using AvaloniaEdit.CodeCompletion;
 using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Models;
@@ -23,9 +24,27 @@ public partial class FileEditorView : UserControl {
         ViewModel.SetView(this);
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
         TextEditor.TextArea.TextEntering += TextEntering;
-        TextEditor.TextArea.TextEntered += TextEntered;
+        // TextEditor.TextArea.TextEntered += TextEntered;
+        TextEditor.PointerHover += PointerHover;
+        TextEditor.PointerHoverStopped += PointerHoverStopped;
     }
-    
+
+    private void PointerHoverStopped(object? sender, PointerEventArgs e) {
+        ToolTip.SetIsOpen(TextEditor, false);
+    }
+
+    private void PointerHover(object? sender, PointerEventArgs e) {
+        // https://stackoverflow.com/questions/51711692/how-to-fire-an-event-when-mouse-hover-over-a-specific-text-in-avalonedit
+        TextViewPosition? pos = TextEditor.GetPositionFromPoint(e.GetPosition(TextEditor));
+        if (pos != null) {
+            // TODO: pegar texto a partir da posicao, ver se eh diretiva. mostrar texto custom
+            ToolTip.SetIsOpen(TextEditor, true);
+            ToolTip.SetPlacement(this, PlacementMode.Pointer);
+            ToolTip.SetTip(TextEditor, pos.ToString());
+            e.Handled = true;
+        }
+    }
+
 
     private static void OnFileOpen(object recipient, FileOpenMessage message) {
         FileEditorView view = (FileEditorView)recipient;
@@ -71,14 +90,14 @@ public partial class FileEditorView : UserControl {
         }
     }
 
-    private void TextEntered(object? sender, TextInputEventArgs e) {
-        // complete this method with something like the code below
-        // to be able to auto complete the text with a key different
-        // from tab or enter;
-        /* if(e.Text?.Length > 0 && completionWindow != null) {
-             if(!char.IsLetterOrDigit(e.Text[0])) {
-                 completionWindow.CompletionList.RequestInsertion(e);
-             }
-         }*/
-    }
+    // private void TextEntered(object? sender, TextInputEventArgs e) {
+    //     // complete this method with something like the code below
+    //     // to be able to auto complete the text with a key different
+    //     // from tab or enter;
+    //     /* if(e.Text?.Length > 0 && completionWindow != null) {
+    //          if(!char.IsLetterOrDigit(e.Text[0])) {
+    //              completionWindow.CompletionList.RequestInsertion(e);
+    //          }
+    //      }*/
+    // }
 }

@@ -4,6 +4,7 @@ using Avalonia.Media;
 using AvaloniaEdit.CodeCompletion;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Editing;
+using Mercury.Editor.Localization;
 
 namespace Mercury.Editor.Models;
 
@@ -31,9 +32,19 @@ public class TextCompletionData : ICompletionData
     public object Description {
         get {
             return Text switch {
-                ".ascii" => "Define uma string ASCII sem terminador \\0.",
-                ".asciiz" => "Define uma string ASCII com terminador \\0.",
-                _ => $"Descrição de {Text}"
+                ".macro" => FileEditorResources.IntellisenseMacroStartDescriptionValue,
+                ".text" => FileEditorResources.IntellisenseTextSectionDescriptionValue,
+                ".data" => FileEditorResources.IntellisenseDataSectionDescriptionValue,
+                ".ascii" => FileEditorResources.IntellisenseAsciiDataDescriptionValue,
+                ".asciiz" => FileEditorResources.IntellisenseAsciizDataDescriptionValue,
+                ".word" => FileEditorResources.IntellisenseWordDataDescriptionValue,
+                ".space" => FileEditorResources.IntellisenseSpaceDataDescriptionValue,
+                ".globl" => FileEditorResources.IntellisenseGloblDescriptionValue,
+                ".align" => FileEditorResources.IntellisenseAlignDescriptionValue,
+                ".float" => FileEditorResources.IntellisenseFloatDataDescriptionValue,
+                ".double" => FileEditorResources.IntellisenseDoubleDataDescriptionValue,
+                ".endmacro" => FileEditorResources.IntellisenseMacroEndDescriptionValue,
+                _ => Text
             };
         }
     }

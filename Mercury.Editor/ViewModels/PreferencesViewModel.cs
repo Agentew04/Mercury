@@ -60,6 +60,7 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
         if (!AvailableLanguages[SelectedLanguageIndex].Equals(LocalizationManager.CurrentCulture)) {
             Logger.LogInformation("Changing to culture: {culture}", AvailableLanguages[SelectedLanguageIndex]);
             LocalizationManager.CurrentCulture = AvailableLanguages[SelectedLanguageIndex];
+            settings.Preferences.Language = LocalizationManager.CurrentCulture;
             // cheap hack para nao precisar localizar os itens da arvore de arquivos
             WeakReferenceMessenger.Default.Send<ProjectTreeInvalidationMessage>();
         }
