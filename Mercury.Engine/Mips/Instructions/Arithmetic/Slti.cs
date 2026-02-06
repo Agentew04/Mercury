@@ -1,18 +1,21 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,10)] // opcode
-public partial class Slti : TypeIInstruction {
+[Instruction]
+[FormatExact(31,26,10)] // opcode
+public partial class Slti : IInstruction {
 
-    public Slti() {
-        OpCode = 0b001010;
-        ParseOptions = PopulationOptions.Rt | PopulationOptions.Rs | PopulationOptions.Immediate;
-    }
-
-    [GeneratedRegex(@"^\s*slti\s+\$(?<rt>\S+),\s*\$(?<rs>\S+),\s*(?<immediate>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Rs { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rt)}, ${TranslateRegisterName(Rs)}, {Immediate}" + FormatTrivia();
+    [Field(20,16)]
+    public byte Rt { get; set; }
+    
+    [Field(15,0)]
+    public short Immediate { get; set; }
+
+    public override string ToString() =>
+        $"slti ${Instruction.TranslateRegisterName(Rt)}, ${Instruction.TranslateRegisterName(Rs)}, {Immediate}";
 }

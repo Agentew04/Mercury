@@ -9,6 +9,8 @@ public class MipsMachineBuilder : MachineBuilder
 {
     private IMipsCpu? cpu;
     private MipsOperatingSystem? os;
+    private Func<SignalExceptionEventArgs, Task>? signalHandler;
+    private OsType osType = OsType.NotSet;
     
     public MipsMachineBuilder(MachineBuilder builder) : base(builder){}
 
@@ -18,10 +20,10 @@ public class MipsMachineBuilder : MachineBuilder
         return this;
     }
 
-    public MipsMachineBuilder WithMipsPipeline() {
-        cpu = new SimplePipeline();
-        return this;
-    }
+    // public MipsMachineBuilder WithMipsPipeline() {
+    //     cpu = new SimplePipeline();
+    //     return this;
+    // }
 
     public MipsMachineBuilder WithCpu(IMipsCpu cpu)
     {
@@ -31,13 +33,38 @@ public class MipsMachineBuilder : MachineBuilder
     
     public MipsMachineBuilder WithMarsOs()
     {
+        if (osType != OsType.NotSet) {
+            throw new NotSupportedException("OS type already set.");
+        }
+        osType = OsType.Named;
         os = new Mars();
         return this;
     }
 
     public MipsMachineBuilder WithOs(MipsOperatingSystem os)
     {
+        if (osType != OsType.NotSet) {
+            throw new NotSupportedException("OS type already set.");
+        }
+        osType = OsType.Named;
         this.os = os;
+        return this;
+    }
+
+    public MipsMachineBuilder WithBareMetal() {
+        if (osType != OsType.NotSet) {
+            throw new NotSupportedException("OS type already set.");
+        }
+        osType = OsType.BareMetal;
+        return this;
+    }
+
+    public MipsMachineBuilder WithAnonymousOs(Func<SignalExceptionEventArgs,Task> handler) {
+        if (osType != OsType.NotSet) {
+            throw new NotSupportedException("OS type already set.");
+        }
+        osType = OsType.Anonymous;
+        signalHandler = handler;
         return this;
     }
 
@@ -55,9 +82,9 @@ public class MipsMachineBuilder : MachineBuilder
         {
             throw new InvalidOperationException("CPU must be set.");
         }
-        if (os is null)
+        if (osType == OsType.NotSet)
         {
-            throw new InvalidOperationException("Operating System must be set.");
+            throw new InvalidOperationException("Operating System must be set or use bare metal");
         }
 
         MipsMachine mipsMachine = new(cpu, os) {
@@ -71,10 +98,21 @@ public class MipsMachineBuilder : MachineBuilder
         
         // realiza links de hardware
         cpu.Machine = mipsMachine;
-        os.Machine = mipsMachine;
-        cpu.SignalException += async e => {
-            await os.OnSignalBreak(e);
-        };
+        if (osType == OsType.Named) {
+            os!.Machine = mipsMachine;
+            cpu.SignalException += async e => {
+                await os.OnSignalBreak(e);
+            };
+        }else if (osType == OsType.Anonymous) {
+            cpu.SignalException += signalHandler;
+        }
         return mipsMachine;
+    }
+
+    private enum OsType {
+        NotSet,
+        Named,
+        Anonymous,
+        BareMetal
     }
 }

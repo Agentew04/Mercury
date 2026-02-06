@@ -56,7 +56,7 @@ public sealed partial class Monocycle : IMipsCpu {
             (ulong)Registers.Get(MipsGprRegisters.Pc));
 
         // decode
-        Instruction? instruction = Disassembler.Disassemble((uint)instructionBinary);
+        IInstruction? instruction = Disassembler.Disassemble((uint)instructionBinary);
         if(instruction is null) {
             if (SignalException is null) return;
             await SignalException.Invoke(new SignalExceptionEventArgs {
@@ -110,21 +110,6 @@ public sealed partial class Monocycle : IMipsCpu {
     }
     
     public event Func<SignalExceptionEventArgs, Task>? SignalException;
-
-    private ValueTask Execute(Instruction instruction) {
-        switch (instruction) {
-            case TypeRInstruction r:
-                return ExecuteTypeR(r);
-            case TypeIInstruction i:
-                return ExecuteTypeI(i);
-            case TypeJInstruction j:
-                ExecuteTypeJ(j);
-                break;
-            case TypeFInstruction f:
-                return ExecuteTypeF(f);
-        }
-        return ValueTask.CompletedTask;
-    }
 
     private static bool IsOverflowed(int a, int b, int result) {
         return (a > 0 && b > 0 && result < 0) || (a < 0 && b < 0 && result > 0);

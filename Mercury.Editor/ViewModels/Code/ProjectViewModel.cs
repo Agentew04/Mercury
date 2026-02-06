@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -19,18 +20,18 @@ using Path = System.IO.Path;
 
 namespace Mercury.Editor.ViewModels.Code;
 
-public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel, ProblemsView> {
+public partial class ProjectViewModel : BaseViewModel<ProjectViewModel, ProblemsView> {
 
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly FileService fileService = App.Services.GetRequiredService<FileService>();
 
     public ProjectViewModel() {
-        List<ProjectNode> tree = fileService.GetProjectTree();
-        foreach (ProjectNode node in tree) {
-            SetCommands(node);
-        }
-
-        Nodes = new ObservableCollection<ProjectNode>(tree);
+        BuildTree();
+        WeakReferenceMessenger.Default.Register<ProjectViewModel, ProjectTreeInvalidationMessage>(this,
+            static (vm, msg) => {
+                vm.Logger.LogInformation("Invalidation. Rebuilding");
+                vm.BuildTree();
+            });
     }
 
     private void SetCommands(ProjectNode node) {
@@ -87,30 +88,24 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel, Problem
             SetCommands(child);
         }
     }
+
+    private void BuildTree() {
+        List<ProjectNode> tree = fileService.GetProjectTree();
+        foreach (ProjectNode node in tree) {
+            SetCommands(node);
+        }
+        Nodes.Clear();
+        Nodes.AddRange(tree);
+    }
     
     [ObservableProperty] private ObservableCollection<ProjectNode> nodes = [];
 
     [ObservableProperty] private ProjectNode selectedNode = null!;
-
-    // partial void OnSelectedNodeChanged(ProjectNode? value) {
-    //     if (value is null) {
-    //         return;
-    //     }
-    //     Logger.LogInformation($"Selected node: {value.Name}. Type: {value.Type}");
-    //
-    //     if (value.Type == ProjectNodeType.AssemblyFile) {
-    //         Logger.LogInformation("Abrindo arquivo " + value.Name);
-    //         WeakReferenceMessenger.Default.Send(new FileOpenMessage
-    //         {
-    //             ProjectNode = value
-    //         });
-    //     }
-    // }
-
+    
     public void SelectNode(ProjectNode value) {
-        Logger.LogInformation($"Selected node: {value.Name}. Type: {value.Type}");
+        Logger.LogInformation("Selected node: {Name}. Type: {Type}", value.Name, value.Type);
         if (value.Type == ProjectNodeType.AssemblyFile) {
-            Logger.LogInformation("Abrindo arquivo " + value.Name);
+            Logger.LogInformation("Abrindo arquivo {Name}", value.Name);
             WeakReferenceMessenger.Default.Send(new FileOpenMessage
             {
                 ProjectNode = value
@@ -221,10 +216,7 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel, Problem
         if (node is null) {
             return;
         }
-        ProjectFile? project = projectService.GetCurrentProject();
-        Debug.Assert(project != null, "project != null (SetEntryPoint)");
-        project.EntryFile = fileService.GetRelativePath(node.Id);
-        projectService.SaveProject();
+        fileService.SetNewEntryPoint(node.Id);
     }
 
     private bool CanSetEntryPoint(ProjectNode? node) {
@@ -343,9 +335,6 @@ public partial class ProjectViewModel : BaseViewModel<ProblemsViewModel, Problem
         // as vezes o Drop pode nao ser chamado
         draggedNode = null;
     }
-
-    public bool IsEntryPoint(ProjectNode node) => fileService.IsEntryPoint(node.Id);
-
 
     #endregion
 

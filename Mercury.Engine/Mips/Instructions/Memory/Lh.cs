@@ -1,18 +1,20 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,33)] // opcode
-public partial class Lh : TypeIInstruction {
+[Instruction]
+[FormatExact(31,26,33)]
+public partial class Lh : IInstruction {
 
-    public Lh() {
-        OpCode = 0b100001;
-        ParseOptions = PopulationOptions.Rt | PopulationOptions.Rs | PopulationOptions.Immediate;
-    }
-
-    [GeneratedRegex(@"^\s*lh\s+\$(?<rt>\S+),\s*(?<immediate>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\(\$(?<rs>\S+)\)\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Base { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rt)}, {Immediate}(${TranslateRegisterName(Rs)})" + FormatTrivia();
+    [Field(20,16)]
+    public byte Rt { get; set; }
+    
+    [Field(15,0)]
+    public short Offset { get; set; }
+    
+    public override string ToString() => $"lh ${Instruction.TranslateRegisterName(Rt)}, {Offset}(${Instruction.TranslateRegisterName(Base)})";
 }

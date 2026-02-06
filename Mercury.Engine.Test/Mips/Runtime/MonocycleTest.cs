@@ -1,4 +1,5 @@
-﻿using Mercury.Engine.Common.Builders;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Common.Builders;
 using Mercury.Engine.Mips.Instructions;
 using Mercury.Engine.Mips.Runtime;
 using Mercury.Engine.Mips.Runtime.OS;
@@ -39,7 +40,7 @@ public class MonocycleTest {
                 return Task.CompletedTask;
             }
 
-            Instruction? inst = Disassembler.Disassemble((uint)e.Instruction);
+            IInstruction? inst = Disassembler.Disassemble((uint)e.Instruction);
             if(inst is not Break brk) {
                 return Task.CompletedTask;
             }
@@ -50,7 +51,7 @@ public class MonocycleTest {
         };
         cpu.UseBranchDelaySlot = false;
         while (!cpu.IsClockingFinished() && !hasBreaked) {
-            cpu.ClockAsync().AsTask().GetAwaiter().GetResult();
+                     cpu.ClockAsync().AsTask().GetAwaiter().GetResult();
         }
     }
 

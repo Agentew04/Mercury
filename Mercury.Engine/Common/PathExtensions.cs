@@ -51,29 +51,7 @@ public static class PathExtensions {
         return folder.File(file);
     }
 
-    /// <summary>
-    /// Checks if the path exists. If the path is a directory, calls <see cref="Directory.Exists"/>. If
-    /// the path is a file, calls <see cref="File.Exists"/>.
-    /// </summary>
-    /// <param name="path">The path to check</param>
-    /// <returns>Wether the path exists or not in the disk</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool Exists(this PathObject path) {
-        return path.IsFile ? File.Exists(path.ToString()) : Directory.Exists(path.ToString());
-    }
-
-    /// <summary>
-    /// Deletes an entire path. If the path is a directory, deletes recursively.
-    /// </summary>
-    /// <param name="path">The path to be deleted</param>
-    /// <exception cref="IOException">Thrown when a file could not be deleted from a directory</exception>
-    public static void Delete(this PathObject path) {
-        if (path.IsFile) {
-            File.Delete(path.ToString());
-            return;
-        }
-        Directory.Delete(path.ToString(), true);
-    }
+    
 }
 
 /// <summary>
@@ -333,6 +311,43 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
 
     public override int GetHashCode() {
         return HashCode.Combine(Parts, IsAbsolute, IsDirectory, IsFile, Filename, Extension);
+    }
+    
+    /// <summary>
+    /// Checks if the path exists. If the path is a directory, calls <see cref="Directory.Exists"/>. If
+    /// the path is a file, calls <see cref="File.Exists"/>.
+    /// </summary>
+    /// <param name="path">The path to check</param>
+    /// <returns>Whether the path exists or not in the disk</returns>
+    public bool Exists() {
+        return IsFile ? System.IO.File.Exists(ToString()) : Directory.Exists(ToString());
+    }
+
+    /// <summary>
+    /// Deletes an entire path. If the path is a directory, deletes recursively.
+    /// </summary>
+    /// <param name="path">The path to be deleted</param>
+    /// <exception cref="IOException">Thrown when a file could not be deleted from a directory</exception>
+    public void Delete() {
+        if (IsFile) {
+            System.IO.File.Delete(ToString());
+            return;
+        }
+        Directory.Delete(ToString(), true);
+    }
+
+    /// <summary>
+    /// Creates a file or folder in the specified place.
+    /// </summary>
+    public void Create() {
+        if (IsFile) {
+            if (!Exists()) {
+                System.IO.File.Create(ToString()).Close();
+            }
+        }
+        else {
+            Directory.CreateDirectory(ToString());
+        }
     }
 }
 

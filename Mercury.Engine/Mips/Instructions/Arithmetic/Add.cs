@@ -1,20 +1,24 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions; 
 
-[FormatExact<Instruction>(31,26,0)]
-[FormatExact<Instruction>(5,0,32)]
-public partial class Add : TypeRInstruction {
+[Instruction]
+[FormatExact(31,26,0)]
+[FormatExact(10,6,0)]
+[FormatExact(5,0,32)]
+public partial class Add : IInstruction {
 
-    public Add() {
-        Function = 0x20;
-        ShiftAmount = 0;
-        ParseOptions = PopulationOptions.Rd | PopulationOptions.Rs | PopulationOptions.Rt;
-    }
+    [Field(25,21)]
+    public byte Rs { get; set; }
+    
+    [Field(20,16)]
+    public byte Rt { get; set; }
+    
+    [Field(15,11)]
+    public byte Rd { get; set; }
 
-    [GeneratedRegex(@"^\s*add\s+\$(?<rd>\S+?)\s*,\s*\$(?<rs>\S+?)\s*,\s*\$(?<rt>\S+?)\s*$")]
-    public override partial Regex GetRegularExpression();
-
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}, ${TranslateRegisterName(Rs)}, ${TranslateRegisterName(Rt)}" + FormatTrivia();
+    public override string ToString() =>
+        $"add ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rs)}, " +
+        $"${Instruction.TranslateRegisterName(Rt)}";
 }

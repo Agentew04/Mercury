@@ -1,33 +1,27 @@
-﻿using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,17)] // opcode
-[FormatExact<Instruction>(25,21,[16,17,20])] // rs
-[FormatExact<Instruction>(5,0,1)] // funct
-public class Sub_float : TypeFInstruction
-{
-    public byte Fmt { get; private set; }
-    public byte Ft { get; private set; }
-    public byte Fs { get; private set; }
-    public byte Fd { get; private set; }
-    
-    public bool IsDouble => Fmt == DoublePrecisionFormat;
-    
-    public override string ToString() => $"sub.{FormatFmt(Fmt)} ${TranslateRegisterName(Fd)}, ${TranslateRegisterName(Fs)}, ${TranslateRegisterName(Ft)}" + FormatTrivia();
+[Instruction]
+[FormatExact(31,26,17)]
+[FormatExact(25,21,[16,17,20])]
+[FormatExact(5,0,1)]
+public partial class SubFloat : IInstruction {
 
-    public override void FromInt(int instruction)
-    {
-        throw new NotImplementedException();
-    }
+    [Field(25,21)]
+    public byte Format { get; set; }
 
-    public override int ConvertToInt()
-    {
-        return OpCode << 26 // opcode
-               | (Fmt & 0b11111) << 21 // fmt
-               | (Ft & 0b11111) << 16 // ft
-               | (Fs & 0b11111) << 11 // fs
-               | (Fd & 0b11111) << 6 // fd
-               | 0b000001; // sub
-    }
+    [Field(20,16)]
+    public byte Ft { get; set; }
+
+    [Field(15,11)]
+    public byte Fs { get; set; }
+
+    [Field(10,6)]
+    public byte Fd { get; set; }
+
+    public bool IsDouble => Format == TypeFInstruction.DoublePrecisionFormat;
+
+    public override string ToString() => $"sub.{TypeFInstruction.FormatFmt(Format)} ${TypeFInstruction.TranslateRegisterName(Fd)}, ${TypeFInstruction.TranslateRegisterName(Fs)}, ${TypeFInstruction.TranslateRegisterName(Ft)}";
 }

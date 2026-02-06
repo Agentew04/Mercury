@@ -34,12 +34,12 @@ public abstract class TypeFInstruction : Instruction
         return int.Parse(name[1..]);
     }
     
-    protected new static string TranslateRegisterName(int index)
+    public new static string TranslateRegisterName(int index)
     {
         return $"f{index}";
     }
 
-    protected static string FormatFmt(byte fmt)
+    public static string FormatFmt(byte fmt)
     {
         return fmt switch
         {

@@ -1,21 +1,22 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,0)] // opcode
-[FormatExact<Instruction>(5,0,35)] // funct
-[FormatExact<Instruction>(10,6,0)] // shamt
-public partial class Subu : TypeRInstruction {
+[Instruction]
+[FormatExact(31,26,0)] // opcode
+[FormatExact(5,0,35)] // funct
+[FormatExact(10,6,0)] // shamt
+public partial class Subu : IInstruction {
 
-    public Subu() {
-        Function = 0x23;
-        ShiftAmount = 0;
-        ParseOptions = PopulationOptions.Rd | PopulationOptions.Rs | PopulationOptions.Rt;
-    }
-
-    [GeneratedRegex(@"^\s*subu\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*,\s*\$(?<rt>\S+)\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Rs { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}, ${TranslateRegisterName(Rs)}, ${TranslateRegisterName(Rt)}" + FormatTrivia();
+    [Field(20,16)]
+    public byte Rt { get; set; }
+    
+    [Field(15,11)]
+    public byte Rd { get; set; }
+    
+    public override string ToString() => $"subu ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rs)}, ${Instruction.TranslateRegisterName(Rt)}";
 }

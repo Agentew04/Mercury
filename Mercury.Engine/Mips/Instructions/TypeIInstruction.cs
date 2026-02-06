@@ -5,15 +5,7 @@ namespace Mercury.Engine.Mips.Instructions;
 public abstract class TypeIInstruction : Instruction {
 
     public byte Rs { get; set; }
-
-    /// <summary>
-    /// The register that normally receives the result value
-    /// </summary>
     public byte Rt { get; set; }
-
-    /// <summary>
-    /// A signed 16 bit immediate value
-    /// </summary>
     public short Immediate { get; set; }
 
     protected PopulationOptions ParseOptions { get; init; }

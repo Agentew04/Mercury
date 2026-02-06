@@ -1,46 +1,23 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,28,12)] // opcode 4 bits
-public class Lwcz : TypeIInstruction
-{
-    public byte Base
-    {
-        get => Rs;
-        set => Rs = value;
-    }
-
+[Instruction]
+[FormatExact(31,28,12)]
+public partial class Lwcz : IInstruction {
+    
+    [Field(27,26)]
     public byte Coprocessor { get; set; }
     
-    public Lwcz()
-    {
-        OpCode = 0b1100;
-    }
+    [Field(25,21)]
+    public byte Base { get; set; }
     
-    public override Regex GetRegularExpression()
-    {
-        throw new NotSupportedException();
-    }
-
-    public override int ConvertToInt()
-    {
-        return OpCode << 28 
-               | ((Coprocessor & 0b11) << 26)
-               | (Base & 0b11111) << 21
-               | (Rt & 0b11111) << 16
-               | (Immediate & 0xFFFF);
-    }
-
-    public override void FromInt(int instruction)
-    {
-        OpCode = (byte)(instruction >> 28 & 0b1111);
-        Coprocessor = (byte)(instruction >> 26 & 0b11);
-        Rs = (byte)(instruction >> 21 & 0b11111);
-        Rt = (byte)(instruction >> 16 & 0b11111);
-        Immediate = (short)(instruction & 0xFFFF);
-    }
-
-    public override string ToString() => $"lwc{Coprocessor} ${TranslateRegisterName(Rt)}, {Immediate:X4}(${TranslateRegisterName(Base)})" + FormatTrivia();
+    [Field(20,16)]
+    public byte Ft { get; set; }
+    
+    [Field(15,0)]
+    public short Offset { get; set; }
+    
+    public override string ToString() => $"lwc{Coprocessor} ${TypeFInstruction.TranslateRegisterName(Ft)}, {Offset:X4}(${TypeFInstruction.TranslateRegisterName(Base)})";
 }

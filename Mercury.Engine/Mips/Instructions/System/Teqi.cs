@@ -1,20 +1,18 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,1)] // opcode
-[FormatExact<Instruction>(20,16,12)] // rt
-public partial class Teqi : TypeIInstruction {
+[Instruction]
+[FormatExact(31,26,1)] // opcode
+[FormatExact(20,16,12)] // rt
+public partial class Teqi : IInstruction {
 
-    public Teqi() {
-        OpCode = 0b000001;
-        ParseOptions = PopulationOptions.Rs | PopulationOptions.Immediate;
-        Rt = 0b01100;
-    }
-
-    [GeneratedRegex(@"^\s*teqi\s+\$(?<rs>\S+),\s*(?<immediate>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Rs { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rs)}, {Immediate}" + FormatTrivia();
+    [Field(15,0)]
+    public short Immediate { get; set; }
+    
+    public override string ToString() => $"teqi ${Instruction.TranslateRegisterName(Rs)}, {Immediate}";
 }

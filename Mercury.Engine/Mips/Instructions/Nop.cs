@@ -1,24 +1,10 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,0,0)]
-internal partial class Nop : Instruction {
-    public override int ConvertToInt() {
-        return 0;
-    }
-
-    public override void FromInt(int instruction) {
-        // do nothing
-    }
-
-    [GeneratedRegex(@"nop\s*$")]
-    public override partial Regex GetRegularExpression();
-
-    public override void PopulateFromLine(string line) {
-        // do nothing
-    }
-    
-    public override string ToString() => $"{Mnemonic}" + FormatTrivia();
+[Instruction]
+[FormatExact(31,0,0)]
+public partial class Nop : IInstruction {
+    public override string ToString() => "nop";
 }

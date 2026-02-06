@@ -75,6 +75,10 @@ public class MemoryBuilder : IBuilder<Memory>
     
     public Memory Build()
     {
+        if (storageType == StorageType.NotSet) {
+            throw new NotSupportedException("Storage Type must be set.");
+        }
+        
         MemoryConfiguration config = new()
         {
             PageSize = blockSize,

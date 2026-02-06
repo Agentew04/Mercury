@@ -1,24 +1,16 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,0)] // opcode
-[FormatExact<Instruction>(25,21,0)] // rs
-[FormatExact<Instruction>(20,16,0)] // rt
-[FormatExact<Instruction>(5,0,18)] // funct
-public partial class Mflo : TypeRInstruction {
+[Instruction]
+[FormatExact(31,16,0)]
+[FormatExact(10,6,0)]
+[FormatExact(5,0,18)]
+public partial class Mflo : IInstruction {
 
-    public Mflo() {
-        Rs = 0;
-        Rt = 0;
-        OpCode = 0;
-        Function = 0b10010;
-        ParseOptions = PopulationOptions.Rd;
-    }
+    [Field(15,11)]
+    public byte Rd { get; set; }
 
-    [GeneratedRegex(@"^\s*mflo\s+\$(?<rd>\S+?)\s*$")]
-    public override partial Regex GetRegularExpression();
-    
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}" + FormatTrivia();
+    public override string ToString() => $"mflo ${Instruction.TranslateRegisterName(Rd)}";
 }

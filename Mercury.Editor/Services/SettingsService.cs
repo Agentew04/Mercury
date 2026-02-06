@@ -20,6 +20,7 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     public PathObject AppDirectory { get; }
     public PathObject ResourcesDirectory { get; }
     public PathObject ThemesDirectory { get; }
+    public PathObject ToolsDirectory {get;}
     
     /// <summary>
     /// The path to the config file. It is a file named 'config.json' that
@@ -56,6 +57,7 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
             .Folder(".mercury");
         ResourcesDirectory = AppDirectory.Folder("resources");
         ThemesDirectory = AppDirectory.Folder("themes");
+        ToolsDirectory = AppDirectory.Folder("tools");
         PreferencesPath = AppDirectory.File("config.json");
         StdLibSettingsPath = AppDirectory.File("stdlib.json");
         GuideSettingsPath = AppDirectory.File("guide.json");
@@ -120,7 +122,6 @@ public sealed class SettingsService : BaseService<SettingsService>, IDisposable 
     /// Returns the default settings and preferences for a fresh installation.
     /// </summary>
     public UserPreferences GetDefaultPreferences() => new(){
-        CompilerDirectory = AppDirectory.Folder("compiler").ToString(),
         Language = CultureInfo.InstalledUICulture,
         OnlineCheckFrequency = TimeSpan.FromHours(24),
         LastOnlineCheck = DateTime.MinValue,

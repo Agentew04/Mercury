@@ -27,7 +27,8 @@ public class FileService : BaseService<FileService> {
     private readonly Dictionary<Guid, PathObject> relativePaths = [];
     private readonly Dictionary<Guid, ProjectNode> nodeAcceleration = [];
     private readonly Dictionary<Guid, bool> isStdlibNode = [];
-    
+    private ProjectNode? entryPoint = null;
+
     private void ResetCache() {
         nodeTypes.Clear();
         relativePaths.Clear();
@@ -301,12 +302,19 @@ public class FileService : BaseService<FileService> {
             ProjectNode? node = null;
             if (isFile && isCodeExtension) {
                 // arquivo assembly
+                ProjectFile proj = projectService.GetCurrentProject()!;
+                bool entryPoint = folder.File(Path.GetFileName(entry)) ==
+                                  proj.ProjectDirectory + proj.SourceDirectory + proj.EntryFile;
                 node = new ProjectNode {
                     Name = Path.GetFileName(entry),
                     Type = ProjectNodeType.AssemblyFile,
                     Id = Guid.NewGuid(),
-                    ParentReference = new WeakReference<ProjectNode>(parentReference)
+                    ParentReference = new WeakReference<ProjectNode>(parentReference),
+                    IsEntryPoint = entryPoint
                 };
+                if (entryPoint) {
+                    this.entryPoint = node;
+                }
                 nodes.Add(node);
             }else if (isFile && !isCodeExtension) {
                 // arquivo aleatorio
@@ -314,7 +322,8 @@ public class FileService : BaseService<FileService> {
                     Name = Path.GetFileName(entry),
                     Type = ProjectNodeType.UnknownFile,
                     Id = Guid.NewGuid(),
-                    ParentReference = new WeakReference<ProjectNode>(parentReference)
+                    ParentReference = new WeakReference<ProjectNode>(parentReference),
+                    IsEntryPoint = false
                 };
                 nodes.Add(node);
             }else if(isDirectory) {
@@ -355,5 +364,15 @@ public class FileService : BaseService<FileService> {
         }
 
         return nodes;
+    }
+
+    public void SetNewEntryPoint(Guid id) {
+        ProjectFile? project = projectService.GetCurrentProject();
+        Debug.Assert(project != null, "project != null (SetEntryPoint)");
+        entryPoint?.IsEntryPoint = false;
+        project.EntryFile = GetRelativePath(id);
+        entryPoint = nodeAcceleration[id];
+        entryPoint.IsEntryPoint = true;
+        projectService.SaveProject();
     }
 }

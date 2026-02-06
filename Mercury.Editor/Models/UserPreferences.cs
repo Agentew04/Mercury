@@ -19,11 +19,6 @@ public class UserPreferences {
     /// </summary>
     public int ConfigVersion { get; set; } = LatestConfigVersion;
     
-    /// <summary>
-    /// The path to the compiler and linker executables.
-    /// </summary>
-    public string CompilerDirectory { get; set; } = "";
-
     [JsonIgnore] public static string CompilerFileName => $"clang{(OperatingSystem.IsWindows() ? ".exe" : string.Empty)}";
     [JsonIgnore] public static string AssemblerFileName => $"llvm-mc{(OperatingSystem.IsWindows() ? ".exe" : string.Empty)}";
     [JsonIgnore] public static string LinkerFileName => $"ld.lld{(OperatingSystem.IsWindows() ? ".exe" : string.Empty)}";

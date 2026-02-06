@@ -1,6 +1,5 @@
 ﻿using System.Buffers.Binary;
 using System.Numerics;
-using System.Linq;
 
 namespace Mercury.Engine.Memory.Cache;
 

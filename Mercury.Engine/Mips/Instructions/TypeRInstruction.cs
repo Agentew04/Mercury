@@ -4,14 +4,11 @@ namespace Mercury.Engine.Mips.Instructions;
 
 public abstract class TypeRInstruction : Instruction {
 
-    /// <summary>
-    /// The register that normally receives the result of the operation.
-    /// </summary>
+    public byte Rs { get; set; }
+    public byte Rt { get; set; }
     public byte Rd { get; set; }
 
-    public byte Rs { get; set; }
 
-    public byte Rt { get; set; }
 
     /// <summary>
     /// How many bits the value is shifted. Used on shift instructions.

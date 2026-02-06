@@ -1,24 +1,20 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,28)] // opcode
-[FormatExact<Instruction>(20,16,0)] // rt
-[FormatExact<Instruction>(10,6,0)] // shift
-[FormatExact<Instruction>(5,0,32)] // funct
-public partial class Clz : TypeRInstruction {
+[Instruction]
+[FormatExact(31,26,28)]
+[FormatExact(20,16,0)]
+[FormatExact(10,6,0)]
+[FormatExact(5,0,32)]
+public partial class Clz : IInstruction {
 
-    public Clz() {
-        OpCode = 0b011_100;
-        ShiftAmount = 0;
-        Function = 0b100_000;
-        Rt = 0;
-        ParseOptions = PopulationOptions.Rd | PopulationOptions.Rs;
-    }
-
-    [GeneratedRegex(@"^\s*clz\s+\$(?<rd>\S+)\s*,\s*\$(?<rs>\S+)\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Rs { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}, ${TranslateRegisterName(Rs)}" + FormatTrivia();
+    [Field(15,11)]
+    public byte Rd { get; set; }
+    
+    public override string ToString() => $"clz ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rs)}";
 }

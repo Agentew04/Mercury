@@ -37,7 +37,7 @@ public abstract class Machine : IAsyncClockable, IDisposable
     /// <summary>
     /// The Operating System that answers syscalls of this machine.
     /// </summary>
-    public abstract IOperatingSystem Os { get; }
+    public abstract IOperatingSystem? Os { get; }
 
     /// <summary>
     /// The standard input that gives data to the program being run.
@@ -140,7 +140,7 @@ public abstract class Machine : IAsyncClockable, IDisposable
         // dispose objects
         if(DataMemory is IDisposable dispDMem) dispDMem.Dispose();
         if(Memory is IDisposable dispIMem) dispIMem.Dispose();
-        Os.Dispose();
+        Os?.Dispose();
     }
 
     /// <summary>

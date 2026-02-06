@@ -1,42 +1,28 @@
-﻿using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,17)] // opcode
-[FormatExact<Instruction>(25,21,[16,17,20])] // rs
-[FormatExact<Instruction>(5,0,0)] // funct
-public class Add_float : TypeFInstruction
-{
-    public byte Fmt { get; private set; }
-    public byte Ft { get; private set; }
-    public byte Fs { get; private set; }
-    public byte Fd { get; private set; }
-    private const byte Function = 0b000000;
+[Instruction]
+[FormatExact(31,26,17)]
+[FormatExact(25,21,[16,17,20])]
+[FormatExact(5,0,0)]
+public partial class AddFloat : IInstruction {
     
-    public bool IsDouble => Fmt == DoublePrecisionFormat;
+    [Field(25,21)]
+    public byte Format { get; set; }
+    
+    [Field(20,16)]
+    public byte Ft { get; private set; }
+    
+    [Field(15,11)]
+    public byte Fs { get; private set; }
+    
+    [Field(10,6)]
+    public byte Fd { get; private set; }
+    
+    public bool IsDouble => Format == TypeFInstruction.DoublePrecisionFormat;
 
-    public Add_float()
-    {
-        Fmt = 0b10000;
-    }
+    public override string ToString() => $"add.{TypeFInstruction.FormatFmt(Format)} ${TypeFInstruction.TranslateRegisterName(Fd)}, ${TypeFInstruction.TranslateRegisterName(Fs)}, ${TypeFInstruction.TranslateRegisterName(Ft)}";
 
-    public override string ToString() => $"add.{FormatFmt(Fmt)} ${TranslateRegisterName(Fd)}, ${TranslateRegisterName(Fs)}, ${TranslateRegisterName(Ft)}" + FormatTrivia();
-
-    public override void FromInt(int instruction)
-    {
-        Fmt = (byte)((instruction >> 21) & 0b11111);
-        Ft = (byte)((instruction >> 16) & 0b11111);
-        Fs = (byte)((instruction >> 11) & 0b11111);
-        Fd = (byte)((instruction >> 6) & 0b11111);
-    }
-
-    public override int ConvertToInt()
-    {
-        return OpCode << 26 // opcode
-               | (Fmt & 0b11111) << 21 // fmt
-               | (Ft & 0b11111) << 16 // ft
-               | (Fs & 0b11111) << 11 // fs
-               | (Fd & 0b11111) << 6 // fd
-               | (Function & 0b111111); // function
-    }
 }

@@ -1,18 +1,20 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,13)] // opcode
-public partial class Ori : TypeIInstruction {
+[Instruction]
+[FormatExact(31,26,13)] // opcode
+public partial class Ori : IInstruction {
 
-    public Ori() {
-        OpCode = 0b001101;
-        ParseOptions = PopulationOptions.Rt | PopulationOptions.Rs | PopulationOptions.Immediate;
-    }
-
-    [GeneratedRegex(@"^\s*ori\s+\$(?<rt>\S+),\s*\$(?<rs>\S+),\s*(?<immediate>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Rs { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rt)}, ${TranslateRegisterName(Rs)}, {Immediate}" + FormatTrivia();
+    [Field(20,16)]
+    public byte Rt { get; set; }
+    
+    [Field(15,0)]
+    public short Immediate { get; set; }
+    
+    public override string ToString() => $"ori ${Instruction.TranslateRegisterName(Rt)}, ${Instruction.TranslateRegisterName(Rs)}, {Immediate}";
 }

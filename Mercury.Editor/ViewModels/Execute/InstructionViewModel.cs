@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Data.Converters;
@@ -17,6 +18,7 @@ using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Instructions;
 using Mercury.Engine.Mips.Runtime;
 using Mercury.Editor.Extensions;
+using Mercury.Engine.Common;
 
 namespace Mercury.Editor.ViewModels.Execute;
 
@@ -100,7 +102,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, 
             //     emite instrucao com link para linha
 
             uint instructionBinary = (uint)memory.ReadWord(address);
-            Instruction? instruction = Disassembler.Disassemble(instructionBinary);
+            IInstruction? instruction = Disassembler.Disassemble(instructionBinary);
             List<string> labels;
             if (instruction is null) {
                 labels = symbols.Where(x => x.Address == address).Select(x => x.Name).ToList();
@@ -170,15 +172,19 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, 
         }
     }
     
-    private string GetDisassembly(ulong instructionAddress, Instruction? instruction) {
+    private string GetDisassembly(ulong instructionAddress, IInstruction? instruction) {
         if (instruction is null)
         {
             return string.Empty;
         }
-        if (instruction is TypeJInstruction j)
+        if (instruction is J j)
         {
             byte highOrderPc = (byte)(instructionAddress >> 26);
             return j.ToString(highOrderPc);
+        }
+        if (instruction is Jal jal) {
+            byte highOrderPc = (byte)(instructionAddress >> 26);
+            return jal.ToString(highOrderPc);
         }
         return instruction.ToString();
     }

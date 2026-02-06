@@ -1,18 +1,20 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,5)] // opcode
-public partial class Bne : TypeIInstruction {
+[Instruction]
+[FormatExact(31,26,5)]
+public partial class Bne : IInstruction{
 
-    public Bne() {
-        OpCode = 0b000101;
-        ParseOptions = PopulationOptions.Rs | PopulationOptions.Rt | PopulationOptions.Offset;
-    }
-
-    [GeneratedRegex(@"^\s*bne\s+\$(?<rs>\S+),\s*\$(?<rt>\S+),\s*(?<offset>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Rs { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rs)}, ${TranslateRegisterName(Rt)}, 0x{Immediate:X4}" + FormatTrivia();
+    [Field(20,16)]
+    public byte Rt { get; set; }
+    
+    [Field(15,0)]
+    public short Offset { get; set; }
+    
+    public override string ToString() => $"bne ${Instruction.TranslateRegisterName(Rs)}, ${Instruction.TranslateRegisterName(Rt)}, 0x{Offset:X4}";
 }

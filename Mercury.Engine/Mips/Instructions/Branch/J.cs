@@ -1,20 +1,17 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
 /// <summary>
 /// The unconditional jump instruction
 /// </summary>
-[FormatExact<Instruction>(31,26,2)] // opcode
-public partial class J : TypeJInstruction {
-
-    public J() {
-        OpCode = 0b000010;
-    }
-
-    [GeneratedRegex(@"^\s*j\s+(?<target>(0x|0X)?[0-9A-Fa-f]+)\s*$")]
-    public override partial Regex GetRegularExpression();
+[Instruction]
+[FormatExact(31,26,2)]
+public partial class J : IInstruction {
     
-    public override string ToString(byte highOrderPc) => $"{Mnemonic} 0x{(highOrderPc << 26) | (Immediate << 2):X7}" + FormatTrivia();
+    [Field(25,0)]
+    public int Immediate { get; set; }
+    
+    public string ToString(byte highOrderPc) => $"j 0x{(highOrderPc << 26) | (Immediate << 2):X7}";
 }

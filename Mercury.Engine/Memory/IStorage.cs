@@ -28,6 +28,7 @@ internal interface IStorage : IDisposable {
 /// </summary>
 public enum StorageType
 {
+    NotSet,
     FileOriginal,
     FileOptimized,
     Volatile

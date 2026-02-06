@@ -5,6 +5,7 @@ using System.Linq;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Models;
 using Mercury.Editor.Services;
 using Mercury.Editor.Views;
@@ -12,6 +13,7 @@ using Mercury.Engine.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mercury.Editor.Extensions;
+using Mercury.Editor.Models.Messages;
 
 namespace Mercury.Editor.ViewModels;
 
@@ -88,7 +90,12 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
         }
 
         project.ProjectName = ProjectName;
+        bool rebuildProjectTree = project.IncludeStandardLibrary != IncludeStdlib;
         project.IncludeStandardLibrary = IncludeStdlib;
+        if (rebuildProjectTree) {
+            // tell services that we need to rebuild the project tree items
+            WeakReferenceMessenger.Default.Send<ProjectTreeInvalidationMessage>();
+        }
         project.Architecture = AvailableArchs[SelectedArchIndex];
         try {
             project.OperatingSystem = OperatingSystemManager.GetAvailableOperatingSystems()

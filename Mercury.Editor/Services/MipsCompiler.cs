@@ -18,10 +18,11 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
 
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
-    private string AssemblerPath => Path.Combine(settingsService.Preferences.CompilerDirectory, UserPreferences.AssemblerFileName);
+    private PathObject AssemblerPath => settingsService.ToolsDirectory.File(UserPreferences.AssemblerFileName);
     
-    private string LinkerPath => Path.Combine(settingsService.Preferences.CompilerDirectory, UserPreferences.LinkerFileName);
-    private string LinkerScriptPath => Path.Combine(settingsService.Preferences.CompilerDirectory, "linker.ld");
+    private PathObject LinkerPath => settingsService.ToolsDirectory.File(UserPreferences.LinkerFileName);
+    
+    private PathObject LinkerScriptPath => settingsService.ToolsDirectory.File("linker.ld");
 
     private const string EntryPointPreambule = ".globl __start\n__start:\n";
     
@@ -128,7 +129,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
 
     private async Task<List<ProcessResult>> CompileFiles(List<string> sourceFiles) {
         List<ProcessResult> results = [];
-        string assemblerPath = AssemblerPath;
+        string assemblerPath = AssemblerPath.ToString();
         await Parallel.ForEachAsync(sourceFiles, async (file, t) => {
             string outputName = Path.ChangeExtension(file, ".o");
             string commandArgs = $"--arch=mips --assemble --filetype=obj --no-exec-stack -o \"{outputName}\" \"{file}\"";
@@ -157,10 +158,10 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
     }
 
     private async Task<ProcessResult> LinkFiles(List<string> objectFiles, string elfFile) {
-        string linker = LinkerPath;
+        string linker = LinkerPath.ToString();
         string args = $"-T \"{LinkerScriptPath}\" -static -O0 -oformat=elf --nostdlib --no-pie {string.Join(' ', objectFiles.Select(x => '"'+x+'"'))} -o \"{elfFile}\"";
         MemoryStream ms = new();
-        CompilationError result = await RunCommand(linker, args, TimeSpan.FromMilliseconds(500), ms, settingsService.Preferences.CompilerDirectory);
+        CompilationError result = await RunCommand(linker, args, TimeSpan.FromMilliseconds(500), ms, settingsService.ToolsDirectory.ToString());
 
         if (result != CompilationError.None)
         {

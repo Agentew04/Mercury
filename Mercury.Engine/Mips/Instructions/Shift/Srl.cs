@@ -1,21 +1,22 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,0)] // opcode
-[FormatExact<Instruction>(25,21,0)] // rs
-[FormatExact<Instruction>(5,0,2)] // funct
-public partial class Srl : TypeRInstruction {
+[Instruction]
+[FormatExact(31,26,0)] // opcode
+[FormatExact(25,21,0)] // rs
+[FormatExact(5,0,2)] // funct
+public partial class Srl : IInstruction {
 
-    public Srl() {
-        Function = 0b000010;
-        Rs = 0;
-        ParseOptions = PopulationOptions.Rd | PopulationOptions.Rt | PopulationOptions.ShiftAmount;
-    }
-
-    [GeneratedRegex(@"^\s*srl\s+\$(?<rd>\S+)\s*,\s*\$(?<rt>\S+)\s*,\s*(?<shamt>\d+)\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(20,16)]
+    public byte Rt { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}, ${TranslateRegisterName(Rt)}, {ShiftAmount}" + FormatTrivia();
+    [Field(15,11)]
+    public byte Rd { get; set; }
+    
+    [Field(10,6)]
+    public byte ShiftAmount { get; set; }
+    
+    public override string ToString() => $"srl ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rt)}, {ShiftAmount}";
 }

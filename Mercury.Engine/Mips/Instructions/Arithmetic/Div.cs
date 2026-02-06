@@ -1,22 +1,20 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,0)]
-[FormatExact<Instruction>(15,11,0)]
-[FormatExact<Instruction>(10,6,0)]
-[FormatExact<Instruction>(5,0,26)]
-public partial class Div : TypeRInstruction {
+[Instruction]
+[FormatExact(31,26,0)]
+[FormatExact(15,6,0)]
+[FormatExact(5,0,26)]
+public partial class Div : IInstruction {
 
-    public Div() {
-        Rd = 0;
-        Function = 0b011010;
-        ParseOptions = PopulationOptions.Rs | PopulationOptions.Rt;
-    }
-
-    [GeneratedRegex(@"^\s*div\s+\$(?<rs>\S+?)\s*,\s*\$(?<rt>\S+?)\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Rs { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}, ${TranslateRegisterName(Rs)}, ${TranslateRegisterName(Rt)}" + FormatTrivia();
+    [Field(20,16)]
+    public byte Rt { get; set; }
+
+    public override string ToString() =>
+        $"div ${Instruction.TranslateRegisterName(Rs)}, ${Instruction.TranslateRegisterName(Rt)}";
 }

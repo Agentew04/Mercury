@@ -1,22 +1,23 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,0)] // opcode
-[FormatExact<Instruction>(25,21,0)] // rs
-[FormatExact<Instruction>(5,0,0)] // funct
-[FormatDifferent<Instruction>(20,6,0)] // differ from nop
-public partial class Sll : TypeRInstruction {
+[Instruction]
+[FormatExact(31,26,0)]
+[FormatExact(25,21,0)]
+[FormatExact(5,0,0)]
+[FormatDifferent(10,6,0)]
+public partial class Sll : IInstruction {
 
-    public Sll() {
-        Function = 0b000000;
-        Rs = 0;
-        ParseOptions = PopulationOptions.Rd | PopulationOptions.Rt | PopulationOptions.ShiftAmount;
-    }
-
-    [GeneratedRegex(@"^\s*sll\s+\$(?<rd>\S+)\s*,\s*\$(?<rt>\S+)\s*,\s*(?<shamt>\d+)\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(20,16)]
+    public byte Rt { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}, ${TranslateRegisterName(Rt)}, {ShiftAmount}" + FormatTrivia();
+    [Field(15,11)]
+    public byte Rd { get; set; }
+    
+    [Field(10,6)]
+    public byte ShiftAmount { get; set; }
+    
+    public override string ToString() => $"sll ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rt)}, {ShiftAmount}";
 }

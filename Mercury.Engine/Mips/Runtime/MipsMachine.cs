@@ -9,14 +9,14 @@ namespace Mercury.Engine.Mips.Runtime;
 
 public sealed class MipsMachine : Common.Machine {
 
-    public MipsMachine(IMipsCpu cpu, MipsOperatingSystem os) {
+    public MipsMachine(IMipsCpu cpu, MipsOperatingSystem? os) {
         Cpu = cpu;
         Os = os;
     }
     
     public override IMipsCpu Cpu { get;  }
     
-    public override MipsOperatingSystem  Os { get;  }
+    public override MipsOperatingSystem? Os { get; }
     
     public override RegisterCollection Registers => Cpu.Registers;
     

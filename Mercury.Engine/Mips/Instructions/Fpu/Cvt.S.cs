@@ -1,34 +1,26 @@
-﻿using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,17)] // opcode
-[FormatExact<Instruction>(20,16,0)] // rt
-[FormatExact<Instruction>(25,21,[16,17,20])] // rs
-[FormatExact<Instruction>(5,0,32)] // funct
-public class Cvt_S : TypeFInstruction
-{
-    public byte Fmt { get; private set; }
-    public byte Fs { get; private set; }
-    public byte Fd { get; private set; }
-
-    public bool IsDouble => Fmt == DoublePrecisionFormat;
+[Instruction]
+[FormatExact(31,26,17)]
+[FormatExact(20,16,0)]
+[FormatExact(25,21,[16,17,20])]
+[FormatExact(5,0,32)]
+public partial class CvtS : IInstruction {
     
-    public override string ToString() => $"cvt.s.{FormatFmt(Fmt)} ${TranslateRegisterName(Fd)}, ${TranslateRegisterName(Fs)}" + FormatTrivia();
+    [Field(25,21)]
+    public byte Format { get; set; }
+    
+    [Field(15,11)]
+    public byte Fs { get; set; }
+    
+    [Field(10,6)]
+    public byte Fd { get; set; }
 
-    public override void FromInt(int instruction)
-    {
-        Fmt = (byte)((instruction >> 21) & 0b11111);
-        Fs = (byte)((instruction >> 11) & 0b11111);
-        Fd = (byte)((instruction >> 6) & 0b11111);
-    }
+    public bool IsDouble => Format == TypeFInstruction.DoublePrecisionFormat;
+    
+    public override string ToString() => $"cvt.s.{TypeFInstruction.FormatFmt(Format)} ${TypeFInstruction.TranslateRegisterName(Fd)}, ${TypeFInstruction.TranslateRegisterName(Fs)}";
 
-    public override int ConvertToInt()
-    {
-        return OpCode << 26
-            | Fmt << 21
-            | (Fs & 0b11111) << 11
-            | (Fd & 0b11111) << 6
-            | 0b100000; // cvt.s
-    }
 }

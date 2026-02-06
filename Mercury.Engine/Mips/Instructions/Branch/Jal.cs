@@ -1,20 +1,17 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
 /// <summary>
 /// Jump and link instruction. Jumps to the target address and stores the return address in $ra register.
 /// </summary>
-[FormatExact<Instruction>(31,26,3)] // opcode
-public partial class Jal : TypeJInstruction {
+[Instruction]
+[FormatExact(31,26,3)]
+public partial class Jal : IInstruction {
 
-    public Jal() {
-        OpCode = 0b000011;
-    }
-
-    [GeneratedRegex(@"^\s*jal\s+(?<target>(0x|0X)?[0-9A-Fa-f]+)\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,0)]
+    public int Immediate { get; set; }
     
-    public override string ToString(byte highOrderPc) => $"{Mnemonic} 0x{(highOrderPc << 26) | (Immediate << 2):X7}" + FormatTrivia();
+    public string ToString(byte highOrderPc) => $"jal 0x{(highOrderPc << 26) | (Immediate << 2):X7}";
 }

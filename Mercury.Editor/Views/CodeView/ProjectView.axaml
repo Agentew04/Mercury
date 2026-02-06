@@ -5,6 +5,7 @@
              xmlns:localization="clr-namespace:Mercury.Editor.Localization"
              xmlns:model="clr-namespace:Mercury.Editor.Models"
              xmlns:code="clr-namespace:Mercury.Editor.ViewModels.Code"
+            xmlns:converters="clr-namespace:Mercury.Editor.Converters"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="500"
              Background="{DynamicResource BackgroundGrey}"
              x:Class="Mercury.Editor.Views.CodeView.ProjectView"
@@ -15,6 +16,10 @@
     <UserControl.Styles>
         <StyleInclude Source="/Assets/Styles/ProjectViewStyles.axaml"></StyleInclude>
     </UserControl.Styles>
+    <UserControl.Resources>
+        <converters:BoolToBoldConverter x:Key="BoolToBoldConverter"/>
+        <converters:ProjectNodeTypeToIcon x:Key="NodeTypeToIcon"/>
+    </UserControl.Resources>
     <Grid RowDefinitions="Auto,*" Margin="0">
         <TextBlock Grid.Row="0" Classes="header"
                    Text="{Binding Path=ProjectViewTitle, Source={x:Static localization:ProjectResources.Instance}}"/>
@@ -60,6 +65,9 @@
                                    VerticalAlignment="Center"></TextBlock>
                         <TextBlock Text="{Binding Name}"
                             Margin="5,0,0,0"
+                            FontWeight="{Binding IsEntryPoint, 
+                                Converter={StaticResource BoolToBoldConverter}, 
+                                Mode=OneWay}"
                             DragDrop.AllowDrop="True"
                             VerticalAlignment="Center"></TextBlock>
                     </StackPanel>

@@ -50,7 +50,7 @@ public partial class ProjectView : UserControl {
         }
 
         if (node.IsEffectiveReadOnly || node.Type == ProjectNodeType.Category
-            || ViewModel.IsEntryPoint(node)) {
+            || node.IsEntryPoint) {
             return;
         }
 

@@ -32,12 +32,6 @@
                               SelectedIndex="{Binding SelectedThemeIndex}"/>
                 </StackPanel>
                 
-                <!-- compiler -->
-                <StackPanel>
-                    <Label Target="CompilerPathTextBox" Content="{loc:PreferencesResources CompilerPath}"/>
-                    <TextBox x:Name="CompilerPathTextBox" Text="{Binding CompilerPath, Mode=TwoWay}"/>
-                </StackPanel>
-                
                 <!-- online check -->
                 <StackPanel>
                     <Label Target="OnlineCheckTextBox" Content="{loc:PreferencesResources OnlineCheck}"/>

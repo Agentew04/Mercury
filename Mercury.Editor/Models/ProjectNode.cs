@@ -40,6 +40,8 @@ public partial class ProjectNode : ObservableObject {
     [NotifyPropertyChangedFor(nameof(HasContextMenu))]
     private ObservableCollection<NodeContextOption> contextOptions = [];
 
+    [ObservableProperty] private bool isEntryPoint = false;
+
     public WeakReference<ProjectNode>? ParentReference { get; set; } = null!;
     
     public bool HasContextMenu => ContextOptions.Count > 0;

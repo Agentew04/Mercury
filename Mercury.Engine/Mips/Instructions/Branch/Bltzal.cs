@@ -1,20 +1,18 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,1)] // opcode
-[FormatExact<Instruction>(20,16,16)] // rt
-public partial class Bltzal : TypeIInstruction {
+[Instruction]
+[FormatExact(31,26,1)]
+[FormatExact(20,16,16)]
+public partial class Bltzal : IInstruction{
 
-    public Bltzal() {
-        OpCode = 0b000001;
-        Rt = 0b10_000;
-        ParseOptions = PopulationOptions.Rs | PopulationOptions.Offset;
-    }
-
-    [GeneratedRegex(@"^\s*bltz\s+\$(?<rs>\S+),\s*(?<offset>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Rs { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rs)}, 0x{Immediate:X4}" + FormatTrivia();
+    [Field(15,0)]
+    public short Offset { get; set; }
+    
+    public override string ToString() => $"bltzal ${Instruction.TranslateRegisterName(Rs)}, 0x{Offset:X4}";
 }

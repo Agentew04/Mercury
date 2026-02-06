@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor.ViewModels;
 
-public class BaseViewModel<TViewModel,TView> : ObservableObject where TView: class{
+public class BaseViewModel<TViewModel,TView> : ObservableObject where TView : class {
 
     private ILogger<TViewModel>? logger;
 

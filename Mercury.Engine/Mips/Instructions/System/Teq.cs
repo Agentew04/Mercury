@@ -1,32 +1,24 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
 /// <summary>
 /// Trap if equal. Triggers a breakpoint if the contents of Rs and Rt are equal.
 /// </summary>
-[FormatExact<Instruction>(31,26,0)] // opcode
-[FormatExact<Instruction>(10,6,0)] // shift
-[FormatExact<Instruction>(5,0,52)] // funct
-public partial class Teq : TypeRInstruction {
+[Instruction]
+[FormatExact(31,26,0)]
+[FormatExact(5,0,52)]
+public partial class Teq : IInstruction {
 
-    public Teq() {
-        Function = 0b110100;
-        ShiftAmount = 0;
-        ParseOptions = PopulationOptions.Rs | PopulationOptions.Rt;
-    }
-
-    public int Code {
-        get => (Rd << 5) | ShiftAmount;
-        set {
-            Rd = (byte)((value >> 5) & 0b11111);
-            ShiftAmount = (byte)(value & 0b11111);
-        }
-    }
-
-    [GeneratedRegex(@"^\s*teq\s+\$(?<rs>\S+),\s*\$(?<rt>\S+)\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Rs { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rs)}, ${TranslateRegisterName(Rt)}" + FormatTrivia();
+    [Field(20,16)]
+    public byte Rt { get; set; }
+    
+    [Field(15,6)]
+    public short Code { get; set; }
+    
+    public override string ToString() => $"teq ${Instruction.TranslateRegisterName(Rs)}, ${Instruction.TranslateRegisterName(Rt)}";
 }

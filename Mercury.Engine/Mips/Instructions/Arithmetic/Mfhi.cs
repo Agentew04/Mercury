@@ -1,24 +1,16 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,0)] // opcode
-[FormatExact<Instruction>(25,16,0)] // rs
-[FormatExact<Instruction>(10,6,0)] // rt
-[FormatExact<Instruction>(5,0,16)] // funct
-public partial class Mfhi : TypeRInstruction {
+[Instruction]
+[FormatExact(31,16,0)]
+[FormatExact(10,6,0)]
+[FormatExact(5,0,16)]
+public partial class Mfhi : IInstruction {
 
-    public Mfhi() {
-        Rs = 0;
-        Rt = 0;
-        OpCode = 0;
-        Function = 0b10000;
-        ParseOptions = PopulationOptions.Rd;
-    }
-
-    [GeneratedRegex(@"^\s*mfhi\s+\$(?<rd>\S+?)\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(15,11)]
+    public byte Rd { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rd)}" + FormatTrivia();
+    public override string ToString() => $"mfhi ${Instruction.TranslateRegisterName(Rd)}";
 }

@@ -10,7 +10,9 @@ using Avalonia.Styling;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Localization;
+using Mercury.Editor.Models.Messages;
 using Mercury.Editor.Services;
 using Mercury.Editor.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,8 +32,6 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
     [ObservableProperty] private ObservableCollection<string> themeNames = [];
     [ObservableProperty] private int selectedThemeIndex;
 
-    [ObservableProperty] private string compilerPath = string.Empty;
-
     [ObservableProperty] private string onlineCheck = string.Empty;
     private string? onlineCheckError; 
 
@@ -40,7 +40,6 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
     
     public void Load() {
         SelectedLanguageIndex = AvailableLanguages.IndexOf(LocalizationManager.CurrentCulture);
-        CompilerPath = settings.Preferences.CompilerDirectory;
         ConfigVersion = settings.Preferences.ConfigVersion;
         OnlineCheck = settings.Preferences.OnlineCheckFrequency.ToString("g");
         
@@ -61,9 +60,10 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
         if (!AvailableLanguages[SelectedLanguageIndex].Equals(LocalizationManager.CurrentCulture)) {
             Logger.LogInformation("Changing to culture: {culture}", AvailableLanguages[SelectedLanguageIndex]);
             LocalizationManager.CurrentCulture = AvailableLanguages[SelectedLanguageIndex];
+            // cheap hack para nao precisar localizar os itens da arvore de arquivos
+            WeakReferenceMessenger.Default.Send<ProjectTreeInvalidationMessage>();
         }
 
-        settings.Preferences.CompilerDirectory = CompilerPath;
         if (TimeSpan.TryParse(OnlineCheck, out TimeSpan check)) {
             settings.Preferences.OnlineCheckFrequency = check;
         }
@@ -90,10 +90,6 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
         bool result = TimeSpan.TryParse(value, out TimeSpan _);
         onlineCheckError = result ? null : PreferencesResources.OnlineCheckErrorValue;
         ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(OnlineCheck)));
-    }
-
-    partial void OnCompilerPathChanged(string value) {
-        
     }
 
     public IEnumerable GetErrors(string? propertyName) {

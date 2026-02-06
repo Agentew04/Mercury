@@ -1,20 +1,18 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,15)] // opcode
-[FormatExact<Instruction>(25,21,0)] // rs
-public partial class Lui : TypeIInstruction {
+[Instruction]
+[FormatExact(31,26,15)]
+[FormatExact(25,21,0)]
+public partial class Lui : IInstruction {
 
-    public Lui() {
-        OpCode = 0b001111;
-        Rs = 0;
-        ParseOptions = PopulationOptions.Rt | PopulationOptions.Immediate;
-    }
-
-    [GeneratedRegex(@"^\s*lui\s+\$(?<rt>\S+),\s*(?<immediate>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(20,16)]
+    public byte Rt { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rt)}, {Immediate}" + FormatTrivia();
+    [Field(15,0)]
+    public short Immediate { get; set; }
+    
+    public override string ToString() => $"lui ${Instruction.TranslateRegisterName(Rt)}, {Immediate}";
 }

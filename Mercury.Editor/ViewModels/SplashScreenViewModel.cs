@@ -209,8 +209,8 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         linkerPath = CompilerGithubUrl + linkerPath;
         scriptPath = CompilerGithubUrl + scriptPath;
 
-        if (!Directory.Exists(settings.Preferences.CompilerDirectory)) {
-            Directory.CreateDirectory(settings.Preferences.CompilerDirectory);
+        if (!settings.ToolsDirectory.Exists()) {
+            settings.ToolsDirectory.Create();
         }
 
         Task assemblerTask = Task.Run(async () => {
@@ -247,7 +247,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             }
 
             await using Stream entryStream = entry.Open();
-            string filepath = Path.Combine(settings.Preferences.CompilerDirectory, UserPreferences.AssemblerFileName);
+            string filepath = settings.ToolsDirectory.File(UserPreferences.AssemblerFileName).ToString();
             await using var fs = new FileStream(filepath, FileMode.OpenOrCreate);
             await entryStream.CopyToAsync(fs);
             if (OperatingSystem.IsLinux()) {
@@ -286,8 +286,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             }
 
             await using Stream entryStream = entry.Open();
-            string filepath = Path.Combine(settings.Preferences.CompilerDirectory,
-                UserPreferences.LinkerFileName);
+            string filepath = settings.ToolsDirectory.File(UserPreferences.LinkerFileName).ToString();
             await using var fs = new FileStream(filepath, FileMode.OpenOrCreate);
             await entryStream.CopyToAsync(fs);
             if (OperatingSystem.IsLinux()) {
@@ -311,7 +310,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
                 
             Logger.LogInformation("Downloading linker script from {scriptPath}", scriptPath);
             await using Stream download = await response.Content.ReadAsStreamAsync();
-            await using var fs = new FileStream(Path.Combine(settings.Preferences.CompilerDirectory, "linker.ld"),
+            await using var fs = new FileStream(settings.ToolsDirectory.File("linker.ld").ToString(),
                 FileMode.OpenOrCreate);
             await download.CopyToAsync(fs);
             Logger.LogInformation("Linker script downloaded successfully");
@@ -322,9 +321,9 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
     }
 
     private Task DownloadCompiler() {
-        bool hasAssembler = File.Exists(Path.Combine(settings.Preferences.CompilerDirectory, UserPreferences.AssemblerFileName));
-        bool hasLinker = File.Exists(Path.Combine(settings.Preferences.CompilerDirectory, UserPreferences.LinkerFileName));
-        bool hasLinkerScript = File.Exists(Path.Combine(settings.Preferences.CompilerDirectory, "linker.ld"));
+        bool hasAssembler = settings.ToolsDirectory.File(UserPreferences.AssemblerFileName).Exists();
+        bool hasLinker = settings.ToolsDirectory.File(UserPreferences.LinkerFileName).Exists();
+        bool hasLinkerScript = settings.ToolsDirectory.File("linker.ld").Exists();
 
         if (hasAssembler && hasLinker && hasLinkerScript) {
             return Task.CompletedTask;

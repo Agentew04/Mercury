@@ -1,18 +1,20 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,12)] // opcode
-public partial class Andi : TypeIInstruction {
+[Instruction]
+[FormatExact(31,26,12)]
+public partial class Andi : IInstruction {
 
-    public Andi() {
-        OpCode = 0b001100;
-        ParseOptions = PopulationOptions.Rt | PopulationOptions.Rs | PopulationOptions.Immediate;
-    }
+    [Field(25,21)]
+    public byte Rs { get; set; }
 
-    [GeneratedRegex(@"^\s*andi\s+\$(?<rt>\S+),\s*\$(?<rs>\S+),\s*(?<immediate>([-+]?\d+)|((0x|0X)?[0-9A-Fa-f]+))\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(20,16)]
+    public byte Rt { get; set; }
+
+    [Field(15,0)]
+    public short Immediate { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rt)}, ${TranslateRegisterName(Rs)}, {Immediate}" + FormatTrivia();
+    public override string ToString() => $"andi ${Instruction.TranslateRegisterName(Rt)}, ${Instruction.TranslateRegisterName(Rs)}, {Immediate}";
 }

@@ -1,29 +1,20 @@
-﻿using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,17)] // opcode
-[FormatExact<Instruction>(25,21,4)] // rs
-[FormatExact<Instruction>(10,6,0)] // shift
-[FormatExact<Instruction>(5,0,0)] // funct
-public class Mtc1 : TypeFInstruction
-{
-    public byte Rt { get; private set; }
-    public byte Fs { get; private set; }
+[Instruction]
+[FormatExact(31,26,17)]
+[FormatExact(25,21,4)]
+[FormatExact(10,0,0)]
+public partial class Mtc1 : IInstruction {
+    
+    [Field(20,16)]
+    public byte Rt { get; set; }
+    
+    [Field(15,11)]
+    public byte Fs { get; set; }
 
-    public override string ToString() => $"mtc1 ${Instruction.TranslateRegisterName(Rt)}, ${TranslateRegisterName(Fs)}" + FormatTrivia();
+    public override string ToString() => $"mtc1 ${Instruction.TranslateRegisterName(Rt)}, ${TypeFInstruction.TranslateRegisterName(Fs)}";
 
-    public override void FromInt(int instruction)
-    {
-        Rt = (byte)((instruction >> 16) & 0b11111);
-        Fs = (byte)((instruction >> 11) & 0b11111);
-    }
-
-    public override int ConvertToInt()
-    {
-        return OpCode << 26 // opcode
-               | 0b00100 << 21 // mt
-               | (Rt & 0b11111) << 16 // rt
-               | (Fs & 0b11111) << 11; // fs
-    }
 }

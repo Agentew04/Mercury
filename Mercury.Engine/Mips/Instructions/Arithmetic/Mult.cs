@@ -1,21 +1,18 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Generators;
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
 
 namespace Mercury.Engine.Mips.Instructions;
 
-[FormatExact<Instruction>(31,26,0)] // opcode
-[FormatExact<Instruction>(15,11,0)] // rd
-[FormatExact<Instruction>(5,0,24)] // funct
-public partial class Mult : TypeRInstruction {
+[Instruction]
+[FormatExact(31,26,0)]
+[FormatExact(15,0,24)]
+public partial class Mult : IInstruction {
 
-    public Mult() {
-        Rd = 0;
-        Function = 0b011000;
-        ParseOptions = PopulationOptions.Rs | PopulationOptions.Rt;
-    }
-
-    [GeneratedRegex(@"^\s*mult\s+\$(?<rs>\S+?)\s*,\s*\$(?<rt>\S+?)\s*$")]
-    public override partial Regex GetRegularExpression();
+    [Field(25,21)]
+    public byte Rs { get; set; }
     
-    public override string ToString() => $"{Mnemonic} ${TranslateRegisterName(Rs)}, ${TranslateRegisterName(Rt)}" + FormatTrivia();
+    [Field(20,16)]
+    public byte Rt { get; set; }
+    
+    public override string ToString() => $"mult ${Instruction.TranslateRegisterName(Rs)}, ${Instruction.TranslateRegisterName(Rt)}";
 }
