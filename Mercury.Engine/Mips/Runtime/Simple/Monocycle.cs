@@ -42,6 +42,8 @@ public sealed partial class Monocycle : IMipsCpu {
     
     private bool isHalted;
 
+    private readonly InstructionPool pool = new();
+
     /// <summary>
     /// Gets the exit code of the program.
     /// </summary>
@@ -56,7 +58,7 @@ public sealed partial class Monocycle : IMipsCpu {
             (ulong)Registers.Get(MipsGprRegisters.Pc));
 
         // decode
-        IInstruction? instruction = Disassembler.Disassemble((uint)instructionBinary);
+        IInstruction? instruction = Disassembler.Disassemble((uint)instructionBinary, pool);
         if(instruction is null) {
             if (SignalException is null) return;
             await SignalException.Invoke(new SignalExceptionEventArgs {

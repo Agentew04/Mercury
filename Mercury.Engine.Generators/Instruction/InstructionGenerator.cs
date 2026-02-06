@@ -29,11 +29,12 @@ internal class InstructionGenerator : IIncrementalGenerator{
         
         context.RegisterSourceOutput(instructions,
             (spc, source) => {
-                ImplementationEmitter.Emit(spc,source);
+                ImplementationEmitter.Emit(spc, source);
             });
         context.RegisterSourceOutput(instructions.Collect(),
             (spc, source) => {
-                DisassemblerEmitter.Emit(spc,source);
+                DisassemblerEmitter.Emit(spc, source);
+                InstructionPoolEmitter.Emit(spc, source);
             });
     }
 

@@ -69,6 +69,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, 
 
     private void ProcessFile(ProgramMetadata meta, ObjectFile file, uint startAddress, uint endAddress, 
         IMemory memory, uint entryPointAddress, List<Symbol> symbols) {
+        InstructionPool pool = new();
         IEnumerable<(Symbol x, int)> lineLabels = meta.Symbols
             .Where(x => x.Name.StartsWith("L."))
             .Select(x => {
@@ -102,7 +103,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, 
             //     emite instrucao com link para linha
 
             uint instructionBinary = (uint)memory.ReadWord(address);
-            IInstruction? instruction = Disassembler.Disassemble(instructionBinary);
+            IInstruction? instruction = Disassembler.Disassemble(instructionBinary, pool);
             List<string> labels;
             if (instruction is null) {
                 labels = symbols.Where(x => x.Address == address).Select(x => x.Name).ToList();
@@ -143,7 +144,7 @@ public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, 
                 address += 4;
                 instructionBinary = (uint)memory.ReadWord(address);
                 try {
-                    instruction = Disassembler.Disassemble(instructionBinary);
+                    instruction = Disassembler.Disassemble(instructionBinary, pool);
                 }
                 catch (Exception) {
                     instruction = null;

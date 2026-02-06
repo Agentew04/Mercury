@@ -43,7 +43,8 @@ internal static class DisassemblerEmitter {
 
             WriteDocumentation(sb,instruction);
             WriteCondition(sb,instruction); // writes: "if(...) {"
-            sb.AppendLine($"            return new {instruction.Namespace}.{instruction.ClassName}();");
+            sb.AppendLine($"            pool.{instruction.ClassName} ??= new();");
+            sb.AppendLine($"            return pool.{instruction.ClassName};");
             sb.AppendLine("        }");
             sb.AppendLine();
         }
