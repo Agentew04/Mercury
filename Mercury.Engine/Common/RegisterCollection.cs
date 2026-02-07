@@ -26,6 +26,15 @@ public class RegisterCollection {
     }
 
     /// <summary>
+    /// Creates a new bank.
+    /// </summary>
+    /// <typeparam name="TRegister">The type key of this bank. Also defines the amount of registers</typeparam>
+    /// <typeparam name="THelper">The <see cref="IRegisterHelper"/> used to get the register amount</typeparam>
+    public void DefineGroup<TRegister,THelper>() where TRegister : struct, Enum where THelper : IRegisterHelper {
+        DefineGroup<TRegister>(THelper.GetCount<TRegister>());
+    }
+
+    /// <summary>
     /// Gets the value of a register.
     /// </summary>
     /// <param name="reg">The register to get the value from</param>

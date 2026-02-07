@@ -10,10 +10,10 @@ namespace Mercury.Engine.Mips.Runtime.Simple;
 public sealed partial class Monocycle : IMipsCpu {
     
     public Monocycle() {
-        Registers.DefineGroup<MipsGprRegisters>(MipsRegisterHelper.GetMipsGprRegistersCount());
-        Registers.DefineGroup<MipsFpuRegisters>(MipsRegisterHelper.GetMipsFpuRegistersCount());
-        Registers.DefineGroup<MipsFpuControlRegisters>(MipsRegisterHelper.GetMipsFpuControlRegistersCount());
-        Registers.DefineGroup<MipsSpecialRegisters>(MipsRegisterHelper.GetMipsSpecialRegistersCount());
+        Registers.DefineGroup<MipsGprRegisters,MipsRegisterHelper>();
+        Registers.DefineGroup<MipsFpuRegisters,MipsRegisterHelper>();
+        Registers.DefineGroup<MipsFpuControlRegisters,MipsRegisterHelper>();
+        Registers.DefineGroup<MipsSpecialRegisters,MipsRegisterHelper>();
 
         Registers.Set(MipsGprRegisters.Sp, 0x7FFF_EFFC);
         Registers.Set(MipsGprRegisters.Fp, 0x0000_0000);

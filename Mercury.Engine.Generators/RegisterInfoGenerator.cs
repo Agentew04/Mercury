@@ -138,12 +138,17 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
                     return null;
                 }}
                 
+                public static int GetCount<TRegister>() where TRegister : struct, Enum {{
+        {2}
+                    return 0;
+                }}
+                
                 public TRegister? GetRegisterX<TRegister>(int number) where TRegister : struct, Enum {{
                     return GetRegister<TRegister>(number);
                 }}
                 
                 public static int? GetRegisterNumber(Enum reg) {{
-        {2}
+        {3}
                     return null;
                 }}
                 
@@ -152,7 +157,7 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
                 }}
                 
                 public static string GetRegisterName(Enum reg) {{
-        {3}
+        {4}
                     throw new System.ArgumentOutOfRangeException(nameof(reg));
                 }}
                 
@@ -161,7 +166,7 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
                 }}
                 
                 public static Enum? GetRegisterFromName(string name, Type type){{
-        {4}
+        {5}
                     throw new System.ArgumentOutOfRangeException(nameof(name));
                 }}
                 
@@ -170,7 +175,7 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
                 }}
                 
                 public static Enum? GetRegisterFromNumber(int number, Type type) {{         
-        {5}
+        {6}
                     throw new System.ArgumentOutOfRangeException(nameof(type));
                 }}
                 
@@ -213,6 +218,13 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
         """
                     if(type == typeof({0})) {{
                         return (Enum?)Get{1}FromNumber(number);
+                    }}
+        """;
+
+    private const string SharedIfCountFormat =
+        """
+                    if(typeof(TRegister) == typeof({0})){{
+                        return Get{1}Count();
                     }}
         """;
 
@@ -359,6 +371,7 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
         StringBuilder nameSb = new();
         StringBuilder nameInvSb = new();
         StringBuilder getRegisterFromNumberSb = new();
+        StringBuilder getCountSb = new();
         foreach (EnumToGenerate enumtogen in enums) {
             registerSb.AppendLine(string.Format(SharedIfRegisterFormat,
                 /*0 type*/enumtogen.FullEnumName,
@@ -372,15 +385,20 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
                 enumtogen.FullEnumName, enumtogen.ShortEnumName));
             getRegisterFromNumberSb.AppendLine(string.Format(SharedIfGetFromNumberFormat,
                 enumtogen.FullEnumName, enumtogen.ShortEnumName));
+            getCountSb.AppendLine(string.Format(SharedIfCountFormat,
+                enumtogen.FullEnumName,
+                enumtogen.ShortEnumName
+            ));
         }
 
         string file = string.Format(SharedImplementationFormat,
-            /*0*/enums[0].ArchitectureFieldName,
-            /*1 */registerSb,
+            /*0 arch */ enums[0].ArchitectureFieldName,
+            /*1 getRegister */ registerSb,
+            /*2 getCount*/ getCountSb,
             numberSb,
             nameSb,
             nameInvSb,
-            /*4*/getRegisterFromNumberSb
+            /*6 */getRegisterFromNumberSb
         );
         ctx.AddSource($"{enums[0].ArchitectureFieldName}RegisterHelper.g.cs", SourceText.From(file, Encoding.UTF8));
     }

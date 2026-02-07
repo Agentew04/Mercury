@@ -16,6 +16,8 @@ public interface IRegisterHelper
     
     /// <inheritdoc cref="GetRegister{TRegister}"/>
     public TRegister? GetRegisterX<TRegister>(int number) where TRegister : struct, Enum;
+
+    public static abstract int GetCount<TRegister>() where TRegister : struct, Enum;
     
     /// <summary>
     /// Returns the number of a generic register.
