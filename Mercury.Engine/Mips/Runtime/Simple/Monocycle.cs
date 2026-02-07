@@ -8,6 +8,7 @@ namespace Mercury.Engine.Mips.Runtime.Simple;
 /// Does not simulate every component of the processor.
 /// </summary>
 public sealed partial class Monocycle : IMipsCpu {
+    
     public Monocycle() {
         Registers.DefineGroup<MipsGprRegisters>(MipsRegisterHelper.GetMipsGprRegistersCount());
         Registers.DefineGroup<MipsFpuRegisters>(MipsRegisterHelper.GetMipsFpuRegistersCount());
@@ -112,6 +113,8 @@ public sealed partial class Monocycle : IMipsCpu {
     }
     
     public event Func<SignalExceptionEventArgs, Task>? SignalException;
+
+    public event Action? OnFlagUpdate; // hackzinho. substituir quando usar sistema de mensagens
 
     private static bool IsOverflowed(int a, int b, int result) {
         return (a > 0 && b > 0 && result < 0) || (a < 0 && b < 0 && result > 0);

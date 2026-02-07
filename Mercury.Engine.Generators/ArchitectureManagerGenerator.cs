@@ -12,11 +12,13 @@ internal readonly record struct FlagsInfo {
     public readonly string Architecture;
     public readonly string EnumTypeName;
     public readonly int FlagCount;
+    public readonly int Processor;
 
-    public FlagsInfo(string architecture, string enumTypeName, int flagCount) {
+    public FlagsInfo(string architecture, string enumTypeName, int flagCount, int processor) {
         Architecture = architecture;
         EnumTypeName = enumTypeName;
         FlagCount = flagCount;
+        Processor = processor;
     }
 }
 
@@ -157,13 +159,14 @@ public class ArchitectureManagerGenerator : IIncrementalGenerator
         string architecture = ctx.Attributes[0].ConstructorArguments[0].Type!.GetMembers()
             .OfType<IFieldSymbol>()
             .FirstOrDefault(x => x.HasConstantValue && (int)x.ConstantValue! == archIndex)?.Name ?? "null";
+        int processor = (int)ctx.Attributes[0].NamedArguments.First(x => x.Key == "Processor").Value.Value!;
         
         string enumTypeName = ctx.TargetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         
         EnumDeclarationSyntax eds = (EnumDeclarationSyntax)ctx.TargetNode;
         int flagCount = eds.Members.Count;
         
-        return new FlagsInfo(architecture, enumTypeName, flagCount);
+        return new FlagsInfo(architecture, enumTypeName, flagCount, processor);
     }
     
     private static void Execute(((ImmutableArray<BankInfo> Left, ImmutableArray<ArchitecturesInfo> Right) Left, ImmutableArray<FlagsInfo> Right) data, SourceProductionContext ctx) {
@@ -212,9 +215,9 @@ public class ArchitectureManagerGenerator : IIncrementalGenerator
                     }
                 }
                 sbInitFunctions.AppendLine("            ], [");
-                FlagsInfo flags = data.Right.FirstOrDefault(x => x.Architecture == arch);
-                if (flags != default) {
-                    for(int i=0;i<flags.FlagCount;i++) {
+                FlagsInfo? flags = data.Right.FirstOrDefault(x => x.Architecture == arch && x.Processor == group.Key);
+                if (flags.HasValue) {
+                    for(int i=0;i<flags.Value.FlagCount;i++) {
                         sbInitFunctions.AppendLine($"                \"{i}\",");
                     }
                 }

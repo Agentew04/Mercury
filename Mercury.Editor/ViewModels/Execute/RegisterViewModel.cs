@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
+using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Localization;
@@ -14,6 +15,8 @@ using Mercury.Editor.Views.ExecuteView;
 using Mercury.Engine.Common;
 using Microsoft.Extensions.Logging;
 using Mercury.Editor.Extensions;
+using Mercury.Engine.Mips.Runtime;
+using Mercury.Engine.Mips.Runtime.Simple;
 
 namespace Mercury.Editor.ViewModels.Execute;
 
@@ -26,6 +29,11 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
     private ObservableCollection<RegisterGroup> registerGroups = [];
 
     [ObservableProperty] private ObservableCollection<string> processorNames = [];
+
+    [ObservableProperty] 
+    private ObservableCollection<bool> processorFlags = [];
+
+    [ObservableProperty] private bool hasFlags; 
 
     private readonly List<RegisterReference> highlightedRegisters = [];
 
@@ -52,6 +60,11 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         vm.registerHelper = RegisterHelperProvider.ProvideHelper(msg.MipsMachine.Architecture);
         vm.LoadRegisters(vm.SelectedProcessorIndex);
         vm.machine.OnRegisterChanged += vm.OnRegisterChange;
+        vm.ProcessorFlags.Clear();
+        if (vm.machine.Cpu is Monocycle mono) {
+            vm.OnFlagUpdate();
+            mono.OnFlagUpdate += vm.OnFlagUpdate;
+        }
         // vm.Logger.LogInformation("Initialized register view with {registers} and {processors}", 
         //     vm.Registers.Count, 
         //     vm.architectureMetadata.Processors.Length);
@@ -105,16 +118,29 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         Highlight();
     }
 
+    private void OnFlagUpdate() {
+        Monocycle? mono = (Monocycle?)machine?.Cpu;
+        if (mono is null) {
+            return;
+        }
+        ProcessorFlags.Clear();
+        Processor metadata = architectureMetadata.Processors[SelectedProcessorIndex];
+        if (metadata.Flags.Length == 0) {
+            HasFlags = false; 
+            return;
+        } 
+        HasFlags = true;
+        ProcessorFlags.AddRange(mono.Flags);
+        OnPropertyChanged(nameof(HasFlags));
+    }
+    
     private void Highlight() {
-        int highlighted = 0;
         foreach (RegisterGroup regGroup in RegisterGroups) {
             foreach (Register register in regGroup.Registers) {
                 register.Highlighted = highlightedRegisters.Any(x => x.Definition == register.Definition
                     && x.Processor == architectureMetadata.Processors[SelectedProcessorIndex]);
-                if(register.Highlighted) highlighted++;
             }
         }
-        Logger.LogInformation("Highlighted {reg} registers", highlighted);
     }
 
     private void LoadRegisters(int processorTabIndex) {
@@ -143,6 +169,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
     partial void OnSelectedProcessorIndexChanged(int value) {
         LoadRegisters(value);
         Highlight();
+        OnFlagUpdate();
     }
     
     public RegisterValues GetRegisterValues(RegisterDefinition definition) {
@@ -156,8 +183,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
             Ascii = s.Escape(),
             AsFloat = BitConverter.Int32BitsToSingle(regValue)
         };
-        if (definition.Number != -1)
-        {
+        if (definition.Number != -1 && registerHelper is not null) {
             // get next register
             Enum? nextRegEnum = registerHelper.GetRegisterFromNumberX(definition.Number+1, definition.Type);
             if (nextRegEnum is not null)

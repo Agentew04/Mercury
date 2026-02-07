@@ -65,12 +65,12 @@
         <cv:ColorConverterParam x:Key="RowHighlightParam" TrueBrush="{DynamicResource SelectionColor}" FalseBrush="Transparent"/>
         <vm:RegisterNumberConverter x:Key="RegisterNumberConverter"></vm:RegisterNumberConverter>
     </UserControl.Resources>
-    <Grid RowDefinitions="Auto,*" Margin="5">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="5">
         <TabStrip Grid.Row="0" Classes="slim" Margin="5,0,5,5"
                   SelectedIndex="{Binding SelectedProcessorIndex}"
                   ItemsSource="{Binding ProcessorNames}"/>
         <ScrollViewer Grid.Row="1">
-        <ItemsControl ItemsSource="{Binding RegisterGroups}"
+            <ItemsControl ItemsSource="{Binding RegisterGroups}"
                       HorizontalAlignment="Stretch">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -198,5 +198,26 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
         </ScrollViewer>
+        <Border Grid.Row="2" IsVisible="{Binding HasFlags, Mode=OneWay}"
+                BorderThickness="2" BorderBrush="Black">
+            <Grid RowDefinitions="Auto, *" >
+                <TextBlock Grid.Row="0" Text="Flags" Classes="minorheader"/>
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding ProcessorFlags, Mode=OneWay}"
+                              Margin="10" VerticalAlignment="Center">
+                    <ItemsControl.DataTemplates>
+                        <DataTemplate x:DataType="x:Boolean">
+                            <CheckBox IsChecked="{Binding .}"
+                                      IsEnabled="False"/>
+                        </DataTemplate>
+                    </ItemsControl.DataTemplates>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="5"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

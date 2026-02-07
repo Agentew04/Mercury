@@ -54,9 +54,11 @@ public partial class Monocycle {
                 switch (c.Format) {
                     case TypeFInstruction.SinglePrecisionFormat:
                         Flags[c.Cc] = await Compare(Read<float>(c.Fs), Read<float>(c.Ft), c.Cond);
+                        OnFlagUpdate?.Invoke();
                         break;
                     case TypeFInstruction.DoublePrecisionFormat:
                         Flags[c.Cc] = await Compare(Read<double>(c.Fs), Read<double>(c.Ft), c.Cond);
+                        OnFlagUpdate?.Invoke();
                         break;
                     case TypeFInstruction.WordFixedPrecisionFormat:
                     case TypeFInstruction.LongFixedPrecisionFormat:
