@@ -32,4 +32,13 @@
     <data name="BuildTimeText" xml:space="preserve">
         <value>Compilado em {0}</value>
     </data>
+    <data name="ThirdPartyLicenseHeader" xml:space="preserve">
+        <value>Licença de Pacotes Utilizados</value>
+    </data>
+    <data name="MitLicenseNotice" xml:space="preserve">
+        <value>As seguintes bibliotecas estão sobre a licença MIT.</value>
+    </data>
+    <data name="Bsd2LicenseNotice" xml:space="preserve">
+        <value>As seguintes bibliotecas estão sobre a licença BSD-2-Clause.</value>
+    </data>
 </root>

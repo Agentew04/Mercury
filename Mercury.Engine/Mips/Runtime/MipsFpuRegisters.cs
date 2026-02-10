@@ -3,7 +3,7 @@ using Mercury.Generators;
 
 namespace Mercury.Engine.Mips.Runtime;
 
-[RegisterBankDefinition(Architecture.Mips, Processor = 1)]
+[RegisterGroupDefinition(Architecture.Mips, Processor = 1)]
 public enum MipsFpuRegisters {
     [Register(0, "f0",32,true)]
     F0,

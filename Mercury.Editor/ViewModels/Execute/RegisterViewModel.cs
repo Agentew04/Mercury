@@ -72,10 +72,12 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
 
     private (RegisterDefinition def, Processor proc)? GetRegisterDefinition(Type t, Enum e) {
         foreach (Processor proc in architectureMetadata.Processors) {
-            foreach (RegisterDefinition def in proc.Registers) {
-                if (def.Type == t
-                    && Equals(def.Reference, e)) {
-                    return (def, proc);
+            foreach (Engine.Common.RegisterGroup? group in proc.Groups) {
+                if (group.Type != t) continue;
+                foreach (RegisterDefinition? register in group.Registers) {
+                    if (Equals(register.Reference, e)) {
+                        return (register, proc);
+                    }
                 }
             }
         }
@@ -148,21 +150,20 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         if (architectureMetadata is null) return;
         Processor proc = architectureMetadata.Processors[processorTabIndex];
 
-        IEnumerable<IGrouping<Type, RegisterDefinition>> groups = proc.Registers.GroupBy(x => x.Type);
-        foreach (IGrouping<Type, RegisterDefinition> regGroup in groups) {
-            IEnumerable<Register> regs = regGroup.Select(x => new Register {
+        Engine.Common.RegisterGroup[] groups = proc.Groups;
+        foreach (Engine.Common.RegisterGroup group in groups) {
+            IEnumerable<Register> regs = group.Registers.Select(x => new Register {
                 Definition = x,
                 Values = GetRegisterValues(x)
             });
-            string group = regGroup.Key.Name;
-            
+            string groupName = group.Type.Name;
             RegisterGroups.Add(new RegisterGroup() {
-                GroupName = group,
+                GroupName = groupName,
                 Registers = new ObservableCollection<Register>(regs)
             });
         }
         Logger.LogInformation("Loaded {groups} register groups, totaling {total} registers.", 
-            RegisterGroups.Count, proc.Registers.Length);
+            RegisterGroups.Count, proc.Groups.Sum(x => x.Registers.Length));
         Highlight();
     }
 
@@ -173,7 +174,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
     }
     
     public RegisterValues GetRegisterValues(RegisterDefinition definition) {
-        int regValue = machine!.Registers.Get(definition.Reference, definition.Type);
+        int regValue = machine!.Registers.Get(definition.Reference, definition.Reference.GetType());
         Span<byte> r = stackalloc byte[4];
         _ = BitConverter.TryWriteBytes(r, regValue);
         string s = Encoding.ASCII.GetString(r);
@@ -185,10 +186,10 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
         };
         if (definition.Number != -1 && registerHelper is not null) {
             // get next register
-            Enum? nextRegEnum = registerHelper.GetRegisterFromNumberX(definition.Number+1, definition.Type);
+            Enum? nextRegEnum = registerHelper.GetRegisterFromNumberX(definition.Number+1, definition.Reference.GetType());
             if (nextRegEnum is not null)
             {
-                int nextRegValue = machine.Registers.Get(nextRegEnum, definition.Type);
+                int nextRegValue = machine.Registers.Get(nextRegEnum, definition.Reference.GetType());
                 long combined = ((long)regValue << 32) | (uint)nextRegValue;
                 values.AsDouble = BitConverter.Int64BitsToDouble(combined);
             }

@@ -39,4 +39,13 @@
     <data name="BuildTimeText" xml:space="preserve">
         <value>Built on {0}</value>
     </data>
+    <data name="ThirdPartyLicenseHeader" xml:space="preserve">
+        <value>Third Party Licenses</value>
+    </data>
+    <data name="MitLicenseNotice" xml:space="preserve">
+        <value>The following libraries are under the MIT license.</value>
+    </data>
+    <data name="Bsd2LicenseNotice" xml:space="preserve">
+        <value>The following libraries are under the BSD-2-Clause license.</value>
+    </data>
 </root>

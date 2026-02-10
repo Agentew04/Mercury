@@ -29,11 +29,53 @@
             <TextBlock HorizontalAlignment="Left" Text="{Binding BuildString}"></TextBlock>
             
             
-            <TextBlock Text="{loc:AboutResources LicenseHeader}" Margin="0,15,0,0"
-                       FontWeight="Bold"/>
-            <Border HorizontalAlignment="Stretch" Padding="10,0">
+            <Expander Margin="0,10,0,0">
+                <Expander.Header>
+                    <TextBlock Text="{loc:AboutResources LicenseHeader}"
+                               FontWeight="Bold"/>
+                </Expander.Header>
                 <TextBlock Text="{Binding LicenseString}"/>
-            </Border>
+            </Expander>
+            <Expander Margin="0,10,0,0">
+                <Expander.Header>
+                    <TextBlock Text="{loc:AboutResources ThirdPartyLicenseHeader}"
+                               FontWeight="Bold"/>
+                </Expander.Header>
+                <StackPanel>
+                    <TextBlock Text="{loc:AboutResources MitLicenseNotice}"
+                               Margin="0,5,0,5"/>
+                    <StackPanel>
+                        <TextBlock Text="Avalonia"/>
+                        <TextBlock Text="Avalonia.AvaloniaEdit"/>
+                        <TextBlock Text="Avalonia.Controls.DataGrid"/>
+                        <TextBlock Text="Avalonia.Controls.ItemsRepeater"/>
+                        <TextBlock Text="Avalonia.Desktop"/>
+                        <TextBlock Text="Avalonia.Diagnostics"/>
+                        <TextBlock Text="Avalonia.Fonts.Inter"/>
+                        <TextBlock Text="MessageBox.Avalonia"/>
+                        <TextBlock Text="Microsoft.Extensions.DependencyInjection"/>
+                        <TextBlock Text="Microsoft.Extensions.Logging"/>
+                        <TextBlock Text="Microsoft.Extensions.Logging.Console"/>
+                        <TextBlock Text="SharpCompress"/>
+                        <TextBlock Text="Svg.Controls.Avalonia"/>
+                        <TextBlock Text="CommunityToolkit.Mvvm"/>
+                        <TextBlock Text="ELFSharp"/>
+                        <TextBlock Text="Jetbrains.Annotations"/>
+                        <TextBlock Text="Microsoft.CodeAnalysis.Analyzers"/>
+                        <TextBlock Text="Microsoft.CodeAnalysis.CSharp"/>
+                        <TextBlock Text="Microsoft.NET.ILLink.Tasks"/>
+                        <TextBlock Text="NETStandard.Library"/>
+                        <TextBlock Text="System.Reactive"/>
+                        <TextBlock Text="YamlDotNet"/>
+                        <TextBlock Text="Vecc.YamlDotNet.Analyzers.StaticGenerator"/>
+                    </StackPanel>
+                    <TextBlock Text="{loc:AboutResources Bsd2LicenseNotice}"
+                               Margin="0,5,0,5"/>
+                    <StackPanel>
+                        <TextBlock Text="Markdig"></TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </Expander>
         </StackPanel>
     </ScrollViewer>
 </Window>

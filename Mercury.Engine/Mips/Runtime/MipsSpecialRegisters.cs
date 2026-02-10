@@ -3,7 +3,7 @@ using Mercury.Generators;
 
 namespace Mercury.Engine.Mips.Runtime;
 
-[RegisterBankDefinition(Architecture.Mips, Processor = 2)]
+[RegisterGroupDefinition(Architecture.Mips, Processor = 2)]
 public enum MipsSpecialRegisters {
     [Register(8, "vaddr", 32, false)]
     Vaddr,
