@@ -11,7 +11,7 @@ Macros are a mixture of functions and #defines in C/C++ and consist of small, pa
 ## How to use in MIPS Assembly
 Macros in MIPS Assembly are defined using the `.macro` directive and ended with the `.endmacro` directive. The basic syntax for defining a macro is as follows:
 
-```assembly
+```asm
 .macro macro_name param1, param2, ...
     # Macro body
     instructions that use param1, param2, etc.

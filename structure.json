@@ -1,6 +1,6 @@
 {
     "guides":{
-        "version": 2,
+        "version": 3,
         "common": "/guides/common",
         "architectures": [
             {
