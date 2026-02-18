@@ -98,7 +98,6 @@ public class ProjectFile {
     [XmlElement("EntryFile")]
     public PathObject EntryFile { get; set; } = "main.asm".ToFilePath();
     
-    
     /// <summary>
     /// A timestamp of when the project was last accessed.
     /// Not serialized because is saved on the settings file.
@@ -121,6 +120,10 @@ public class ProjectFile {
     public PathObject OutputFile { get; set; } = "output.bin".ToFilePath();
     
     #endregion
-    
 
+    /// <summary>
+    /// Structure holding all custom visual settings that the user has for this project.
+    /// </summary>
+    [XmlElement("VisualSettings")]
+    public ProjectVisualSettings VisualSettings { get; set; } = new();
 }

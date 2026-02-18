@@ -20,7 +20,8 @@
         </Grid.RowDefinitions>
         
         <!-- guide -->
-        <codeView:GuideView Grid.Column="4" Grid.Row="0" Grid.RowSpan="3" 
+        <codeView:GuideView Grid.Column="4" Grid.Row="0" Grid.RowSpan="3"
+                            x:Name="GuideView"
                         MinWidth="200" MaxWidth="500"/>
 
         <GridSplitter Grid.Column="3" Grid.Row="0" Grid.RowSpan="3"
