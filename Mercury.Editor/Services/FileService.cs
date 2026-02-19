@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Extensions;
@@ -27,7 +29,7 @@ public class FileService : BaseService<FileService> {
     private readonly Dictionary<Guid, PathObject> relativePaths = [];
     private readonly Dictionary<Guid, ProjectNode> nodeAcceleration = [];
     private readonly Dictionary<Guid, bool> isStdlibNode = [];
-    private ProjectNode? entryPoint = null;
+    private ProjectNode? entryPoint;
 
     private void ResetCache() {
         nodeTypes.Clear();
@@ -305,10 +307,11 @@ public class FileService : BaseService<FileService> {
                 ProjectFile proj = projectService.GetCurrentProject()!;
                 bool entryPoint = folder.File(Path.GetFileName(entry)) ==
                                   proj.ProjectDirectory + proj.SourceDirectory + proj.EntryFile;
+                string filename = Path.GetFileName(entry); 
                 node = new ProjectNode {
-                    Name = Path.GetFileName(entry),
+                    Name = filename,
                     Type = ProjectNodeType.AssemblyFile,
-                    Id = Guid.NewGuid(),
+                    Id = GetIdFromPath(currentPath.File(filename), isStdLib),
                     ParentReference = new WeakReference<ProjectNode>(parentReference),
                     IsEntryPoint = entryPoint
                 };
@@ -318,10 +321,11 @@ public class FileService : BaseService<FileService> {
                 nodes.Add(node);
             }else if (isFile && !isCodeExtension) {
                 // arquivo aleatorio
+                string filename = Path.GetFileName(entry); 
                 node = new ProjectNode {
-                    Name = Path.GetFileName(entry),
+                    Name = filename,
                     Type = ProjectNodeType.UnknownFile,
-                    Id = Guid.NewGuid(),
+                    Id = GetIdFromPath(currentPath.File(filename), isStdLib),
                     ParentReference = new WeakReference<ProjectNode>(parentReference),
                     IsEntryPoint = false
                 };
@@ -339,7 +343,7 @@ public class FileService : BaseService<FileService> {
                 node = new ProjectNode {
                     Name = folderName,
                     Type = ProjectNodeType.Folder,
-                    Id = Guid.NewGuid(),
+                    Id = GetIdFromPath(currentPath.Folder(folderName), isStdLib),
                     ParentReference = new WeakReference<ProjectNode>(parentReference)
                 };
                 node.Children = new ObservableCollection<ProjectNode>(GetFolderNodes(
@@ -374,5 +378,16 @@ public class FileService : BaseService<FileService> {
         entryPoint = nodeAcceleration[id];
         entryPoint.IsEntryPoint = true;
         projectService.SaveProject();
+    }
+
+    private Guid GetIdFromPath(PathObject path, bool isStdLib) {
+        if (isStdLib) {
+            path = "stdlib".ToDirectoryPath() + path;
+        }
+        string pathStr = path.ToString();
+        byte[] bytes = Encoding.ASCII.GetBytes(pathStr);
+        Span<byte> hash = stackalloc byte[32];
+        SHA256.HashData(bytes,hash);
+        return new Guid(hash[..16]);
     }
 }
