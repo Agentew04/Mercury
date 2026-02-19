@@ -38,6 +38,10 @@ public class FileService : BaseService<FileService> {
         isStdlibNode.Clear();
     }
     
+    /// <summary>
+    /// (Re)Builds the project file tree and its associated structures.
+    /// </summary>
+    /// <returns></returns>
     public List<ProjectNode> GetProjectTree() {
         ProjectFile? project = projectService.GetCurrentProject();
         if (project is null) {
@@ -66,7 +70,8 @@ public class FileService : BaseService<FileService> {
             Name = Localization.ProjectResources.ProjectFilesValue,
             Type = ProjectNodeType.Category,
             Children = new ObservableCollection<ProjectNode>(projectFiles),
-            Id = ProjectCategoryId
+            Id = ProjectCategoryId,
+            IsExpanded = GetIsNodeOpen(ProjectCategoryId)
         };
         foreach (ProjectNode file in projectFiles) {
             file.ParentReference = new WeakReference<ProjectNode>(projectCategoryNode);
@@ -279,7 +284,8 @@ public class FileService : BaseService<FileService> {
             Name = Localization.ProjectResources.StdLibValue,
             Id = StdLibCategoryId,
             Type = ProjectNodeType.Category,
-            IsReadOnly = true
+            IsReadOnly = true,
+            IsExpanded = GetIsNodeOpen(StdLibCategoryId)
         };
 
         List<ProjectNode> children = GetFolderNodes(stdlib.Path, "".ToDirectoryPath(), isStdLib: true);
@@ -307,13 +313,15 @@ public class FileService : BaseService<FileService> {
                 ProjectFile proj = projectService.GetCurrentProject()!;
                 bool entryPoint = folder.File(Path.GetFileName(entry)) ==
                                   proj.ProjectDirectory + proj.SourceDirectory + proj.EntryFile;
-                string filename = Path.GetFileName(entry); 
+                string filename = Path.GetFileName(entry);
+                Guid nodeId = GetIdFromPath(currentPath.File(filename), isStdLib); 
                 node = new ProjectNode {
                     Name = filename,
                     Type = ProjectNodeType.AssemblyFile,
-                    Id = GetIdFromPath(currentPath.File(filename), isStdLib),
+                    Id = nodeId,
                     ParentReference = new WeakReference<ProjectNode>(parentReference),
-                    IsEntryPoint = entryPoint
+                    IsEntryPoint = entryPoint,
+                    IsExpanded = GetIsNodeOpen(nodeId)
                 };
                 if (entryPoint) {
                     this.entryPoint = node;
@@ -321,13 +329,15 @@ public class FileService : BaseService<FileService> {
                 nodes.Add(node);
             }else if (isFile && !isCodeExtension) {
                 // arquivo aleatorio
-                string filename = Path.GetFileName(entry); 
+                string filename = Path.GetFileName(entry);
+                Guid nodeId = GetIdFromPath(currentPath.File(filename), isStdLib); 
                 node = new ProjectNode {
                     Name = filename,
                     Type = ProjectNodeType.UnknownFile,
-                    Id = GetIdFromPath(currentPath.File(filename), isStdLib),
+                    Id = nodeId,
                     ParentReference = new WeakReference<ProjectNode>(parentReference),
-                    IsEntryPoint = false
+                    IsEntryPoint = false,
+                    IsExpanded = GetIsNodeOpen(nodeId)
                 };
                 nodes.Add(node);
             }else if(isDirectory) {
@@ -339,12 +349,14 @@ public class FileService : BaseService<FileService> {
                 {
                     continue;
                 }
-                
+
+                Guid nodeId = GetIdFromPath(currentPath.Folder(folderName), isStdLib); 
                 node = new ProjectNode {
                     Name = folderName,
                     Type = ProjectNodeType.Folder,
-                    Id = GetIdFromPath(currentPath.Folder(folderName), isStdLib),
-                    ParentReference = new WeakReference<ProjectNode>(parentReference)
+                    Id = nodeId,
+                    ParentReference = new WeakReference<ProjectNode>(parentReference),
+                    IsExpanded = GetIsNodeOpen(nodeId)
                 };
                 node.Children = new ObservableCollection<ProjectNode>(GetFolderNodes(
                     folder: folder.Folder(Path.GetFileName(entry)),
@@ -389,5 +401,17 @@ public class FileService : BaseService<FileService> {
         Span<byte> hash = stackalloc byte[32];
         SHA256.HashData(bytes,hash);
         return new Guid(hash[..16]);
+    }
+
+    private bool GetIsNodeOpen(Guid nodeId) {
+        List<OpenProjectNode> nodes = projectService.GetCurrentProject()!.VisualSettings.OpenProjectNodes;
+        OpenProjectNode? node = nodes.Find(x => x.NodeId == nodeId);
+        if (node is null) {
+            node = new OpenProjectNode { NodeId = nodeId, IsOpen = false };
+            nodes.Add(node);
+            projectService.SaveProject(); // save many times? hopefully only happens on first time opening.
+            return false;
+        }
+        return node.IsOpen;
     }
 }

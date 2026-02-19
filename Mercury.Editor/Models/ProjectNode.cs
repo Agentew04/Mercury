@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mercury.Editor.Localization;
+using Mercury.Editor.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Models;
 
@@ -48,7 +51,21 @@ public partial class ProjectNode : ObservableObject {
 
     [ObservableProperty] 
     private bool isReadOnly;
-    
+
+    [ObservableProperty] private bool isExpanded;
+
+    partial void OnIsExpandedChanged(bool value) {
+        var service = App.Services.GetRequiredService<ProjectService>();
+        List<OpenProjectNode> nodes = service.GetCurrentProject()!.VisualSettings.OpenProjectNodes;
+        OpenProjectNode? node = nodes.Find(x => x.NodeId == Id);
+        if (node is null) {
+            node = new OpenProjectNode() { NodeId = Id, IsOpen = value };
+            nodes.Add(node);
+        }
+        node.IsOpen = value;
+        service.SaveProject();
+    }
+
     public bool IsEffectiveReadOnly => IsReadOnly || (ParentReference?.TryGetTarget(out ProjectNode? parent) == true && parent.IsEffectiveReadOnly);
 }
 
