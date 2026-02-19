@@ -26,6 +26,8 @@ public static class ServiceCollectionExtensions {
             .AddSingleton<RamViewModel>()
             .AddSingleton<InstructionViewModel>()
             .AddSingleton<LabelViewModel>()
+            .AddSingleton<CodeTabViewModel>()
+            .AddSingleton<ExecuteViewModel>()
                 //transient
             .AddTransient<SplashScreenViewModel>()
             .AddTransient<ProjectConfigurationViewModel>()
@@ -36,8 +38,10 @@ public static class ServiceCollectionExtensions {
     private static IServiceCollection ConfigureViews(this IServiceCollection services) {
         return services
             .AddTransient<SplashScreen>()
+            .AddTransient<ProjectConfiguration>()
+            .AddTransient<AboutView>()
+            .AddTransient<PreferencesView>()
             .AddTransient<ProjectSelectionView>();
-
     }
 
     private static IServiceCollection ConfigureServices(this IServiceCollection services) {

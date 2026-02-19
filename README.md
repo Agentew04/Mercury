@@ -4,9 +4,15 @@
 
 ## What is Mercury?
 
-Mercury is a integrated learning platform for computer architecture and other
-low-level computer systems. The project consists of two main components: the
-Engine, that powers the simulation, and the Editor, a user-friendly IDE.
+Mercury is a flexible framework for instruction-accurate computer simulation.
+Uses C# as a Domain Specific Language(DSL). Enables description of any<sup>*</sup> ISA
+and organizes a computer into different modules, decreasing the amount of work needed
+to add execution support to a ISA.
+
+<sup>*</sup>Currently only 32 fixed width instructions are supported.
+
+> [!NOTE]
+> This project is product of my graduation thesis. Available [here](https://repositorio.ufsm.br/bitstream/handle/1/37299/Appelt_Rodrigo_2025_TCC.pdf).
 
 ## Engine
 

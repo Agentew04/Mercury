@@ -152,7 +152,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             });
             SplashScreen? view = GetView();
             if (view is not null) {
-                await msgBox.ShowWindowDialogAsync(GetView());
+                await msgBox.ShowWindowDialogAsync(view);
             }
             return;
         }
@@ -175,7 +175,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             });
             SplashScreen? view = GetView();
             if (view is not null) {
-                await msgBox.ShowWindowDialogAsync(GetView());
+                await msgBox.ShowWindowDialogAsync(view);
             }
             return;
         }

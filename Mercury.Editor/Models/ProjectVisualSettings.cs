@@ -25,7 +25,11 @@ public class ProjectVisualSettings {
 
 [XmlRoot("Element")]
 public class ElementSize {
+    
+    [XmlAttribute("Name")]
     public string Name { get; set; } = string.Empty;
+    
+    [XmlAttribute("Size")]
     public int Size { get; set; } = -1;
 }
 

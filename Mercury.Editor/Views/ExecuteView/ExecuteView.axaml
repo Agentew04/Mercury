@@ -3,25 +3,32 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:exec="clr-namespace:Mercury.Editor.Views.ExecuteView"
+             xmlns:vm="clr-namespace:Mercury.Editor.ViewModels.Execute"
+             xmlns:cv="clr-namespace:Mercury.Editor.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:ExecuteViewModel"
              x:Class="Mercury.Editor.Views.ExecuteView.ExecuteView">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="2"></ColumnDefinition>
-            <ColumnDefinition Width="300" MinWidth="100" MaxWidth="400"></ColumnDefinition>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2"/>
+            <ColumnDefinition Width="{Binding RegistersViewColumnWidth, Mode=TwoWay,
+                              Converter={x:Static cv:GridSizeConverter.Instance}}"
+                              MinWidth="100" MaxWidth="400"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="2"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="{Binding RamRowHeight, Mode=TwoWay,
+                           Converter={x:Static cv:GridSizeConverter.Instance}}"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Grid.Column="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"></ColumnDefinition>
-                <ColumnDefinition Width="2"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2"/>
+                <ColumnDefinition Width="{Binding LabelsViewColumnWidth, Mode=TwoWay,
+                                  Converter={x:Static cv:GridSizeConverter.Instance}}"/>
             </Grid.ColumnDefinitions>
 
             <exec:InstructionView Grid.Column="0"/>
@@ -37,7 +44,9 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" MinHeight="100"/>
                 <RowDefinition Height="2"/>
-                <RowDefinition Height="200" MinHeight="100" MaxHeight="500"/>
+                <RowDefinition Height="{Binding IoRowHeight, Mode=TwoWay,
+                               Converter={x:Static cv:GridSizeConverter.Instance}}"
+                               MinHeight="100" MaxHeight="500"/>
             </Grid.RowDefinitions>
             <exec:RamView Grid.Row="0"/>
             <GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
