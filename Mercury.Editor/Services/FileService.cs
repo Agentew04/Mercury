@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -25,14 +24,12 @@ public class FileService : BaseService<FileService> {
     private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
     private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
     
-    private readonly Dictionary<Guid, ProjectNodeType> nodeTypes = [];
     private readonly Dictionary<Guid, PathObject> relativePaths = [];
     private readonly Dictionary<Guid, ProjectNode> nodeAcceleration = [];
     private readonly Dictionary<Guid, bool> isStdlibNode = [];
     private ProjectNode? entryPoint;
 
     private void ResetCache() {
-        nodeTypes.Clear();
         relativePaths.Clear();
         nodeAcceleration.Clear();
         isStdlibNode.Clear();
@@ -59,8 +56,9 @@ public class FileService : BaseService<FileService> {
                 Logger.LogWarning("Nao encontrei standard library compativel com o projeto");
             }
             else {
-                nodes.Add(GetStdLibNode(stdlib));
-                nodeTypes[StdLibCategoryId] = ProjectNodeType.Category;
+                ProjectNode stdlibNode = GetStdLibNode(stdlib); 
+                nodes.Add(stdlibNode);
+                nodeAcceleration[StdLibCategoryId] = stdlibNode;
                 relativePaths[StdLibCategoryId] = stdlib.Path;
             }
         }
@@ -76,13 +74,10 @@ public class FileService : BaseService<FileService> {
         foreach (ProjectNode file in projectFiles) {
             file.ParentReference = new WeakReference<ProjectNode>(projectCategoryNode);
         }
-        // Aviso: a localizacao dos nos de categoria NAO vao ser atualizadas
-        // na troca de lingua desse modo!
-        // Resolver: #18
         nodes.Add(projectCategoryNode);
 
         relativePaths[ProjectCategoryId] = project.ProjectDirectory + project.SourceDirectory;
-        nodeTypes[ProjectCategoryId] = ProjectNodeType.Category;
+        nodeAcceleration[ProjectCategoryId] = projectCategoryNode;
 
         return nodes;
     }
@@ -116,35 +111,43 @@ public class FileService : BaseService<FileService> {
     }
 
     public void RegisterNode(ProjectNode father, ProjectNode node) {
-        if (node.Id == Guid.Empty) {
-            node.Id = Guid.NewGuid();
-        }
-        
         PathObject fatherPath = relativePaths[father.Id];
+        PathObject relativePath = default;
         if (father.Type == ProjectNodeType.Folder) {
             // node eh subdir de father
             if (node.Type == ProjectNodeType.Folder) {
-                relativePaths[node.Id] = fatherPath.Folder(node.Name);
+                relativePath = fatherPath.Folder(node.Name);
             }else if (node.Type == ProjectNodeType.AssemblyFile) {
-                relativePaths[node.Id] = fatherPath.File(node.Name);
+                relativePath = fatherPath.File(node.Name);
             }
         }else if (father.Type == ProjectNodeType.Category) {
             // esta na root do projeto
             if (node.Type == ProjectNodeType.AssemblyFile) {
-                relativePaths[node.Id] = node.Name.ToFilePath();
+                relativePath = node.Name.ToFilePath();
             }else if (node.Type == ProjectNodeType.Folder) {
-                relativePaths[node.Id] = node.Name.ToDirectoryPath();
+                relativePath = node.Name.ToDirectoryPath();
             }
         }
         else{
             // soh eh filho logico, o path de node eh o dir de father
-            if (father.ParentReference.TryGetTarget(out ProjectNode? grandfather)) {
-                relativePaths[node.Id] = grandfather.Type is ProjectNodeType.Folder or ProjectNodeType.Category ?
+            if (father.ParentReference!.TryGetTarget(out ProjectNode? grandfather)) {
+                relativePath = grandfather.Type is ProjectNodeType.Folder or ProjectNodeType.Category ?
                     relativePaths[grandfather.Id].Folder(node.Name) : relativePaths[grandfather.Id].File(node.Name);
             }
         }
 
-        nodeTypes[node.Id] = node.Type;
+        if (relativePath == default) {
+            Logger.LogError("Could not figure out relative path for new registered node, using default. This" +
+                            "may cause issues later.");
+        }
+        
+        if (node.Id == Guid.Empty) {
+            Logger.LogWarning("Tried registering new node with empty id. Generating a new id for {path}", relativePath.ToString());
+            node.Id = GetIdFromPath(relativePath, false);
+        }
+        
+        relativePaths[node.Id] = relativePath;
+        nodeAcceleration[node.Id] = node;
         isStdlibNode[node.Id] = false;
 
         node.ParentReference = new WeakReference<ProjectNode>(father);
@@ -160,7 +163,6 @@ public class FileService : BaseService<FileService> {
         }
 
         relativePaths.Remove(node.Id);
-        nodeTypes.Remove(node.Id);
         isStdlibNode.Remove(node.Id);
         nodeAcceleration.Remove(node.Id);
         foreach (NodeContextOption nodeContextOption in node.ContextOptions) {
@@ -169,7 +171,7 @@ public class FileService : BaseService<FileService> {
         node.ContextOptions.Clear();
 
         if (first) {
-            if (node.ParentReference.TryGetTarget(out ProjectNode? parent)) {
+            if (node.ParentReference!.TryGetTarget(out ProjectNode? parent)) {
                 parent.Children.Remove(node);
             }else {
                 Logger.LogWarning("Couldn't get reference to parent of {node} when deleting", node.Name);
@@ -183,7 +185,7 @@ public class FileService : BaseService<FileService> {
     }
 
     public void MoveNode(ProjectNode node, ProjectNode newFather) {
-        if (node.ParentReference.TryGetTarget(out ProjectNode? oldFather)) {
+        if (node.ParentReference!.TryGetTarget(out ProjectNode? oldFather)) {
             oldFather.Children.Remove(node);
         }
         else {
@@ -215,7 +217,7 @@ public class FileService : BaseService<FileService> {
         }
         else{
             // soh eh filho logico, o path de node eh o dir de father
-            if (newFather.ParentReference.TryGetTarget(out ProjectNode? grandfather)) {
+            if (newFather.ParentReference!.TryGetTarget(out ProjectNode? grandfather)) {
                 relativePaths[node.Id] = grandfather.Type is ProjectNodeType.Folder or ProjectNodeType.Category ?
                 relativePaths[grandfather.Id].Folder(node.Name) : relativePaths[grandfather.Id].File(node.Name);
             }
@@ -256,17 +258,17 @@ public class FileService : BaseService<FileService> {
             return new CompilationInput();
         }
         List<CompilationFile> files = [];
-        PathObject entryPoint = project.EntryFile;
+        PathObject entryFile = project.EntryFile;
         foreach ((Guid id, PathObject path) in relativePaths)
         {
-            if (nodeTypes[id] != ProjectNodeType.AssemblyFile)
+            if (nodeAcceleration[id].Type != ProjectNodeType.AssemblyFile)
             {
                 continue;
             }
 
             files.Add(new CompilationFile(
                 filepath: GetAbsolutePath(id),
-                entryPoint: path.Equals(entryPoint)));
+                entryPoint: path.Equals(entryFile)));
         }
 
         if (!files.Exists(x => x.IsEntryPoint))
@@ -301,84 +303,52 @@ public class FileService : BaseService<FileService> {
 
     private List<ProjectNode> GetFolderNodes(PathObject folder, PathObject currentPath, ProjectNode parentReference = null!,
         bool isStdLib = false) {
-        IEnumerable<string> entries = Directory.EnumerateFileSystemEntries(folder.ToString());
         List<ProjectNode> nodes = [];
-        foreach (string entry in entries) {
-            bool isFile = File.Exists(entry);
-            bool isDirectory = Directory.Exists(entry);
-            bool isCodeExtension = entry.EndsWith(".asm") || entry.EndsWith(".s");
-            ProjectNode? node = null;
-            if (isFile && isCodeExtension) {
-                // arquivo assembly
-                ProjectFile proj = projectService.GetCurrentProject()!;
-                bool entryPoint = folder.File(Path.GetFileName(entry)) ==
-                                  proj.ProjectDirectory + proj.SourceDirectory + proj.EntryFile;
-                string filename = Path.GetFileName(entry);
-                Guid nodeId = GetIdFromPath(currentPath.File(filename), isStdLib); 
-                node = new ProjectNode {
-                    Name = filename,
-                    Type = ProjectNodeType.AssemblyFile,
-                    Id = nodeId,
-                    ParentReference = new WeakReference<ProjectNode>(parentReference),
-                    IsEntryPoint = entryPoint,
-                    IsExpanded = GetIsNodeOpen(nodeId)
-                };
-                if (entryPoint) {
-                    this.entryPoint = node;
-                }
-                nodes.Add(node);
-            }else if (isFile && !isCodeExtension) {
-                // arquivo aleatorio
-                string filename = Path.GetFileName(entry);
-                Guid nodeId = GetIdFromPath(currentPath.File(filename), isStdLib); 
-                node = new ProjectNode {
-                    Name = filename,
-                    Type = ProjectNodeType.UnknownFile,
-                    Id = nodeId,
-                    ParentReference = new WeakReference<ProjectNode>(parentReference),
-                    IsEntryPoint = false,
-                    IsExpanded = GetIsNodeOpen(nodeId)
-                };
-                nodes.Add(node);
-            }else if(isDirectory) {
-                string folderName = new DirectoryInfo(entry).Name;
-
-                // pula pasta de output bin/
-                // isso n vai funcionar se o user mudar a bin pra uma nested!
-                if (currentPath.Parts.Length == 0 && folderName == projectService.GetCurrentProject()!.OutputPath.Parts[0])
-                {
-                    continue;
-                }
-
-                Guid nodeId = GetIdFromPath(currentPath.Folder(folderName), isStdLib); 
-                node = new ProjectNode {
-                    Name = folderName,
-                    Type = ProjectNodeType.Folder,
-                    Id = nodeId,
-                    ParentReference = new WeakReference<ProjectNode>(parentReference),
-                    IsExpanded = GetIsNodeOpen(nodeId)
-                };
-                node.Children = new ObservableCollection<ProjectNode>(GetFolderNodes(
-                    folder: folder.Folder(Path.GetFileName(entry)),
-                    currentPath: currentPath.Folder(folderName), 
-                    parentReference: node,
-                    isStdLib: isStdLib));
-                nodes.Add(node);
-            }
-            else {
-                Logger.LogWarning("The entry {Entry} is not a file nor a folder. Ignoring.", entry);
-            }
-
-            if (node is null) {
+        ProjectFile proj = projectService.GetCurrentProject()!;
+        foreach (PathObject entry in folder) {
+            string name = entry.Name;
+            Guid nodeId = GetIdFromPath(
+                entry.IsDirectory ? currentPath.Folder(name) : currentPath.File(name), isStdLib);
+            ProjectNodeType type = entry is { IsFile: true, Extension: ".asm" or ".s" }
+                ? ProjectNodeType.AssemblyFile
+                : entry.IsFile
+                    ? ProjectNodeType.UnknownFile
+                    : ProjectNodeType.Folder;
+            WeakReference<ProjectNode> parent = new(parentReference);
+            bool isEntryPoint = type == ProjectNodeType.AssemblyFile
+                                && folder.File(name) == proj.ProjectDirectory + proj.SourceDirectory + proj.EntryFile;
+            bool isOutputFolder = entry.IsDirectory && entry == proj.ProjectDirectory + proj.OutputPath;
+            if (isOutputFolder) {
+                Logger.LogInformation("Skipped output folder: {folder}", entry.ToString());
                 continue;
             }
-            // cache node info
-            relativePaths[node.Id] = isFile ? currentPath.File(node.Name) : currentPath.Folder(node.Name);
-            nodeTypes[node.Id] = node.Type;
+            
+            ProjectNode node = new() {
+                Name = name,
+                Type = type, 
+                Id = nodeId,
+                IsExpanded = GetIsNodeOpen(nodeId),
+                ParentReference = parent,
+                IsEntryPoint = isEntryPoint,
+            };
+            nodes.Add(node);
+            if (isEntryPoint) {
+                entryPoint = node;
+            }
+
+            if (type == ProjectNodeType.Folder) {
+                node.Children = new ObservableCollection<ProjectNode>(GetFolderNodes(
+                    folder: folder.Folder(name),
+                    currentPath: currentPath.Folder(name), 
+                    parentReference: node,
+                    isStdLib: isStdLib));
+            }
+            
+            // update caches
+            relativePaths[node.Id] = entry.IsFile ? currentPath.File(node.Name) : currentPath.Folder(node.Name);
             nodeAcceleration[node.Id] = node;
             isStdlibNode[node.Id] = isStdLib;
         }
-
         return nodes;
     }
 

@@ -10,48 +10,47 @@ using System.Xml.Serialization;
 namespace Mercury.Editor.Extensions;
 
 public static class PathExtensions {
-
-    /// <summary>
-    /// Creates a object that represents a directory path.
-    /// </summary>
     /// <param name="path"></param>
-    /// <returns>The object representing the path</returns>
-    public static PathObject ToDirectoryPath(this string path) {
-        bool root = Path.IsPathFullyQualified(path) || Path.IsPathRooted(path);
+    extension(string path) {
+        /// <summary>
+        /// Creates a object that represents a directory path.
+        /// </summary>
+        /// <returns>The object representing the path</returns>
+        public PathObject ToDirectoryPath() {
+            bool root = Path.IsPathFullyQualified(path) || Path.IsPathRooted(path);
 
-        char[] delims = [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar];
-        string[] entries = path.Split(delims, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-
-        return new PathObject {
-            Filename = string.Empty,
-            IsAbsolute = root,
-            IsDirectory = true,
-            IsFile = false,
-            Parts = [..entries],
-            Extension = string.Empty
-        };
-    }
-
-    /// <summary>
-    /// Creates a file path object from its string representation.
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns>The object representing the path</returns>
-    public static PathObject ToFilePath(this string path) {
-        if (path.EndsWith(Path.DirectorySeparatorChar) || path.EndsWith(Path.AltDirectorySeparatorChar)) {
-            throw new NotSupportedException("A filepath cant end with a directory separator");
+            char[] delims = [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar];
+            string[] entries = path.Split(delims, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            string dirName = entries.Length > 0 ? entries[^1] : string.Empty;
+            return new PathObject {
+                Filename = string.Empty,
+                DirectoryName = dirName,
+                IsAbsolute = root,
+                IsDirectory = true,
+                IsFile = false,
+                Parts = [..entries],
+                Extension = string.Empty
+            };
         }
+
+        /// <summary>
+        /// Creates a file path object from its string representation.
+        /// </summary>
+        /// <returns>The object representing the path</returns>
+        public PathObject ToFilePath() {
+            if (path.EndsWith(Path.DirectorySeparatorChar) || path.EndsWith(Path.AltDirectorySeparatorChar)) {
+                throw new NotSupportedException("A filepath cant end with a directory separator");
+            }
         
-        int lastIndex = path.LastIndexOfAny([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar]);
-        string file = Path.GetFileName(path);
-        if (lastIndex == -1) {
-            return "".ToDirectoryPath().File(file);
+            int lastIndex = path.LastIndexOfAny([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar]);
+            string file = Path.GetFileName(path);
+            if (lastIndex == -1) {
+                return "".ToDirectoryPath().File(file);
+            }
+            PathObject folder = path[..lastIndex].ToDirectoryPath();
+            return folder.File(file);
         }
-        PathObject folder = path[..lastIndex].ToDirectoryPath();
-        return folder.File(file);
     }
-
-    
 }
 
 /// <summary>
@@ -92,9 +91,26 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
     public required string Extension { get; init; }
     
     /// <summary>
+    /// The name of the directory or <see cref="string.Empty"/> if
+    /// <see cref="IsDirectory"/> is false.
+    /// </summary>
+    public required string DirectoryName { get; init; }
+
+    #region Computed Properties
+
+    /// <summary>
     /// Returns the file name with extension.
     /// </summary>
     public string FullFileName => Filename + Extension;
+
+    /// <summary>
+    /// Returns the name of the main object of this path. If it is a directory path, returns the last folder name.
+    /// If it is a file, returns the name of the file, including extension (same as <see cref="FullFileName"/>).
+    /// </summary>
+    public string Name => IsDirectory ? DirectoryName : FullFileName;
+
+    #endregion
+    
 
     /// <summary>
     /// Returns the string representation of this path.
@@ -127,10 +143,6 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
         return sb.ToString();
     }
     
-    public bool Equals(PathObject? other) {
-        return other is not null && Equals(other.Value);
-    }
-
     /// <summary>
     /// Creates a new path with a folder appended at the end.
     /// </summary>
@@ -152,6 +164,7 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
         ImmutableArray<string> parts2 = Parts.AddRange(newParts);
         return new PathObject {
             Filename = string.Empty,
+            DirectoryName = parts2[^1],
             Parts = parts2,
             IsFile = false,
             IsDirectory = true,
@@ -183,9 +196,6 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
     /// Appends two files.
     /// </summary>
     public static PathObject operator +(PathObject lhs, PathObject rhs) => lhs.Append(rhs);
-    public static bool operator ==(PathObject lhs, PathObject rhs) => lhs.Equals(rhs);
-    public static bool operator !=(PathObject lhs, PathObject rhs) => !lhs.Equals(rhs);
-
     public static PathObject operator -(PathObject lhs, PathObject rhs) => lhs.Relativize(rhs);
     //public void operator -=(PathObject other) => only on C# 14
     
@@ -206,6 +216,7 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
 
         return new PathObject() {
             IsFile = true,
+            DirectoryName = string.Empty,
             Filename = name,
             Parts = Parts,
             IsAbsolute = IsAbsolute,
@@ -248,6 +259,7 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
             Filename = string.Empty,
             Extension = string.Empty,
             IsAbsolute = IsAbsolute,
+            DirectoryName = Parts[^1],
             Parts = Parts
         };
     }
@@ -275,6 +287,8 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
         }
         return this with { IsAbsolute = false, Parts = Parts[root.Parts.Length..] };
     }
+    
+    #region XML
 
     public XmlSchema GetSchema() => null!;
 
@@ -294,6 +308,10 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
         writer.WriteAttributeString("directory", IsDirectory.ToString());
         writer.WriteAttributeString("path", ToString());
     }
+    
+    #endregion
+
+    #region  Equals
 
     public bool Equals(PathObject other) {
         if (other.Parts.IsDefault || Parts.IsDefault) return false;
@@ -304,15 +322,33 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
         if (IsFile && (other.Filename != Filename || other.Extension != Extension)) return false;
         return Parts.SequenceEqual(other.Parts);
     }
+    
+    public bool Equals(PathObject? other) {
+        return other is not null && Equals(other.Value);
+    }
 
     public override bool Equals(object? obj) {
         return obj is PathObject other && Equals(other);
     }
+    
+    /// <summary>
+    /// Compares two paths using the <see cref="Equals(Mercury.Editor.Extensions.PathObject)"/> method.
+    /// </summary>
+    public static bool operator ==(PathObject lhs, PathObject rhs) => lhs.Equals(rhs);
+    
+    /// <summary>
+    /// Compares two paths using the <see cref="Equals(Mercury.Editor.Extensions.PathObject)"/> method.
+    /// </summary>
+    public static bool operator !=(PathObject lhs, PathObject rhs) => !lhs.Equals(rhs);
+    
+    #endregion
 
     public override int GetHashCode() {
         return HashCode.Combine(Parts, IsAbsolute, IsDirectory, IsFile, Filename, Extension);
     }
-    
+
+    #region Interactions
+
     /// <summary>
     /// Checks if the path exists. If the path is a directory, calls <see cref="Directory.Exists"/>. If
     /// the path is a file, calls <see cref="File.Exists"/>.
@@ -348,7 +384,42 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
         else {
             Directory.CreateDirectory(ToString());
         }
+
+        foreach (var file in this) {
+            
+        }
     }
+
+    /// <summary>
+    /// Enumerates all system entries in a folder.
+    /// </summary>
+    /// <returns>An enumerator that returns all entries</returns>
+    /// <exception cref="InvalidOperationException">If the current path is a file or
+    /// an invalid entry is found</exception>
+    public IEnumerator<PathObject> GetEnumerator() {
+        if (IsFile || !IsDirectory) {
+            throw new InvalidOperationException("Only folder enumeration is possible. File enumeration is forbidden");
+        }
+
+        IEnumerable<string> files = Directory.EnumerateFileSystemEntries(ToString());
+        foreach (string fullPath in files) {
+            bool isFile = System.IO.File.Exists(fullPath);
+            bool isDirectory = Directory.Exists(fullPath);
+            if (isFile && isDirectory) {
+                throw new InvalidOperationException(
+                    "Found a entry that is a file and a directory. How is this possible?");
+            }
+
+            string name = System.IO.Path.GetFileName(fullPath);
+
+            PathObject entry = isDirectory ? Folder(name) : File(name);
+            yield return entry;
+        }
+    }
+
+    #endregion
+    
+    
 }
 
 public class PathJsonConverter : JsonConverter<PathObject> {

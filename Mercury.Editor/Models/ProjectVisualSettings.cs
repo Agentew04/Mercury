@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace Mercury.Editor.Models;
@@ -36,9 +37,9 @@ public class ElementSize {
 [XmlRoot("Node")]
 public class OpenProjectNode {
     
-    [XmlAttribute("type")]
-    public string Type { get; set; } = string.Empty;
+    [XmlAttribute("Id")]
+    public Guid NodeId { get; set; } = Guid.Empty;
     
-    [XmlAttribute("name")]
-    public string Name { get; set; } = string.Empty;
+    [XmlAttribute("Open")]
+    public bool IsOpen { get; set; }
 }

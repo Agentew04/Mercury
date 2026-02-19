@@ -29,6 +29,11 @@
                   Margin="15"
                   DragDrop.AllowDrop="True"
                   SelectedItem="{Binding SelectedNode}">
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem" x:DataType="model:ProjectNode">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                </Style>
+            </TreeView.Styles>
             <TreeView.ItemTemplate>
                 <TreeDataTemplate ItemsSource="{Binding Children}"
                                   x:DataType="model:ProjectNode">
