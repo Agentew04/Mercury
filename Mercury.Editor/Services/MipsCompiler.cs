@@ -136,7 +136,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
 
             MemoryStream ms = new();
             CompilationError result = await RunCommand(assemblerPath, commandArgs,
-                TimeSpan.FromMilliseconds(300),
+                TimeSpan.FromSeconds(30),
                 ms, null);
             ms.Seek(0, SeekOrigin.Begin);
             if (result != CompilationError.None) {
@@ -161,7 +161,7 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         string linker = LinkerPath.ToString();
         string args = $"-T \"{LinkerScriptPath}\" -static -O0 -oformat=elf --nostdlib --no-pie {string.Join(' ', objectFiles.Select(x => '"'+x+'"'))} -o \"{elfFile}\"";
         MemoryStream ms = new();
-        CompilationError result = await RunCommand(linker, args, TimeSpan.FromMilliseconds(500), ms, settingsService.ToolsDirectory.ToString());
+        CompilationError result = await RunCommand(linker, args, TimeSpan.FromSeconds(10), ms, settingsService.ToolsDirectory.ToString());
 
         if (result != CompilationError.None)
         {

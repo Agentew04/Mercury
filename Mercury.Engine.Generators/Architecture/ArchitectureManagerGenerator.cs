@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
+using Mercury.Generators.Registers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 namespace Mercury.Generators.Architecture;
 
@@ -64,7 +63,12 @@ public class ArchitectureManagerGenerator : IIncrementalGenerator
         
         string enumTypeName = ctx.TargetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-        List<RegisterDef> registers = [];
+        string? processorName =
+            ctx.Attributes[0].NamedArguments.FirstOrDefault(x => x.Key == "ProcessorName").Value.Value as string;
+
+        string groupName = (string)ctx.Attributes[0].NamedArguments.First(x => x.Key == "Name").Value.Value!;
+
+        List<RegisterInfo> registers = [];
         
         EnumDeclarationSyntax eds = (EnumDeclarationSyntax)ctx.TargetNode;
         foreach (EnumMemberDeclarationSyntax member in eds.Members) {
@@ -83,7 +87,7 @@ public class ArchitectureManagerGenerator : IIncrementalGenerator
                 index++;
             }
             
-            registers.Add(new  RegisterDef(
+            registers.Add(new  RegisterInfo(
                 field.ToDisplayString(),
                 (string)attribute.ConstructorArguments[index].Value!,
                 number != -1,
@@ -93,7 +97,7 @@ public class ArchitectureManagerGenerator : IIncrementalGenerator
                 ));
         }
         
-        return new GroupInfo(architecture, coprocessor, enumTypeName, registers);
+        return new GroupInfo(architecture, coprocessor, enumTypeName, registers, processorName, groupName);
     }
 
     private static ArchitecturesInfo GetArchitecture(GeneratorAttributeSyntaxContext ctx) {

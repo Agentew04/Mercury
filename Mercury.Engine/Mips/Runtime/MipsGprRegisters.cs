@@ -3,7 +3,7 @@ using Mercury.Generators;
 
 namespace Mercury.Engine.Mips.Runtime;
 
-[RegisterGroupDefinition(Architecture.Mips, Processor = 0)]
+[RegisterGroupDefinition(Architecture.Mips, Processor = 0, Name = "GPR", ProcessorName = "CPU")]
 public enum MipsGprRegisters {
     [Register(0, "zero",32, false)]
     Zero,

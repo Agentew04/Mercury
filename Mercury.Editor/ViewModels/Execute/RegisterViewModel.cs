@@ -156,7 +156,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
                 Definition = x,
                 Values = GetRegisterValues(x)
             });
-            string groupName = group.Type.Name;
+            string groupName = group.Name;
             RegisterGroups.Add(new RegisterGroup() {
                 GroupName = groupName,
                 Registers = new ObservableCollection<Register>(regs)

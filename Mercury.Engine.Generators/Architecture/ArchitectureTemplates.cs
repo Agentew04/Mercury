@@ -94,7 +94,7 @@ internal static class ArchitectureTemplates {
         
         namespace Mercury.Engine.Common;
         
-        public record RegisterGroup(Type Type, RegisterDefinition[] Registers);
+        public record RegisterGroup(Type Type, RegisterDefinition[] Registers, string Name);
         """;
     
     public const string RegisterDefinitionText =

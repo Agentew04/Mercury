@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Mercury.Generators.Registers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
@@ -35,14 +36,16 @@ internal static class ArchitectureManagerEmitter {
                 sbInitFunctions.Append("            new Processor(");
                 sbInitFunctions.Append(coProcGroup.Key);
                 sbInitFunctions.Append(", \"");
-                sbInitFunctions.Append(coProcGroup.Key == 0 ? "Registers" : $"Coproc {coProcGroup.Key}");
+                string processorName = coProcGroup.Select(x => x.ProcessorName).FirstOrDefault(x => x is not null) 
+                                       ?? "null";
+                sbInitFunctions.Append(processorName);
                 sbInitFunctions.AppendLine("\", [");
 
                 foreach (GroupInfo group in coProcGroup) {
                     sbInitFunctions.Append("                new RegisterGroup(typeof(");
                     sbInitFunctions.Append(group.EnumTypeName);
                     sbInitFunctions.AppendLine("), [");
-                    foreach (RegisterDef reg in group.Registers) {
+                    foreach (RegisterInfo reg in group.Registers) {
                         sbInitFunctions.AppendLine(string.Format(ArchitectureTemplates.RegisterInitializationText,
                             reg.HasNumber ? reg.Number.ToString() : "-1",
                             reg.Name,
@@ -51,7 +54,10 @@ internal static class ArchitectureManagerEmitter {
                             reg.EnumMemberName
                         ));
                     }
-                    sbInitFunctions.AppendLine("                ]),");
+
+                    sbInitFunctions.Append("                ], \"");
+                    sbInitFunctions.Append(group.Name);
+                    sbInitFunctions.AppendLine("\"),");
                 }
                 sbInitFunctions.AppendLine("            ], [");
                 FlagsInfo? coProcFlags = flags.FirstOrDefault(x => x.Architecture == arch && x.Processor == coProcGroup.Key);
