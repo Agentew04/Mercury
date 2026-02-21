@@ -32,8 +32,18 @@ public partial class ProjectFileVisualItem : ObservableObject {
 
 public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionViewModel, ProjectSelectionView> {
     
-    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
-    private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
+    private readonly ProjectService projectService;
+    private readonly SettingsService settingsService;
+
+    public ProjectSelectionViewModel(ProjectService projectService, SettingsService settingsService) {
+        this.projectService = projectService;
+        this.settingsService = settingsService;
+        
+        foreach (ProjectFile project in projectService.GetRecentProjects()) {
+            allRecentProjects.Add(new ProjectFileVisualItem(project, OpenProjectCommand));
+        }
+        OnSearchQueryChanged("");
+    }
 
     public bool Cancelled { get; private set; } = false;
     
@@ -101,13 +111,6 @@ public partial class ProjectSelectionViewModel : BaseViewModel<ProjectSelectionV
             string path = Path.Combine(SanitizeProjectPath(NewProjectPath), SanitizeProjectName(NewProjectName));
             return string.Format(ProjectResources.DirectoryResultNoticeValue, path);
         }
-    }
-
-    public ProjectSelectionViewModel() {
-        foreach (ProjectFile project in projectService.GetRecentProjects()) {
-            allRecentProjects.Add(new ProjectFileVisualItem(project, OpenProjectCommand));
-        }
-        OnSearchQueryChanged("");
     }
     
     partial void OnSearchQueryChanged(string value) {

@@ -22,8 +22,12 @@ namespace Mercury.Editor.Services;
 public partial class UpdaterService : BaseService<UpdaterService> {
 
     private readonly Uri releasesUri = new("https://api.github.com/repos/Agentew04/Mercury/releases");
-    private readonly HttpClient http = App.Services.GetRequiredService<HttpClient>();
+    private readonly HttpClient http;
 
+    public UpdaterService(HttpClient http) {
+        this.http = http;
+    }
+    
     public async Task<List<GithubRelease>> GetRemoteReleases(CancellationToken cancellationToken = default) {
         try {
             using HttpRequestMessage request = new(HttpMethod.Get, releasesUri);

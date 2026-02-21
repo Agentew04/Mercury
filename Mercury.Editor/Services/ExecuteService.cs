@@ -24,11 +24,14 @@ namespace Mercury.Editor.Services;
 /// with the engine to execute code. 
 /// </summary>
 public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable {
-    private readonly ICompilerService compilerService =
-        App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
+    private readonly ICompilerService compilerService;
 
     private MipsMachine? currentMachine;
     private ELF<uint>? currentElf;
+
+    public ExecuteService([FromKeyedServices(Architecture.Mips)] ICompilerService compilerService) {
+        this.compilerService = compilerService;
+    }
 
     public void LoadProgram() {
         CompilationResult result = compilerService.LastCompilationResult;

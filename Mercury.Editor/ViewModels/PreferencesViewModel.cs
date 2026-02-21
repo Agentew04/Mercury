@@ -22,8 +22,8 @@ namespace Mercury.Editor.ViewModels;
 
 public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, PreferencesView>, INotifyDataErrorInfo {
 
-    private readonly SettingsService settings = App.Services.GetRequiredService<SettingsService>();
-    private readonly ThemeService themeService = App.Services.GetRequiredService<ThemeService>();
+    private readonly SettingsService settings;
+    private readonly ThemeService themeService;
     
     public List<CultureInfo> AvailableLanguages { get; } = [..LocalizationManager.AvailableCultures];
     [ObservableProperty] private int selectedLanguageIndex;
@@ -36,7 +36,11 @@ public partial class PreferencesViewModel : BaseViewModel<PreferencesViewModel, 
     private string? onlineCheckError; 
 
     [ObservableProperty] private int configVersion;
-    
+
+    public PreferencesViewModel(SettingsService settingsService, ThemeService themeService) {
+        settings = settingsService;
+        this.themeService = themeService;
+    }
     
     public void Load() {
         SelectedLanguageIndex = AvailableLanguages.IndexOf(LocalizationManager.CurrentCulture);

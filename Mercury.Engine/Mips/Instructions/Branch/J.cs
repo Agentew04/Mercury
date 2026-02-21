@@ -12,6 +12,8 @@ public partial class J : IInstruction {
     
     [Field(25,0)]
     public int Immediate { get; set; }
-    
+
+    public override string ToString() => ToString(0);
+
     public string ToString(byte highOrderPc) => $"j 0x{(highOrderPc << 26) | (Immediate << 2):X7}";
 }

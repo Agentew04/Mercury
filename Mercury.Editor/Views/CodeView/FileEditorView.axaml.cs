@@ -10,18 +10,16 @@ using Mercury.Editor.Models.Messages;
 using Mercury.Editor.Services;
 using Mercury.Editor.ViewModels.Code;
 using Microsoft.Extensions.DependencyInjection;
-using Code_FileEditorViewModel = Mercury.Editor.ViewModels.Code.FileEditorViewModel;
 
 namespace Mercury.Editor.Views.CodeView;
 
-public partial class FileEditorView : UserControl {
+public partial class FileEditorView : BaseControl<FileEditorView, FileEditorViewModel> {
 
-    private readonly GrammarService grammarService = App.Services.GetRequiredService<GrammarService>();
+    private readonly GrammarService grammarService;
     
-    public FileEditorView() {
+    public FileEditorView(GrammarService grammarService) {
         InitializeComponent();
-        DataContext = ViewModel = App.Services.GetRequiredService<Code_FileEditorViewModel>();
-        ViewModel.SetView(this);
+        this.grammarService = grammarService;
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
         TextEditor.TextArea.TextEntering += TextEntering;
         // TextEditor.TextArea.TextEntered += TextEntered;
@@ -52,7 +50,6 @@ public partial class FileEditorView : UserControl {
         view.TextEditor.Focus();
     }
 
-    public Code_FileEditorViewModel ViewModel { get; set; }
     private CompletionWindow? completionWindow;
 
     private void Control_OnLoaded(object? sender, RoutedEventArgs e) {

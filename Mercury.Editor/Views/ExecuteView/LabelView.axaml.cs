@@ -5,14 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Views.ExecuteView;
 
-public partial class LabelView : UserControl {
+public partial class LabelView : BaseControl<LabelView, LabelViewModel> {
     public LabelView() {
         InitializeComponent();
-        DataContext = ViewModel = App.Services.GetRequiredService<LabelViewModel>();
     }
     
-    public LabelViewModel ViewModel { get; private set; }
-
     private void DataGrid_OnCellPointerPressed(object? sender, DataGridCellPointerPressedEventArgs e) {
         //e.PointerPressedEventArgs.Handled = true;
     }

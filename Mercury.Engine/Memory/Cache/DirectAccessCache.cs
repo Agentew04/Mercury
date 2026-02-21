@@ -86,9 +86,9 @@ public class DirectAccessCache : ICache {
     public event EventHandler<CacheMissEventArgs>? OnCacheMiss;
     public event EventHandler<CacheEvictionEventArgs>? OnCacheEvict;
     
-    private ulong hitCount = 0;
-    private ulong missCount = 0;
-    private ulong evictionCount = 0;
+    private ulong hitCount;
+    private ulong missCount;
+    private ulong evictionCount;
     
     public CacheStatistics GetStatistics() {
         return new CacheStatistics() {
@@ -271,7 +271,7 @@ public class DirectAccessCache : ICache {
     }
 
     public void Read(ulong address, Span<byte> bytes) {
-        if (bytes == null || bytes.Length <= 0) {
+        if (bytes.IsEmpty || bytes.Length <= 0) {
             throw new ArgumentOutOfRangeException(nameof(bytes), "Bytes span must be greater than zero.");
         }
 
@@ -281,7 +281,7 @@ public class DirectAccessCache : ICache {
     }
 
     public void Write(ulong address, Span<byte> bytes) {
-        if (bytes == null || bytes.Length <= 0) {
+        if (bytes.IsEmpty || bytes.Length <= 0) {
             throw new ArgumentOutOfRangeException(nameof(bytes), "Bytes span must be greater than zero.");
         }
 
@@ -291,7 +291,7 @@ public class DirectAccessCache : ICache {
     }
 
     public void Read(ulong address, Span<int> words) {
-        if (words == null || words.Length <= 0) {
+        if (words.IsEmpty || words.Length <= 0) {
             throw new ArgumentOutOfRangeException(nameof(words), "Words span must be greater than zero.");
         }
 
@@ -301,7 +301,7 @@ public class DirectAccessCache : ICache {
     }
 
     public void Write(ulong address, Span<int> words) {
-        if (words == null || words.Length <= 0) {
+        if (words.IsEmpty || words.Length <= 0) {
             throw new ArgumentOutOfRangeException(nameof(words), "Words span must be greater than zero.");
         }
 

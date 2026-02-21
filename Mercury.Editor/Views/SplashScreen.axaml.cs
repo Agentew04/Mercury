@@ -4,13 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Views;
 
-public partial class SplashScreen : Window {
+public partial class SplashScreen : BaseWindow<SplashScreen, SplashScreenViewModel> {
     public SplashScreen() {
         InitializeComponent();
-        ViewModel = App.Services.GetRequiredService<SplashScreenViewModel>();
-        DataContext = ViewModel;
-        ViewModel.SetView(this);
     }
-
-    public SplashScreenViewModel ViewModel { get; private set; }
 }

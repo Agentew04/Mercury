@@ -20,12 +20,15 @@ using Path = System.IO.Path;
 
 namespace Mercury.Editor.ViewModels.Code;
 
-public partial class ProjectViewModel : BaseViewModel<ProjectViewModel, ProblemsView> {
+public partial class ProjectViewModel : BaseViewModel<ProjectViewModel, ProjectView> {
 
-    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
-    private readonly FileService fileService = App.Services.GetRequiredService<FileService>();
+    private readonly ProjectService projectService;
+    private readonly FileService fileService;
 
-    public ProjectViewModel() {
+    public ProjectViewModel(ProjectService projectService, FileService fileService) {
+        this.projectService = projectService;
+        this.fileService = fileService;
+        
         BuildTree();
         WeakReferenceMessenger.Default.Register<ProjectViewModel, ProjectTreeInvalidationMessage>(this,
             static (vm, msg) => {

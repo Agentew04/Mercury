@@ -1,18 +1,14 @@
 ﻿using Avalonia.Controls;
 using Mercury.Editor.Models.Compilation;
-using Microsoft.Extensions.DependencyInjection;
-using Code_ProblemsViewModel = Mercury.Editor.ViewModels.Code.ProblemsViewModel;
+using Mercury.Editor.ViewModels.Code;
 
 namespace Mercury.Editor.Views.CodeView;
 
-public partial class ProblemsView : UserControl
+public partial class ProblemsView : BaseControl<ProblemsView, ProblemsViewModel>
 {
     public ProblemsView() {
         InitializeComponent();
-        DataContext = ViewModel = App.Services.GetRequiredService<Code_ProblemsViewModel>();
     }
-
-    public Code_ProblemsViewModel ViewModel { get; private set; }
 
     private void DataGrid_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {

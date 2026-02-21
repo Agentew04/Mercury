@@ -4,14 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Views.ExecuteView;
 
-public partial class InstructionView : UserControl {
+public partial class InstructionView : BaseControl<InstructionView, InstructionViewModel> {
     public InstructionView() {
         InitializeComponent();
-        DataContext = ViewModel = App.Services.GetRequiredService<InstructionViewModel>();
     }
     
-    public InstructionViewModel ViewModel { get; set; }
-
     private void DataGrid_OnSelectionChanged(object? sender, SelectionChangedEventArgs e) {
         InstructionDataGrid.ScrollIntoView(InstructionDataGrid.SelectedItem, null);
     }

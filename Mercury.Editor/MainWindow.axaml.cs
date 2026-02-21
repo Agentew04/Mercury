@@ -7,6 +7,7 @@ using Mercury.Editor.Models.Messages;
 using Mercury.Editor.Views;
 using Mercury.Editor.Views.CodeView;
 using Mercury.Editor.Views.ExecuteView;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor {
     
@@ -40,7 +41,7 @@ namespace Mercury.Editor {
         private readonly Navigation nav;
 
         private void OpenPreferences(object? sender, RoutedEventArgs e) {
-            PreferencesView preferencesView = new();
+            PreferencesView preferencesView = App.Services.GetRequiredService<PreferencesView>();
             preferencesView.ShowDialog(this);
         }
 
@@ -53,12 +54,12 @@ namespace Mercury.Editor {
         }
 
         private void OpenProjectConfiguration(object? sender, RoutedEventArgs e) {
-            ProjectConfiguration config = new();
+            ProjectConfiguration config = App.Services.GetRequiredService<ProjectConfiguration>();
             config.ShowDialog(this);
         }
 
         private void Open_About(object? sender, RoutedEventArgs e) {
-            AboutView about = new();
+            AboutView about = App.Services.GetRequiredService<AboutView>();
             about.ShowDialog(this);
         }
 

@@ -20,12 +20,18 @@ namespace Mercury.Editor.ViewModels.Code;
 
 public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel, FileEditorView> {
 
-    private readonly FileService fileService = App.Services.GetRequiredService<FileService>();
-    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
-    private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
-    private readonly ExecuteService executeService = App.Services.GetRequiredService<ExecuteService>();
+    private readonly FileService fileService;
+    private readonly ProjectService projectService;
+    private readonly ICompilerService compilerService;
+    private readonly ExecuteService executeService;
     
-    public FileEditorViewModel() {
+    public FileEditorViewModel(FileService fileService, ProjectService projectService, 
+        [FromKeyedServices(Architecture.Mips)]ICompilerService compilerService, ExecuteService executeService) {
+        this.fileService = fileService;
+        this.projectService = projectService;
+        this.compilerService = compilerService;
+        this.executeService = executeService;
+        
         WeakReferenceMessenger.Default.Register<FileEditorViewModel,FileOpenMessage>(this, OnFileOpen);
         WeakReferenceMessenger.Default.Register<FileEditorViewModel,ProgramLoadMessage>(this, OnProgramLoad);
         WeakReferenceMessenger.Default.Register<FileEditorViewModel,FileDeleteMessage>(this, OnFileDelete);

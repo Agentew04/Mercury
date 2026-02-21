@@ -72,17 +72,14 @@ public class CacheBuilder : IBuilder<ICache>
         {
             // Direct Mapped Cache
             return new DirectAccessCache(backingMemory, blockSize, blockSize, writePolicy);
-        }else if (blockCount == 1)
+        }
+        if (blockCount == 1)
         {
             // fully associative cache
             return new FullyAssociativeCache(backingMemory, associativity, blockSize, writePolicy,
                 strategy);
         }
-        else
-        {
-            // hybrid cache
-            throw new NotSupportedException("Not yet supported.");
-        }
-        return null!;
+        // hybrid cache
+        throw new NotSupportedException("Not yet supported.");
     }
 }

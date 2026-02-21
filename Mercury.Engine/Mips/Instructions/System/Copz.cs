@@ -13,5 +13,5 @@ public partial class Copz : IInstruction{
     [Field(25,0)]
     public int Function { get; set; }
 
-    public string ToString() => $"cop{Coprocessor} {Function:X7}";
+    public override string ToString() => $"cop{Coprocessor} {Function:X7}";
 }

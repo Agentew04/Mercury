@@ -29,10 +29,12 @@ namespace Mercury.Editor.Services;
 
 public sealed partial class GuideService : BaseService<GuideService>, IDisposable {
 
-    private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
-    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+    private readonly SettingsService settingsService;
+    private readonly ProjectService projectService;
 
-    public GuideService() {
+    public GuideService(SettingsService settingsService, ProjectService projectService) {
+        this.settingsService = settingsService;
+        this.projectService = projectService;
         LocalizationManager.CultureChanged += LocalizeGuides;
     }
 

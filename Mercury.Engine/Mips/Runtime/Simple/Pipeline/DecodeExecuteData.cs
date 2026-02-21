@@ -4,7 +4,7 @@ namespace Mercury.Engine.Mips.Runtime.Simple.Pipeline;
 
 public class DecodeExecuteData {
     
-    public Instruction Instruction { get; set; }
+    public Instruction? Instruction { get; set; }
     
     public int RsValue { get; set; }
     

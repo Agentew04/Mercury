@@ -6,16 +6,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Views.ExecuteView;
 
-public partial class RegisterView : UserControl
+public partial class RegisterView : BaseControl<RegisterView, RegisterViewModel>
 {
     public RegisterView()
     {
         InitializeComponent();
-        DataContext = viewModel = App.Services.GetRequiredService<RegisterViewModel>();
     }
 
-    private RegisterViewModel viewModel;
-    
     private void RowBorder_OnPointerPressed(object? sender, PointerPressedEventArgs e) {
         Control? control = (Control?)sender;
         Register? reg = (Register?)control?.DataContext;

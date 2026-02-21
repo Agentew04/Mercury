@@ -13,7 +13,7 @@ namespace Mercury.Editor.ViewModels.Execute;
 
 public partial class ExecuteViewModel : BaseViewModel<ExecuteViewModel, ExecuteView> {
 
-    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+    private readonly ProjectService projectService;
     
     private const string RegistersName = "executetab.registers";
     private const string LabelsName = "executetab.labels";
@@ -27,7 +27,8 @@ public partial class ExecuteViewModel : BaseViewModel<ExecuteViewModel, ExecuteV
     
     private readonly CancellationTokenSource cts = new();
 
-    public ExecuteViewModel() {
+    public ExecuteViewModel(ProjectService projectService) {
+        this.projectService = projectService;
         DispatcherTimer.Run(SaveSizes, TimeSpan.FromMinutes(1), DispatcherPriority.Background);
     }
     

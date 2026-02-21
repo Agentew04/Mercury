@@ -22,7 +22,7 @@ using Mercury.Engine.Common;
 
 namespace Mercury.Editor.ViewModels.Execute;
 
-public partial class InstructionViewModel : BaseViewModel<InstructionViewModel, InstructionView>, IDisposable {
+public sealed partial class InstructionViewModel : BaseViewModel<InstructionViewModel, InstructionView>, IDisposable {
 
     [ObservableProperty] private ObservableCollection<DisassemblyRow> instructions = [];
     [ObservableProperty] private int selectedInstructionIndex = -1;

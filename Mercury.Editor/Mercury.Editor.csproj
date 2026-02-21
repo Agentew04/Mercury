@@ -17,6 +17,9 @@
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <RootNamespace>Mercury.Editor</RootNamespace>
     <LangVersion>14</LangVersion>
+    
+    <!-- supress lack of parameterless ctor in Views -->
+    <NoWarn>AVLN3001</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

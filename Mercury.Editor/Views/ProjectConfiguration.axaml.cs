@@ -5,14 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Views;
 
-public partial class ProjectConfiguration : Window {
+public partial class ProjectConfiguration : BaseWindow<ProjectConfiguration, ProjectConfigurationViewModel> {
     public ProjectConfiguration() {
         InitializeComponent();
-        DataContext = ViewModel = App.Services.GetRequiredService<ProjectConfigurationViewModel>();
-        ViewModel.SetView(this);
     }
-    
-    public ProjectConfigurationViewModel ViewModel { get; set; }
 
     private void OnWindowLoad(object? sender, RoutedEventArgs e) {
         ViewModel.Load();

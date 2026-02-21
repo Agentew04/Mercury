@@ -32,7 +32,6 @@ internal readonly record struct EnumToGenerate {
     public readonly string ShortEnumName;
     public readonly string ArchitectureFieldName;
     public readonly string FullArchitectureClassName;
-    public readonly string? ProcessorName;
 
     public EnumToGenerate(string enumName, string shortname, List<RegisterInfo> regs, string architectureFieldName, string fullArchitectureClassName) {
         Registers = new EquatableArray<RegisterInfo>(regs.ToArray());
@@ -64,7 +63,7 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
 
     private static EnumToGenerate GetSemanticTargetForGeneration(GeneratorAttributeSyntaxContext ctx) {
         var eds = (EnumDeclarationSyntax)ctx.TargetNode;
-        var enumSymbol = (ITypeSymbol?)ModelExtensions.GetDeclaredSymbol(ctx.SemanticModel, eds);
+        var enumSymbol = (ITypeSymbol?)ctx.SemanticModel.GetDeclaredSymbol(eds);
         
         // get architecture
         int archIndex = (int)ctx.Attributes[0].ConstructorArguments[0].Value!;
@@ -78,7 +77,7 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
         List<RegisterInfo> regs = [];
         for (int i = 0; i < eds.Members.Count; i++) {
             EnumMemberDeclarationSyntax member = eds.Members[i];
-            IFieldSymbol? fieldSymbol = (IFieldSymbol?)ModelExtensions.GetDeclaredSymbol(ctx.SemanticModel, member);
+            IFieldSymbol? fieldSymbol = (IFieldSymbol?)ctx.SemanticModel.GetDeclaredSymbol(member);
             if (fieldSymbol is null) {
                 continue;
             }
@@ -95,6 +94,6 @@ public class RegisterInfoGenerator : IIncrementalGenerator{
             }
         }
 
-        return new EnumToGenerate(enumSymbol.ToDisplayString(), enumSymbol.Name, regs, architectureFieldName, fullArchitectureClassName);
+        return new EnumToGenerate(enumSymbol!.ToDisplayString(), enumSymbol.Name, regs, architectureFieldName, fullArchitectureClassName);
     }
 }

@@ -6,13 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Views.CodeView;
 
-public partial class CodeTabView : UserControl {
+public partial class CodeTabView : BaseControl<CodeTabView, CodeTabViewModel> {
     public CodeTabView() {
         InitializeComponent();
-        DataContext = vm = App.Services.GetRequiredService<CodeTabViewModel>();
-        vm.LoadSizes(); // hopefully this happens before layout
-        Unloaded += (_,_) => vm.OnUnload();
+        ViewModel.LoadSizes(); // hopefully this happens before layout
+        Unloaded += (_,_) => ViewModel.OnUnload();
     }
-
-    private CodeTabViewModel vm;
 }

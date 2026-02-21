@@ -13,10 +13,11 @@ namespace Mercury.Editor.Services;
 
 public class GrammarService : BaseService<GrammarService> {
 
-    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+    private readonly ProjectService projectService;
     private readonly Assembly assembly;
 
-    public GrammarService() {
+    public GrammarService(ProjectService projectService) {
+        this.projectService = projectService; 
         assembly = Assembly.GetExecutingAssembly();
     }
 

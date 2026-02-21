@@ -26,7 +26,7 @@ public class ResxGenerator : IIncrementalGenerator {
         namespace Mercury.Editor.Localization;
         
         public class LocalizationChangedMessage{
-            public CultureInfo Culture { get; init; }
+            public required CultureInfo Culture { get; init; }
         }
         
         public static class LocalizationManager

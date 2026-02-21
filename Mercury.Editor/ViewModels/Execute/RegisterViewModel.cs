@@ -15,7 +15,6 @@ using Mercury.Editor.Views.ExecuteView;
 using Mercury.Engine.Common;
 using Microsoft.Extensions.Logging;
 using Mercury.Editor.Extensions;
-using Mercury.Engine.Mips.Runtime;
 using Mercury.Engine.Mips.Runtime.Simple;
 
 namespace Mercury.Editor.ViewModels.Execute;
@@ -37,7 +36,7 @@ public partial class RegisterViewModel : BaseViewModel<RegisterViewModel, Regist
 
     private readonly List<RegisterReference> highlightedRegisters = [];
 
-    private ArchitectureMetadata architectureMetadata;
+    private ArchitectureMetadata architectureMetadata = null!;
     private IRegisterHelper registerHelper = null!;
 
     private Machine? machine;
@@ -209,7 +208,7 @@ public class RegisterReference {
 } 
 
 public partial class Register : ObservableObject {
-    [ObservableProperty] private RegisterDefinition definition;
+    [ObservableProperty] private RegisterDefinition definition = null!;
 
     public bool HasIndex => Definition.Number != -1;
 

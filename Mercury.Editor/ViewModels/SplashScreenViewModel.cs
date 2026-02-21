@@ -22,6 +22,7 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Base;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
+using static Mercury.Editor.App;
 using Version = System.Version;
 
 namespace Mercury.Editor.ViewModels;
@@ -33,10 +34,10 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         "https://github.com/Agentew04/Mercury/raw/refs/heads/stdlib/structure.json";
     private const string ResourcesDownloadUrl = "https://api.github.com/repos/Agentew04/Mercury/zipball/stdlib";
     
-    private readonly SettingsService settings = App.Services.GetRequiredService<SettingsService>();
-    private readonly HttpClient http = App.Services.GetRequiredService<HttpClient>();
-    private readonly UpdaterService updater = App.Services.GetRequiredService<UpdaterService>();
-    private readonly ThemeService theme = App.Services.GetRequiredService<ThemeService>();
+    private readonly SettingsService settings;
+    private readonly HttpClient http;
+    private readonly UpdaterService updater;
+    private readonly ThemeService theme;
 
     [ObservableProperty]
     private string statusText = "";
@@ -47,6 +48,13 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
     public string VersionText => $"{Version?.Major ?? 0}.{Version?.Minor ?? 0}";
 
     private TaskCompletionSource? downloadResourcesTask;
+
+    public SplashScreenViewModel(SettingsService settings, HttpClient http, UpdaterService updater, ThemeService theme) {
+        this.settings = settings;
+        this.http = http;
+        this.updater = updater;
+        this.theme = theme;
+    }
     
     public async Task InitializeAsync() {
         Version = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0,0);

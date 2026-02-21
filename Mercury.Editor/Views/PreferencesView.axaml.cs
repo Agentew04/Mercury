@@ -5,16 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Views;
 
-public partial class PreferencesView : Window {
+public partial class PreferencesView : BaseWindow<PreferencesView, PreferencesViewModel> {
     public PreferencesView() {
         InitializeComponent();
-        DataContext = viewModel = App.Services.GetRequiredService<PreferencesViewModel>();
-        viewModel.SetView(this);
     }
 
-    private PreferencesViewModel viewModel;
-
     private void OnWindowLoad(object? sender, RoutedEventArgs e) {
-        viewModel.Load();
+        ViewModel.Load();
     }
 }

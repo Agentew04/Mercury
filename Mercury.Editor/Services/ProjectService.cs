@@ -19,8 +19,12 @@ namespace Mercury.Editor.Services;
 
 public class ProjectService : BaseService<ProjectService> {
 
-    private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
+    private readonly SettingsService settingsService;
     private ProjectFile? currentProject;
+
+    public ProjectService(SettingsService settingsService) {
+        this.settingsService = settingsService;
+    }
     
     /// <summary>
     /// Returns the path to the most recent projects.

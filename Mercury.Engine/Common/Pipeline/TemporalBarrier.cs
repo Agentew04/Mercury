@@ -4,24 +4,22 @@
 /// Represents a logical temporar barrier in a pipeline context.
 /// </summary>
 /// <typeparam name="T">A type that encompasses all information shared between two stages</typeparam>
-public class TemporalBarrier<T> {
+public sealed class TemporalBarrier<T> {
 
-    private T next;
-    private T current;
-    private bool hasNext;
-    private bool hasValue;
-    
+    private T? next;
+    private T? current;
+
     /// <summary>
     /// Indicates if there is a value written to this barrier
     /// that has not yet been commited.
     /// </summary>
-    public bool HasNext => hasNext;
+    public bool HasNext { get; private set; }
 
     /// <summary>
     /// Indicates if the barrier currently has a value that can be read
     /// with the <see cref="Read"/> method.
     /// </summary>
-    public bool HasValue => hasValue;
+    public bool HasValue { get; private set; }
 
     /// <summary>
     /// Writes a value to this barrier. The value will be available
@@ -30,14 +28,14 @@ public class TemporalBarrier<T> {
     /// <param name="value">The new value</param>
     public void Write(T value) {
         next = value;
-        hasNext = true;
+        HasNext = true;
     }
 
     /// <summary>
     /// Reads the current value that this barrier is
     /// outputting.
     /// </summary>
-    public T Read() => current;
+    public T? Read() => current;
 
     /// <summary>
     /// Advances the barrier, commiting the value written
@@ -46,12 +44,12 @@ public class TemporalBarrier<T> {
     /// was written, this method does nothing.
     /// </summary>
     public void Commit() {
-        if (!hasNext) {
-            hasValue = false;
+        if (!HasNext) {
+            HasValue = false;
             return;
         }
         current = next;
-        hasNext = false;
-        hasValue = true;
+        HasNext = false;
+        HasValue = true;
     }
 }

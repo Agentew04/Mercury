@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace Mercury.Editor.ViewModels.Code;
 
 public partial class CodeTabViewModel : BaseViewModel<CodeTabViewModel, CodeTabView> {
-    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+    private readonly ProjectService projectService;
 
     private const string GuideName = "codetab.guide";
     private const string ProjectName = "codetab.project";
@@ -24,7 +24,8 @@ public partial class CodeTabViewModel : BaseViewModel<CodeTabViewModel, CodeTabV
 
     private CancellationTokenSource cts = new();
 
-    public CodeTabViewModel() {
+    public CodeTabViewModel(ProjectService projectService) {
+        this.projectService = projectService;
         DispatcherTimer.Run(SaveSizes, TimeSpan.FromMinutes(1), DispatcherPriority.Background);
     }
 

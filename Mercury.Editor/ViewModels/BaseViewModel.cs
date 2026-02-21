@@ -6,13 +6,10 @@ using Microsoft.Extensions.Logging;
 namespace Mercury.Editor.ViewModels;
 
 public class BaseViewModel<TViewModel,TView> : ObservableObject where TView : class {
-
-    private ILogger<TViewModel>? logger;
-
     /// <summary>
     /// Gets the class internal logging instance.
     /// </summary>
-    protected ILogger<TViewModel> Logger => logger ??= App.Services.GetRequiredService<ILogger<TViewModel>>();
+    protected ILogger<TViewModel> Logger => field ??= App.Services.GetRequiredService<ILogger<TViewModel>>();
 
     private WeakReference<TView>? viewReference;
 

@@ -4,12 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Views;
 
-public partial class AboutView : Window {
+public partial class AboutView : BaseWindow<AboutView,AboutViewModel> {
     public AboutView() {
         InitializeComponent();
-        DataContext = ViewModel = App.Services.GetRequiredService<AboutViewModel>();
-        ViewModel.SetView(this);
     }
-    
-    private AboutViewModel ViewModel { get; set; }
 }

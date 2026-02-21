@@ -19,7 +19,7 @@ namespace Mercury.Editor.ViewModels;
 
 public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfigurationViewModel, ProjectConfiguration> {
 
-    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+    private readonly ProjectService projectService;
 
     [ObservableProperty] private string projectName = string.Empty;
     [ObservableProperty] private bool includeStdlib;
@@ -31,7 +31,10 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
     [ObservableProperty] private string outputDir = string.Empty;
     [ObservableProperty] private string outputFile = string.Empty;
     [ObservableProperty] private string entryFile = string.Empty;
-    
+
+    public ProjectConfigurationViewModel(ProjectService projectService) {
+        this.projectService = projectService;
+    }
 
     public void Load() {
         ProjectFile? project = projectService.GetCurrentProject();

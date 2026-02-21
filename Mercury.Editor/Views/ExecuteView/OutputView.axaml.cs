@@ -8,16 +8,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor.Views.ExecuteView;
 
-public partial class OutputView : UserControl {
+public partial class OutputView : BaseControl<OutputView, OutputViewModel> {
 
-    private readonly ILogger<OutputView> logger = App.Services.GetRequiredService<ILogger<OutputView>>();
-    
     public ScrollViewer? OutputScroller { get; private set; }
 
     public OutputView() {
         InitializeComponent();
-        DataContext = ViewModel = App.Services.GetRequiredService<OutputViewModel>();
-        ViewModel.SetView(this);
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {
@@ -26,12 +22,9 @@ public partial class OutputView : UserControl {
             .OfType<ScrollViewer>()
             .FirstOrDefault();
         if (OutputScroller is null) {
-            logger.LogWarning("OutputTextBox ScrollView not found! Can't auto scroll to end!");
+            Logger.LogWarning("OutputTextBox ScrollView not found! Can't auto scroll to end!");
         }
     }
-
-
-    public OutputViewModel ViewModel { get; init; }
 
     private void OnSend(object? sender, RoutedEventArgs e) {
         InputTextBox.Focus();

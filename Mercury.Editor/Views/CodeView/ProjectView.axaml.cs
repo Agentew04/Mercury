@@ -7,26 +7,22 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Mercury.Editor.Models;
+using Mercury.Editor.ViewModels.Code;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Code_ProjectViewModel = Mercury.Editor.ViewModels.Code.ProjectViewModel;
 
 namespace Mercury.Editor.Views.CodeView;
 
-public partial class ProjectView : UserControl {
+public partial class ProjectView : BaseControl<ProjectView, ProjectViewModel> {
 
-    private readonly ILogger<ProjectView> logger = App.Services.GetRequiredService<ILogger<ProjectView>>();
     private TopLevel? topLevel;
     
     public ProjectView() {
         InitializeComponent();
-        DataContext = ViewModel = App.Services.GetRequiredService<Code_ProjectViewModel>();
         AddHandler(DragDrop.DragOverEvent, DragOver);
         AddHandler(DragDrop.DropEvent, Drop);
     }
     
-    public Code_ProjectViewModel ViewModel { get; set; }
-
     private Point ghostPosition = new(0,0);
     private readonly Point mouseOffset = new(-5, -5);
     private bool pressed;
@@ -65,7 +61,7 @@ public partial class ProjectView : UserControl {
         }
         moveCompletionSource = null;
         
-        logger.LogInformation("Drag Start");
+        Logger.LogInformation("Drag Start");
         Point ghostPos = GhostBorder.Bounds.Position;
         ghostPosition = ghostPos + mouseOffset;
         
@@ -83,7 +79,7 @@ public partial class ProjectView : UserControl {
             DragDropEffects result = await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
         }
         catch (COMException) {
-            logger.LogError("COMException. Usuario tentou arrastar pasta do jeito errado. ");
+            Logger.LogError("COMException. Usuario tentou arrastar pasta do jeito errado. ");
         }
 
         GhostBorder.IsVisible = false;

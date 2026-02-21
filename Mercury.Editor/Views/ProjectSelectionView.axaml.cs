@@ -8,20 +8,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor.Views;
 
-public partial class ProjectSelectionView : Window {
+public partial class ProjectSelectionView : BaseWindow<ProjectSelectionView, ProjectSelectionViewModel> {
     public ProjectSelectionView() {
         InitializeComponent();
-        DataContext = ViewModel = App.Services.GetRequiredService<ProjectSelectionViewModel>();
-        ViewModel.SetView(this);
         TitleBar.Window = this;
     }
 
-    private readonly ILogger<ProjectSelectionView> logger = App.Services.GetRequiredService<ILogger<ProjectSelectionView>>();
-    public ProjectSelectionViewModel ViewModel { get; set; }
-
     private async void BrowseFolderOnNewProject(object? sender, RoutedEventArgs e) {
         if(!StorageProvider.CanOpen){
-            logger.LogError("FilePicker is not supported on this platform");
+            Logger.LogError("FilePicker is not supported on this platform");
             return;
         }
         

@@ -4,13 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Mercury.Editor.Views.ExecuteView;
 
-public partial class ExecuteView : UserControl {
+public partial class ExecuteView : BaseControl<ExecuteView, ExecuteViewModel> {
     public ExecuteView() {
         InitializeComponent();
-        DataContext = vm = App.Services.GetRequiredService<ExecuteViewModel>();
-        vm.LoadSizes();
-        Unloaded += (_, _) => vm.OnUnload();
+        ViewModel.LoadSizes();
+        Unloaded += (_, _) => ViewModel.OnUnload();
     }
-    
-    private ExecuteViewModel vm;
 }

@@ -16,8 +16,8 @@ namespace Mercury.Editor.Services;
 
 public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService {
 
-    private readonly SettingsService settingsService = App.Services.GetRequiredService<SettingsService>();
-    private readonly ProjectService projectService = App.Services.GetRequiredService<ProjectService>();
+    private readonly SettingsService settingsService;
+    private readonly ProjectService projectService;
     private PathObject AssemblerPath => settingsService.ToolsDirectory.File(UserPreferences.AssemblerFileName);
     
     private PathObject LinkerPath => settingsService.ToolsDirectory.File(UserPreferences.LinkerFileName);
@@ -25,6 +25,11 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
     private PathObject LinkerScriptPath => settingsService.ToolsDirectory.File("linker.ld");
 
     private const string EntryPointPreambule = ".globl __start\n__start:\n";
+
+    public MipsCompiler(SettingsService settingsService, ProjectService projectService) {
+        this.settingsService = settingsService;
+        this.projectService = projectService;
+    }
     
     public async ValueTask<CompilationResult> CompileAsync(CompilationInput input)
     {
