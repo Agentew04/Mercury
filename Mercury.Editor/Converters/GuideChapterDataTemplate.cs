@@ -11,13 +11,12 @@ namespace Mercury.Editor.Converters;
 
 public sealed class GuideChapterDataTemplate : IDataTemplate, IDisposable {
     
-    private readonly GuideService guideService;
+    private readonly GuideService guideService = App.Services.GetRequiredService<GuideService>();
 
     private StackPanel? stackPanel;
     private GuideChapter? chapter;
 
-    public GuideChapterDataTemplate(GuideService guideService) {
-        this.guideService = guideService;
+    public GuideChapterDataTemplate() {
     }
     
     public Control? Build(object? param) {

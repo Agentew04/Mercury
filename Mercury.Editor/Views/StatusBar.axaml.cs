@@ -13,11 +13,10 @@ using Mercury.Engine.Common;
 namespace Mercury.Editor.Views;
 
 public partial class StatusBar : UserControl, IDisposable {
-    private readonly ICompilerService compilerService;
+    private readonly ICompilerService compilerService = App.Services.GetRequiredKeyedService<ICompilerService>(Architecture.Mips);
 
-    public StatusBar([FromKeyedServices(Architecture.Mips)] ICompilerService compilerService) {
+    public StatusBar() {
         InitializeComponent();
-        this.compilerService = compilerService;
         WeakReferenceMessenger.Default.Register<CompilationStartedMessage>(this, Started);
         WeakReferenceMessenger.Default.Register<CompilationFinishedMessage>(this, Finished);
         StatusText.Text = StatusBarResources.ReadyValue;

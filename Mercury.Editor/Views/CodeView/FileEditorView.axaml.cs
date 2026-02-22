@@ -15,11 +15,10 @@ namespace Mercury.Editor.Views.CodeView;
 
 public partial class FileEditorView : BaseControl<FileEditorView, FileEditorViewModel> {
 
-    private readonly GrammarService grammarService;
+    private readonly GrammarService grammarService = App.Services.GetRequiredService<GrammarService>();
     
-    public FileEditorView(GrammarService grammarService) {
+    public FileEditorView() {
         InitializeComponent();
-        this.grammarService = grammarService;
         WeakReferenceMessenger.Default.Register<FileOpenMessage>(this, OnFileOpen);
         TextEditor.TextArea.TextEntering += TextEntering;
         // TextEditor.TextArea.TextEntered += TextEntered;

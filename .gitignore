@@ -8,6 +8,7 @@ test/*.elf
 test/*.o
 Mercury.*/bin/
 Mercury.*/obj/
+private.key
 
 # User-specific files
 *.rsuser

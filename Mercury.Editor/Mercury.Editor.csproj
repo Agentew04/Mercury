@@ -8,7 +8,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <IsPackable>false</IsPackable>
     <Authors>Rodrigo Appelt</Authors>
-    <AssemblyVersion>0.3.1</AssemblyVersion>
+    <AssemblyVersion>0.4</AssemblyVersion>
     <NeutralLanguage>en</NeutralLanguage>
     
     <!-- publish and trimming -->
@@ -106,8 +106,9 @@
     <None Remove="Assets\Images\*.svg" />
   </ItemGroup>
   
-  <!-- licenca -->
+  <!-- licenca e chave publica-->
   <ItemGroup>
     <EmbeddedResource Include="..\LICENSE.txt"/>
+    <EmbeddedResource Include="..\public.key"/>
   </ItemGroup>
 </Project>

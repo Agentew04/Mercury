@@ -118,6 +118,7 @@ public partial class UpdaterService : BaseService<UpdaterService> {
             "gz" => GithubFileType.TarGz, // <- grok is this true?
             "exe" => GithubFileType.Exe,
             "dll" => GithubFileType.Dll,
+            "sig" => GithubFileType.Signature,
             _ => GithubFileType.Unknown
         };
             
@@ -144,6 +145,7 @@ public partial class UpdaterService : BaseService<UpdaterService> {
             // simple file case
             case GithubFileType.Exe:
             case GithubFileType.Dll:
+            case GithubFileType.Signature:
             case GithubFileType.Unknown: {
                 Logger.LogWarning("Tried unpacking unknown file type. Assuming plain file.");
                 string path = Path.GetTempFileName();
@@ -275,11 +277,16 @@ public class GithubAsset {
     public required GithubFileType Type { get; set; }
 }
 
+[Flags]
 public enum GithubFileType {
-    Unknown,
-    Zip,
-    Rar,
-    TarGz,
-    Exe,
-    Dll
+    None = 0,
+    Unknown = 1,
+    Zip = 2,
+    Rar = 4,
+    TarGz = 8,
+    Exe = 16,
+    Dll = 32,
+    Signature = 64,
+    Compressed = Zip | Rar | TarGz,
+    SimpleFile = Unknown | Exe | Dll | Signature
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -54,8 +55,8 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
     /// Initializes the service reading guides and storing structures.
     /// </summary>
     public async Task InitializeAsync() {
-        Logger.LogInformation("Initializing Guides...");
-
+        Stopwatch sw = new();
+        sw.Start();
         ProjectFile? project = projectService.GetCurrentProject();
         if (project is null) {
             Logger.LogWarning("Couldn't load guides. No project loaded.");
@@ -119,11 +120,12 @@ public sealed partial class GuideService : BaseService<GuideService>, IDisposabl
             };
             chapterDictionary.Add(fileWithoutCulture, chapter);
         }
-
+        
         await ReadMetadataAsync();
         // forca atualizacao dos titulos dos guias
         LocalizeGuides(LocalizationManager.CurrentCulture);
-        
+        sw.Stop();
+        Logger.LogInformation("Guides initialized in {Elapsed}ms", sw.ElapsedMilliseconds);
     }
 
     private void LocalizeGuides(CultureInfo cultureInfo) {

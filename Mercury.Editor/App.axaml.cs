@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Mercury.Editor.Services;
 using Mercury.Editor.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Mercury.Editor.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor;
 
@@ -31,7 +33,13 @@ public class App : Application {
             .BuildServiceProvider();
 
         var themeService = Services.GetRequiredService<ThemeService>();
+        var logger = Services.GetRequiredService<ILogger<App>>();
+        Stopwatch sw = new();
+        sw.Start();
         themeService.LoadThemes(Resources);
+        sw.Stop();
+        logger.LogInformation("Initialized Themes in {Elapsed}ms", sw.ElapsedMilliseconds);
+        
             
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             _desktopLifetime = desktop;
@@ -41,10 +49,14 @@ public class App : Application {
             splash.Show();
 
             try {
+                sw.Start();
                 await splash.ViewModel.InitializeAsync();
+                sw.Stop();
+                logger.LogInformation("Splash initialized in {Elapsed}ms", sw.ElapsedMilliseconds);
             }
             catch (TaskCanceledException) {
                 splash.Close();
+                logger.LogError("Splash Task was cancelled. Closing Application");
                 return;
             }
                 
@@ -60,6 +72,7 @@ public class App : Application {
 
             if (asmProjArg is not null) {
                 var projectService = Services.GetRequiredService<ProjectService>();
+                sw.Start();
                 ProjectFile? project = await projectService.OpenProject(asmProjArg.ToFilePath());
                 if(project is null){
                     asmProjArg = null;
@@ -67,6 +80,8 @@ public class App : Application {
                 else {
                     projectService.SetCurrentProject(project);
                 }
+                sw.Stop();
+                logger.LogInformation("Project Loaded in {Elapsed}ms", sw.ElapsedMilliseconds);
             }
                 
             if (directoryArg is not null && asmProjArg is null) {
@@ -77,6 +92,7 @@ public class App : Application {
                     directoryArg = null;
                 }
                 else {
+                    sw.Start();
                     ProjectFile? project = await projectService.OpenProject(file.ToFilePath());
                     if(project is null){
                         directoryArg = null;
@@ -84,6 +100,8 @@ public class App : Application {
                     else {
                         projectService.SetCurrentProject(project);
                     }
+                    sw.Stop();
+                    logger.LogInformation("Project loaded in {Elapsed}ms", sw.ElapsedMilliseconds);
                 }
             }
                 
@@ -96,6 +114,7 @@ public class App : Application {
                 await projectSelection.ViewModel.WaitForProjectSelection();
                 if (projectSelection.ViewModel.Cancelled) {
                     //desktop.Shutdown();
+                    logger.LogInformation("Project Selection was cancelled. Exiting application.");
                     return;
                 }
             }

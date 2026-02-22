@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -634,17 +635,51 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             return;
         }
 
-        GithubAsset asset = latest.Assets.First(); // talvez uma selecao mais rigorosa aqui
+        GithubAsset? signatureAsset = latest.Assets.FirstOrDefault(x => x.Type == GithubFileType.Signature);
+        GithubAsset asset = latest.Assets.First(x => (x.Type & GithubFileType.Compressed) > 0);
+
+        if (signatureAsset is null) {
+            Logger.LogWarning("Found suitable release, but it is not signed!");
+            return;
+        }
+
         using MemoryStream ms = new();
+        using MemoryStream signatureMs = new();
         Logger.LogInformation("Downloading release {version} from {date}", latest.Version, latest.PublishDate.Date.ToShortDateString());
         StatusText = SplashScreenResources.DownloadingUpdateTextValue;
         await updater.DownloadAsset(asset, ms);
+        await updater.DownloadAsset(signatureAsset, signatureMs);
         Logger.LogInformation("Unpacking release");
         StatusText = SplashScreenResources.UnpackingUpdateTextValue;
     
+        // check signature
+        if (!CheckSignature(ms, signatureMs)) {
+            Logger.LogError("Could not verify signature. Aborting update");
+            return;
+        }
+        Logger.LogInformation("Signature is valid. Update allowed.");
+        ms.Seek(0, SeekOrigin.Begin);
+        
         string artifactFolder = await updater.UnpackAsset(asset, ms);
+        
         Logger.LogInformation("Updating. Bye-Bye");
         updater.Update(artifactFolder);
     }
 
+    private bool CheckSignature(MemoryStream packageStream, MemoryStream signatureStream) {
+        using RSA rsa = RSA.Create();
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        string name = assembly.GetManifestResourceNames().First(x => x.EndsWith("public.key", StringComparison.OrdinalIgnoreCase));
+        using Stream? s = assembly.GetManifestResourceStream(name);
+        if (s is null) {
+            Logger.LogCritical("Could not find embedded public key in the program. Aborting update");
+            return false;
+        }
+        byte[] publicKey = new byte[s.Length];
+        byte[] signature = signatureStream.ToArray();
+        s.ReadExactly(publicKey);
+        rsa.ImportRSAPrivateKey(publicKey, out int _);
+        bool valid = rsa.VerifyData(packageStream, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        return valid;
+    }
 }
