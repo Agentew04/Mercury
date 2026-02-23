@@ -19,7 +19,7 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 OutputDir=./publish/
-OutputBaseFilename=MercurySetup_{#MyAppVersion}
+OutputBaseFilename=MercurySetup_{#MyAppVersion}_Windows
 PrivilegesRequired=lowest
 
 [Languages]

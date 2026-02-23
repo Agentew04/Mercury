@@ -13,14 +13,16 @@ $zipName = "Mercury-$version.rar"
 Write-Host "Detected version: $version"
 
 # clear publish folder contents
+if(-not (Test-Path $publishDir)){
+    New-Item -ItemType Directory -Path $publishDir | Out-Null
+}
 if (Test-Path $buildDir) {
     Remove-Item $buildDir -Recurse -Force
 }
-if (Test-Path $publishDir) {
-    Remove-Item $publishDir -Recurse -Force
-}
-New-Item -ItemType Directory -Path $publishDir | Out-Null
 New-Item -ItemType Directory -Path $buildDir | Out-Null
+
+
+
 
 Write-Host "Publishing Mercury.Editor..."
 dotnet publish $csprojPath -o $buildDir -c Release --self-contained
@@ -42,7 +44,9 @@ if (Test-Path $zipName) {
 }
 
 Write-Host "Creating $zipName..."
-rar a -m5 "$publishDir/$zipName" "$buildDir/*"
+Push-Location $buildDir
+rar a -r -m5 "../$zipName" "*"
+Pop-Location
 Write-Host "Zip file created: $zipName"
 
 Write-Host "Signing $zipName with private key"

@@ -676,10 +676,13 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             return false;
         }
         byte[] publicKey = new byte[s.Length];
+        signatureStream.Seek(0, SeekOrigin.Begin);
+        packageStream.Seek(0, SeekOrigin.Begin);
         byte[] signature = signatureStream.ToArray();
         s.ReadExactly(publicKey);
-        rsa.ImportRSAPrivateKey(publicKey, out int _);
+        rsa.ImportRSAPublicKey(publicKey, out int _);
         bool valid = rsa.VerifyData(packageStream, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        Logger.LogInformation("RSA::VerifyData() returned {Value}", valid);
         return valid;
     }
 }

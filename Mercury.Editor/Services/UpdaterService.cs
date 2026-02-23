@@ -137,6 +137,7 @@ public partial class UpdaterService : BaseService<UpdaterService> {
         using HttpResponseMessage response = await http.SendAsync(request, cancellationToken);
         await using Stream contentStream = await response.Content.ReadAsStreamAsync(cancellationToken);
         await contentStream.CopyToAsync(outputStream, cancellationToken);
+        contentStream.Seek(0, SeekOrigin.Begin);
     }
 
     public async Task<string> UnpackAsset(GithubAsset asset, Stream assetStream) {

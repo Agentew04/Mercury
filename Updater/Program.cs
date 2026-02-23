@@ -32,12 +32,12 @@ internal static class Program {
         string[] passingArgs = args.Length > 4 ? args[4..] : [];
         int pid = int.Parse(args[0]);
 
-        // Console.WriteLine($"Starting with:\n" +
-        //                   $" - PID: {pid}\n" +
-        //                   $" - Current Folder: \"{currentPackage}\" (root={Path.IsPathRooted(currentPackage)}/qualified={Path.IsPathFullyQualified(currentPackage)})\n" +
-        //                   $" - New Folder: \"{newPackage}\" (root={Path.IsPathRooted(newPackage)}/qualified={Path.IsPathFullyQualified(newPackage)})\n" +
-        //                   $" - Executable: \"{executable}\"\n" +
-        //                   $" - Args: \"{passingArgs}\"");
+        Console.WriteLine($"Starting with:\n" +
+                          $" - PID: {pid}\n" +
+                          $" - Current Folder: \"{currentPackage}\" (root={Path.IsPathRooted(currentPackage)}/qualified={Path.IsPathFullyQualified(currentPackage)})\n" +
+                          $" - New Folder: \"{newPackage}\" (root={Path.IsPathRooted(newPackage)}/qualified={Path.IsPathFullyQualified(newPackage)})\n" +
+                          $" - Executable: \"{executable}\"\n" +
+                          $" - Args: \"{passingArgs}\"");
 
         if (!Path.IsPathRooted(currentPackage) || !Path.IsPathRooted(newPackage)) {
             Console.WriteLine("Both paths must be absolute. Press enter to exit");
@@ -60,9 +60,12 @@ internal static class Program {
         // before update, wait for executable to exit
         try {
             Process process = Process.GetProcessById(pid);
+            Console.WriteLine("Waiting for calling process to exit");
             process.WaitForExit();
+            Console.WriteLine("Calling process exited");
         }
         catch (ArgumentException) {
+            Console.WriteLine("Calling process is already closed");
             // already exited
         }
         
