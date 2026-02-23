@@ -17,7 +17,7 @@ public partial class BoolPopup : UserControl, IPopup<RequestBoolPopupMessage,Boo
 
     private bool isCancellable;
 
-    public Task<BoolPopupResult> Request(RequestBoolPopupMessage request) {
+    public Task<BoolPopupResult> RequestAsync(RequestBoolPopupMessage request) {
         IsVisible = true;
         this.isCancellable = request.IsCancellable;
         PopupTitle.Text = request.Title;

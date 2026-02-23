@@ -17,7 +17,7 @@ public partial class TextPopup : UserControl, IPopup<RequestTextPopupMessage, Te
         DataContext = this;
     }
     
-    public Task<TextPopupResult> Request(RequestTextPopupMessage request) {
+    public Task<TextPopupResult> RequestAsync(RequestTextPopupMessage request) {
         IsVisible = true;
         isCancellable = request.IsCancellable;
         PopupTitle.Text = request.Title ?? string.Empty;

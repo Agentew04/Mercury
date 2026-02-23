@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using AvaloniaEdit.Editing;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Mercury.Editor.Localization;
 using Mercury.Editor.Views;
@@ -18,8 +19,7 @@ public sealed partial class AboutViewModel : BaseViewModel<AboutViewModel, About
     private readonly Assembly assembly;
     private readonly Version version;
     
-    public AboutViewModel()
-    {
+    public AboutViewModel() {
         LocalizationManager.CultureChanged += OnLocalize;
         assembly = typeof(App).Assembly;
         version = assembly.GetName().Version ?? new Version(0,0);

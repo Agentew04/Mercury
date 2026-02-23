@@ -27,13 +27,13 @@ namespace Mercury.Editor {
             // initialize pop ups
             WeakReferenceMessenger.Default.Register<MainWindow, RequestTextPopupMessage>(this, static (recipient, msg) => {
                 msg.Reply(recipient.TextPopup
-                    .Request(msg)
+                    .RequestAsync(msg)
                     .ContinueWith(r => r.Result));
             });
             WeakReferenceMessenger.Default.Register<MainWindow, RequestBoolPopupMessage>(this,
                 static (recipient, msg) => {
                     msg.Reply(recipient.BoolPopup
-                        .Request(msg)
+                        .RequestAsync(msg)
                         .ContinueWith(r => r.Result));
                 });
         }

@@ -314,10 +314,12 @@ public partial class ProjectViewModel : BaseViewModel<ProjectViewModel, ProjectV
                node.Type == ProjectNodeType.Folder && node.Id != draggedNode?.Id;
     }
 
-    public void Drop(ProjectNode? node, ProjectNode? target) {
-        if (node is null || target is null) {
+    public void Drop(Guid nodeId, ProjectNode? target) {
+        if (nodeId == Guid.Empty || target is null) {
             return;
         }
+
+        ProjectNode node = fileService.GetNode(nodeId);
 
         PathObject oldPath = fileService.GetAbsolutePath(node.Id);
         fileService.MoveNode(node, target);

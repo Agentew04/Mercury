@@ -9,6 +9,7 @@ test/*.o
 Mercury.*/bin/
 Mercury.*/obj/
 private.key
+*.csproj.DotSettings
 
 # User-specific files
 *.rsuser

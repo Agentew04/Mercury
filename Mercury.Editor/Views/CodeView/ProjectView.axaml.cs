@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
@@ -27,6 +28,7 @@ public partial class ProjectView : BaseControl<ProjectView, ProjectViewModel> {
     private readonly Point mouseOffset = new(-5, -5);
     private bool pressed;
     private TaskCompletionSource? moveCompletionSource;
+    private DataFormat<byte[]>? bytesFormat;
 
     protected override void OnLoaded(RoutedEventArgs e) {
         GhostBorder.IsVisible = false;
@@ -73,10 +75,13 @@ public partial class ProjectView : BaseControl<ProjectView, ProjectViewModel> {
         ViewModel.StartDrag(node);
         GhostTextBlock.Text = node.Name;
         //GhostBorder.IsVisible = true;
-        var dragData = new DataObject();
-        dragData.Set(nameof(ProjectNode), node);
+        DataTransfer dataTransfer = new DataTransfer();
+        var dataTransferItem = new DataTransferItem();
+        bytesFormat ??= DataFormat.CreateBytesApplicationFormat("guid");
+        dataTransferItem.Set(bytesFormat, node.Id.ToByteArray());
+        dataTransfer.Add(dataTransferItem);
         try {
-            DragDropEffects result = await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
+            _ = await DragDrop.DoDragDropAsync(e, dataTransfer, DragDropEffects.Move);
         }
         catch (COMException) {
             Logger.LogError("COMException. Usuario tentou arrastar pasta do jeito errado. ");
@@ -98,13 +103,14 @@ public partial class ProjectView : BaseControl<ProjectView, ProjectViewModel> {
     }
 
     private void Drop(object? sender, DragEventArgs e) {
-        ProjectNode? node = (ProjectNode?)e.Data.Get(nameof(ProjectNode));
+        byte[] idBytes = e.DataTransfer.Items[0].TryGetValue(bytesFormat!)!;
+        Guid nodeId = new Guid(idBytes);
         ProjectNode? target = (ProjectNode?)(e.Source as InputElement)?.DataContext;
-        if (node is null || target is null) {
+        if (nodeId == Guid.Empty || target is null) {
             return;
         }
         pressed = false;
-        ViewModel.Drop(node, target);
+        ViewModel.Drop(nodeId, target);
     }
 
     private void InputElement_OnPointerMoved(object? sender, PointerEventArgs e) {
