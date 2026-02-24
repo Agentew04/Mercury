@@ -287,17 +287,9 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
             Logger.LogInformation("Linker download completed, extracting...");
 
             zipStream.Seek(0, SeekOrigin.Begin);
-            using ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
-            ZipArchiveEntry? entry = archive.GetEntry(UserPreferences.LinkerFileName);
-            if (entry is null) {
-                Logger.LogError("Entry {Entry} not present on Linker Zip", UserPreferences.LinkerFileName);
-                return;
-            }
-
-            await using Stream entryStream = entry.Open();
+            await using ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
+            await archive.ExtractToDirectoryAsync(settings.ToolsDirectory.ToString());
             string filepath = settings.ToolsDirectory.File(UserPreferences.LinkerFileName).ToString();
-            await using var fs = new FileStream(filepath, FileMode.OpenOrCreate);
-            await entryStream.CopyToAsync(fs);
             if (OperatingSystem.IsLinux()) {
                 Logger.LogInformation("Execute permission set for file {File}", filepath);
                 File.SetUnixFileMode(filepath, UnixFileMode.UserExecute);
