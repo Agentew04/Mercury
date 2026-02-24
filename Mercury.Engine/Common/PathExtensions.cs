@@ -19,7 +19,11 @@ public static class PathExtensions {
         public PathObject ToDirectoryPath() {
             bool root = Path.IsPathFullyQualified(path) || Path.IsPathRooted(path);
 
-            char[] delims = [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar];
+            if (path.EndsWith("/") || path.EndsWith("\\")) {
+                path  = path[..^1];
+            }
+            
+            char[] delims = ['/','\\'];
             string[] entries = path.Split(delims, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
             string dirName = entries.Length > 0 ? entries[^1] : string.Empty;
             return new PathObject {
@@ -233,6 +237,16 @@ public readonly struct PathObject : IXmlSerializable, IEquatable<PathObject> {
     /// <returns>The path to the file</returns>
     public PathObject File(string filename, string extension) {
         return extension.StartsWith('.') ? File(filename + extension) : File(filename + '.' + extension);
+    }
+
+    /// <summary>
+    /// Returns a copy of the current path, but with its relative property set as false.
+    /// </summary>
+    /// <returns></returns>
+    public PathObject AsRelative() {
+        return this with {
+            IsAbsolute = false
+        };
     }
 
     /// <summary>

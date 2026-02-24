@@ -457,10 +457,6 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
                     break;
                 }
             }
-
-            // if (doDownload) {
-            //     
-            // }
         }
 
         if (!doDownload) {
@@ -479,7 +475,7 @@ public sealed partial class SplashScreenViewModel : BaseViewModel<SplashScreenVi
         settings.TemplateSettings.Templates.ForEach(x => x.Dispose());
         settings.TemplateSettings.Templates.Clear();
         settings.TemplateSettings.Templates.AddRange(remoteTemplates.ForEachExt(x => {
-                x.ProjectPath = settings.ResourcesDirectory + x.ProjectPath;
+                x.ProjectPath = settings.ResourcesDirectory + x.ProjectPath.AsRelative();
             }
         ));
     }

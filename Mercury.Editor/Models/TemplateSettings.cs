@@ -28,14 +28,6 @@ public sealed class Template : IDisposable {
 
     public Template() {
         WeakReferenceMessenger.Default.Register<Template,LocalizationChangedMessage>(this, OnLocalizationChange);
-        if (LocalizedNames.TryGetValue(LocalizationManager.CurrentCulture.ToString(), out string? name)) {
-            nameSub = new BehaviorSubject<string>(LocalizedNames[name]);
-        }
-        else {
-            Console.WriteLine("Could not get localization for a template");
-            nameSub = new BehaviorSubject<string>("localization error. "+LocalizationManager.CurrentCulture);
-        }
-        Name = nameSub;
     }
 
     private static void OnLocalizationChange(Template recipient, LocalizationChangedMessage msg) {
@@ -55,11 +47,25 @@ public sealed class Template : IDisposable {
     [JsonPropertyName("name")]
     public Dictionary<string, string> LocalizedNames { get; set; } = [];
 
-    private readonly BehaviorSubject<string>? nameSub;
-    
+    private BehaviorSubject<string>? nameSub;
+
     [JsonIgnore]
-    public IObservable<string> Name { get; }
-    
+    public IObservable<string> Name {
+        get {
+            if (field is not null) return field;
+            if (LocalizedNames.TryGetValue(LocalizationManager.CurrentCulture.ToString(), out string? name)) {
+                nameSub = new BehaviorSubject<string>(name);
+            }
+            else {
+                Console.WriteLine("Could not get localization for a template(ON LAZY EVAL! CRITICAL)");
+                nameSub = new BehaviorSubject<string>("localization error. "+LocalizationManager.CurrentCulture);
+            }
+            field = nameSub;
+            return field;
+        }
+        private init;
+    } = null;
+
     /// <summary>
     /// The path to the project file of the template.
     /// </summary>
@@ -70,9 +76,9 @@ public sealed class Template : IDisposable {
     public string ProjectPathStr {
         get => ProjectPath.ToString();
         set  {
-            if (value.StartsWith('/') || value.StartsWith('\\')) {
+            /*if (value.StartsWith('/') || value.StartsWith('\\')) {
                 value = value[1..];
-            }
+            }*/
             ProjectPath = value.ToFilePath();
         }
     }
