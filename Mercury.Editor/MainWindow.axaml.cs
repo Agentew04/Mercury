@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Mercury.Editor.Models.Messages;
 using Mercury.Editor.Views;
 using Mercury.Editor.Views.CodeView;
+using Mercury.Editor.Views.Design;
 using Mercury.Editor.Views.ExecuteView;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +15,7 @@ namespace Mercury.Editor {
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
+
             
             // initialize title bar
             TitleBar.Window = this;
@@ -22,6 +24,7 @@ namespace Mercury.Editor {
             nav = new Navigation(PageFrame);
             nav.Register<CodeTabView>(NavigationTarget.CodeView);
             nav.Register<ExecuteView>(NavigationTarget.ExecuteView, true);
+            nav.Register<DesignView>(NavigationTarget.DesignView);
             nav.Navigate(NavigationTarget.CodeView);
 
             // initialize pop ups
@@ -53,12 +56,16 @@ namespace Mercury.Editor {
             nav.Navigate(NavigationTarget.ExecuteView);
         }
 
+        private void OpenDesign(object? sender, RoutedEventArgs e) {
+            nav.Navigate(NavigationTarget.DesignView);
+        }
+
         private void OpenProjectConfiguration(object? sender, RoutedEventArgs e) {
             ProjectConfiguration config = App.Services.GetRequiredService<ProjectConfiguration>();
             config.ShowDialog(this);
         }
 
-        private void Open_About(object? sender, RoutedEventArgs e) {
+        private void OpenAbout(object? sender, RoutedEventArgs e) {
             AboutView about = App.Services.GetRequiredService<AboutView>();
             about.ShowDialog(this);
         }

@@ -1,11 +1,12 @@
 ﻿using System;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor.ViewModels;
 
-public class BaseViewModel<TViewModel,TView> : ObservableObject where TView : class {
+public abstract class BaseViewModel<TViewModel,TView> : ObservableObject where TView : Control {
     /// <summary>
     /// Gets the class internal logging instance.
     /// </summary>
@@ -20,5 +21,13 @@ public class BaseViewModel<TViewModel,TView> : ObservableObject where TView : cl
 
     public void SetView(TView view) {
         viewReference = new WeakReference<TView>(view);
+        if (view.IsLoaded) {
+            OnLoaded();
+        }
+        else {
+            view.Loaded += (_,_) => OnLoaded();
+        }
     }
+
+    protected virtual void OnLoaded(){}
 }

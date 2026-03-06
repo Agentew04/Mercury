@@ -49,10 +49,13 @@
                     Click="OpenCode"/>
           <MenuItem Header="{loc:MainWindowResources RunTabHeader}"
                     Click="OpenRun"/>
+          <!-- WIP, comentar enquanto nao esta pronto! -->
+          <!-- <MenuItem Header="{loc:MainWindowResources DesignTabHeader}" -->
+          <!--           Click="OpenDesign"/> -->
           <MenuItem Header="{loc:MainWindowResources PreferencesMenuButton}"
                     Click="OpenPreferences"/>
           <MenuItem Header="{loc:MainWindowResources AboutTabHeader}"
-                    Click="Open_About"/>
+                    Click="OpenAbout"/>
         </Menu>
       </Grid>
       
@@ -70,14 +73,6 @@
               <CubicEaseIn></CubicEaseIn>
             </CrossFade.FadeOutEasing>
           </CrossFade>
-          <!-- <PageSlide Duration="00:00:00.250" Orientation="Horizontal"> -->
-          <!--   <PageSlide.SlideInEasing> -->
-          <!--     <CubicEaseIn></CubicEaseIn> -->
-          <!--   </PageSlide.SlideInEasing> -->
-          <!--   <PageSlide.SlideOutEasing> -->
-          <!--     <CubicEaseOut></CubicEaseOut> -->
-          <!--   </PageSlide.SlideOutEasing> -->
-          <!-- </PageSlide> -->
         </TransitioningContentControl.PageTransition>
       </TransitioningContentControl>
     </DockPanel>

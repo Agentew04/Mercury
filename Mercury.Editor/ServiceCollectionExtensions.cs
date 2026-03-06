@@ -3,8 +3,10 @@ using System.Net.Http.Headers;
 using Mercury.Editor.Services;
 using Mercury.Editor.ViewModels;
 using Mercury.Editor.ViewModels.Code;
+using Mercury.Editor.ViewModels.Design;
 using Mercury.Editor.ViewModels.Execute;
 using Mercury.Editor.Views;
+using Mercury.Editor.Views.Design;
 using Mercury.Engine.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -28,10 +30,12 @@ public static class ServiceCollectionExtensions {
             .AddSingleton<LabelViewModel>()
             .AddSingleton<CodeTabViewModel>()
             .AddSingleton<ExecuteViewModel>()
+            .AddSingleton<DesignViewModel>()
                 //transient
             .AddTransient<SplashScreenViewModel>()
             .AddTransient<ProjectConfigurationViewModel>()
             .AddTransient<AboutViewModel>()
+            .AddTransient<EditNodeViewModel>()
             .AddTransient<PreferencesViewModel>();
     }
 
@@ -41,7 +45,8 @@ public static class ServiceCollectionExtensions {
             .AddTransient<PreferencesView>()
             .AddTransient<ProjectConfiguration>()
             .AddTransient<ProjectSelectionView>()
-            .AddTransient<SplashScreen>();
+            .AddTransient<SplashScreen>()
+            .AddTransient<EditNodeView>();
     }
 
     private static IServiceCollection ConfigureServices(this IServiceCollection services) {

@@ -1,0 +1,55 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Mercury.Editor.ViewModels.Design"
+        xmlns:nodify="https://miroiu.github.io/nodify">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <nodify:Node Header="ALU" Width="150">
+                <nodify:Node.Input>
+                </nodify:Node.Input>
+                <nodify:Node.HeaderTemplate>
+                    <DataTemplate DataType="x:String">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="{Binding .}"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       Margin="5,0,8,0"
+                                     IsVisible="True"/>
+                            <TextBox Grid.Column="0" Text="{Binding .}"
+                                     Margin="2,0"
+                                     IsVisible="False"/>
+                            <Button Grid.Column="1"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    VerticalContentAlignment="Center"
+                                    Width="{Binding Height, RelativeSource={RelativeSource Self}}"
+                                    Content="&#xE182;"
+                                    FontSize="14"
+                                    FontFamily="{StaticResource PhosphorFont}"></Button>
+                            <!-- check icon &#xE182; -->
+                            <!-- pencil icon &#xE3B4; -->
+                        </Grid>
+                    </DataTemplate>
+                </nodify:Node.HeaderTemplate>
+            </nodify:Node>
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="nodify|NodifyEditor nodify|ItemContainer">
+        <Setter Property="BorderThickness" Value="1"></Setter>
+        <Setter Property="Margin" Value="0"></Setter>
+        <Setter Property="CornerRadius" Value="3"></Setter>
+        <Setter Property="BorderBrush" Value="Gray"></Setter>
+    </Style>
+    <Style Selector="nodify|NodifyEditor nodify|ItemContainer:focus">
+        <Setter Property="BorderThickness" Value="2"></Setter>
+        <Setter Property="CornerRadius" Value="3"></Setter>
+        <Setter Property="Margin" Value="-1"></Setter>
+        <Setter Property="BorderBrush" Value="Orange"></Setter>
+    </Style>
+    <Style Selector="nodify|Node > Border">
+        <Setter Property="ClipToBounds" Value="True"></Setter>
+    </Style>
+    <Style Selector="nodify|Node Border#PART_Header TextBox">
+    </Style>
+    <!-- Add Styles Here -->
+</Styles>

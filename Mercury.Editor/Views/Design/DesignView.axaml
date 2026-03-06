@@ -1,0 +1,127 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:design="clr-namespace:Mercury.Editor.Views.Design"
+             xmlns:vm="clr-namespace:Mercury.Editor.ViewModels.Design"
+             xmlns:nodify="https://miroiu.github.io/nodify"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Mercury.Editor.Views.Design.DesignView">
+    <UserControl.Styles>
+        <StyleInclude Source="avares://Mercury.Editor/Assets/Styles/NodeStyles.axaml"></StyleInclude>
+    </UserControl.Styles>
+    <UserControl.Resources>
+        <GeometryDrawing x:Key="SmallGridGeometry"
+                         Geometry="M0,0 L0,1 0.03,1 0.03,0.03 1,0.03 1,0 Z"
+                         Brush="{DynamicResource AlternateGrey}" />
+
+        <GeometryDrawing x:Key="LargeGridGeometry"
+                         Geometry="M0,0 L0,1 0.015,1 0.015,0.015 1,0.015 1,0 Z"
+                         Brush="{DynamicResource AlternateGrey}" />
+
+        <DrawingBrush x:Key="SmallGridLinesDrawingBrush"
+                      TileMode="Tile"
+                      DestinationRect="0,0,25,25"
+                      Transform="{Binding ViewportTransform, ElementName=Editor}"
+                      Drawing="{StaticResource SmallGridGeometry}" />
+
+        <DrawingBrush x:Key="LargeGridLinesDrawingBrush"
+                      TileMode="Tile"
+                      DestinationRect="0,0,250,250"
+                      Opacity="0.5"
+                      Transform="{Binding ViewportTransform, ElementName=Editor}"
+                      Drawing="{StaticResource LargeGridGeometry}" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="10" MaxWidth="400" Width="250"/>
+            <ColumnDefinition Width="2"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2"/>
+            <ColumnDefinition MinWidth="10" MaxWidth="400" Width="250"/>
+        </Grid.ColumnDefinitions>
+    
+        <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+        <GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
+    
+        <nodify:NodifyEditor Grid.Column="2"
+                             Background="{StaticResource SmallGridLinesDrawingBrush}"
+                             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                             x:DataType="vm:EditorViewModel"
+                             DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=((vm:DesignViewModel)DataContext).EditorViewModel}"
+                             ItemsSource="{Binding Nodes}"
+                             Connections="{Binding Connections}"
+                             PendingConnection="{Binding PendingConnection}"
+                             DisconnectConnectorCommand="{Binding DisconnectConnectorCommand}"
+                             x:Name="Editor">
+            <nodify:NodifyEditor.ItemTemplate>
+                <DataTemplate DataType="{x:Type vm:NodeViewModel}">
+                    <nodify:Node Input="{Binding Input}"
+                                 Header="{Binding .}"
+                                 Footer="Teste"
+                                 Output="{Binding Output}">
+                        <nodify:Node.HeaderTemplate>
+                            <DataTemplate DataType="vm:NodeViewModel">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Left"
+                                               Margin="5,0,8,0"/>
+                                    <Button Grid.Column="1"
+                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                            VerticalContentAlignment="Center"
+                                            Width="{Binding Height, RelativeSource={RelativeSource Self}}"
+                                            Content="&#xE3B4;"
+                                            FontSize="14"
+                                            Command="{Binding EditCommand}"
+                                            FontFamily="{StaticResource PhosphorFont}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </nodify:Node.HeaderTemplate>
+                        <nodify:Node.FooterTemplate>
+                            <DataTemplate DataType="x:String">
+                                <TextBlock Text="{Binding .}"></TextBlock>
+                            </DataTemplate>
+                        </nodify:Node.FooterTemplate>
+                        <nodify:Node.InputConnectorTemplate>
+                            <DataTemplate DataType="vm:ConnectorViewModel">
+                                <nodify:NodeInput Header="{Binding Title}"
+                                                  IsConnected="{Binding IsConnected}"
+                                                  Anchor="{Binding Anchor, Mode=OneWayToSource}"/>
+                            </DataTemplate>
+                        </nodify:Node.InputConnectorTemplate>
+                        <nodify:Node.OutputConnectorTemplate>
+                            <DataTemplate DataType="vm:ConnectorViewModel">
+                                <nodify:NodeOutput Header="{Binding Title}"
+                                                  IsConnected="{Binding IsConnected}"
+                                                  Anchor="{Binding Anchor, Mode=OneWayToSource}"/>
+                            </DataTemplate>
+                        </nodify:Node.OutputConnectorTemplate>
+                    </nodify:Node>
+                </DataTemplate>
+            </nodify:NodifyEditor.ItemTemplate>
+            <nodify:NodifyEditor.ItemContainerTheme>
+                <ControlTheme TargetType="nodify:ItemContainer" x:DataType="vm:NodeViewModel">
+                    <Setter Property="Location" Value="{Binding Location}"></Setter>
+                </ControlTheme>
+            </nodify:NodifyEditor.ItemContainerTheme>
+            <nodify:NodifyEditor.ConnectionTemplate>
+                <DataTemplate DataType="vm:ConnectionViewModel">
+                    <nodify:CircuitConnection Source="{Binding Source.Anchor}"
+                                              Target="{Binding Target.Anchor}"
+                                              Angle="45"
+                                              Direction="Forward"/>
+                </DataTemplate>
+            </nodify:NodifyEditor.ConnectionTemplate>
+            <nodify:NodifyEditor.PendingConnectionTemplate>
+                <DataTemplate DataType="vm:PendingConnectionViewModel">
+                    <nodify:PendingConnection StartedCommand="{Binding StartCommand}"
+                                              CompletedCommand="{Binding FinishCommand}"
+                                              AllowOnlyConnectors="True"/>
+                </DataTemplate>
+            </nodify:NodifyEditor.PendingConnectionTemplate>
+        </nodify:NodifyEditor>
+        <Grid Grid.Column="2" Background="{StaticResource LargeGridLinesDrawingBrush}"
+              ZIndex="-2"/>
+    </Grid>
+</UserControl>

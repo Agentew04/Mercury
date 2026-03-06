@@ -36,4 +36,7 @@
     <data name="LogoTooltip" xml:space="preserve">
         <value>Click to open project website</value>
     </data>
+    <data name="DesignTabHeader" xml:space="preserve">
+        <value>_Design</value>
+    </data>
 </root>

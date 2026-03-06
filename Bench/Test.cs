@@ -107,7 +107,6 @@ public partial class Test {
         Dictionary<DesignBlock, string> blockNames = new();
         trees.AddRange(design.Blocks.Select(block => GetBlockTree(block, blockNames, genCode)));
         trees.Add(GetDesignTree(design, blockNames, out _, genCode));
-
         generatedCode = genCode.ToString();
 
         string assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location) ?? throw new Exception("Assembly path not found");

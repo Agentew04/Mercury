@@ -19,6 +19,7 @@ internal class Program {
         GC.KeepAlive(typeof(Avalonia.Svg.Svg).Assembly);
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()
+            .WithDeveloperTools()
             .WithInterFont()
             .LogToTrace();
     }

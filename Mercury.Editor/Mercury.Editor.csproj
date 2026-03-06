@@ -58,7 +58,10 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.9" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.9" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.9" />
+<!--    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.9" />-->
+<!--          <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="AvaloniaUI.DiagnosticsSupport"/>-->
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.0-beta2" />
+<!--    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.9" />-->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="ELFSharp" Version="2.17.3" />
     <PackageReference Include="Markdig" Version="0.44.0" />
@@ -66,6 +69,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
+    <PackageReference Include="NodifyAvalonia" Version="6.6.0" />
     <PackageReference Include="SharpCompress" Version="0.42.0" />
     <PackageReference Include="Svg.Controls.Avalonia" Version="11.3.6.2" />
     <PackageReference Include="System.Reactive" Version="6.1.0" />
