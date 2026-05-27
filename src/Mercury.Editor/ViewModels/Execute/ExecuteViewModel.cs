@@ -67,10 +67,10 @@ ExecuteViewModel : BaseViewModel<ExecuteViewModel, ExecuteView> {
         }
         
         ProjectVisualSettings settings = project.VisualSettings;
-        bool save = CreateOrSet(settings, RegistersName, (int)RegistersViewColumnWidth)
-                    | CreateOrSet(settings, LabelsName, (int)LabelsViewColumnWidth)
-                    | CreateOrSet(settings, RamName, (int)RamRowHeight)
-                    | CreateOrSet(settings, IoName, (int)IoRowHeight);
+        bool save = CreateOrSet(settings, RegistersName, (int)RegistersViewColumnWidth, 300)
+                    | CreateOrSet(settings, LabelsName, (int)LabelsViewColumnWidth, 300)
+                    | CreateOrSet(settings, RamName, (int)RamRowHeight, 500)
+                    | CreateOrSet(settings, IoName, (int)IoRowHeight, 200);
 
         if (save) {
             Logger.LogInformation("Saving layout from Execute Tab");
@@ -111,7 +111,10 @@ ExecuteViewModel : BaseViewModel<ExecuteViewModel, ExecuteView> {
         return false;
     }
 
-    private static bool CreateOrSet(ProjectVisualSettings settings, string name, int size) {
+    private static bool CreateOrSet(ProjectVisualSettings settings, string name, int size, int fallback) {
+        if (size <= 0) {
+            size = fallback;
+        }
         ElementSize? elem = settings.ElementSizes.Find(x => x.Name == name);
         bool save = false;
         if (elem is null) {
@@ -122,8 +125,6 @@ ExecuteViewModel : BaseViewModel<ExecuteViewModel, ExecuteView> {
             };
             settings.ElementSizes.Add(elem);
         }
-        // TODO Aqui
-
         if (Math.Approximately(elem.Size, size)) return save;
         save = true;
         elem.Size = size;

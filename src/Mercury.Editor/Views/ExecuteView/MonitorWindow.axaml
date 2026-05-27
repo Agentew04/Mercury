@@ -9,6 +9,7 @@
         Title="{loc:MonitorResources WindowTitle}"
         Background="{DynamicResource BackgroundGrey}">
     <Grid Margin="5">
-        <ctrl:PixelScreen x:Name="Screen"/>
+        <ctrl:PixelScreen x:Name="Screen"
+                          BorderBrush="WhiteSmoke"/>
     </Grid>
 </Window>

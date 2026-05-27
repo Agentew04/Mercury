@@ -33,6 +33,13 @@ public class PixelScreen : Control {
         }
     }
 
+    public static readonly StyledProperty<ISolidColorBrush> BorderBrushProperty =
+        AvaloniaProperty.Register<PixelScreen, ISolidColorBrush>(nameof(BorderBrush), defaultValue: Brushes.Transparent);
+    public ISolidColorBrush BorderBrush {
+        get => GetValue(BorderBrushProperty);
+        set => SetValue(BorderBrushProperty, value);
+    }
+
     private SKBitmap? bitmap;
     private MemoryHandle? bufferHandle;
     
@@ -77,13 +84,13 @@ public class PixelScreen : Control {
     }
     
     public override void Render(DrawingContext context) {
-        context.Custom(new DrawBitmapOp(new Rect(0, 0, Bounds.Width, Bounds.Height), bitmap));
+        context.Custom(new DrawBitmapOp(new Rect(0, 0, Bounds.Width, Bounds.Height), bitmap, BorderBrush.Color.ToSKColor()));
         if (ContinuousUpdate) {
             Dispatcher.UIThread.InvokeAsync(InvalidateVisual, DispatcherPriority.Background);
         }
     }
     
-    private class DrawBitmapOp(Rect bounds, SKBitmap? bitmap) : ICustomDrawOperation {
+    private class DrawBitmapOp(Rect bounds, SKBitmap? bitmap, SKColor borderColor) : ICustomDrawOperation {
         public bool Equals(ICustomDrawOperation? other) => false;
 
         public void Dispose() {
@@ -104,14 +111,14 @@ public class PixelScreen : Control {
 
             if (bitmap is null) {
                 // draw special missing buffer texture
-                using SKPaint paint = new();
-                paint.Color = SKColors.Magenta;
-                canvas.DrawRect(0,0, (float)Bounds.Width*0.5f, (float)Bounds.Height*0.5f, paint);
+                using SKPaint Bugpaint = new();
+                Bugpaint.Color = SKColors.Magenta;
+                canvas.DrawRect(0,0, (float)Bounds.Width*0.5f, (float)Bounds.Height*0.5f, Bugpaint);
                 canvas.DrawRect((float)Bounds.Width*0.5f, (float)Bounds.Height*0.5f, 
-                    (float)Bounds.Width*0.5f, (float)Bounds.Height*0.5f, paint);
-                paint.Color = SKColors.Black;
-                canvas.DrawRect((float)Bounds.Width*0.5f,0, (float)Bounds.Width*0.5f, (float)Bounds.Height*0.5f, paint);
-                canvas.DrawRect(0,(float)Bounds.Height*0.5f, (float)Bounds.Width*0.5f, (float)Bounds.Height*0.5f, paint);
+                    (float)Bounds.Width*0.5f, (float)Bounds.Height*0.5f, Bugpaint);
+                Bugpaint.Color = SKColors.Black;
+                canvas.DrawRect((float)Bounds.Width*0.5f,0, (float)Bounds.Width*0.5f, (float)Bounds.Height*0.5f, Bugpaint);
+                canvas.DrawRect(0,(float)Bounds.Height*0.5f, (float)Bounds.Width*0.5f, (float)Bounds.Height*0.5f, Bugpaint);
                 return;
             }
             
@@ -122,7 +129,15 @@ public class PixelScreen : Control {
             SKPoint boardStart = new(pixelSize * width < (float)Bounds.Width ? (float)Bounds.Width*0.5f - pixelSize*width*0.5f: 0f, 
                 pixelSize * height < (float)Bounds.Height ? (float)Bounds.Height*0.5f-pixelSize*height*0.5f : 0f);
             SKRect rect = new(boardStart.X, boardStart.Y, boardStart.X+width*pixelSize, boardStart.Y+height*pixelSize);
+            using SKPaint paint = new();
+            paint.Color = SKColors.Black;
+            canvas.DrawRect(rect, paint);
             canvas.DrawBitmap(bitmap, rect);
+            paint.Color = borderColor;
+            canvas.DrawLine(rect.Left, rect.Top, rect.Right, rect.Top, paint);
+            canvas.DrawLine(rect.Left, rect.Bottom, rect.Right, rect.Bottom, paint);
+            canvas.DrawLine(rect.Left, rect.Top, rect.Left, rect.Bottom, paint);
+            canvas.DrawLine(rect.Right, rect.Top, rect.Right, rect.Bottom, paint);
         }
 
         public Rect Bounds { get; } = bounds;

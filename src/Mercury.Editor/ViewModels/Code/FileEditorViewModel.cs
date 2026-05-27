@@ -243,7 +243,7 @@ public partial class FileEditorViewModel : BaseViewModel<FileEditorViewModel, Fi
             new CompilationStartedMessage(input.CalculateId()));
         CompilationResult result = await compilerService.CompileAsync(input);
         WeakReferenceMessenger.Default.Send(new CompilationFinishedMessage(result));
-        Logger.LogInformation("Compilation Finished {Result}", result.IsSuccess ? "Successfully" : $"With {result.Diagnostics?.Count} Errors");
+        Logger.LogInformation("Compilation {Finished} {Result}", result.IsSuccess ? "Finished" : "Failed" ,result.IsSuccess ? "Successfully" : $"With {result.Diagnostics?.Count} Errors");
         if (result.IsSuccess) {
             CanRunProject = true;
         }
