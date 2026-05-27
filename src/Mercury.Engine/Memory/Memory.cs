@@ -72,8 +72,7 @@ public sealed class Memory : IDisposable, IMemory, IModule
         Array.Fill(lastAccessTime, 0);
         pageIndices = new int[totalPageCount];
         Array.Fill(pageIndices, -1);
-        coldStorage = config.StorageType switch
-        {
+        coldStorage = config.StorageType switch {
             StorageType.FileOriginal => new ColdStorage(config),
             StorageType.FileOptimized => new OptimizedColdStorage(config),
             StorageType.Volatile => new VolatileStorage(config),

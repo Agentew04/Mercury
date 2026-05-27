@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:loc="clr-namespace:Mercury.Editor.Localization"
         xmlns:vm="clr-namespace:Mercury.Editor.ViewModels"
+        xmlns:modules="clr-namespace:Mercury.Editor.Models.Modules"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Mercury.Editor.Views.ProjectConfiguration"
         x:DataType="vm:ProjectConfigurationViewModel"
@@ -68,6 +69,31 @@
                            Content="{loc:ProjectConfigurationResources OutputFileLabel}"
                            ></Label>
                     <TextBox x:Name="OutputFileTextBox" Text="{Binding OutputFile}"></TextBox>    
+                </StackPanel>
+                <StackPanel>
+                    <Label Target="ModulesList" 
+                           Content="{loc:ProjectConfigurationResources ModulesLabel}"></Label>
+                    <ItemsControl x:Name="ModulesList">
+                        <ItemsControl.Items>
+                            <modules:GpuModuleDescription BaseAddress="1024"
+                                                          Width="100"
+                                                          Height="100">
+                            </modules:GpuModuleDescription>
+                            <modules:GpuModuleDescription BaseAddress="1024"
+                                                          Width="100"
+                                                          Height="100">
+                            </modules:GpuModuleDescription>
+                        </ItemsControl.Items>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="modules:ModuleDescription">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <CheckBox Grid.Column="0"></CheckBox>
+                                    <TextBlock Grid.Column="1" Text="{Binding ModuleName}"/>
+                                    
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

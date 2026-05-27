@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CommunityToolkit.Mvvm.Messaging;
-using ELFSharp;
 using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
 using Mercury.Editor.Models.Compilation;
@@ -18,7 +17,11 @@ using Microsoft.Extensions.Logging;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Models;
 using Mercury.Editor.Models.Modules;
+using Mercury.Engine.Memory;
+using Mercury.Engine.Mips.Runtime.Simple;
 using Mercury.Engine.Modules.Gpu;
+using Mercury.Engine.Modules.Gpu.Configs;
+using Endianess = ELFSharp.Endianess;
 using Machine = Mercury.Engine.Common.Machine;
 
 namespace Mercury.Editor.Services;
@@ -63,28 +66,38 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable {
         currentElf = ELFReader.Load<uint>(elfFs, false);
 
         // cria memoria
-        MemoryBuilder memoryBuilder = new MemoryBuilder()
-            .With4Gb()
+        MemoryModuleDescription memoryDescription = project.InstalledModules.OfType<MemoryModuleDescription>().First();
+        Memory memory = new MemoryBuilder()
+            .WithBlockCapacity((int)memoryDescription.BlockCount)
+            .WithBlockSize(memoryDescription.BlockSize)
             .WithVolatileStorage()
-            .WithBlockCapacity(16)
-            .WithBlockSize(4096)
             .WithEndianess(currentElf.Endianess == Endianess.BigEndian
                 ? Engine.Memory.Endianess.BigEndian
-                : Engine.Memory.Endianess.LittleEndian);
+                : Engine.Memory.Endianess.LittleEndian)
+            .Build();
+        
+        // cria cpu
+        MipsMonocycleModuleDescription cpuDescription = 
+            project.InstalledModules.OfType<MipsMonocycleModuleDescription>().First();
+        Monocycle cpu = new();
+        cpu.UseBranchDelaySlot = cpuDescription.UseBranchDelaySlot;
 
         // criar maquina
         MipsMachineBuilder builder = new MachineBuilder()
-            .WithMemory(memoryBuilder
-                .Build())
+            .WithMemory(memory)
             .WithMips()
-            .WithMarsOs()
-            .WithMipsMonocycle();
+            .WithCpu(cpu)
+            .WithMarsOs();
 
+        // gpu
         GpuModuleDescription? gpuDescription = (GpuModuleDescription?)project.InstalledModules.FirstOrDefault(x => x is GpuModuleDescription);
-        // if (gpuDescription is not null) {
-            // builder.WithGpu(new FramebufferGpu(gpuDescription.BaseAddress, gpuDescription.Width, gpuDescription.Height));
-        // }
-        builder.WithGpu(new FramebufferGpu(0x80000000, 100, 100));
+        if (gpuDescription is not null) {
+            builder.With<FramebufferGpu,FramebufferGpuConfig>(new FramebufferGpuConfig {
+                FramebufferBaseAddress = gpuDescription.BaseAddress,
+                Width = gpuDescription.Width,
+                Height = gpuDescription.Height,
+            });
+        }
         
         currentMachine = builder.Build();
 

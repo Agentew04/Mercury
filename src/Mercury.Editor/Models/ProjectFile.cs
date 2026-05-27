@@ -12,6 +12,9 @@ namespace Mercury.Editor.Models;
 /// A class that represents a project file 
 /// </summary>
 [XmlRoot("Project")]
+[XmlInclude(typeof(MipsMonocycleModuleDescription))]
+[XmlInclude(typeof(MemoryModuleDescription))]
+[XmlInclude(typeof(GpuModuleDescription))]
 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
 // atributo acima eh necessario caso um membro nao seja referenciado. ele vai 
 // ser deletado pelo trimmer.
@@ -123,7 +126,10 @@ public class ProjectFile {
     
     #endregion
 
-    [XmlElement("Modules")]
+    [XmlArray("Modules")]
+    [XmlArrayItem(typeof(MipsMonocycleModuleDescription))]
+    [XmlArrayItem(typeof(MemoryModuleDescription))]
+    [XmlArrayItem(typeof(GpuModuleDescription))]
     public List<ModuleDescription> InstalledModules { get; set; } = [];
     
     /// <summary>

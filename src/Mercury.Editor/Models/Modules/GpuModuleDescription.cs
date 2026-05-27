@@ -1,4 +1,8 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
 
 namespace Mercury.Editor.Models.Modules;
 
@@ -24,4 +28,19 @@ public class GpuModuleDescription : ModuleDescription {
     /// </summary>
     [XmlAttribute("height")]
     public uint Height { get; set; }
+
+    public override string ModuleName => Localization.ModuleDescriptions.GpuModuleNameValue;
+    
+    protected override List<(PropertyInfo, string)> GetSpecificProperties() {
+        Type t = typeof(GpuModuleDescription);
+        PropertyInfo[] props = t.GetProperties();
+        PropertyInfo addr = props.First(x => x.Name == "BaseAddress");
+        PropertyInfo w = props.First(x => x.Name == "Width");
+        PropertyInfo h = props.First(x => x.Name == "Height");
+        return [
+            (addr, Localization.ModuleDescriptions.GpuFramebufferAddressValue),
+            (w, Localization.ModuleDescriptions.GpuFramebufferWidthValue),
+            (h, Localization.ModuleDescriptions.GpuFramebufferHeightValue)
+        ];
+    }
 }

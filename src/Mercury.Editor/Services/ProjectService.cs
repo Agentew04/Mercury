@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Models;
+using Mercury.Editor.Models.Modules;
 using Mercury.Engine.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -161,8 +162,10 @@ public class ProjectService : BaseService<ProjectService> {
             OperatingSystemName = os.Name,
             ProjectVersion = ProjectFile.LatestProjectVersion,
             IncludeStandardLibrary = true,
-            Architecture = isa
+            Architecture = isa,
+            InstalledModules = []
         };
+        AddDefaultModules(project);
         WriteProject(project);
         // create folder structure
         string srcDir = project.ProjectDirectory.Append(project.SourceDirectory).ToString();
@@ -179,6 +182,21 @@ public class ProjectService : BaseService<ProjectService> {
         return project;
     }
 
+    private void AddDefaultModules(ProjectFile project) {
+        switch (project.Architecture) {
+            case Architecture.Mips:
+                project.InstalledModules.Add(new MipsMonocycleModuleDescription());
+                break;
+            default:
+                Logger.LogError("There is not default CPU module description for this architecture. Fix in ProjectService.AddDefaultModules(ProjectFile)");
+                break;
+        }
+        project.InstalledModules.Add(new MemoryModuleDescription {
+            BlockCount = 1048576, // 4GB
+            BlockSize = 4096, // 4KB
+        });
+    }
+    
     public async Task<ProjectFile?> OpenProject(PathObject path) {
         ProjectFile? project = ReadProject(path);
         if (project is null) {

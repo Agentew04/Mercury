@@ -4,6 +4,7 @@ using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Runtime.OS;
 using Mercury.Engine.Mips.Runtime.Simple;
 using Mercury.Engine.Modules.Gpu;
+using Mercury.Engine.Modules.Gpu.Configs;
 using Mercury.Engine.Modules.Gpu.Events;
 
 namespace Mercury.Engine.Mips.Runtime;
@@ -59,9 +60,18 @@ public class MipsMachineBuilder : MachineBuilder {
         return this;
     }
 
-    public MipsMachineBuilder WithGpu(FramebufferGpu gpu) {
-        Modules.Add(gpu);
-        AddressDecoderModule.MapWriteOnlyDevice<GpuWriteEvent,FramebufferGpu>(new MemoryRange(gpu.FramebufferAddress, gpu.FramebufferSize));
+    public MipsMachineBuilder With<TModule>() where TModule : IModule, new() {
+        TModule module = new();
+        module.Map(AddressDecoderModule);
+        Modules.Add(module);
+        return this;
+    }
+    
+    public MipsMachineBuilder With<TModule, TConfig>(TConfig config) where TModule : IConfigurableModule<TConfig>, new() {
+        TModule module = new();
+        module.Configure(config);
+        module.Map(AddressDecoderModule);
+        Modules.Add(module);
         return this;
     }
     

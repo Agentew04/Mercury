@@ -41,4 +41,7 @@
     <data name="WindowTitle" xml:space="preserve">
         <value>Configuração do Projeto</value>
     </data>
+    <data name="ModulesLabel" xml:space="preserve">
+        <value>Módulos</value>
+    </data>
 </root>

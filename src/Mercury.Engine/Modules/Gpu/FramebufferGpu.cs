@@ -1,5 +1,7 @@
 ﻿using Mercury.Engine.Common;
 using Mercury.Engine.Common.Events;
+using Mercury.Engine.Memory;
+using Mercury.Engine.Modules.Gpu.Configs;
 using Mercury.Engine.Modules.Gpu.Events;
 
 namespace Mercury.Engine.Modules.Gpu;
@@ -11,29 +13,33 @@ namespace Mercury.Engine.Modules.Gpu;
 /// <remarks>
 /// It's actually not a real framebuffer, just a color buffer
 /// </remarks>
-public class FramebufferGpu : IModule, IDisposable {
+public class FramebufferGpu : IConfigurableModule<FramebufferGpuConfig>, IDisposable {
     private EventBus eventBus = null!;
     private readonly List<IDisposable> subscriptions = [];
 
     private const int BytesPerPixel = 4; // RGBA8888
-    private byte[] framebuffer;
+    private byte[] framebuffer = [];
 
-    public ulong FramebufferAddress { get; init; }
-    public ulong FramebufferSize { get; init; }
-    public uint Width { get; init; }
-    public uint Height { get; init; }
+    public ulong FramebufferAddress { get; private set; }
+    public ulong FramebufferSize { get; private set; }
+    public uint Width { get; private set; }
+    public uint Height { get; private set; }
 
-    public FramebufferGpu(ulong framebufferAddress, uint width, uint height) {
-        FramebufferAddress = framebufferAddress;
-        FramebufferSize = width * height * BytesPerPixel;
-        this.Width = width;
-        this.Height = height;
+    public void Configure(FramebufferGpuConfig config) {
+        FramebufferAddress = config.FramebufferBaseAddress;
+        FramebufferSize = config.Width * config.Height * BytesPerPixel;
+        Width = config.Width;
+        Height = config.Height;
         framebuffer = new byte[FramebufferSize];
     }
 
     public void SubscribeToEvents(EventBus bus) {
         eventBus = bus;
         subscriptions.Add(bus.Subscribe<GpuWriteEvent>(HandleWrite));
+    }
+
+    public void Map(AddressDecoderModule decoder) {
+        decoder.MapWriteOnlyDevice<GpuWriteEvent,FramebufferGpu>(new MemoryRange(FramebufferAddress, FramebufferSize));
     }
 
     public void UnsubscribeFromEvents() {

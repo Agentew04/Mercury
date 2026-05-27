@@ -11,7 +11,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor.ViewModels.Execute;
 
-public partial class ExecuteViewModel : BaseViewModel<ExecuteViewModel, ExecuteView> {
+public partial class 
+
+ExecuteViewModel : BaseViewModel<ExecuteViewModel, ExecuteView> {
 
     private readonly ProjectService projectService;
     
@@ -100,6 +102,11 @@ public partial class ExecuteViewModel : BaseViewModel<ExecuteViewModel, ExecuteV
             size = defaultSize;
             return true;
         }
+
+        if (elem.Size <= 0) {
+            elem.Size = defaultSize;
+        }
+
         size = elem.Size;
         return false;
     }
@@ -115,6 +122,7 @@ public partial class ExecuteViewModel : BaseViewModel<ExecuteViewModel, ExecuteV
             };
             settings.ElementSizes.Add(elem);
         }
+        // TODO Aqui
 
         if (Math.Approximately(elem.Size, size)) return save;
         save = true;

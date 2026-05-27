@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Models.Messages;
+using Mercury.Editor.Models.Modules;
 
 namespace Mercury.Editor.ViewModels;
 
@@ -31,6 +32,8 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
     [ObservableProperty] private string outputDir = string.Empty;
     [ObservableProperty] private string outputFile = string.Empty;
     [ObservableProperty] private string entryFile = string.Empty;
+
+    [ObservableProperty] private ObservableCollection<ModuleDescription> moduleDescriptions = [];
 
     public ProjectConfigurationViewModel(ProjectService projectService) {
         this.projectService = projectService;
@@ -57,7 +60,10 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
         OutputDir = project.OutputPath.ToString();
         OutputFile = project.OutputFile.ToString();
         EntryFile = project.EntryFile.ToString();
-        
+
+        ModuleDescriptions.Clear();
+        ModuleDescriptions.AddRange(project.InstalledModules);
+        Logger.LogInformation("Project has {installed} modules and of these, {active} are active.", ModuleDescriptions.Count, ModuleDescriptions.Count(x => x.Active));
     }
 
     partial void OnSelectedArchIndexChanged(int value) {
@@ -83,7 +89,13 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
     }
 
     public bool CanApply() {
-        return AvailableOperatingSystems.Count > 0 && SelectedOs != string.Empty; //SelectedOsIndex != -1;
+        bool validOs = AvailableOperatingSystems.Count > 0 && SelectedOs != string.Empty;
+        // must have a cpu and a memory.
+        bool validModules = ModuleDescriptions.Any(
+                                x => x is MemoryModuleDescription { Active: true, BlockCount: > 0, BlockSize: > 0})
+            && ModuleDescriptions.Any(
+                x => x is MipsMonocycleModuleDescription { Active: true });
+        return validOs && validModules;
     }
 
     private void ApplyProject() {
@@ -113,6 +125,8 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
         project.OutputPath = OutputDir.ToDirectoryPath();
         project.OutputFile = OutputFile.ToFilePath();
         project.EntryFile = EntryFile.ToFilePath();
+        project.InstalledModules.Clear();
+        project.InstalledModules.AddRange(ModuleDescriptions);
         
         projectService.SaveProject();
     }
