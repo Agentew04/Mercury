@@ -44,4 +44,7 @@
     <data name="ModulesLabel" xml:space="preserve">
         <value>Módulos</value>
     </data>
+    <data name="AddModulePlaceholder" xml:space="preserve">
+        <value>Selecione um Módulo</value>
+    </data>
 </root>

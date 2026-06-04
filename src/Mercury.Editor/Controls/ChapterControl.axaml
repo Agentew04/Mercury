@@ -1,8 +1,8 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="using:Mercury.Editor.Controls"
-        xmlns:converters="clr-namespace:Mercury.Editor.Converters"
-        xmlns:localization="clr-namespace:Mercury.Editor.Localization">
+        xmlns:localization="clr-namespace:Mercury.Editor.Localization"
+        xmlns:dataTemplates="clr-namespace:Mercury.Editor.Converters.DataTemplates">
     <Design.PreviewWith>
         <controls:ChapterControl />
     </Design.PreviewWith>
@@ -20,7 +20,7 @@
                             Content="{Binding Path=GoBackText, Source={x:Static localization:GuideResources.Instance}}"/>
                     <ContentControl Grid.Row="1" Content="{TemplateBinding CurrentGuide}">
                         <ContentControl.DataTemplates>
-                            <converters:GuideChapterDataTemplate></converters:GuideChapterDataTemplate>
+                            <dataTemplates:GuideChapterDataTemplate></dataTemplates:GuideChapterDataTemplate>
                         </ContentControl.DataTemplates>
                     </ContentControl>
                 </Grid>

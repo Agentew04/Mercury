@@ -1,8 +1,7 @@
 ﻿<linker>
-    <assembly fullname="Mercury.Editor">
-        <type fullname="Mercury.Editor.Models.ProjectFile" preserve="all"/>
-    </assembly>
+    <!-- keep our own types -->
     <assembly fullname="Mercury.Engine" preserve="all"/>
+    <assembly fullname="Mercury.Editor" preserve="all"/>
 
     <!-- libs que produziram trim warnings -->
     <assembly fullname="Avalonia.Controls.DataGrid" preserve="all"/>

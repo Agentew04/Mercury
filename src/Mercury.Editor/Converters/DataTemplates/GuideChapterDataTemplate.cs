@@ -7,7 +7,7 @@ using Mercury.Editor.Models;
 using Mercury.Editor.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Mercury.Editor.Converters;
+namespace Mercury.Editor.Converters.DataTemplates;
 
 public sealed class GuideChapterDataTemplate : IDataTemplate, IDisposable {
     

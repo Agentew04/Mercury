@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,11 +11,12 @@ using Mercury.Editor.Models;
 using Mercury.Editor.Services;
 using Mercury.Editor.Views;
 using Mercury.Engine.Common;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Models.Messages;
 using Mercury.Editor.Models.Modules;
+using Mercury.Editor.Models.Modules.Properties;
+using Mercury.Editor.Utils;
 
 namespace Mercury.Editor.ViewModels;
 
@@ -33,12 +35,17 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
     [ObservableProperty] private string outputFile = string.Empty;
     [ObservableProperty] private string entryFile = string.Empty;
 
-    [ObservableProperty] private ObservableCollection<ModuleDescription> moduleDescriptions = [];
+    [ObservableProperty, NotifyCanExecuteChangedFor(nameof(ApplyCommand))] private ObservableCollectionEx<ModuleDescription>? moduleDescriptions;
+
+    [ObservableProperty] private ObservableCollection<ProjectConfigurationModuleItem> availableNewModules = [];
+    [NotifyCanExecuteChangedFor(nameof(AddModuleCommand))]
+    [ObservableProperty] private int selectedNewModuleIndex = -1;
 
     public ProjectConfigurationViewModel(ProjectService projectService) {
         this.projectService = projectService;
     }
 
+    [SuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy \'DynamicallyAccessedMembersAttribute\' in call to target method. The return value of the source method does not have matching annotations.")]
     public void Load() {
         ProjectFile? project = projectService.GetCurrentProject();
         if (project is null) {
@@ -54,18 +61,43 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
                     .Where(x => x.CompatibleArchitecture == project.Architecture)
                     .Select(x => x.Name)
             );
-        Logger.LogInformation("Count: {cnt} OS", AvailableOperatingSystems.Count);
+        // Logger.LogInformation("Count: {cnt} OS", AvailableOperatingSystems.Count);
         SelectedOs = project.OperatingSystem.Name;
         SrcDir = project.SourceDirectory.ToString();
         OutputDir = project.OutputPath.ToString();
         OutputFile = project.OutputFile.ToString();
         EntryFile = project.EntryFile.ToString();
 
-        ModuleDescriptions.Clear();
+        // existing modules
+        ModuleDescriptions = [];
+        ModuleDescriptions.ItemPropertyChanged += (s, e) => {
+            ObservableCollectionEx<ModuleDescription> tmp = ModuleDescriptions;
+            ModuleDescriptions = null!;
+            ModuleDescriptions = tmp;
+        };
         ModuleDescriptions.AddRange(project.InstalledModules);
-        Logger.LogInformation("Project has {installed} modules and of these, {active} are active.", ModuleDescriptions.Count, ModuleDescriptions.Count(x => x.Active));
-    }
+        
+        // new modules
+        IReadOnlyList<Type> moduleTypes = ModuleDescription.GetAvailableModules();
+        foreach (Type moduleType in moduleTypes) {
+            ModuleDescription? moduleInstance = (ModuleDescription?)Activator.CreateInstance(moduleType);
+            if (moduleInstance is null) {
+                Logger.LogError("There was a type registered in ModuleDescription.GetAvailableModules() that does not " +
+                                "inherit from ModuleDescription. Could not register it. Type was: {type}", moduleType.FullName);
+                continue;
+            }
 
+            ProjectConfigurationModuleItem item = new() {
+                Name = moduleInstance.ModuleName,
+                Type = moduleType,
+                IsEnabled = true
+            };
+            AvailableNewModules.Add(item);
+        }
+        RefreshEnabledNewModules();
+        Logger.LogInformation("Project has {installed} installed modules and of these, {active} are active.", ModuleDescriptions.Count, ModuleDescriptions.Count(x => x.Active));
+    }
+    
     partial void OnSelectedArchIndexChanged(int value) {
         AvailableOperatingSystems.Clear();
         AvailableOperatingSystems.AddRange(
@@ -79,7 +111,6 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
         catch (Exception) {
             SelectedOs = string.Empty;
         }
-        Logger.LogInformation("Arch: {arch}; SO Count: {cnt}; Selected: {sel}", AvailableArchs[value], AvailableOperatingSystems.Count, SelectedOs);
     }
 
     [RelayCommand(CanExecute = nameof(CanApply))]
@@ -90,11 +121,16 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
 
     public bool CanApply() {
         bool validOs = AvailableOperatingSystems.Count > 0 && SelectedOs != string.Empty;
+        if (ModuleDescriptions is null) {
+            return false;
+        }
         // must have a cpu and a memory.
-        bool validModules = ModuleDescriptions.Any(
-                                x => x is MemoryModuleDescription { Active: true, BlockCount: > 0, BlockSize: > 0})
-            && ModuleDescriptions.Any(
-                x => x is MipsMonocycleModuleDescription { Active: true });
+        bool hasCpu = ModuleDescriptions.Where(x => x is ICpuModuleDescription)
+            .Any(x => x is { Active: true });
+        bool hasMemory = ModuleDescriptions.Where(x => x is MemoryModuleDescription)
+            .Any(x => x is MemoryModuleDescription { Active: true, BlockCount: > 0, BlockSize: > 0 });
+        bool validModules = hasCpu && hasMemory;
+        
         return validOs && validModules;
     }
 
@@ -126,8 +162,51 @@ public partial class ProjectConfigurationViewModel : BaseViewModel<ProjectConfig
         project.OutputFile = OutputFile.ToFilePath();
         project.EntryFile = EntryFile.ToFilePath();
         project.InstalledModules.Clear();
-        project.InstalledModules.AddRange(ModuleDescriptions);
+        project.InstalledModules.AddRange(ModuleDescriptions ?? []);
         
         projectService.SaveProject();
     }
+
+    [RelayCommand]
+    private void DeleteModule(ModuleDescription moduleDescription) {
+        ModuleDescriptions?.Remove(moduleDescription);
+        RefreshEnabledNewModules();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanAddModule))]
+    private void AddModule() {
+        // add module to list
+        ProjectConfigurationModuleItem item = AvailableNewModules[SelectedNewModuleIndex];
+        ModuleDescription? description = (ModuleDescription?)Activator.CreateInstance(item.Type);
+        if (description is null) {
+            return;
+        }
+        SelectedNewModuleIndex = -1;
+        ModuleDescriptions?.Add(description);
+        RefreshEnabledNewModules();
+    }
+    
+    private bool CanAddModule() {
+        bool indexValid = SelectedNewModuleIndex != -1
+                     && SelectedNewModuleIndex < AvailableNewModules.Count;
+        if (!indexValid) {
+            return false;
+        }
+        ProjectConfigurationModuleItem item = AvailableNewModules[SelectedNewModuleIndex];
+        return item.IsEnabled;
+    }
+
+    private void RefreshEnabledNewModules() {
+        foreach (ProjectConfigurationModuleItem item in AvailableNewModules) {
+            item.IsEnabled = ModuleDescriptions?.All(x => x.GetType() != item.Type) ?? false;
+        }
+    }
+}
+
+public partial class ProjectConfigurationModuleItem : ObservableObject {
+    [ObservableProperty] private string name = string.Empty;
+
+    [ObservableProperty] private bool isEnabled;
+    
+    public required Type Type { get; set; }
 }

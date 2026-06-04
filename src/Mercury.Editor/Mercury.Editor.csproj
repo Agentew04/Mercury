@@ -71,7 +71,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
     <PackageReference Include="NodifyAvalonia" Version="6.6.0" />
-    <PackageReference Include="SharpCompress" Version="0.42.0" />
+    <PackageReference Include="SharpCompress" Version="0.48.1" />
     <PackageReference Include="Svg.Controls.Avalonia" Version="11.3.6.2" />
     <PackageReference Include="System.Reactive" Version="6.1.0" />
     <PackageReference Include="Vecc.YamlDotNet.Analyzers.StaticGenerator" Version="16.3.0" />

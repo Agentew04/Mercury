@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;
+using SharpCompress.Common;
 using SharpCompress.Readers;
 
 namespace Mercury.Editor.Services;
@@ -164,12 +165,13 @@ public partial class UpdaterService : BaseService<UpdaterService> {
             }
             case GithubFileType.Rar: {
                 Logger.LogError("Extracting .rar archive");
-                using RarArchive archive = RarArchive.Open(assetStream, new ReaderOptions {
+                await using IRarAsyncArchive archive = await RarArchive.OpenAsyncArchive(assetStream, new ReaderOptions {
                     LeaveStreamOpen = true
                 });
                 string path = Path.Combine(Path.GetTempPath(), Random.Shared.Next().ToString());
                 Directory.CreateDirectory(path);
-                archive.ExtractToDirectory(path);
+                await using IAsyncReader reader = await archive.ExtractAllEntriesAsync(); 
+                await reader.WriteAllToDirectoryAsync(path);
                 return path;
             }
             case GithubFileType.TarGz: {

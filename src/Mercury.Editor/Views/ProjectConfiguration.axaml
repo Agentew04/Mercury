@@ -5,6 +5,8 @@
         xmlns:loc="clr-namespace:Mercury.Editor.Localization"
         xmlns:vm="clr-namespace:Mercury.Editor.ViewModels"
         xmlns:modules="clr-namespace:Mercury.Editor.Models.Modules"
+        xmlns:cv="clr-namespace:Mercury.Editor.Converters"
+        xmlns:controls="clr-namespace:Mercury.Editor.Controls"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Mercury.Editor.Views.ProjectConfiguration"
         x:DataType="vm:ProjectConfigurationViewModel"
@@ -71,29 +73,58 @@
                     <TextBox x:Name="OutputFileTextBox" Text="{Binding OutputFile}"></TextBox>    
                 </StackPanel>
                 <StackPanel>
-                    <Label Target="ModulesList" 
-                           Content="{loc:ProjectConfigurationResources ModulesLabel}"></Label>
-                    <ItemsControl x:Name="ModulesList">
-                        <ItemsControl.Items>
-                            <modules:GpuModuleDescription BaseAddress="1024"
-                                                          Width="100"
-                                                          Height="100">
-                            </modules:GpuModuleDescription>
-                            <modules:GpuModuleDescription BaseAddress="1024"
-                                                          Width="100"
-                                                          Height="100">
-                            </modules:GpuModuleDescription>
-                        </ItemsControl.Items>
+                    <Label Target="ModulesList"
+                           Content="{loc:ProjectConfigurationResources ModulesLabel}"/>
+                    <ItemsControl x:Name="ModulesList"
+                                  BorderBrush="{DynamicResource SecondaryForeground}" BorderThickness="1"
+                                  CornerRadius="5"
+                                  ItemsSource="{Binding ModuleDescriptions}">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="modules:ModuleDescription">
-                                <Grid ColumnDefinitions="Auto,*">
-                                    <CheckBox Grid.Column="0"></CheckBox>
-                                    <TextBlock Grid.Column="1" Text="{Binding ModuleName}"/>
-                                    
-                                </Grid>
+                            <DataTemplate DataType="modules:ModuleDescription">
+                                <controls:ModuleDescriptionControl
+                                    DeleteCommand="{Binding #ModulesList.((vm:ProjectConfigurationViewModel)DataContext).DeleteModuleCommand}"
+                                    ModuleDescription="{Binding .}"
+                                    Margin="10,5" CornerRadius="5"
+                                    Padding="10"
+                                    Background="{DynamicResource AlternateGrey}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    <StackPanel Orientation="Horizontal" Spacing="5"
+                                HorizontalAlignment="Center">
+                        <ComboBox Margin="0,5"
+                                  PlaceholderText="{loc:ProjectConfigurationResources AddModulePlaceholder}"
+                                  ItemsSource="{Binding AvailableNewModules}"
+                                  SelectedIndex="{Binding SelectedNewModuleIndex}"
+                                  MinHeight="0" VerticalAlignment="Stretch">
+                            <ComboBox.ItemContainerTheme>
+                                <ControlTheme TargetType="ComboBoxItem" x:DataType="vm:ProjectConfigurationModuleItem">
+                                    <ControlTheme.Resources>
+                                        <cv:BoolToColorConverter x:Key="BoolToColorConverter"/>
+                                        <cv:ColorConverterParam x:Key="BoolToColorParam"
+                                                                TrueBrush="{DynamicResource PrimaryForeground}"
+                                                                FalseBrush="{DynamicResource SecondaryForeground}"/>
+                                    </ControlTheme.Resources>
+                                    <Setter Property="IsEnabled" Value="{Binding IsEnabled}"/>
+                                    <Setter Property="Foreground" Value="{Binding IsEnabled, 
+                                    Converter={StaticResource BoolToColorConverter},
+                                    ConverterParameter={StaticResource BoolToColorParam}}"/>
+                                </ControlTheme>
+                            </ComboBox.ItemContainerTheme>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="vm:ProjectConfigurationModuleItem">
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Padding="5" Margin="0"
+                                Command="{Binding AddModuleCommand}">
+                            <TextBlock FontFamily="{StaticResource PhosphorFont}"
+                                       FontSize="14"
+                                       VerticalAlignment="Stretch"
+                                       Text="&#xE3D4;" Margin="0"/>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
