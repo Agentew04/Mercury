@@ -19,5 +19,5 @@ public partial class Lwcz : IInstruction {
     [Field(15,0)]
     public short Offset { get; set; }
     
-    public override string ToString() => $"lwc{Coprocessor} ${TypeFInstruction.TranslateRegisterName(Ft)}, {Offset:X4}(${TypeFInstruction.TranslateRegisterName(Base)})";
+    public override string ToString() => $"lwc{Coprocessor} ${Instruction.FpuTranslateRegisterName(Ft)}, {Offset:X4}(${Instruction.FpuTranslateRegisterName(Base)})";
 }

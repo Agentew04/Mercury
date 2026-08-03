@@ -21,8 +21,8 @@ public partial class AddFloat : IInstruction {
     [Field(10,6)]
     public byte Fd { get; private set; }
     
-    public bool IsDouble => Format == TypeFInstruction.DoublePrecisionFormat;
+    public bool IsDouble => Format == Instruction.DoublePrecisionFormat;
 
-    public override string ToString() => $"add.{TypeFInstruction.FormatFmt(Format)} ${TypeFInstruction.TranslateRegisterName(Fd)}, ${TypeFInstruction.TranslateRegisterName(Fs)}, ${TypeFInstruction.TranslateRegisterName(Ft)}";
+    public override string ToString() => $"add.{Instruction.FpuFormatFmt(Format)} ${Instruction.FpuTranslateRegisterName(Fd)}, ${Instruction.FpuTranslateRegisterName(Fs)}, ${Instruction.FpuTranslateRegisterName(Ft)}";
 
 }

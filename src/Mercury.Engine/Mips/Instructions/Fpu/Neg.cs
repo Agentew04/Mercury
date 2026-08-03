@@ -19,7 +19,7 @@ public partial class Neg : IInstruction {
     [Field(10,6)]
     public byte Fd { get; set; }
 
-    public bool IsDouble => Fmt == TypeFInstruction.DoublePrecisionFormat;
+    public bool IsDouble => Fmt == Instruction.DoublePrecisionFormat;
 
-    public override string ToString() => $"neg.{TypeFInstruction.FormatFmt(Fmt)} ${TypeFInstruction.TranslateRegisterName(Fd)}, ${TypeFInstruction.TranslateRegisterName(Fs)}";
+    public override string ToString() => $"neg.{Instruction.FpuFormatFmt(Fmt)} ${Instruction.FpuTranslateRegisterName(Fd)}, ${Instruction.FpuTranslateRegisterName(Fs)}";
 }

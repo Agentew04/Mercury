@@ -11,14 +11,14 @@ public partial class Monocycle {
         switch (instruction) {
             case Abs abs: {
                 switch (abs.Format) {
-                    case TypeFInstruction.SinglePrecisionFormat:
+                    case Instruction.SinglePrecisionFormat:
                         ExecUnary<float>(abs.Fs,abs.Fd, MathF.Abs);
                         break;
-                    case TypeFInstruction.DoublePrecisionFormat:
+                    case Instruction.DoublePrecisionFormat:
                         ExecUnary<double>(abs.Fs,abs.Fd, Math.Abs);
                         break;
-                    case TypeFInstruction.LongFixedPrecisionFormat:
-                    case TypeFInstruction.WordFixedPrecisionFormat:
+                    case Instruction.LongFixedPrecisionFormat:
+                    case Instruction.WordFixedPrecisionFormat:
                         eventBus.Publish(new UnsupportedFormatEvent());
                         break;
                 }
@@ -26,14 +26,14 @@ public partial class Monocycle {
             }
             case AddFloat add: {
                 switch (add.Format) {
-                    case TypeFInstruction.SinglePrecisionFormat:
+                    case Instruction.SinglePrecisionFormat:
                         ExecBinary<float>(add.Fs, add.Ft, add.Fd, static (a,b)=>a+b);
                         break;
-                    case TypeFInstruction.DoublePrecisionFormat:
+                    case Instruction.DoublePrecisionFormat:
                         ExecBinary<double>(add.Fs, add.Ft, add.Fd, static (a,b)=>a+b);
                         break;
-                    case TypeFInstruction.LongFixedPrecisionFormat:
-                    case TypeFInstruction.WordFixedPrecisionFormat:
+                    case Instruction.LongFixedPrecisionFormat:
+                    case Instruction.WordFixedPrecisionFormat:
                         eventBus.Publish(new UnsupportedFormatEvent());
                         break;
                 }
@@ -53,16 +53,16 @@ public partial class Monocycle {
             }
             case C c: {
                 switch (c.Format) {
-                    case TypeFInstruction.SinglePrecisionFormat:
+                    case Instruction.SinglePrecisionFormat:
                         Flags[c.Cc] = Compare(Read<float>(c.Fs), Read<float>(c.Ft), c.Cond);
                         OnFlagUpdate?.Invoke();
                         break;
-                    case TypeFInstruction.DoublePrecisionFormat:
+                    case Instruction.DoublePrecisionFormat:
                         Flags[c.Cc] = Compare(Read<double>(c.Fs), Read<double>(c.Ft), c.Cond);
                         OnFlagUpdate?.Invoke();
                         break;
-                    case TypeFInstruction.WordFixedPrecisionFormat:
-                    case TypeFInstruction.LongFixedPrecisionFormat:
+                    case Instruction.WordFixedPrecisionFormat:
+                    case Instruction.LongFixedPrecisionFormat:
                         eventBus.Publish(new UnsupportedFormatEvent());
                         break;
                 }
@@ -78,14 +78,14 @@ public partial class Monocycle {
             }
             case CvtD cvtd: {
                 switch (cvtd.Format) {
-                    case TypeFInstruction.SinglePrecisionFormat:
+                    case Instruction.SinglePrecisionFormat:
                         Write<double>(cvtd.Fd, Read<float>(cvtd.Fs));
                         break;
-                    case TypeFInstruction.DoublePrecisionFormat:
+                    case Instruction.DoublePrecisionFormat:
                         InvalidOp();
                         break;
-                    case TypeFInstruction.WordFixedPrecisionFormat:
-                    case TypeFInstruction.LongFixedPrecisionFormat:
+                    case Instruction.WordFixedPrecisionFormat:
+                    case Instruction.LongFixedPrecisionFormat:
                         eventBus.Publish(new UnsupportedFormatEvent());
                         break;
                 }
@@ -93,14 +93,14 @@ public partial class Monocycle {
             }
             case CvtS cvts: {
                 switch (cvts.Format) {
-                    case TypeFInstruction.SinglePrecisionFormat:
+                    case Instruction.SinglePrecisionFormat:
                         InvalidOp();
                         break;
-                    case TypeFInstruction.DoublePrecisionFormat:
+                    case Instruction.DoublePrecisionFormat:
                         Write(cvts.Fd, (float)Read<double>(cvts.Fs));
                         break;
-                    case TypeFInstruction.WordFixedPrecisionFormat:
-                    case TypeFInstruction.LongFixedPrecisionFormat:
+                    case Instruction.WordFixedPrecisionFormat:
+                    case Instruction.LongFixedPrecisionFormat:
                         eventBus.Publish(new UnsupportedFormatEvent());
                         break;
                 }
@@ -108,14 +108,14 @@ public partial class Monocycle {
             }
             case DivFloat div: {
                 switch (div.Format) {
-                    case TypeFInstruction.SinglePrecisionFormat:
+                    case Instruction.SinglePrecisionFormat:
                         ExecBinary<float>(div.Fs, div.Ft, div.Fd, static (a,b)=>a/b);
                         break;
-                    case TypeFInstruction.DoublePrecisionFormat:
+                    case Instruction.DoublePrecisionFormat:
                         ExecBinary<double>(div.Fs, div.Ft, div.Fd, static (a,b)=>a/b);
                         break;
-                    case TypeFInstruction.WordFixedPrecisionFormat:
-                    case TypeFInstruction.LongFixedPrecisionFormat:
+                    case Instruction.WordFixedPrecisionFormat:
+                    case Instruction.LongFixedPrecisionFormat:
                         eventBus.Publish(new UnsupportedFormatEvent());
                         break;
                 }
@@ -127,14 +127,14 @@ public partial class Monocycle {
             }
             case Mov mov: {
                 switch (mov.Format) {
-                    case TypeFInstruction.SinglePrecisionFormat:
+                    case Instruction.SinglePrecisionFormat:
                         Registers.Set<MipsFpuRegisters>(mov.Fd, Registers.Get<MipsFpuRegisters>(mov.Fs));
                         break;
-                    case TypeFInstruction.DoublePrecisionFormat:
+                    case Instruction.DoublePrecisionFormat:
                         Write(mov.Fd, Read<double>(mov.Fs));
                         break;
-                    case TypeFInstruction.WordFixedPrecisionFormat:
-                    case TypeFInstruction.LongFixedPrecisionFormat:
+                    case Instruction.WordFixedPrecisionFormat:
+                    case Instruction.LongFixedPrecisionFormat:
                         eventBus.Publish(new UnsupportedFormatEvent());
                         break;
                 }
@@ -146,14 +146,14 @@ public partial class Monocycle {
             }
             case MulFloat mul: {
                 switch (mul.Format) {
-                    case TypeFInstruction.SinglePrecisionFormat:
+                    case Instruction.SinglePrecisionFormat:
                         ExecBinary<float>(mul.Fs, mul.Ft, mul.Fd, static (a,b)=>a*b);
                         break;
-                    case TypeFInstruction.DoublePrecisionFormat:
+                    case Instruction.DoublePrecisionFormat:
                         ExecBinary<double>(mul.Fs, mul.Ft, mul.Fd, static (a,b)=>a*b);
                         break;
-                    case TypeFInstruction.WordFixedPrecisionFormat:
-                    case TypeFInstruction.LongFixedPrecisionFormat:
+                    case Instruction.WordFixedPrecisionFormat:
+                    case Instruction.LongFixedPrecisionFormat:
                         eventBus.Publish(new UnsupportedFormatEvent());
                         break;
                 }
@@ -178,14 +178,14 @@ public partial class Monocycle {
             }
             case Sqrt sqrt: {
                 switch (sqrt.Format) {
-                    case TypeFInstruction.SinglePrecisionFormat:
+                    case Instruction.SinglePrecisionFormat:
                         ExecUnary<float>(sqrt.Fs, sqrt.Fd, MathF.Sqrt);
                         break;
-                    case TypeFInstruction.DoublePrecisionFormat:
+                    case Instruction.DoublePrecisionFormat:
                         ExecUnary<double>(sqrt.Fs, sqrt.Fd, Math.Sqrt);
                         break;
-                    case TypeFInstruction.WordFixedPrecisionFormat:
-                    case TypeFInstruction.LongFixedPrecisionFormat:
+                    case Instruction.WordFixedPrecisionFormat:
+                    case Instruction.LongFixedPrecisionFormat:
                         eventBus.Publish(new UnsupportedFormatEvent());
                         break;
                 }
@@ -193,14 +193,14 @@ public partial class Monocycle {
             }
             case SubFloat sub: {
                 switch (sub.Format) {
-                    case TypeFInstruction.SinglePrecisionFormat:
+                    case Instruction.SinglePrecisionFormat:
                         ExecBinary<float>(sub.Fs, sub.Ft, sub.Fd, static (a,b)=>a-b);
                         break;
-                    case TypeFInstruction.DoublePrecisionFormat:
+                    case Instruction.DoublePrecisionFormat:
                         ExecBinary<double>(sub.Fs, sub.Ft, sub.Fd, static (a,b)=>a-b);
                         break;
-                    case TypeFInstruction.WordFixedPrecisionFormat:
-                    case TypeFInstruction.LongFixedPrecisionFormat:
+                    case Instruction.WordFixedPrecisionFormat:
+                    case Instruction.LongFixedPrecisionFormat:
                         eventBus.Publish(new UnsupportedFormatEvent());
                         break;
                 }

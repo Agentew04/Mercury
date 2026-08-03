@@ -21,8 +21,8 @@ public partial class MulFloat : IInstruction {
     [Field(10,6)]
     public byte Fd { get; set; }
 
-    public bool IsDouble => Format == TypeFInstruction.DoublePrecisionFormat;
+    public bool IsDouble => Format == Instruction.DoublePrecisionFormat;
 
-    public override string ToString() => $"mul.{TypeFInstruction.FormatFmt(Format)} ${TypeFInstruction.TranslateRegisterName(Fd)}, ${TypeFInstruction.TranslateRegisterName(Fs)}, ${TypeFInstruction.TranslateRegisterName(Ft)}";
+    public override string ToString() => $"mul.{Instruction.FpuFormatFmt(Format)} ${Instruction.FpuTranslateRegisterName(Fd)}, ${Instruction.FpuTranslateRegisterName(Fs)}, ${Instruction.FpuTranslateRegisterName(Ft)}";
 
 }

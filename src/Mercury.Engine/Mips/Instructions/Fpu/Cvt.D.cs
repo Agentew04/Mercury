@@ -19,8 +19,8 @@ public partial class CvtD : IInstruction {
     [Field(10,6)]
     public byte Fd { get; private set; }
 
-    public bool IsDouble => Format == TypeFInstruction.DoublePrecisionFormat;
+    public bool IsDouble => Format == Instruction.DoublePrecisionFormat;
     
-    public override string ToString() => $"cvt.d.{TypeFInstruction.FormatFmt(Format)} ${TypeFInstruction.TranslateRegisterName(Fd)}, ${TypeFInstruction.TranslateRegisterName(Fs)}";
+    public override string ToString() => $"cvt.d.{Instruction.FpuFormatFmt(Format)} ${Instruction.FpuTranslateRegisterName(Fd)}, ${Instruction.FpuTranslateRegisterName(Fs)}";
 
 }

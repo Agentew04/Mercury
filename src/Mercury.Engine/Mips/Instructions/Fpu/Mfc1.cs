@@ -15,6 +15,6 @@ public partial class Mfc1 : IInstruction {
     [Field(15,11)]
     public byte Fs { get; set; }
 
-    public override string ToString() => $"mfc1 ${Instruction.TranslateRegisterName(Rt)}, ${TypeFInstruction.TranslateRegisterName(Fs)}";
+    public override string ToString() => $"mfc1 ${Instruction.TranslateRegisterName(Rt)}, ${Instruction.FpuTranslateRegisterName(Fs)}";
 
 }

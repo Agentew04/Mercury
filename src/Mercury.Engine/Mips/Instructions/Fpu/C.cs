@@ -24,11 +24,11 @@ public partial class C : IInstruction {
     [Field(3,0)]
     public byte Cond { get; set; }
 
-    public bool IsDouble => Format == TypeFInstruction.DoublePrecisionFormat;
+    public bool IsDouble => Format == Instruction.DoublePrecisionFormat;
     
     public override string ToString()
     {
-        return $"C.{FormatCond(Cond)}.{TypeFInstruction.FormatFmt(Format)} {(Cc!=0?$"{Cc}, ":"")}${TypeFInstruction.TranslateRegisterName(Fs)}, ${TypeFInstruction.TranslateRegisterName(Ft)}";
+        return $"C.{FormatCond(Cond)}.{Instruction.FpuFormatFmt(Format)} {(Cc!=0?$"{Cc}, ":"")}${Instruction.FpuTranslateRegisterName(Fs)}, ${Instruction.FpuTranslateRegisterName(Ft)}";
     }
 
     private static string FormatCond(byte value)
