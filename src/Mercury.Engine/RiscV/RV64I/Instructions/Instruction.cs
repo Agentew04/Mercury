@@ -6,7 +6,6 @@ namespace Mercury.Engine.RiscV.RV64I.Instructions;
 /// Base class that all RISC-V 64 instructions must inherit. 
 /// </summary>
 public abstract class Instruction {
-    IInstruction _instruction;
     public abstract override string ToString();
     protected string Mnemonic => GetType().Name.ToLowerInvariant();
 }

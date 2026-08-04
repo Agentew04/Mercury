@@ -23,5 +23,5 @@ public interface IInstruction {
     /// <summary>
     /// Returns a string representation of this instruction. 
     /// </summary>
-    public string ToString();
+    public string? ToString();
 }

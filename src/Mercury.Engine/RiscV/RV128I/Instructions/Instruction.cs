@@ -1,8 +1,11 @@
-﻿namespace Mercury.Engine.RiscV.RV128I.Instructions;
+﻿using Mercury.Engine.Common;
+
+namespace Mercury.Engine.RiscV.RV128I.Instructions;
 
 /// <summary>
-/// Base class that all RISC-V 128 instructions must inherit. 
+/// Class that provides helper methods that RV32I instructions may use. Actual instructions
+/// must implement the <see cref="IInstruction"/> interface.
 /// </summary>
-public abstract class Instruction {
+public static class Instruction {
     
 }
