@@ -18,7 +18,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-OutputDir=./publish/
+OutputDir=../publish/
 OutputBaseFilename=MercurySetup_{#MyAppVersion}_Windows
 PrivilegesRequired=lowest
 
@@ -30,7 +30,7 @@ Name: "desktopicon"; Description: "Criar atalho na Área de Trabalho"; GroupDesc
 Name: "startmenuicon"; Description: "Criar atalho no Menu Iniciar"; GroupDescription: "Opções adicionais:"
 
 [Files]
-Source: "publish\build\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+Source: "..\publish\build\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: startmenuicon

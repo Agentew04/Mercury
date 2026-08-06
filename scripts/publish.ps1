@@ -1,14 +1,18 @@
 $csprojPath = Resolve-Path "../src/Mercury.Editor/Mercury.Editor.csproj"
 $updaterProjectPath = Resolve-Path "../src/Updater/Updater.csproj"
-$publishDir = Resolve-Path "../publish"
+$publishDir = "../publish"
 $buildDir = "$($publishDir)/build"
 $privateKeyPath = Resolve-Path "./private.key"
 
-if(-not Test-Path $privateKeyPath) {
+if(-not (Test-Path $publishDir)){
+	New-Item -ItemType Directory -Path $publishDir | Out-Null
+}
+$publishDir = Resolve-Path $publishDir
+if(-not (Test-Path $privateKeyPath)) {
 		Write-Host "Nao encontrei arquivo da chave privada! Abortando"
 		exit 1
 }
-if(-not Test-Path $csprojPath){
+if(-not (Test-Path $csprojPath)){
 		Write-Host "Nao encontrei projeto! Abortando"
 		exit 1
 }
