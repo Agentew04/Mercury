@@ -6,7 +6,6 @@ namespace Mercury.Engine.RiscV.RV32I.Instructions;
 [Instruction]
 [FormatExact(31,27,0)]
 [FormatExact(26,25, [ 0b00, 0b01 ])]
-// [FormatExact(26,25, 0b01)]
 [FormatExact(14,12,0b001)]
 [FormatExact(6,2,0b00100)]
 [FormatExact(1,0,0b11)]

@@ -1,7 +1,7 @@
 ﻿using Mercury.Engine.Common;
 using Mercury.Engine.Generators.Instruction;
 
-namespace Mercury.Engine.RiscV.RV32I.Instructions.TypeS;
+namespace Mercury.Engine.RiscV.RV32I.Instructions;
 
 [Instruction]
 [FormatExact(6,2,0b11011)]

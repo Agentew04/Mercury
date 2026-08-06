@@ -1,10 +1,12 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Mercury.Generators.Instruction;
 
@@ -16,7 +18,10 @@ internal class InstructionAnalyzer : DiagnosticAnalyzer {
         InstructionDiagnostics.UsePartial,
         InstructionDiagnostics.FieldNoAttribute,
         InstructionDiagnostics.InsufficientFieldSize,
-        InstructionDiagnostics.FormattingAmbiguity
+        InstructionDiagnostics.FormattingAmbiguity,
+        InstructionDiagnostics.InvalidAssemblySpecifier,
+        InstructionDiagnostics.InvalidAssemblyFormat,
+        InstructionDiagnostics.AssemblyFormatUnknownField
     ];
     
     public override void Initialize(AnalysisContext context) {
@@ -27,6 +32,7 @@ internal class InstructionAnalyzer : DiagnosticAnalyzer {
         context.RegisterSyntaxNodeAction(AnalyzeFieldAttribute, SyntaxKind.FieldDeclaration, SyntaxKind.PropertyDeclaration);
         context.RegisterSyntaxNodeAction(AnalyzeFieldSize, SyntaxKind.FieldDeclaration, SyntaxKind.PropertyDeclaration);
         context.RegisterSyntaxNodeAction(AnalyzeCoverage, SyntaxKind.ClassDeclaration);
+        context.RegisterSyntaxNodeAction(AnalyzeAssemblyFormat, SyntaxKind.ClassDeclaration);
     }
 
     private static void AnalyzeInterfaceUsage(SyntaxNodeAnalysisContext context) {
@@ -198,9 +204,6 @@ internal class InstructionAnalyzer : DiagnosticAnalyzer {
             if (!(attribute.AttributeClass?.Name.StartsWith("FormatExact") ?? true)) {
                 continue;
             }
-            if (attribute.ConstructorArguments[2].Kind == TypedConstantKind.Array) {
-                continue;
-            }
             
             int min = (int)attribute.ConstructorArguments[0].Value!;
             int max = (int)attribute.ConstructorArguments[1].Value!;
@@ -252,5 +255,218 @@ internal class InstructionAnalyzer : DiagnosticAnalyzer {
             SpecialType.System_UInt64 => 64,
             _ => 0
         };
+    }
+
+    // -------------------------------------------------------------------------
+    // Assembly format string analysis
+    // -------------------------------------------------------------------------
+
+    private static void AnalyzeAssemblyFormat(SyntaxNodeAnalysisContext context) {
+        var classDecl = (ClassDeclarationSyntax)context.Node;
+        SemanticModel semanticModel = context.SemanticModel;
+
+        if (semanticModel.GetDeclaredSymbol(classDecl) is not INamedTypeSymbol classSymbol) {
+            return;
+        }
+
+        // Only run on [Instruction] classes
+        bool hasInstruction = classSymbol.GetAttributes()
+            .Any(a => a.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                      == "global::Mercury.Engine.Generators.Instruction.InstructionAttribute");
+        if (!hasInstruction) {
+            return;
+        }
+
+        // Find the [AssemblyFormat("...")] attribute on the class declaration
+        AttributeSyntax? assemblyFormatAttrSyntax = classDecl.AttributeLists
+            .SelectMany(al => al.Attributes)
+            .FirstOrDefault(a => {
+                SymbolInfo si = semanticModel.GetSymbolInfo(a);
+                ISymbol? sym = si.Symbol ?? si.CandidateSymbols.FirstOrDefault();
+                return sym?.ContainingType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                       == "global::Mercury.Engine.Generators.Instruction.AssemblyFormatAttribute";
+            });
+
+        if (assemblyFormatAttrSyntax is null) {
+            return;
+        }
+
+        // Extract the string literal argument
+        if (assemblyFormatAttrSyntax.ArgumentList?.Arguments.Count is not > 0) {
+            return;
+        }
+
+        ExpressionSyntax argExpr = assemblyFormatAttrSyntax.ArgumentList!.Arguments[0].Expression;
+        if (argExpr is not LiteralExpressionSyntax literal ||
+            !literal.IsKind(SyntaxKind.StringLiteralExpression)) {
+            return;
+        }
+
+        string format = literal.Token.ValueText; // unescaped content
+        // The opening '"' is at literal.Token.SpanStart, content starts at SpanStart+1
+        int tokenContentStart = literal.Token.SpanStart + 1;
+        SyntaxTree syntaxTree = context.Node.SyntaxTree;
+
+        // Collect all [AssemblyFormatter] methods visible in the compilation
+        List<(string Specifier, string Namespace)> knownFormatters =
+            CollectAssemblyFormatters(context.SemanticModel.Compilation);
+
+        // Collect all [Field]-decorated member names in this class
+        HashSet<string> fieldMembers = new(StringComparer.Ordinal);
+        foreach (ISymbol member in classSymbol.GetMembers()) {
+            if (member is not IPropertySymbol && member is not IFieldSymbol) continue;
+            bool hasField = member.GetAttributes().Any(a =>
+                a.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                == "global::Mercury.Engine.Generators.Instruction.FieldAttribute");
+            if (hasField) {
+                fieldMembers.Add(member.Name);
+            }
+        }
+
+        // Determine the instruction's namespace for formatter resolution
+        string instructionNamespace = classSymbol.ContainingNamespace
+            .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+            .Replace("global::", "");
+
+        // Walk the format string
+        int i = 0;
+        while (i < format.Length) {
+            if (format[i] == '{') {
+                // Escaped '{{'
+                if (i + 1 < format.Length && format[i + 1] == '{') {
+                    i += 2;
+                    continue;
+                }
+
+                int placeholderStart = i; // position of '{' in content string
+                int closeIndex = format.IndexOf('}', i);
+                if (closeIndex == -1) {
+                    // Unclosed brace — MRCY0007
+                    // Highlight from '{' to end of string
+                    Location loc = Location.Create(syntaxTree,
+                        TextSpan.FromBounds(
+                            tokenContentStart + placeholderStart,
+                            tokenContentStart + format.Length));
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        InstructionDiagnostics.InvalidAssemblyFormat, loc));
+                    return;
+                }
+
+                string content = format.Substring(i + 1, closeIndex - i - 1);
+                int colonIndex = content.IndexOf(':');
+
+                if (colonIndex != -1) {
+                    string varName  = content.Substring(0, colonIndex).Trim();
+                    string specifier = content.Substring(colonIndex + 1).Trim();
+
+                    // Location of the specifier token inside the string
+                    // e.g.  {Rt:reg}  — specifier 'reg' starts at i+1+colonIndex+1
+                    int specifierOffset = i + 1 + colonIndex + 1;
+                    Location specLoc = Location.Create(syntaxTree,
+                        TextSpan.FromBounds(
+                            tokenContentStart + specifierOffset,
+                            tokenContentStart + specifierOffset + specifier.Length));
+
+                    // Location of the varName token inside the string
+                    int varOffset = i + 1;
+                    Location varLoc = Location.Create(syntaxTree,
+                        TextSpan.FromBounds(
+                            tokenContentStart + varOffset,
+                            tokenContentStart + varOffset + varName.Length));
+
+                    // MRCY0008 — varName must be a [Field] member
+                    if (!string.IsNullOrEmpty(varName) && !fieldMembers.Contains(varName)) {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            InstructionDiagnostics.AssemblyFormatUnknownField, varLoc, varName));
+                    }
+
+                    // MRCY0006 — specifier must be a known formatter or standard .NET format
+                    if (!string.IsNullOrEmpty(specifier)) {
+                        bool isCustom = FindFormatterInList(specifier, instructionNamespace, knownFormatters);
+                        if (!isCustom && !IsValidStandardFormatSpecifier(specifier)) {
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                InstructionDiagnostics.InvalidAssemblySpecifier, specLoc, specifier));
+                        }
+                    }
+                }
+
+                i = closeIndex + 1;
+            } else if (format[i] == '}') {
+                // Skip escaped '}}'
+                i += (i + 1 < format.Length && format[i + 1] == '}') ? 2 : 1;
+            } else {
+                i++;
+            }
+        }
+    }
+
+    /// <summary>Collects all static methods decorated with [AssemblyFormatter(specifier)] across the compilation.</summary>
+    private static List<(string Specifier, string Namespace)> CollectAssemblyFormatters(
+        Compilation compilation) {
+
+        const string formatterFqn =
+            "global::Mercury.Engine.Generators.Instruction.AssemblyFormatterAttribute";
+
+        var result = new List<(string, string)>();
+        foreach (INamedTypeSymbol type in GetAllTypes(compilation.GlobalNamespace)) {
+            foreach (IMethodSymbol method in type.GetMembers().OfType<IMethodSymbol>()) {
+                if (!method.IsStatic) continue;
+                foreach (AttributeData attr in method.GetAttributes()) {
+                    if (attr.AttributeClass?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                        != formatterFqn) continue;
+                    if (attr.ConstructorArguments.Length == 0) continue;
+                    string specifier = attr.ConstructorArguments[0].Value as string ?? "";
+                    string ns = method.ContainingNamespace
+                        .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                        .Replace("global::", "");
+                    result.Add((specifier, ns));
+                }
+            }
+        }
+        return result;
+    }
+
+    private static IEnumerable<INamedTypeSymbol> GetAllTypes(INamespaceSymbol ns) {
+        foreach (INamedTypeSymbol type in ns.GetTypeMembers()) {
+            yield return type;
+        }
+        foreach (INamespaceSymbol nested in ns.GetNamespaceMembers()) {
+            foreach (INamedTypeSymbol type in GetAllTypes(nested)) {
+                yield return type;
+            }
+        }
+    }
+
+    /// <summary>Nearest-namespace-first lookup matching the generator's FindFormatter logic.</summary>
+    private static bool FindFormatterInList(
+        string specifier,
+        string instructionNamespace,
+        List<(string Specifier, string Namespace)> formatters) {
+
+        string ns = instructionNamespace;
+        while (!string.IsNullOrEmpty(ns)) {
+            if (formatters.Any(f => f.Specifier == specifier && f.Namespace == ns)) {
+                return true;
+            }
+            int lastDot = ns.LastIndexOf('.');
+            if (lastDot == -1) break;
+            ns = ns.Substring(0, lastDot);
+        }
+        return formatters.Any(f => f.Specifier == specifier);
+    }
+
+    /// <summary>Returns true for standard .NET format specifiers: one letter from [XxDdBbGgFfNn] optionally followed by digits.</summary>
+    private static bool IsValidStandardFormatSpecifier(string specifier) {
+        if (string.IsNullOrEmpty(specifier)) return true;
+        char first = specifier[0];
+        if (first == 'X' || first == 'x' || first == 'D' || first == 'd' ||
+            first == 'B' || first == 'b' || first == 'G' || first == 'g' ||
+            first == 'F' || first == 'f' || first == 'N' || first == 'n') {
+            for (int j = 1; j < specifier.Length; j++) {
+                if (!char.IsDigit(specifier[j])) return false;
+            }
+            return true;
+        }
+        return false;
     }
 }

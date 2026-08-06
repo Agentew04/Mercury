@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+
+using System.Collections.Immutable;
 
 namespace Mercury.Generators.Instruction;
 
@@ -13,10 +15,15 @@ namespace Mercury.Generators.Instruction;
 internal class InstructionGenerator : IIncrementalGenerator{
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         context.RegisterPostInitializationOutput(ctx => {
-            ctx.AddSource("FieldAttribute.g.cs", SourceText.From(InstructionTemplates.FieldAttribute, Encoding.UTF8));
-            ctx.AddSource("InstructionAttribute.g.cs", SourceText.From(InstructionTemplates.InstructionAttribute, Encoding.UTF8));
-            ctx.AddSource("FormatExactAttribute.g.cs", SourceText.From(InstructionTemplates.FormatExactAttributeText, Encoding.UTF8));
-            ctx.AddSource("FormatDifferentAttribute.g.cs", SourceText.From(InstructionTemplates.FormatDifferentAttribute, Encoding.UTF8));
+            ctx.AddSource("FieldAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.FieldAttribute, Encoding.UTF8));
+            ctx.AddSource("InstructionAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.InstructionAttribute, Encoding.UTF8));
+            // instruction binary fmt
+            ctx.AddSource("FormatExactAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.FormatExactAttributeText, Encoding.UTF8));
+            ctx.AddSource("FormatDifferentAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.FormatDifferentAttribute, Encoding.UTF8));
+            // instruction text format
+            ctx.AddSource("AssemblyFormatAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.AssemblyFormatAttribute, Encoding.UTF8));
+            ctx.AddSource("AssemblyFormatterAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.AssemblyFormatterAttribute, Encoding.UTF8));
+            ctx.AddSource("AssemblyParserAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.AssemblyParserAttribute, Encoding.UTF8));
         });
 
         IncrementalValuesProvider<InstructionInfo> instructions = context.SyntaxProvider
@@ -26,16 +33,60 @@ internal class InstructionGenerator : IIncrementalGenerator{
                 transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx))
             .Where(x => x is not null)
             .Select((x, _) => x!.Value);
+
+        IncrementalValuesProvider<FormatterMethodInfo> formatters = context.SyntaxProvider
+            .ForAttributeWithMetadataName(
+                "Mercury.Engine.Generators.Instruction.AssemblyFormatterAttribute",
+                predicate: static (node, _) => node is MethodDeclarationSyntax,
+                transform: static (ctx, _) => GetFormatterTargetForGeneration(ctx))
+            .Where(x => x is not null)
+            .Select((x, _) => x!.Value);
         
-        context.RegisterSourceOutput(instructions,
-            (spc, source) => {
-                ImplementationEmitter.Emit(spc, source);
+        var instructionsWithFormatters = instructions.Combine(formatters.Collect());
+        
+        context.RegisterSourceOutput(instructionsWithFormatters,
+            (spc, pair) => {
+                ImplementationEmitter.Emit(spc, pair.Left, pair.Right);
             });
         context.RegisterSourceOutput(instructions.Collect(),
             (spc, source) => {
                 DisassemblerEmitter.Emit(spc, source);
                 InstructionPoolEmitter.Emit(spc, source);
             });
+    }
+
+    private static FormatterMethodInfo? GetFormatterTargetForGeneration(GeneratorAttributeSyntaxContext ctx) {
+        if (ctx.TargetNode is not MethodDeclarationSyntax methodDecl) {
+            return null;
+        }
+        SemanticModel semanticModel = ctx.SemanticModel;
+        IMethodSymbol? methodSymbol = semanticModel.GetDeclaredSymbol(methodDecl) as IMethodSymbol;
+        if (methodSymbol is null || !methodSymbol.IsStatic) {
+            return null;
+        }
+
+        AttributeData? formatterAttr = methodSymbol.GetAttributes()
+            .FirstOrDefault(attr => attr.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == 
+                         "global::Mercury.Engine.Generators.Instruction.AssemblyFormatterAttribute");
+        
+        if (formatterAttr is null || formatterAttr.ConstructorArguments.Length == 0) {
+            return null;
+        }
+
+        string? specifier = formatterAttr.ConstructorArguments[0].Value as string;
+        if (string.IsNullOrEmpty(specifier)) {
+            return null;
+        }
+
+        INamespaceSymbol? namespaceSymbol = methodSymbol.ContainingNamespace;
+        INamedTypeSymbol? containingType = methodSymbol.ContainingType;
+
+        return new FormatterMethodInfo(
+            specifier!,
+            namespaceSymbol.ToDisplayString(),
+            containingType.Name,
+            methodSymbol.Name
+        );
     }
 
     private static InstructionInfo? GetSemanticTargetForGeneration(GeneratorAttributeSyntaxContext ctx) {
@@ -50,10 +101,20 @@ internal class InstructionGenerator : IIncrementalGenerator{
         EquatableArray<FormatInfo> formats = GetFormats(symbolInfo);
         EquatableArray<FieldInfo> fields = GetFields(symbolInfo);
 
+        string? assemblyFormat = symbolInfo.GetAttributes()
+            .FirstOrDefault(attr => attr.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == 
+                         "global::Mercury.Engine.Generators.Instruction.AssemblyFormatAttribute")
+            ?.ConstructorArguments.FirstOrDefault().Value as string;
+
+        bool hasCustomToString = symbolInfo.GetMembers("ToString")
+            .Any(m => m is IMethodSymbol method && method.Parameters.Length == 0 && !method.IsImplicitlyDeclared);
+
         return new InstructionInfo(
             namespaceSymbol.ToDisplayString(), 
             symbolInfo.Name, 
-            formats, fields);
+            formats, fields,
+            assemblyFormat,
+            hasCustomToString);
     }
 
     private static EquatableArray<FormatInfo> GetFormats(INamedTypeSymbol symbol) {

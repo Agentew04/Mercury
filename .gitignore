@@ -10,7 +10,6 @@ Mercury.*/bin/
 Mercury.*/obj/
 private.key
 scripts/private.key
-*.csproj.DotSettings
 .idea/
 
 # User-specific files

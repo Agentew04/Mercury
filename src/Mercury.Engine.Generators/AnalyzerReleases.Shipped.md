@@ -1,4 +1,4 @@
-﻿## Release 1.0
+## Release 1.0
 
 ### New Rules
 
@@ -9,3 +9,6 @@
  MRCY0003 | Usage    | Warning  | InstructionDiagnostics 
  MRCY0004 | Usage    | Warning  | InstructionDiagnostics 
  MRCY0005 | Usage    | Warning  | InstructionDiagnostics 
+ MRCY0006 | Usage    | Warning  | InstructionDiagnostics 
+ MRCY0007 | Usage    | Error    | InstructionDiagnostics 
+ MRCY0008 | Usage    | Error    | InstructionDiagnostics

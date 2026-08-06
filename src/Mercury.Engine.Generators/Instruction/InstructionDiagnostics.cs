@@ -1,8 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 
 namespace Mercury.Generators.Instruction;
 
-internal static class InstructionDiagnostics {
+public static class InstructionDiagnostics {
     
     public static readonly DiagnosticDescriptor ImplementInterface = new(
         id: "MRCY0001",
@@ -45,4 +45,27 @@ internal static class InstructionDiagnostics {
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
+    public static readonly DiagnosticDescriptor InvalidAssemblySpecifier = new(
+        id: "MRCY0006",
+        title: "Invalid assembly format specifier",
+        messageFormat: "Format specifier '{0}' does not have a matching static method decorated with [AssemblyFormatter(\"{0}\")] in the namespace context",
+        category: "Usage",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor InvalidAssemblyFormat = new(
+        id: "MRCY0007",
+        title: "Invalid assembly format syntax",
+        messageFormat: "Assembly format string has malformed placeholder braces",
+        category: "Usage",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor AssemblyFormatUnknownField = new(
+        id: "MRCY0008",
+        title: "Unknown assembly format placeholder",
+        messageFormat: "Assembly format placeholder '{0}' does not refer to a property or field decorated with [Field]",
+        category: "Usage",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 }

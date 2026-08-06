@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+
+        <!--
+            Do NOT set EnforceExtendedAnalyzerRules here.
+            That flag blocks APIs required by CodeFixProvider (e.g. Workspaces).
+        -->
+        <IsRoslynComponent>true</IsRoslynComponent>
+
+        <RootNamespace>Mercury.Generators</RootNamespace>
+        <PackageId>Mercury.Engine.Generators.CodeFixes</PackageId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!--
+            Workspaces are IDE-only. PrivateAssets=all prevents them from
+            flowing into consuming projects and avoids CLI build crashes.
+        -->
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"
+                          Version="5.0.0"
+                          PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!--
+            Reference the analyzers project so we can share DiagnosticDescriptors
+            without duplicating them. PrivateAssets=all keeps it build-only.
+        -->
+        <ProjectReference Include="..\Mercury.Engine.Generators\Mercury.Engine.Generators.csproj"
+                          PrivateAssets="all" />
+    </ItemGroup>
+
+</Project>

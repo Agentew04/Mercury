@@ -1,4 +1,4 @@
-﻿namespace Mercury.Engine.Mips.Instructions; 
+namespace Mercury.Engine.Mips.Instructions; 
 
 public static class Instruction {
     
@@ -7,6 +7,7 @@ public static class Instruction {
         "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
     ];
     
+    [global::Mercury.Engine.Generators.Instruction.AssemblyFormatter("reg")]
     public static string TranslateRegisterName(int index)
     {
         return Names[index];
@@ -17,11 +18,13 @@ public static class Instruction {
     public const byte WordFixedPrecisionFormat = 0b10100;
     public const byte LongFixedPrecisionFormat = 0b10101;
     
+    [global::Mercury.Engine.Generators.Instruction.AssemblyFormatter("fpreg")]
     public static string FpuTranslateRegisterName(int index)
     {
         return $"f{index}";
     }
 
+    [global::Mercury.Engine.Generators.Instruction.AssemblyFormatter("fmt")]
     public static string FpuFormatFmt(byte fmt)
     {
         return fmt switch

@@ -1,11 +1,13 @@
-﻿namespace Mercury.Generators.Instruction;
+namespace Mercury.Generators.Instruction;
 
 
 internal readonly record struct InstructionInfo(
     string Namespace,
     string ClassName,
     EquatableArray<FormatInfo> Formats,
-    EquatableArray<FieldInfo> Fields) {
+    EquatableArray<FieldInfo> Fields,
+    string? AssemblyFormat = null,
+    bool HasCustomToString = false) {
     
     // general information
     public readonly string Namespace = Namespace;
@@ -16,4 +18,8 @@ internal readonly record struct InstructionInfo(
 
     // fields information
     public readonly EquatableArray<FieldInfo> Fields = Fields;
+
+    // assembly information
+    public readonly string? AssemblyFormat = AssemblyFormat;
+    public readonly bool HasCustomToString = HasCustomToString;
 }
