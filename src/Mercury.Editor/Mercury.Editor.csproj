@@ -67,6 +67,7 @@
     <PackageReference Include="ELFSharp" Version="2.17.3" />
     <PackageReference Include="Markdig" Version="0.44.0" />
     <PackageReference Include="MessageBox.Avalonia" Version="3.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />

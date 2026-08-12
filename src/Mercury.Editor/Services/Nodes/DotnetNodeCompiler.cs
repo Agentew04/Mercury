@@ -1,118 +1,27 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
+using Mercury.Editor.Models.Node;
+using Mercury.Editor.Models.Node.DesignTime;
+using Mercury.Editor.Models.Node.ExecuteTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using TypeInfo = System.Reflection.TypeInfo;
 
-namespace Bench;
+namespace Mercury.Editor.Services.Nodes;
 
-/*
- * use <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
- * on csproj to avoid satellite resource assemblies for Roslyn lib
- */
-
-/*
- * Backend compilation for editor design tool
- */
-
-public static class Logger {
-    public static void Log<T>(T o) {
-        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] {o}");
-    }
-}
-
-public partial class Test {
-    public static void A() {
-        Design design = CreateDesign();
-        (Assembly asm, BlockLoadContext ctx)? result = CompileDesign(design, out string code);
-
-        if (!result.HasValue) {
-            Console.WriteLine("Erro de compilacao");
-            int i = 0;
-            foreach(string line in code.Split('\n')) {
-                Console.WriteLine($"{i+1}\t{line}");
-                i++;
-            }
-            return;
-        }
-
-        Console.WriteLine("Design compiled successfully");
-        Console.WriteLine("Generated code:");
-        Console.WriteLine(code);
-        
-        Assembly asm = result.Value.asm;
-        GeneratedDesign generatedDesign = new(design, asm);
-        for (int i = 0; i < 10; i++) {
-            generatedDesign.Tick();
-        }
-    }
-
-    private static Design CreateDesign() {
-        DesignBlock register = new("counterRegister",
-            [new IoItem("input", 32, false)],
-            [new IoItem("output", 32, false)],
-            true,
-            "output.output = input.input; Log($\"Register computed: {output.output}\");");
-
-        DesignBlock adder1 = new("add1",
-            [new IoItem("input", 32, false)],
-            [new IoItem("output", 32, false)],
-            false,
-            "output.output = input.input + 1;");
-        DesignBlock adder2 = new("add2",
-            [new IoItem("input", 32, false)],
-            [new IoItem("output", 32, false)],
-            false,
-            "output.output = input.input + 1;");
-        DesignBlock adder3 = new("add3",
-            [new IoItem("input", 32, false)],
-            [new IoItem("output", 32, false)],
-            false,
-            "output.output = input.input + 1;");
-        DesignBlock adder4 = new("add4", [
-                new IoItem("a", 32, false),
-                new IoItem("b", 32, false),
-                new IoItem("c", 32, false),
-                new IoItem("d", 32, false)
-            ],
-            [new IoItem("result", 32, false)],
-            false,
-            "output.result = input.a + input.b + input.c + input.d;");
-
-        List<Connection> conns = [
-            new(register, 0, adder1, 0),
-            new(register, 0, adder2, 0),
-            new(register, 0, adder3, 0),
-            new(adder1, 0, adder4, 0),
-            new(adder2, 0, adder4, 1),
-            new(adder3, 0, adder4, 2),
-            new(register, 0, adder4, 3),
-            new(adder4, 0, register, 0),
-        ];
-        return new Design() {
-            Blocks = [register, adder1, adder2, adder3, adder4],
-            Connections = conns,
-        };
-    }
-
-    private static (Assembly asm, BlockLoadContext ctx)? CompileDesign(Design design, out string generatedCode) {
-        if (!ValidateDesign(design)) {
-            Console.WriteLine("Invalid design");
-            generatedCode = string.Empty;
-            return null;
-        }
-        
+public partial class DotnetNodeCompiler : INodeCompiler {
+    public ICompiledDesign CompileDesign(Design design) {
         StringBuilder genCode = new();
         List<SyntaxTree> trees = [];
         Dictionary<DesignBlock, string> blockNames = new();
         trees.AddRange(design.Blocks.Select(block => GetBlockTree(block, blockNames, genCode)));
         trees.Add(GetDesignTree(design, blockNames, out _, genCode));
-        generatedCode = genCode.ToString();
+        //generatedCode = genCode.ToString();
 
         string assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location) ?? throw new Exception("Assembly path not found");
         var namedRefs = new[] {
@@ -121,10 +30,10 @@ public partial class Test {
             "System.Runtime.dll",
         }.Select(x => MetadataReference.CreateFromFile(Path.Combine(assemblyPath, x)));
         var asmRefs = new[] {
-            typeof(Logger).Assembly
+            // typeof(Logger).Assembly
+            Assembly.GetExecutingAssembly()
         }.Select(x => MetadataReference.CreateFromFile(x.Location));
         IEnumerable<MetadataReference> references = namedRefs.Concat(asmRefs);
-        
         
         CSharpCompilation compilation = CSharpCompilation.Create(
             assemblyName: $"Design_{Random.Shared.Next():X8}",
@@ -137,7 +46,7 @@ public partial class Test {
         EmitResult result = compilation.Emit(ms);
 
         if (!result.Success) {
-            foreach (Diagnostic diag in result.Diagnostics) {
+            foreach (Microsoft.CodeAnalysis.Diagnostic diag in result.Diagnostics) {
                 Console.WriteLine($"{diag.Location}: {diag.Id}: {diag.GetMessage()}");
             }
 
@@ -149,9 +58,11 @@ public partial class Test {
         Assembly asm = ctx.LoadFromStream(ms);
         ms.Seek(0, SeekOrigin.Begin);
         File.WriteAllBytes("./generated.dll", ms.ToArray());
-        return (asm, ctx);
-    }
 
+        ctx.Unloading += ctx => Console.WriteLine("Unloading assembly: " + compilation.AssemblyName);
+        return new DotnetCompiledDesign(design, asm, ctx);
+    }
+    
     private static SyntaxTree GetBlockTree(DesignBlock designBlock, Dictionary<DesignBlock, string> blockNames,
         StringBuilder? generatedCode = null) {
         StringBuilder inputSb = new();
@@ -237,7 +148,7 @@ public partial class Test {
 
         return CSharpSyntaxTree.ParseText(code);
     }
-
+    
     private static SyntaxTree GetDesignTree(Design design, Dictionary<DesignBlock, string> blockNames,
         out string designName, StringBuilder? generatedCode = null) {
         StringBuilder sb = new();
@@ -305,7 +216,7 @@ public partial class Test {
         generatedCode?.AppendLine(sb.ToString());
         return CSharpSyntaxTree.ParseText(sb.ToString());
     }
-
+    
     private static List<DesignBlock> GetTopologicalOrder(Design design) {
         Dictionary<DesignBlock, List<DesignBlock>> adjacency = new();
         Dictionary<DesignBlock, int> inDegree = new();
@@ -350,47 +261,57 @@ public partial class Test {
 
         return topo;
     }
-    
-    private static bool ValidateDesign(Design design) {
+
+    public List<Diagnostic> Validate(Design design) {
+        List<Diagnostic> diags = [];
+        
         // size and signedness compatibility
         foreach(Connection conn in design.Connections) {
             var start = conn.Start.Outputs[conn.StartOutputIndex];
             var end = conn.End.Inputs[conn.EndInputIndex];
             if (start.Signed != end.Signed || start.Size != end.Size) {
-                Console.WriteLine("size and signedness mismatch on connection from {0}.{1} to {2}.{3}",
-                    conn.Start.Name, start.Name, conn.End.Name, end.Name);
-                return false;
+                diags.Add(new Diagnostic(DiagnosticType.ConnectionBetweenTwoSizes, null, [start, end], [ conn ]));
             }
         }
 
         // max 1 input for each output
         foreach (var block in design.Blocks) {
             foreach (IoItem input in block.Inputs) {
-                int count = design.Connections.Count(c => c.End == block && c.EndInputIndex == block.Inputs.IndexOf(input));
-                if (count > 1) {
-                    Console.WriteLine("Output {0}.{1} has more than one connection", block.Name, input.Name);
-                    return false;
+                List<Connection> conns = design.Connections
+                    .Where(c => c.End == block && c.EndInputIndex == block.Inputs.IndexOf(input))
+                    .ToList();
+                if (conns.Count > 1) {
+                    diags.Add(new Diagnostic(DiagnosticType.MultiDrivenInput, null, [input, ..conns.Select(x => x.Start.Outputs[x.StartOutputIndex])], [..conns]));
                 }
             }
         }
         
         // cant have duplicate block names
         if (design.Blocks.Select(b => b.Name).Distinct().Count() != design.Blocks.Count) {
-            Console.WriteLine("Duplicate block names detected");
-            return false;
+            foreach (DesignBlock block in design.Blocks) {
+                string name = block.Name;
+                IEnumerable<DesignBlock> blocks = design.Blocks.Where(x => x != block && x.Name == name);
+                diags.Add(new Diagnostic(DiagnosticType.DuplicatedBlockName, [block,..blocks], null, null));
+            }
         }
         
         // each block must have unique ios
         foreach (var block in design.Blocks) {
             // inputs
             if (block.Inputs.Select(i => i.Name).Distinct().Count() != block.Inputs.Count) {
-                Console.WriteLine("Duplicate input names detected on block {0}", block.Name);
-                return false;
+                foreach (IoItem input in block.Inputs) {
+                    string name = input.Name;
+                    IEnumerable<IoItem> inputs = block.Inputs.Where(x => x != input && x.Name == name);
+                    diags.Add(new Diagnostic(DiagnosticType.DuplicateInputName, null, [input, ..inputs], null));
+                }
             }
             // outputs
             if (block.Outputs.Select(i => i.Name).Distinct().Count() != block.Outputs.Count) {
-                Console.WriteLine("Duplicate output names detected on block {0}", block.Name);
-                return false;
+                foreach (IoItem output in block.Outputs) {
+                    string name = output.Name;
+                    IEnumerable<IoItem> outputs = block.Outputs.Where(x => x != output && x.Name == name);
+                    diags.Add(new Diagnostic(DiagnosticType.DuplicateOutputName, null, [ output, ..outputs ], null));
+                }
             }
         }
         
@@ -398,95 +319,29 @@ public partial class Test {
         foreach (DesignBlock block in design.Blocks) {
             Regex regex = IdRegex();
             if (!regex.IsMatch(block.Name)) {
-                Console.WriteLine("Invalid block name: {0}", block.Name);
-                return false;
+                diags.Add(new Diagnostic(DiagnosticType.InvalidBlockName, [ block ] , null, null));
             }
             if (block.Inputs.Any(input => !regex.IsMatch(input.Name))) {
-                Console.WriteLine("Invalid input name on block {0}", block.Name);
-                return false;
+                foreach (IoItem input in block.Inputs) {
+                    if (regex.IsMatch(input.Name)) {
+                        continue;
+                    }
+                    diags.Add(new Diagnostic(DiagnosticType.InvalidInputName, null, [ input ], null));
+                }
             }
             if (block.Outputs.Any(output => !regex.IsMatch(output.Name))) {
-                Console.WriteLine("Invalid output name on block {0}", block.Name);
-                return false;
+                foreach (IoItem output in block.Outputs) {
+                    if (regex.IsMatch(output.Name)) {
+                        continue;
+                    }
+                    diags.Add(new Diagnostic(DiagnosticType.InvalidOutputName, null, [ output ], null));
+                }
             }
         }
 
-        return true;
+        return diags;
     }
-
+    
     [GeneratedRegex("^[_A-Za-z][_A-Za-z0-9]*$")]
     private static partial Regex IdRegex();
-}
-
-public class BlockLoadContext : AssemblyLoadContext {
-    
-    private readonly AssemblyDependencyResolver resolver;
-    
-    public BlockLoadContext(string mainAssemblyPath) : base(isCollectible: true) {
-        resolver = new AssemblyDependencyResolver(mainAssemblyPath);
-    }
-
-    protected override Assembly? Load(AssemblyName assemblyName) {
-        Assembly? loaded = Default.Assemblies
-            .FirstOrDefault(a => a.GetName().Name == assemblyName.Name);
-        if (loaded != null) {
-            return loaded;
-        }
-        string? path = resolver.ResolveAssemblyToPath(assemblyName);
-        return path != null ? LoadFromAssemblyPath(path) : null;
-    }
-}
-
-public record IoItem(string Name, int Size, bool Signed);
-
-public record DesignBlock(string Name, List<IoItem> Inputs, List<IoItem> Outputs, bool IsBarrier, string Source);
-
-public record Connection(DesignBlock Start, int StartOutputIndex, DesignBlock End, int EndInputIndex);
-
-public class Design {
-    public List<DesignBlock> Blocks { get; set; } = [];
-    public List<Connection> Connections { get; set; } = [];
-}
-
-public class GeneratedDesign {
-    public GeneratedDesign(Design design, Assembly asm) {
-        TypeInfo type = asm.DefinedTypes.First(x => x.DeclaredMethods.Any(y => y.Name == "Tick"));
-        instance = Activator.CreateInstance(type) ?? throw new Exception("No constructor found");
-        MethodInfo? tickMethod = type.GetMethod("Tick");
-        tick = tickMethod ?? throw new Exception("No tick method found");
-
-        foreach (DesignBlock block in design.Blocks) {
-            FieldInfo blockField = type.GetField(block.Name, BindingFlags.Instance | BindingFlags.Public)
-                ?? throw new Exception($"Field {block.Name} not found");
-            Type blockType = blockField.FieldType;
-            FieldInfo inputField = blockType.GetField("input", BindingFlags.Instance | BindingFlags.Public)
-                ?? throw new Exception($"Field input on {blockType.Name} not found");
-            FieldInfo outputField = blockType.GetField("output", BindingFlags.Instance | BindingFlags.Public)
-                ?? throw new Exception($"Field output on {blockType.Name} not found");
-            
-            blocks[block] = new RuntimeBlock(blockField.GetValue(instance)!, inputField, outputField);
-        }
-    }
-    
-    private record RuntimeBlock(object Instance, FieldInfo InputField, FieldInfo OutputField);
-
-    private readonly object instance;
-    private readonly MethodInfo tick;
-    private readonly Dictionary<DesignBlock, RuntimeBlock> blocks = [];
-
-    public void Tick() {
-        tick.Invoke(instance, []);
-    }
-
-    public T GetInputValue<T>(DesignBlock block, IoItem item) {
-        (object blockInstance, FieldInfo inputField, _) = blocks[block];
-        object inputStruct = inputField.GetValue(blockInstance)!;
-        return (T)inputField.FieldType.GetField(item.Name)!.GetValue(inputStruct)!;
-    }
-    
-    public T GetOutputValue<T>(DesignBlock block, IoItem item) {
-        (object blockInstance, _, FieldInfo outputField) = blocks[block];
-        object outputStruct = outputField.GetValue(blockInstance)!;
-        return (T)outputField.FieldType.GetField(item.Name)!.GetValue(outputStruct)!;
-    }
 }
