@@ -53,6 +53,8 @@
                              Connections="{Binding Connections}"
                              PendingConnection="{Binding PendingConnection}"
                              DisconnectConnectorCommand="{Binding DisconnectConnectorCommand}"
+                             SelectedConnections="{Binding SelectedConnections, Mode=TwoWay}"
+                             SelectedItems="{Binding SelectedNodes, Mode=TwoWay}"
                              x:Name="Editor">
             <nodify:NodifyEditor.ItemTemplate>
                 <DataTemplate DataType="{x:Type vm:NodeViewModel}">

@@ -1,6 +1,8 @@
-﻿namespace Mercury.Editor.ViewModels.Design;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-public class ConnectionViewModel {
+namespace Mercury.Editor.ViewModels.Design;
+
+public class ConnectionViewModel : ObservableObject {
     public ConnectorViewModel Source { get; }
     public ConnectorViewModel Target { get; }
 

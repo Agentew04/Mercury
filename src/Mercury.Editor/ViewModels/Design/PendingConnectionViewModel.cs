@@ -10,9 +10,10 @@ public class PendingConnectionViewModel {
         this.editor = editor;
         StartCommand = new RelayCommand<ConnectorViewModel>(src => source = src!);
         FinishCommand = new RelayCommand<ConnectorViewModel>(target => {
-            if (target is not null) {
-                editor.Connect(source, target);
+            if (target is null || source is null) {
+                return;
             }
+            editor.Connect(source, target);
         });
     }
     

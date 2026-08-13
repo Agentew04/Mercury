@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Mercury.Editor.Models.Node.DesignTime;
+using Mercury.Editor.Models.Nodes.DesignTime;
 
-namespace Mercury.Editor.Models.Node.ExecuteTime;
+namespace Mercury.Editor.Models.Nodes.ExecuteTime;
 
 #pragma warning disable IL2026
 #pragma warning disable IL2070

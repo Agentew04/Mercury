@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Mercury.Editor.Extensions;
 
 internal static class LinqExtensions {
     
     public static IEnumerable<T> ForEachExt<T>(this IEnumerable<T> source, Action<T> action) {
-        foreach (T item in source) {
+        IEnumerable<T> forEachExt = source as T[] ?? source.ToArray();
+        foreach (T item in forEachExt) {
             action(item);
-            yield return item;
         }
+        return forEachExt;
     }
     
     public static int IndexOf<T>(this IEnumerable<T> source, Func<T, bool> predicate)

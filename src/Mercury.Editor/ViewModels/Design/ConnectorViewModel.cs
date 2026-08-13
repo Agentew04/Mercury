@@ -14,4 +14,12 @@ public partial class ConnectorViewModel : ObservableObject {
 
     [ObservableProperty]
     private bool isConnected;
+
+    [ObservableProperty] 
+    private ConnectorType type;
+}
+
+public enum ConnectorType {
+    Input,
+    Output,
 }

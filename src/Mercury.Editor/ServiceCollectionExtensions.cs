@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions {
             .AddSingleton<ExecuteViewModel>()
             .AddSingleton<DesignViewModel>()
             .AddSingleton<MonitorViewModel>()
+            .AddSingleton<EditorViewModel>()
                 //transient
             .AddTransient<SplashScreenViewModel>()
             .AddTransient<ProjectConfigurationViewModel>()

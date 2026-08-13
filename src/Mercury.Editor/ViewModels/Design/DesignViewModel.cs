@@ -8,8 +8,8 @@ public partial class DesignViewModel : BaseViewModel<DesignViewModel,DesignView>
 
     [ObservableProperty] private EditorViewModel editorViewModel;
 
-    public DesignViewModel() {
-        EditorViewModel = new EditorViewModel();
+    public DesignViewModel(EditorViewModel editorViewModel) {
+        EditorViewModel = editorViewModel;
     }
 
     protected override void OnLoaded() {

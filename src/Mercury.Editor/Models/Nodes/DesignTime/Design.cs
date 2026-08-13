@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Mercury.Editor.Models.Node.DesignTime;
+namespace Mercury.Editor.Models.Nodes.DesignTime;
 
 public class Design {
     public List<DesignBlock> Blocks { get; set; } = [];

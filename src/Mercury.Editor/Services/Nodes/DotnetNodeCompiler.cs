@@ -5,9 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using Mercury.Editor.Models.Node;
-using Mercury.Editor.Models.Node.DesignTime;
-using Mercury.Editor.Models.Node.ExecuteTime;
+using Mercury.Editor.Models.Nodes.DesignTime;
+using Mercury.Editor.Models.Nodes.ExecuteTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
@@ -254,10 +253,10 @@ public partial class DotnetNodeCompiler : INodeCompiler {
             throw new Exception("Ciclo combinacional detectado no design");
         }
 
-        Console.WriteLine("Topological order: ");
-        foreach (DesignBlock block in topo) {
-            Console.WriteLine("\t- " + block.Name);
-        }
+        // Console.WriteLine("Topological order: ");
+        // foreach (DesignBlock block in topo) {
+        //     Console.WriteLine("\t- " + block.Name);
+        // }
 
         return topo;
     }

@@ -1,4 +1,4 @@
-﻿using Mercury.Editor.Models.Node.DesignTime;
+﻿using Mercury.Editor.Models.Nodes.DesignTime;
 
 namespace Mercury.Editor.Services.Nodes;
 

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Reflection;
-using Mercury.Editor.Models.Node.DesignTime;
+using Mercury.Editor.Models.Nodes.DesignTime;
 
-namespace Mercury.Editor.Models.Node.ExecuteTime;
+namespace Mercury.Editor.Models.Nodes.ExecuteTime;
 
 public interface ICompiledDesign : IDisposable {
     
