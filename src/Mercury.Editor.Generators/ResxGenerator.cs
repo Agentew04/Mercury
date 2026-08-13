@@ -69,8 +69,7 @@ public class ResxGenerator : IIncrementalGenerator {
             .Where(file => file.Path.EndsWith(".resx"))
             .Collect();
         
-        context.RegisterSourceOutput(resxFiles, (spc, files) =>
-        {
+        context.RegisterSourceOutput(resxFiles, (spc, files) => {
             IEnumerable<string> uniqueModules = files
                 .Select(file => Path.GetFileNameWithoutExtension(file.Path)) // Remove .resx
                 .Select<string,string>(name => Regex.Replace(name, @"\.[a-zA-Z]{2}(-[A-Za-z]{2})?$", "")) // Remove cultura

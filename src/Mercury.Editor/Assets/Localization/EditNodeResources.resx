@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="NodeNameLabel" xml:space="preserve">
+        <value>Name</value>
+    </data>
+    <data name="NodeTypeLabel" xml:space="preserve">
+        <value>Type</value>
+    </data>
+    <data name="NodeTypeSequential" xml:space="preserve">
+        <value>Sequential</value>
+    </data>
+    <data name="NodeTypeCombinational" xml:space="preserve">
+        <value>Combinational</value>
+    </data>
+    <data name="NodeInputLabel" xml:space="preserve">
+        <value>Inputs</value>
+    </data>
+    <data name="NodeOutputLabel" xml:space="preserve">
+        <value>Outputs</value>
+    </data>
+    <data name="NodeIoName" xml:space="preserve">
+        <value>Name</value>
+    </data>
+    <data name="NodeIoWidth" xml:space="preserve">
+        <value>Bitwidth</value>
+    </data>
+    <data name="NodeIoAddInputTooltip" xml:space="preserve">
+        <value>Add new input</value>
+    </data>
+    <data name="NodeIoDeleteInputTooltip" xml:space="preserve">
+        <value>Delete existing input</value>
+    </data>
+    <data name="NodeCodeLabel" xml:space="preserve">
+        <value>Code</value>
+    </data>
+    <data name="Apply" xml:space="preserve">
+        <value>Apply</value>
+    </data>
+    <data name="Cancel" xml:space="preserve">
+        <value>Cancel</value>
+    </data>
+    <data name="NodeIoAddOutputTooltip" xml:space="preserve">
+        <value>Add new output</value>
+    </data>
+    <data name="NodeIoDeleteOutputTooltip" xml:space="preserve">
+        <value>Delete existing output</value>
+    </data>
+</root>

@@ -60,7 +60,7 @@
                 <DataTemplate DataType="{x:Type vm:NodeViewModel}">
                     <nodify:Node Input="{Binding Input}"
                                  Header="{Binding .}"
-                                 Footer="Teste"
+                                 Footer="{Binding NodeTypeLocalized}"
                                  Output="{Binding Output}">
                         <nodify:Node.HeaderTemplate>
                             <DataTemplate DataType="vm:NodeViewModel">
@@ -89,21 +89,23 @@
                             <DataTemplate DataType="vm:ConnectorViewModel">
                                 <nodify:NodeInput Header="{Binding Title}"
                                                   IsConnected="{Binding IsConnected}"
+                                                  
                                                   Anchor="{Binding Anchor, Mode=OneWayToSource}"/>
                             </DataTemplate>
                         </nodify:Node.InputConnectorTemplate>
                         <nodify:Node.OutputConnectorTemplate>
                             <DataTemplate DataType="vm:ConnectorViewModel">
                                 <nodify:NodeOutput Header="{Binding Title}"
-                                                  IsConnected="{Binding IsConnected}"
-                                                  Anchor="{Binding Anchor, Mode=OneWayToSource}"/>
+                                                   IsConnected="{Binding IsConnected}"
+                                                   Anchor="{Binding Anchor, Mode=OneWayToSource}"/>
                             </DataTemplate>
                         </nodify:Node.OutputConnectorTemplate>
                     </nodify:Node>
                 </DataTemplate>
             </nodify:NodifyEditor.ItemTemplate>
             <nodify:NodifyEditor.ItemContainerTheme>
-                <ControlTheme TargetType="nodify:ItemContainer" x:DataType="vm:NodeViewModel">
+                <ControlTheme TargetType="nodify:ItemContainer" x:DataType="vm:NodeViewModel"
+                              BasedOn="{StaticResource {x:Type nodify:ItemContainer}}">
                     <Setter Property="Location" Value="{Binding Location}"></Setter>
                 </ControlTheme>
             </nodify:NodifyEditor.ItemContainerTheme>
@@ -119,7 +121,8 @@
                 <DataTemplate DataType="vm:PendingConnectionViewModel">
                     <nodify:PendingConnection StartedCommand="{Binding StartCommand}"
                                               CompletedCommand="{Binding FinishCommand}"
-                                              AllowOnlyConnectors="True"/>
+                                              AllowOnlyConnectors="True"
+                                              EnableSnapping="True"/>
                 </DataTemplate>
             </nodify:NodifyEditor.PendingConnectionTemplate>
         </nodify:NodifyEditor>

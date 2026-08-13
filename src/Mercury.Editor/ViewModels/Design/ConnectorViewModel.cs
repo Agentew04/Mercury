@@ -7,7 +7,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace Mercury.Editor.ViewModels.Design;
 
 public partial class ConnectorViewModel : ObservableObject {
-    public string Title { get; set; } = string.Empty;
+
+    [ObservableProperty] 
+    private string title = string.Empty;
+
+    [ObservableProperty] private int bitWidth;
     
     [ObservableProperty]
     private Point anchor;

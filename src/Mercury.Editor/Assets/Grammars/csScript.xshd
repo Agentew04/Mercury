@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Syntax highlighting for the Mercury node scripting language.
+
+    It is a restricted C# subset meant to be written inside a function body.
+    The two reserved fields are `input` and `output`:
+
+        output.sum = input.a + input.b * 2;
+
+    Typical C# constructs are allowed: if/else, while, for, foreach, var,
+    method calls (Math.Pow(...), Log(...)), strings, numbers and comments.
+
+    Colors follow the VS Code "Dark+" palette already used by mips.xshd.
+-->
+<SyntaxDefinition name="C# Script" extensions=".csx" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+    <Color name="Comment" foreground="#6A9955" />
+    <Color name="String" foreground="#CE9178" />
+    <Color name="Char" foreground="#CE9178" />
+    <Color name="StringEscape" foreground="#D7BA7D" />
+    <Color name="StringInterpolation" foreground="#DCDCAA" />
+    <Color name="Keyword" foreground="#569CD6" />
+    <Color name="Type" foreground="#4EC9B0" />
+    <Color name="Field" foreground="#9CDCFE" />
+    <Color name="Function" foreground="#DCDCAA" />
+    <Color name="Constant" foreground="#569CD6" />
+    <Color name="Number" foreground="#B5CEA8" />
+    <Color name="Preprocessor" foreground="#C586C0" />
+    <Color name="Punctuation" foreground="#D4D4D4" />
+
+    <Property name="DocCommentMarker" value="///" />
+
+    <RuleSet>
+
+        <!-- preprocessor directives: #region, #endregion, #if ... -->
+        <Span color="Preprocessor" begin="^\s*#" end="\n" />
+
+        <!-- line comments: // ... -->
+        <Span color="Comment" begin="//" end="\n" />
+        <!-- block comments: /* ... */ -->
+        <Span color="Comment" begin="/\*" end="\*/" multiline="true" />
+
+        <!-- character literals: 'a', '\n' -->
+        <Span color="Char" begin="'" end="'">
+            <RuleSet>
+                <Span begin="\\" end="." />
+            </RuleSet>
+        </Span>
+
+        <!-- verbatim strings: @"..." ("" is an escaped quote) -->
+        <Span color="String" begin='@"' end='"' multiline="true">
+            <RuleSet>
+                <Span begin='""' end="" />
+            </RuleSet>
+        </Span>
+
+        <!-- interpolated strings: $"..." with {expr} interpolation -->
+        <Span color="String" begin='\$"' end='"' multiline="true">
+            <RuleSet>
+                <Span begin="\\" end="." />
+                <Span begin="\{\{" end="" />
+                <Span begin="{" end="}" color="StringInterpolation" ruleSet="" />
+            </RuleSet>
+        </Span>
+
+        <!-- regular strings: "..." -->
+        <Span color="String" begin='"' end='"'>
+            <RuleSet>
+                <Span begin="\\" end="." />
+            </RuleSet>
+        </Span>
+
+        <!-- don't highlight @identifiers (e.g. @class) as keywords -->
+        <Rule>@[a-zA-Z_]\w*</Rule>
+
+        <!-- reserved fields of the script: input and output -->
+        <Keywords color="Field">
+            <Word>input</Word>
+            <Word>output</Word>
+        </Keywords>
+
+        <!-- member names accessed on those fields: output.sum, input.a -->
+        <Rule color="Field">(?&lt;=\b(input|output)\s*\.)[a-zA-Z_]\w*</Rule>
+
+        <!-- control flow, statements and modifiers -->
+        <Keywords color="Keyword">
+            <Word>abstract</Word><Word>as</Word><Word>async</Word><Word>await</Word>
+            <Word>base</Word><Word>break</Word><Word>case</Word><Word>catch</Word>
+            <Word>checked</Word><Word>class</Word><Word>const</Word><Word>continue</Word>
+            <Word>default</Word><Word>delegate</Word><Word>do</Word><Word>else</Word>
+            <Word>enum</Word><Word>event</Word><Word>explicit</Word><Word>extern</Word>
+            <Word>finally</Word><Word>fixed</Word><Word>for</Word><Word>foreach</Word>
+            <Word>get</Word><Word>global</Word><Word>goto</Word><Word>if</Word>
+            <Word>implicit</Word><Word>in</Word><Word>init</Word><Word>interface</Word>
+            <Word>internal</Word><Word>is</Word><Word>lock</Word><Word>nameof</Word>
+            <Word>namespace</Word><Word>new</Word><Word>operator</Word><Word>out</Word>
+            <Word>override</Word><Word>params</Word><Word>partial</Word><Word>private</Word>
+            <Word>protected</Word><Word>public</Word><Word>readonly</Word><Word>record</Word>
+            <Word>ref</Word><Word>required</Word><Word>return</Word><Word>sealed</Word>
+            <Word>set</Word><Word>sizeof</Word><Word>stackalloc</Word><Word>static</Word>
+            <Word>switch</Word><Word>this</Word><Word>throw</Word><Word>try</Word>
+            <Word>typeof</Word><Word>unchecked</Word><Word>unsafe</Word><Word>using</Word>
+            <Word>value</Word><Word>var</Word><Word>virtual</Word><Word>volatile</Word>
+            <Word>where</Word><Word>when</Word><Word>while</Word><Word>yield</Word>
+        </Keywords>
+
+        <!-- types (built-in primitives + library classes the script can call) -->
+        <Keywords color="Type">
+            <Word>bool</Word><Word>byte</Word><Word>char</Word><Word>decimal</Word>
+            <Word>double</Word><Word>dynamic</Word><Word>float</Word><Word>int</Word>
+            <Word>long</Word><Word>object</Word><Word>sbyte</Word><Word>short</Word>
+            <Word>string</Word><Word>uint</Word><Word>ulong</Word><Word>ushort</Word>
+            <Word>void</Word>
+            <!-- extend this list with the libraries your scripting host exposes -->
+            <Word>Math</Word><Word>MathF</Word><Word>Convert</Word><Word>Random</Word>
+            <Word>DateTime</Word><Word>TimeSpan</Word><Word>Guid</Word><Word>Regex</Word>
+            <Word>StringBuilder</Word><Word>String</Word><Word>Environment</Word><Word>Console</Word>
+        </Keywords>
+
+        <!-- literals -->
+        <Keywords color="Constant">
+            <Word>true</Word><Word>false</Word><Word>null</Word>
+        </Keywords>
+
+        <!-- predetermined functions exposed by the scripting host -->
+        <Keywords color="Function">
+            <Word>Log</Word><Word>Log10</Word><Word>Log2</Word><Word>Exp</Word>
+            <Word>Pow</Word><Word>Sqrt</Word><Word>Cbrt</Word><Word>Abs</Word>
+            <Word>Min</Word><Word>Max</Word><Word>Sign</Word><Word>Floor</Word>
+            <Word>Ceiling</Word><Word>Round</Word><Word>Truncate</Word><Word>Sin</Word>
+            <Word>Cos</Word><Word>Tan</Word><Word>Asin</Word><Word>Acos</Word>
+            <Word>Atan</Word><Word>Atan2</Word><Word>Sinh</Word><Word>Cosh</Word>
+            <Word>Tanh</Word><Word>Print</Word><Word>PrintLine</Word><Word>Write</Word>
+            <Word>WriteLine</Word>
+            <!-- add your own predetermined functions here -->
+        </Keywords>
+
+        <!-- method calls: any identifier immediately followed by ( -->
+        <Rule color="Function">
+            \b[a-zA-Z_]\w*(?=\s*\()
+        </Rule>
+
+        <!-- numbers: hex, binary, floats and integers (supports _ separators and suffixes) -->
+        <Rule color="Number">
+            \b0[xX][0-9a-fA-F]+\b                    # hex
+        |   \b0[bB][01]+\b                           # binary
+        |   \b\d+(_\d+)*\.\d+([eE][+-]?\d+)?[fFdDmM]?\b  # floating point
+        |   \b\d+(_\d+)*([eE][+-]?\d+)?[uUlLfFdDmM]?\b   # integer
+        </Rule>
+
+        <!-- operators and punctuation -->
+        <Rule color="Punctuation">
+            [?,.;:()[\]{}+\-/%*&lt;&gt;^~!|=&amp;]+
+        </Rule>
+
+    </RuleSet>
+</SyntaxDefinition>

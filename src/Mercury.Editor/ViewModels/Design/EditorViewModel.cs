@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mercury.Editor.Extensions;
 using Mercury.Editor.Utils;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor.ViewModels.Design;
@@ -30,34 +31,40 @@ public partial class EditorViewModel : ObservableObject {
     public EditorViewModel(ILogger<EditorViewModel> logger) {
         this.logger = logger;
         PendingConnection = new PendingConnectionViewModel(this);
-        var welcome = new NodeViewModel {
+        var welcome = new NodeViewModel(this) {
             Name = "Welcome23",
             Input = [
                 new ConnectorViewModel {
                     Title = "Input 1",
-                    Type = ConnectorType.Input
+                    Type = ConnectorType.Input,
+                    BitWidth = 1
                 }
             ],
             Output = [
                 new ConnectorViewModel {
                     Title = "Output 1",
-                    Type = ConnectorType.Output
+                    Type = ConnectorType.Output,
+                    BitWidth = 1
                 }
             ],
             Location = new Point(200, 200),
         };
         welcome.Output.ForEachExt(x => connectorToNode[x] = welcome);
         welcome.Input.ForEachExt(x => connectorToNode[x] = welcome);
-        var nodify = new NodeViewModel {
+        var nodify = new NodeViewModel(this) {
             Name = "Nodify",
             Input = [
                 new ConnectorViewModel {
-                    Title = "Input"
+                    Title = "Input",
+                    Type = ConnectorType.Input,
+                    BitWidth = 1
                 }
             ],
             Output = [
                 new ConnectorViewModel {
-                    Title = "Output"
+                    Title = "Output",
+                    Type = ConnectorType.Output,
+                    BitWidth = 1
                 }
             ],
             Location = new Point(400, 400)
@@ -112,5 +119,34 @@ public partial class EditorViewModel : ObservableObject {
         connection.Source.IsConnected = false;
         connection.Target.IsConnected = false;
         Connections.Remove(connection);
+    }
+
+    public void RefreshChanges() {
+        // here, we may have changes that we have not considered.
+        List<NodeViewModel> dirty = Nodes.Where(x => x.Dirty).ToList();
+        if (dirty.Count > 0) {
+            logger.LogInformation("Found {dirty} nodes dirty. Rebuilding connector cache for them.", dirty.Count);
+        }
+        foreach (NodeViewModel node in dirty) {
+            // unlink all connectors from this node
+            List<ConnectorViewModel> toDelete = [];
+            foreach (var kvp in connectorToNode) {
+                if (kvp.Value != node) {
+                    continue;
+                }
+                toDelete.Add(kvp.Key);
+            }
+            toDelete.ForEach(x => connectorToNode.Remove(x));
+            
+            // link new connectors
+            foreach (ConnectorViewModel input in node.Input) {
+                connectorToNode[input] = node;
+            }
+            foreach (ConnectorViewModel output in node.Output) {
+                connectorToNode[output] = node;
+            }
+
+            node.Dirty = false;
+        }
     }
 }

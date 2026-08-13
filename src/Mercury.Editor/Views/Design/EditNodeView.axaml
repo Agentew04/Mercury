@@ -2,52 +2,108 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+        xmlns:vm="clr-namespace:Mercury.Editor.ViewModels.Design"
+        xmlns:loc="clr-namespace:Mercury.Editor.Localization"
         mc:Ignorable="d"
         x:Class="Mercury.Editor.Views.Design.EditNodeView"
         Background="{DynamicResource BackgroundGrey}"
         Width="600" Height="700"
         d:DesignWidth="600" d:DesignHeight="700"
+        x:DataType="vm:EditNodeViewModel"
         Title="Edit Node">
-    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,*,Auto"
-            Margin="10"
-          ShowGridLines="True">
-        <!-- name -->
-        <StackPanel Grid.Column="0" Grid.Row="0" 
-                    Margin="5">
-            <Label Content="Name" Target="NameTextbox"/>
-            <TextBox x:Name="NameTextbox"/>
-        </StackPanel>
-        <!-- sequential -->
-        <StackPanel Grid.Column="1" Grid.Row="0" 
-                    Margin="5">
-            <Label Content="Sequential Component" Target="SequentialCheckbox"/>
-            <CheckBox x:Name="SequentialCheckbox"
-                      VerticalAlignment="Center"/>
-        </StackPanel>
-        <!-- inputs -->
-        <StackPanel Grid.Column="0" Grid.Row="1"
-                    HorizontalAlignment="Stretch"
-                    Margin="5">
-            <Label Content="Inputs" Target="InputDataGrid"/>
-            <DataGrid x:Name="InputDataGrid" HorizontalAlignment="Stretch" Height="200"></DataGrid>
-        </StackPanel>
-        <!-- outputs -->
-        <StackPanel Grid.Column="1" Grid.Row="1"
-                    Margin="5"
-                    HorizontalAlignment="Stretch">
-            <Label Content="Outputs" Target="OutputDataGrid"/>
-            <DataGrid x:Name="OutputDataGrid" HorizontalAlignment="Stretch" Height="200"></DataGrid>
-        </StackPanel>
-        <!-- editor -->
-        <Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" RowDefinitions="Auto,*" Margin="5">
-                <Label Grid.Row="0" Content="Behaviour" Target="BehaviourTextbox"/>
-                <TextBox x:Name="BehaviourTextbox" Grid.Row="1"/>
-                
+    <Window.Styles>
+        <StyleInclude Source="/Assets/Styles/FileEditorStyles.axaml"></StyleInclude>
+    </Window.Styles>
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- header -->
+        <Grid Grid.Column="0" Grid.Row="0"
+              ColumnDefinitions="5*,3*">
+            <!-- name -->
+            <StackPanel Grid.Column="0">
+                <Label Content="{loc:EditNodeResources NodeNameLabel}" Target="NameTextbox"/>
+                <TextBox x:Name="NameTextbox"
+                         Text="{Binding Name}"/>
+            </StackPanel>
+            <!-- sequential -->
+            <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
+                <Label Content="{loc:EditNodeResources NodeTypeLabel}" Target="NodeTypeComboBox"/>
+                <ComboBox x:Name="NodeTypeComboBox" HorizontalAlignment="Stretch"
+                          SelectedIndex="{Binding NodeTypeSelectedIndex}"
+                          ItemsSource="{Binding NodeTypeNames}"/>
+            </StackPanel>
         </Grid>
+        
+        <!-- io -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" RowDefinitions="Auto,*,Auto">
+            <!-- inputs -->
+            <Label Grid.Row="0" Grid.Column="0" Content="{loc:EditNodeResources NodeInputLabel}" Target="InputDataGrid"/>
+            <DataGrid Grid.Row="1" Grid.Column="0" x:Name="InputDataGrid" HorizontalAlignment="Stretch"
+                      MinHeight="100" Height="200" MaxHeight="500"
+                      ItemsSource="{Binding Inputs}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{loc:EditNodeResources NodeIoName}" Width="*"
+                                        Binding="{Binding Name}"/>
+                    <DataGridTemplateColumn Header="{loc:EditNodeResources NodeIoWidth}" Width="Auto">
+                        <DataTemplate x:DataType="vm:Port">
+                            <NumericUpDown Value="{Binding Bitwidth}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal"
+                        HorizontalAlignment="Center">
+                <Button Content="&#xE3D4;" FontFamily="{DynamicResource PhosphorFont}"
+                        HorizontalAlignment="Center"
+                        ToolTip.Tip="{loc:EditNodeResources NodeIoAddInputTooltip}" 
+                        Command="{Binding AddInputCommand}"/>
+                <Button Content="&#xE4A6;" FontFamily="{DynamicResource PhosphorFont}"
+                        HorizontalAlignment="Center"
+                        ToolTip.Tip="{loc:EditNodeResources NodeIoDeleteInputTooltip}"
+                        Command="{Binding RemoveInputCommand}"/>
+            </StackPanel>
+            
+            <!-- outputs -->
+            <Label Grid.Row="0" Grid.Column="1" Content="{loc:EditNodeResources NodeOutputLabel}" Target="OutputDataGrid"/>
+            <DataGrid Grid.Row="1" Grid.Column="1" x:Name="OutputDataGrid" HorizontalAlignment="Stretch"
+                      MinHeight="100" Height="200" MaxHeight="500"
+                      ItemsSource="{Binding Outputs}">
+                <DataGrid.Columns>
+                <DataGridTextColumn Header="{loc:EditNodeResources NodeIoName}" Width="*"
+                                    Binding="{Binding Name}"/>
+                <DataGridTemplateColumn Header="{loc:EditNodeResources NodeIoWidth}" Width="Auto">
+                    <DataTemplate x:DataType="vm:Port">
+                        <NumericUpDown Value="{Binding Bitwidth}"/>
+                    </DataTemplate>
+                </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal"
+                        HorizontalAlignment="Center">
+                <Button Content="&#xE3D4;" FontFamily="{DynamicResource PhosphorFont}"
+                        HorizontalAlignment="Center"
+                        ToolTip.Tip="{loc:EditNodeResources NodeIoAddOutputTooltip}" 
+                        Command="{Binding AddOutputCommand}"/>
+                <Button Content="&#xE4A6;" FontFamily="{DynamicResource PhosphorFont}"
+                        HorizontalAlignment="Center"
+                        ToolTip.Tip="{loc:EditNodeResources NodeIoDeleteOutputTooltip}"
+                        Command="{Binding RemoveOutputCommand}"/>
+            </StackPanel>
+        </Grid>
+        
+        <!-- editor -->
+        <Grid Grid.Column="0" Grid.Row="2" RowDefinitions="Auto,*" Margin="5">
+                <Label Grid.Row="0" Content="{loc:EditNodeResources NodeCodeLabel}" Target="CodeEditor"/>
+                <avaloniaEdit:TextEditor Grid.Row="1" x:Name="CodeEditor"
+                                         Classes="textEditor"/>
+        </Grid>
+        
         <!-- action buttons -->
-        <Button Grid.Column="0" Grid.Row="3" Content="Cancel"
+        <Button Grid.Row="3" Content="{loc:EditNodeResources Cancel}" Classes="cancel"
+                Command="{Binding CancelCommand}"
                 HorizontalAlignment="Left"/>
-        <Button Grid.Column="1" Grid.Row="3" Content="Apply"
+        <Button Grid.Row="3" Content="{loc:EditNodeResources Apply}" Classes="primary"
+                Command="{Binding ApplyCommand}"
                 HorizontalAlignment="Right"/>
     </Grid>
 </Window>

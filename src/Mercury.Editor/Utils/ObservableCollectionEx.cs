@@ -26,7 +26,7 @@ public sealed class ObservableCollectionEx<T> : ObservableCollection<T>
         {
             foreach (T item in e.NewItems)
             {
-                item.PropertyChanged += Item_PropertyChanged;
+                item?.PropertyChanged += Item_PropertyChanged;
             }
         }
 
@@ -34,7 +34,7 @@ public sealed class ObservableCollectionEx<T> : ObservableCollection<T>
         {
             foreach (T item in e.OldItems)
             {
-                item.PropertyChanged -= Item_PropertyChanged;
+                item?.PropertyChanged -= Item_PropertyChanged;
             }
         }
     }
@@ -49,7 +49,7 @@ public sealed class ObservableCollectionEx<T> : ObservableCollection<T>
     {
         foreach (T item in this)
         {
-            item.PropertyChanged -= Item_PropertyChanged;
+            item?.PropertyChanged -= Item_PropertyChanged;
         }
 
         base.ClearItems();
