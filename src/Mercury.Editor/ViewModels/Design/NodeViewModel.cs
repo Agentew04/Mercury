@@ -29,9 +29,10 @@ public partial class NodeViewModel : ObservableObject {
     [ObservableProperty] 
     private string code = string.Empty;
 
-    public string NodeTypeLocalized => nodeType switch {
+    public string NodeTypeLocalized => NodeType switch {
         NodeType.Combinational => EditNodeResources.NodeTypeCombinationalValue,
-        NodeType.Sequential => EditNodeResources.NodeTypeSequentialValue
+        NodeType.Sequential => EditNodeResources.NodeTypeSequentialValue,
+        _ => "node type not localizable"
     };
 
     private readonly EditorViewModel editorViewModel;

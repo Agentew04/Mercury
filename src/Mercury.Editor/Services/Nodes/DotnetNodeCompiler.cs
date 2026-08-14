@@ -10,10 +10,11 @@ using Mercury.Editor.Models.Nodes.ExecuteTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
+using Microsoft.Extensions.Logging;
 
 namespace Mercury.Editor.Services.Nodes;
 
-public partial class DotnetNodeCompiler : INodeCompiler {
+public partial class DotnetNodeCompiler : BaseService<DotnetNodeCompiler>, INodeCompiler {
     public ICompiledDesign CompileDesign(Design design) {
         StringBuilder genCode = new();
         List<SyntaxTree> trees = [];
@@ -46,10 +47,9 @@ public partial class DotnetNodeCompiler : INodeCompiler {
 
         if (!result.Success) {
             foreach (Microsoft.CodeAnalysis.Diagnostic diag in result.Diagnostics) {
-                Console.WriteLine($"{diag.Location}: {diag.Id}: {diag.GetMessage()}");
+                Logger.LogError("{Location}: {Id}: {Message}", diag.Location, diag.Id, diag.GetMessage());
             }
-
-            return null;
+            return null!;
         }
 
         ms.Seek(0, SeekOrigin.Begin);
@@ -153,7 +153,6 @@ public partial class DotnetNodeCompiler : INodeCompiler {
         StringBuilder sb = new();
 
         List<DesignBlock> topo = GetTopologicalOrder(design);
-
 
         designName = $"CompiledDesign_{Random.Shared.Next():X8}";
         sb.AppendLine($"public class {designName} {{");

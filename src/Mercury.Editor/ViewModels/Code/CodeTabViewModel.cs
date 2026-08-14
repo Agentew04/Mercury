@@ -76,8 +76,8 @@ public partial class CodeTabViewModel : BaseViewModel<CodeTabViewModel, CodeTabV
 
     public void OnUnload() {
         SaveSizes();
-        cts.Cancel();
-        cts.Dispose();
+        cts?.Cancel();
+        cts?.Dispose();
         cts = null!;
     }
     

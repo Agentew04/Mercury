@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -68,10 +70,45 @@ public static class DesignSerializer {
         JsonElement connectionsProperty = document.RootElement.GetProperty("connections");
 
         Design design = new();
+        
+        // read blocks
         foreach (JsonElement blockElement in blocksProperty.EnumerateArray()) {
-            DesignBlock block = new();
             string name = blockElement.GetProperty("name").GetString()!;
+            bool isBarrier = blockElement.GetProperty("isBarrier").GetBoolean();
+            string source = blockElement.GetProperty("source").GetString()!;
+            List<IoItem> inputs = [];
+            foreach (JsonElement input in blockElement.GetProperty("inputs").EnumerateArray()) {
+                string inputName = input.GetProperty("name").GetString()!;
+                bool isSigned = input.GetProperty("isSigned").GetBoolean();
+                int width = input.GetProperty("width").GetInt32();
+                inputs.Add(new IoItem(inputName,width, isSigned));
+            }
+            List<IoItem> outputs = [];
+            foreach (JsonElement output in blockElement.GetProperty("outputs").EnumerateArray()) {
+                string outputName = output.GetProperty("name").GetString()!;
+                bool isSigned = output.GetProperty("isSigned").GetBoolean();
+                int width = output.GetProperty("width").GetInt32();
+                outputs.Add(new IoItem(outputName,width, isSigned));
+            }
+            DesignBlock block = new(name, inputs, outputs, isBarrier, source);
+            design.Blocks.Add(block);
         }
-            
+        
+        // read connections
+        foreach (JsonElement connectionElement in connectionsProperty.EnumerateArray()) {
+            string startName = connectionElement.GetProperty("start").GetString()!;
+            string endName = connectionElement.GetProperty("end").GetString()!;
+            int startOutputIndex = connectionElement.GetProperty("startOutputIndex").GetInt32();
+            int endInputIndex = connectionElement.GetProperty("endInputIndex").GetInt32();
+            DesignBlock? start = design.Blocks.FirstOrDefault(x => x.Name == startName);
+            DesignBlock? end = design.Blocks.FirstOrDefault(x => x.Name == endName);
+            if (start == null || end == null) {
+                throw new JsonException("Could not find start or end block from connection");
+            }
+
+            design.Connections.Add(new Connection(start, startOutputIndex, end, endInputIndex));
+        }
+        
+        return design;
     }
 }

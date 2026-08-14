@@ -9,7 +9,7 @@ namespace Mercury.Engine.Memory;
 /// specific modules.
 /// </summary>
 public class AddressDecoderModule : IModule, IDisposable {
-    private EventBus eventBus;
+    private EventBus eventBus = null!;
     private readonly List<IDisposable> subscriptions = [];
 
     private readonly List<MemoryRange> ranges = [];

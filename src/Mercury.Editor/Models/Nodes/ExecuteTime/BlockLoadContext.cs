@@ -19,6 +19,8 @@ public class BlockLoadContext : AssemblyLoadContext {
             return loaded;
         }
         string? path = resolver.ResolveAssemblyToPath(assemblyName);
+#pragma warning disable IL2026
         return path != null ? LoadFromAssemblyPath(path) : null;
+#pragma warning restore IL2026
     }
 }
