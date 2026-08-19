@@ -14,15 +14,6 @@ public partial class Monocycle {
                 | ((uint)j.Immediate << 2);
             return true;
         }
-        if(instruction is Jal jal) {
-            isExecutingBranch = true;
-            const uint pcMask = 0xF000_0000;
-            branchAddress = 
-                ((uint)Registers.Get(MipsGprRegisters.Pc) & pcMask) // PC[31..28]
-                | ((uint)jal.Immediate << 2);
-            Link();
-            return true;
-        }
         return false;
     }
 }

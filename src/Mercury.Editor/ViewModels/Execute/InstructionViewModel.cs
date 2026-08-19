@@ -216,10 +216,11 @@ public sealed partial class InstructionViewModel : BaseViewModel<InstructionView
             byte highOrderPc = (byte)(instructionAddress >> 26);
             return j.ToString(highOrderPc);
         }
-        if (instruction is Jal jal) {
-            byte highOrderPc = (byte)(instructionAddress >> 26);
-            return jal.ToString(highOrderPc);
-        }
+        // TODO: apos implementar o Jump and link, descomentar linhas abaixo
+        // if (instruction is Jal jal) {
+        //     byte highOrderPc = (byte)(instructionAddress >> 26);
+        //     return jal.ToString(highOrderPc);
+        // }
         return instruction.ToString();
     }
 

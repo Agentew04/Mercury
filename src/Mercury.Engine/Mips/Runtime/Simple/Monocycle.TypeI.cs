@@ -109,22 +109,6 @@ public partial class Monocycle {
                 Registers.Set<MipsGprRegisters>(lbu.Rt, memoryBuffer.Span[0]);
                 break;
             }
-            case Lh lh: {
-                ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(lh.Base) + lh.Offset);
-                if (address % 2 != 0) {
-                    eventBus.Publish(new UnalignedMemoryAccessEvent {
-                        InstructionWord = lh.ConvertToInt(),
-                        AccessSize = 2,
-                        InstructionAddress = (ulong)Registers.Get(MipsGprRegisters.Pc),
-                        MemoryAddress = address
-                    });
-                    break;
-                }
-                ReadMemory(address, memoryBuffer[..2]);
-                short value = BytesToInt16(memoryBuffer.Span);
-                Registers.Set<MipsGprRegisters>(lh.Rt, value);
-                break;
-            }
             case Lhu lhu: {
                 ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(lhu.Base) + lhu.Offset);
                 if (address % 2 != 0) {
@@ -139,10 +123,6 @@ public partial class Monocycle {
                 ReadMemory(address, memoryBuffer[..2]);
                 ushort value = (ushort)BytesToInt16(memoryBuffer.Span[..2]);
                 Registers.Set<MipsGprRegisters>(lhu.Rt, value);
-                break;
-            }
-            case Lui lui: {
-                Registers.Set<MipsGprRegisters>(lui.Rt, lui.Immediate << 16);
                 break;
             }
             case Lw lw: {
@@ -166,23 +146,6 @@ public partial class Monocycle {
                 byte value = (byte)(Registers.Get<MipsGprRegisters>(sb.Rt) & 0xFF);
                 memoryBuffer.Span[0] = value;
                 WriteMemory(address, memoryBuffer[..1]);
-                break;
-            }
-            case Sh sh: {
-                ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(sh.Base) + sh.Offset);
-                if((address & 0b1) != 0) {
-                    eventBus.Publish(new UnalignedMemoryAccessEvent {
-                        InstructionWord = sh.ConvertToInt(),
-                        AccessSize = 2,
-                        InstructionAddress = (ulong)Registers.Get(MipsGprRegisters.Pc),
-                        MemoryAddress = address
-                    });
-                    break;
-                }
-                // write two bytes
-                int value = Registers.Get<MipsGprRegisters>(sh.Rt);
-                Int16ToBytes((short)value, memoryBuffer.Span[..2]);
-                WriteMemory(address, memoryBuffer[..2]);
                 break;
             }
             case Sw sw: {
