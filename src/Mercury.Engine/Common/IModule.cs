@@ -5,7 +5,7 @@ namespace Mercury.Engine.Common;
 /// <summary>
 /// Shared interface for all modules that are used in a machine.
 /// </summary>
-public interface IModule {
+public interface IModule : IDisposable {
 
     /// <summary>
     /// Subscribe this module to its relevant events from the event bus.

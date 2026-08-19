@@ -1,12 +1,9 @@
-﻿using System.Threading.Channels;
-using ELFSharp.ELF;
+﻿using ELFSharp.ELF;
 using ELFSharp.ELF.Sections;
 using ELFSharp.ELF.Segments;
 using Mercury.Engine.Common.Events;
 using Mercury.Engine.Memory;
-using Mercury.Engine.Mips.Runtime;
 using Mercury.Engine.Mips.Runtime.Simple;
-using Mercury.Engine.Modules.Gpu;
 
 namespace Mercury.Engine.Common;
 
@@ -91,6 +88,9 @@ public abstract class Machine : IAsyncClockable, IDisposable {
         uint textLength = textSection.Size;
         SymbolTable<uint>? symbolTable = elf.GetSections<SymbolTable<uint>>().First();
         CpuModule.ProgramEnd = symbolTable?.Entries?.FirstOrDefault(x => x.Name == "__end")?.Value ?? textStart + textLength;
+        CpuModule.Endianess = elf.Endianess == ELFSharp.Endianess.BigEndian
+            ? Endianess.BigEndian
+            : Endianess.LittleEndian;
         foreach (Segment<uint>? segment in elf.Segments) {
             if (segment.Type != SegmentType.Load) {
                 continue;

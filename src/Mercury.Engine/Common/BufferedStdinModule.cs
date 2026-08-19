@@ -25,6 +25,10 @@ public class BufferedStdinModule : IModule {
         subscriptions.Clear();
     }
 
+    public void Dispose() {
+        UnsubscribeFromEvents();
+    }
+
     private async ValueTask Handle(StdInReadEvent evt) {
         ChannelReader<char> reader = channel.Reader;
 

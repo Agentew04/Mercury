@@ -1,4 +1,6 @@
-﻿namespace Mercury.Engine.Common;
+﻿using Mercury.Engine.Memory;
+
+namespace Mercury.Engine.Common;
 
 public interface ICpuModule : IModule{
     
@@ -7,4 +9,6 @@ public interface ICpuModule : IModule{
     public int ExitCode { get; }
     
     public RegisterCollection Registers { get; }
+    
+    public Endianess Endianess { get; set; }
 }

@@ -28,7 +28,7 @@ public partial class Monocycle {
         
         eventBus.Publish(new UntreatedInstructionEvent {
             Address = (ulong)Registers.Get(MipsGprRegisters.Pc),
-            Word = Convert.ToUInt32(instructionBuffer),
+            Word = BitConverter.ToUInt32(instructionBuffer.Span),
             Description = instruction.ToString()
         });
     }
