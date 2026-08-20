@@ -620,7 +620,7 @@ public sealed class Mars : MipsSyscallModule {
             value = new Random();
             rngs[id] = value;
         }
-        Context.RespondV0(value.Next()); 
+        Context.RespondA0(value.Next()); 
     }
 
     /// <summary>
@@ -634,7 +634,7 @@ public sealed class Mars : MipsSyscallModule {
             value = new Random();
             rngs[id] = value;
         }
-        Context.RespondV0(value.Next((int)Context.A1)); 
+        Context.RespondA0(value.Next((int)Context.A1)); 
     }
     
     /// <summary>

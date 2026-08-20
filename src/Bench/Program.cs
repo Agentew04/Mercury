@@ -1,4 +1,5 @@
-﻿using ELFSharp.ELF;
+﻿using System.Diagnostics;
+using ELFSharp.ELF;
 using Mercury.Engine.Common;
 using Mercury.Engine.Common.Builders;
 using Mercury.Engine.Memory;
@@ -24,28 +25,30 @@ using MipsMachine machine = new MachineBuilder()
     .Build();
 
 // load ELF
-// if (!File.Exists("bench.elf")) {
-//     Console.WriteLine("File 'bench.elf' does not exist on current directory({0}).", Directory.GetCurrentDirectory());
-//     return;
-// }
+if (!File.Exists("bench.elf")) {
+    Console.WriteLine("File 'bench.elf' does not exist on current directory({0}).", Directory.GetCurrentDirectory());
+    return;
+}
 ELF<uint> elf = ELFReader.Load<uint>("bench.elf");
 machine.LoadElf(elf);
 
 
 // run test
-// Stopwatch sw = new();
-// ulong clocks = 0;
-// sw.Start();
+Stopwatch sw = new();
+ulong clocks = 0;
+sw.Start();
 while (!machine.IsClockingFinished()) {
     await machine.ClockAsync();
-    // clocks++;
-    // if (clocks % 1000000 == 0) {
-    //     Console.WriteLine("Clock {0} clocks.", clocks);
-    //     Console.WriteLine("$ra: {0}", machine.Cpu.Registers.Get(MipsGprRegisters.Ra));
-    // }
+    clocks++;
 }
-// sw.Stop();
-// Console.WriteLine("Instructions Executed: {0}", clocks);
-// Console.WriteLine("$ra: {0}", machine.Cpu.Registers.Get(MipsGprRegisters.Ra));
-// Console.WriteLine("Elapsed time: {0:F3} ms", sw.ElapsedMilliseconds);
-// Console.WriteLine("IPS: {0}", clocks/sw.Elapsed.TotalSeconds);
+sw.Stop();
+Console.WriteLine("Instructions Executed: {0}", clocks);
+Console.WriteLine("Elapsed time: {0:F3} ms", sw.ElapsedMilliseconds);
+double rate = clocks / sw.Elapsed.TotalSeconds;
+string[] prefixes = ["", "k", "M", "G"];
+int prefix = 0;
+while (rate > 1000) {
+    prefix++;
+    rate /= 1000;
+}
+Console.WriteLine($"Frequency: {rate:F3}{prefixes[prefix]}Hz");
