@@ -1,6 +1,4 @@
-﻿using System.Buffers.Binary;
-using System.Threading.Tasks.Sources;
-using Mercury.Engine.Common;
+﻿using Mercury.Engine.Common;
 using Mercury.Engine.Common.Events;
 using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Instructions;
@@ -12,7 +10,7 @@ namespace Mercury.Engine.Mips.Runtime.Simple;
 /// A simplified version of the monocycle MIPS processor.
 /// Does not simulate every component of the processor.
 /// </summary>
-public sealed partial class Monocycle : ICpuModule, IDisposable {
+public sealed partial class Monocycle : ICpuModule {
     
     public Monocycle() {
         Registers.DefineGroup<MipsGprRegisters,MipsRegisterHelper>();
@@ -46,6 +44,8 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
     private readonly InstructionPool pool = new();
     private readonly List<IDisposable> subscriptions = [];
     public Endianess Endianess { get; set; }
+
+    public List<IInstructionExtension> Extensions { get; set; } = [];
     
     public void SubscribeToEvents(EventBus bus) {
         this.eventBus = bus;
@@ -75,7 +75,7 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
         uint instructionBinary = (uint)BytesToInt32(instructionBuffer.Span);
 
         // decode
-        IInstruction? instruction = Disassembler.Disassemble(instructionBinary, pool);
+        IInstruction? instruction = Decode(instructionBinary);
         if(instruction is null) {
             eventBus.Publish(new UnknownInstructionEvent {
                 Address = pc,
@@ -104,6 +104,24 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
             // instrucao sem branch
             Registers.Set(MipsGprRegisters.Pc, Registers.Get(MipsGprRegisters.Pc) + 4);
         }
+    }
+
+    private IInstruction? Decode(uint binary) {
+        IInstruction? instruction = Disassembler.Disassemble(binary, pool);
+        if (instruction is not null) {
+            return instruction;
+        }
+        
+        // for each extension
+        foreach (IInstructionExtension extension in Extensions) {
+            instruction = extension.Decode(binary);
+            if (instruction is not null) {
+                return instruction;
+            }
+        }
+
+        // no match
+        return null;
     }
 
     /// <summary>

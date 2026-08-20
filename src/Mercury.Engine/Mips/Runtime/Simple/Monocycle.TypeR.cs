@@ -195,7 +195,8 @@ public partial class Monocycle {
                 break;
             }
             case Jr jr: {
-                Registers.Set(MipsGprRegisters.Pc, Registers.Get<MipsGprRegisters>(jr.Rs));
+                isExecutingBranch = true;
+                branchAddress = (uint)Registers.Get<MipsGprRegisters>(jr.Rs);
                 break;
             }
             default: 
