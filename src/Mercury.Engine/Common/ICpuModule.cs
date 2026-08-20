@@ -11,4 +11,6 @@ public interface ICpuModule : IModule{
     public RegisterCollection Registers { get; }
     
     public Endianess Endianess { get; set; }
+    
+    public List<IInstructionExtension> Extensions { get; }
 }
