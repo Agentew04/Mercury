@@ -16,6 +16,7 @@ internal class InstructionGenerator : IIncrementalGenerator{
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         context.RegisterPostInitializationOutput(ctx => {
             ctx.AddSource("FieldAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.FieldAttribute, Encoding.UTF8));
+            ctx.AddSource("SignedAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.SignedAttribute, Encoding.UTF8));
             ctx.AddSource("InstructionAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.InstructionAttribute, Encoding.UTF8));
             // instruction binary fmt
             ctx.AddSource("FormatExactAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.FormatExactAttributeText, Encoding.UTF8));
@@ -180,9 +181,16 @@ internal class InstructionGenerator : IIncrementalGenerator{
                 .GetAttributes()
                 .FirstOrDefault(x => x.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
                                      == "global::Mercury.Engine.Generators.Instruction.FieldAttribute");
+            
             if (fieldAttribute is null) {
                 continue;
             }
+
+            bool isSigned = member
+                .GetAttributes()
+                .FirstOrDefault(x => x.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                                     == "global::Mercury.Engine.Generators.Instruction.SignedAttribute") != null;
+                
 
             int bitStart = (int)fieldAttribute.ConstructorArguments[0].Value!;
             int bitEnd = (int)fieldAttribute.ConstructorArguments[1].Value!;
@@ -198,7 +206,7 @@ internal class InstructionGenerator : IIncrementalGenerator{
                 var prop = (IPropertySymbol)member;
                 fieldtype = prop.Type.Name;
             }
-            fields.Add(new FieldInfo(bitStart, bitEnd, fieldtype, member.Name));
+            fields.Add(new FieldInfo(bitStart, bitEnd, fieldtype, member.Name, isSigned));
         }
         return new EquatableArray<FieldInfo>(fields.ToArray());
     }

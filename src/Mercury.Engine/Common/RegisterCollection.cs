@@ -48,6 +48,11 @@ public class RegisterCollection {
         TRegister? reg = provider.GetRegisterX<TRegister>(number);
         return reg is null ? 0 : Get(reg.Value);
     }
+    
+    public int Get(Enum reg, Type type) {
+        // return ((int[])banks[type])[Convert.ToInt32(reg)];
+        return ((int[])banks[type])[(int)(object)reg];
+    }
 
     /// <summary>
     /// Sets the value of a register.

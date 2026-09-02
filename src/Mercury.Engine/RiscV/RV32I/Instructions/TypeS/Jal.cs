@@ -23,9 +23,8 @@ public partial class Jal : IInstruction
     [Field(31,31)]
     private byte Offset4 { get; set; }
 
-    public int Imm
-    {
-        get => Offset1 << 12 | Offset2 << 11 | Offset3 << 1 | Offset4 << 20;
+    public int Imm {
+        get => (Offset1 << 12 | Offset2 << 11 | Offset3 << 1 | Offset4 << 20).SignExtend(21);
         set
         {
             Offset1 = (byte)((value >> 12) & 0xFF);

@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Channels;
 
 namespace Mercury.Engine.Common; 
@@ -119,5 +121,18 @@ public static class Extensions {
             sb.Append(read);
         }
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Sign-extends a number using a number of input bits.
+    /// </summary>
+    /// <param name="value">The input value</param>
+    /// <param name="bitCount">How many bits are valid</param>
+    /// <typeparam name="T">The type of the number to sign extend</typeparam>
+    /// <returns>The value sign extended.</returns>
+    public static T SignExtend<T>(this T value, int bitCount) where T: IBinaryInteger<T> {
+        int size = Unsafe.SizeOf<T>();
+        int shift = size - bitCount;
+        return (value << shift) >> shift;
     }
 }

@@ -11,11 +11,22 @@ internal static class ImplementationEmitter {
     public static void Emit(SourceProductionContext spc, InstructionInfo instruction, ImmutableArray<FormatterMethodInfo> formatters) {
         StringBuilder fromIntSb = new();
         foreach (FieldInfo field in instruction.Fields) {
-            fromIntSb.AppendLine(string.Format(InstructionTemplates.PartialInstructionFieldExtract,
-                field.FieldName,
-                field.FieldType,
-                field.BitStart,
-                "0b" + new string('1', field.BitEnd - field.BitStart + 1)));
+            if (field.IsSigned) {
+                fromIntSb.AppendLine(string.Format(InstructionTemplates.PartialInstructionSignedFieldExtract,
+                    field.FieldName,
+                    field.FieldType,
+                    field.BitStart,
+                    "0b" + new string('1', field.BitEnd - field.BitStart + 1),
+                    field.BitEnd - field.BitStart + 1));
+            }
+            else {
+                // default case
+                fromIntSb.AppendLine(string.Format(InstructionTemplates.PartialInstructionFieldExtract,
+                    field.FieldName,
+                    field.FieldType,
+                    field.BitStart,
+                    "0b" + new string('1', field.BitEnd - field.BitStart + 1)));
+            }
         }
 
         string toIntCode = GenerateToIntCode(instruction);
