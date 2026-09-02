@@ -15,6 +15,7 @@ public partial class Lh : IInstruction
     [Field(19,15)]
     public byte Rs1 { get; set; }
     
+    [Signed]
     [Field(31,20)]
     public short Imm { get; set; }
 }

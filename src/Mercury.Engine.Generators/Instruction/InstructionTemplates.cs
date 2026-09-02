@@ -27,7 +27,8 @@ internal static class InstructionTemplates {
             namespace Mercury.Engine.Generators.Instruction;
             
             /// <summary>
-            /// Marks that a class is an instruction and should be analyzed by Mercury and have code generated for it.
+            /// Marks that a field from an instruction represents signed data. Useful when field size is less than
+            /// stored datatype size.
             /// </summary>
             [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
             public class SignedAttribute : Attribute { }

@@ -29,7 +29,7 @@ public partial class Bge : IInstruction
 
     public short Imm
     {
-        get => (short)(Offset1 << 11 | Offset2 << 1 | Offset3 << 5 | Offset4 << 12);
+        get => (short)(Offset1 << 11 | Offset2 << 1 | Offset3 << 5 | Offset4 << 12).SignExtend(13);
         set
         {
             Offset1 = (byte)((value >> 11) & 0b1);

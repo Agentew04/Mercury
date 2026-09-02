@@ -23,7 +23,7 @@ public partial class Sh : IInstruction
 
     public short Imm
     {
-        get => (short)((Offset1 & 0b11111) | Offset2 << 5);
+        get => (short)((Offset1 & 0b11111) | Offset2 << 5).SignExtend(12);
         set
         {
             Offset1 = (byte)(value & 0b11111);
