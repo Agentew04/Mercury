@@ -6,7 +6,7 @@ namespace Mercury.Editor.Models.Modules.Properties;
 
 public partial class StringModuleProperty : ModuleProperty {
 
-    [ObservableProperty] private string value;
+    [ObservableProperty] private string value = string.Empty;
     
     public StringModuleProperty(string name, PropertyInfo info, ModuleDescription obj) : base(name, info, obj) {
         if (info.PropertyType != typeof(string)) {

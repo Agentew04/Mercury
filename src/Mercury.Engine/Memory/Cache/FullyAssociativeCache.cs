@@ -36,7 +36,7 @@ public class FullyAssociativeCache : ICache {
     /// </summary>
     public ReplacementPolicyType ReplacementPolicyType { get; init; }
 
-    public Endianess Endianess => backingMemory.Endianess;
+    public Endianness Endianness => backingMemory.Endianness;
 
     private ulong hitCount = 0;
     private ulong missCount = 0;
@@ -325,20 +325,20 @@ public class FullyAssociativeCache : ICache {
         buffer[2] = ReadByte(address + 2);
         buffer[3] = ReadByte(address + 3);
 
-        return Endianess switch
+        return Endianness switch
         {
-            Endianess.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(buffer),
-            Endianess.BigEndian => BinaryPrimitives.ReadInt32BigEndian(buffer),
+            Endianness.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(buffer),
+            Endianness.BigEndian => BinaryPrimitives.ReadInt32BigEndian(buffer),
             _ => throw new NotSupportedException("Unsupported endianness.")
         };
     }
 
     public void WriteWord(ulong address, int value) {
         Span<byte> data = stackalloc byte[4];
-        if (Endianess == Endianess.LittleEndian) {
+        if (Endianness == Endianness.LittleEndian) {
             BinaryPrimitives.WriteInt32LittleEndian(data, value);
         }
-        else if (Endianess == Endianess.BigEndian) {
+        else if (Endianness == Endianness.BigEndian) {
             BinaryPrimitives.WriteInt32BigEndian(data, value);
         }
         else {

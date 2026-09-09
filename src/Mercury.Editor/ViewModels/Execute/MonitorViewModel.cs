@@ -5,9 +5,5 @@ namespace Mercury.Editor.ViewModels.Execute;
 
 public class MonitorViewModel : BaseViewModel<MonitorViewModel, MonitorWindow> {
 
-    public MonitorViewModel() {
-        
-    }
-    
-    public PixelScreen Screen { get; set; }
+    public PixelScreen? Screen { get; set; }
 }

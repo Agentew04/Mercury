@@ -1,6 +1,6 @@
 ﻿namespace Mercury.Engine.Memory;
 
-public enum Endianess {
+public enum Endianness {
     LittleEndian,
     BigEndian
 }

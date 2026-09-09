@@ -25,7 +25,7 @@ public class SetAssociativeCache : ICache
     // private readonly List<uint>? lfuFrequencies;
     // private readonly Random? rng;
 
-    public Endianess Endianess => backingMemory.Endianess;
+    public Endianness Endianness => backingMemory.Endianness;
     public CacheWritePolicy WritePolicy { get; }
 
     /// <inheritdoc cref="FullyAssociativeCache.ReplacementPolicyType"/>

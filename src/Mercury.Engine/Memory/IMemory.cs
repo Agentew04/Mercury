@@ -9,7 +9,7 @@ public interface IMemory {
     /// The endianness of this memory. I.e. how are the bytes
     /// ordered in a word.
     /// </summary>
-    public Endianess Endianess { get; }
+    public Endianness Endianness { get; }
 
     #region Single Value Methods
 

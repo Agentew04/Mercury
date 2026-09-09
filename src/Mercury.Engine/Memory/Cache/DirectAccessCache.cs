@@ -22,7 +22,7 @@ public class DirectAccessCache : ICache {
     private readonly int blockSize;
 
     public CacheWritePolicy WritePolicy { get; init; }
-    public Endianess Endianess => backingMemory.Endianess;
+    public Endianness Endianness => backingMemory.Endianness;
     
     
     /// <summary>
@@ -220,19 +220,19 @@ public class DirectAccessCache : ICache {
         data[2] = ReadByte(address + 2);
         data[3] = ReadByte(address + 3);
 
-        return Endianess switch {
-            Endianess.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(data),
-            Endianess.BigEndian => BinaryPrimitives.ReadInt32BigEndian(data),
+        return Endianness switch {
+            Endianness.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(data),
+            Endianness.BigEndian => BinaryPrimitives.ReadInt32BigEndian(data),
             _ => throw new NotSupportedException("Unsupported endianness.")
         };
     }
 
     public void WriteWord(ulong address, int value) {
         Span<byte> data = stackalloc byte[4];
-        if (Endianess == Endianess.LittleEndian) {
+        if (Endianness == Endianness.LittleEndian) {
             BinaryPrimitives.WriteInt32LittleEndian(data, value);
         }
-        else if (Endianess == Endianess.BigEndian) {
+        else if (Endianness == Endianness.BigEndian) {
             BinaryPrimitives.WriteInt32BigEndian(data, value);
         }
         else {

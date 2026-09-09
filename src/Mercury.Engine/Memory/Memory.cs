@@ -50,7 +50,7 @@ public sealed class Memory : IDisposable, IMemory, IModule
     /// </summary>
     private readonly long[] lastAccessTime;
     
-    public Endianess Endianess { get; init; }
+    public Endianness Endianness { get; init; }
 
     private readonly MemoryDebugInfo debugInfo = new();
     
@@ -65,7 +65,7 @@ public sealed class Memory : IDisposable, IMemory, IModule
         pageSize = config.PageSize;
         maxLoadedPages = config.MaxLoadedPages;
         totalPageCount = (uint)(Size / pageSize);
-        Endianess = config.Endianess;
+        Endianness = config.Endianness;
         loadedPages = new Page[maxLoadedPages];
         Array.Fill(loadedPages, null);
         lastAccessTime = new long[maxLoadedPages];
@@ -141,9 +141,9 @@ public sealed class Memory : IDisposable, IMemory, IModule
         Page page = loadedPages[pageIndex]!;
         int offset = (int)(address % pageSize);
         Span<byte> bytes = page.Data.AsSpan()[offset..(offset+4)];
-        int data = Endianess switch {
-            Endianess.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(bytes),
-            Endianess.BigEndian => BinaryPrimitives.ReadInt32BigEndian(bytes),
+        int data = Endianness switch {
+            Endianness.LittleEndian => BinaryPrimitives.ReadInt32LittleEndian(bytes),
+            Endianness.BigEndian => BinaryPrimitives.ReadInt32BigEndian(bytes),
             _ => throw new ArgumentOutOfRangeException(nameof(address))
         };
         return data;
@@ -169,7 +169,7 @@ public sealed class Memory : IDisposable, IMemory, IModule
         }
 
         Span<byte> data = stackalloc byte[4];
-        if (Endianess == Endianess.LittleEndian) {
+        if (Endianness == Endianness.LittleEndian) {
             BinaryPrimitives.WriteInt32LittleEndian(data, value);
         } else {
             BinaryPrimitives.WriteInt32BigEndian(data, value);

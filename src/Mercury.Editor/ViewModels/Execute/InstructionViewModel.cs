@@ -31,7 +31,6 @@ public sealed partial class InstructionViewModel : BaseViewModel<InstructionView
     [ObservableProperty] private ObservableCollection<DisassemblyRow> instructions = [];
     [ObservableProperty] private int selectedInstructionIndex = -1;
 
-    private EventBus eventBus = null!;
     private List<IDisposable> subscriptions = [];
     
     public InstructionViewModel() {
@@ -220,7 +219,7 @@ public sealed partial class InstructionViewModel : BaseViewModel<InstructionView
             byte highOrderPc = (byte)(instructionAddress >> 26);
             return jal.ToString(highOrderPc);
         }
-        return instruction.ToString();
+        return instruction.ToString() ?? "null";
     }
 
     #endregion

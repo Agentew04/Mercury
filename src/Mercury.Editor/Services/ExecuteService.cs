@@ -72,8 +72,8 @@ public sealed class ExecuteService : BaseService<ExecuteService>, IDisposable {
             .WithBlockSize(memoryDescription.BlockSize)
             .WithVolatileStorage()
             .WithEndianess(currentElf.Endianess == Endianess.BigEndian
-                ? Engine.Memory.Endianess.BigEndian
-                : Engine.Memory.Endianess.LittleEndian)
+                ? Engine.Memory.Endianness.BigEndian
+                : Engine.Memory.Endianness.LittleEndian)
             .Build();
         
         // cria cpu

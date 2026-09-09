@@ -236,11 +236,11 @@ public partial class RamViewModel : BaseViewModel<RamViewModel, RamView>, IDispo
                 case RamVisualization.Ascii:
                     Span<byte> bytes = stackalloc byte[4];
                     Span<char> chars = stackalloc char[4];
-                    switch (currentMachine!.MemoryModule.Endianess) {
-                        case Endianess.LittleEndian:
+                    switch (currentMachine!.MemoryModule.Endianness) {
+                        case Endianness.LittleEndian:
                             BinaryPrimitives.WriteInt32LittleEndian(bytes, data);
                             break;
-                        case Endianess.BigEndian:
+                        case Endianness.BigEndian:
                             BinaryPrimitives.WriteInt32BigEndian(bytes, data);
                             break;
                         default:

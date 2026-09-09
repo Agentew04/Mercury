@@ -49,7 +49,7 @@ public readonly struct MemoryConfiguration {
 
     public bool ForceColdStorageReset { get; init; } = false;
     
-    public Endianess Endianess { get; init; } = Endianess.LittleEndian;
+    public Endianness Endianness { get; init; } = Endianness.LittleEndian;
 
     public MemoryConfiguration() {}
 }

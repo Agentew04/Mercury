@@ -11,7 +11,7 @@ public class MemoryBuilder : IBuilder<Memory>
 {
     private ulong blockSize = 4096; // Default page size
     private ulong size = 1024ul * 1024 * 1024 * 4; // Default size (4 GB)
-    private Endianess endianess = Endianess.LittleEndian;
+    private Endianness endianness = Endianness.LittleEndian;
     private int blockCapacity = 16;
     private string storagePath = "memory.bin";
     private StorageType storageType;
@@ -40,13 +40,13 @@ public class MemoryBuilder : IBuilder<Memory>
 
     public MemoryBuilder WithBigEndian()
     {
-        endianess = Endianess.BigEndian;
+        endianness = Endianness.BigEndian;
         return this;
     }
 
     public MemoryBuilder WithLittleEndian()
     {
-        endianess = Endianess.LittleEndian;
+        endianness = Endianness.LittleEndian;
         return this;
     }
 
@@ -54,6 +54,10 @@ public class MemoryBuilder : IBuilder<Memory>
         return endianess switch {
             Endianess.BigEndian => WithBigEndian(),
             Endianess.LittleEndian => WithLittleEndian(),
+    public MemoryBuilder WithEndianess(Endianness endianness) {
+        return endianness switch {
+            Endianness.BigEndian => WithBigEndian(),
+            Endianness.LittleEndian => WithLittleEndian(),
             _ => throw new NotSupportedException("Endianness not supported")
         };
     }
@@ -83,7 +87,7 @@ public class MemoryBuilder : IBuilder<Memory>
         {
             PageSize = blockSize,
             Size = size,
-            Endianess = endianess,
+            Endianness = endianness,
             StorageType = storageType,
             ColdStoragePath = storagePath,
             MaxLoadedPages = (uint)blockCapacity,

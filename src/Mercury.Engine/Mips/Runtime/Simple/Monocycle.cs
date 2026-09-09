@@ -43,7 +43,7 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
     private readonly Memory<byte> instructionBuffer = new byte[4];
     private readonly InstructionPool pool = new();
     private readonly List<IDisposable> subscriptions = [];
-    private readonly Endianess endianess = Endianess.BigEndian;
+    private readonly Endianness endianness = Endianness.BigEndian;
     
     public void SubscribeToEvents(EventBus bus) {
         eventBus = bus;

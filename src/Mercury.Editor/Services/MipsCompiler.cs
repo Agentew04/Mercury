@@ -259,7 +259,8 @@ public partial class MipsCompiler : BaseService<MipsCompiler>, ICompilerService 
         };
         if (OperatingSystem.IsLinux()) {
             Logger.LogInformation("Injecting {Lib} to Environment \"LD_LIBRARY_PATH\"", libraryDir.ToString());
-            string existing = "";
+            string? existing;
+            // TODO: should this condition really be negated? 
             if (!startInfo.Environment.TryGetValue("LD_LIBRARY_PATH", out existing)) {
                 existing += ';';
             }

@@ -36,7 +36,8 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
     #region State
 
     private bool isHalted;
-    private Endianess endianess = Endianess.LittleEndian;
+    private Endianness endianness = Endianness.LittleEndian;
+    private MemoryInstructionSource instructionSource = null!;
     private readonly List<IInstructionExtension> instructionExtensions = [];
     private readonly Memory<byte> instructionBuffer = new byte[4];
     private readonly InstructionPool instructionPool = new();

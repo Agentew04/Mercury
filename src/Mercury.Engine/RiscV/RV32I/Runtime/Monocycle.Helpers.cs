@@ -15,15 +15,15 @@ public partial class Monocycle {
     }
     
     private int BytesToInt32(ReadOnlySpan<byte> word) {
-        return endianess == Endianess.LittleEndian ? BinaryPrimitives.ReadInt32LittleEndian(word) : BinaryPrimitives.ReadInt32BigEndian(word);
+        return endianness == Endianness.LittleEndian ? BinaryPrimitives.ReadInt32LittleEndian(word) : BinaryPrimitives.ReadInt32BigEndian(word);
     }
 
     private short BytesToInt16(ReadOnlySpan<byte> word) {
-        return endianess == Endianess.LittleEndian ? BinaryPrimitives.ReadInt16LittleEndian(word) : BinaryPrimitives.ReadInt16BigEndian(word);
+        return endianness == Endianness.LittleEndian ? BinaryPrimitives.ReadInt16LittleEndian(word) : BinaryPrimitives.ReadInt16BigEndian(word);
     }
 
     private void Int32ToBytes(int value, Span<byte> destination) {
-        if (endianess == Endianess.LittleEndian) {
+        if (endianness == Endianness.LittleEndian) {
             BinaryPrimitives.WriteInt32LittleEndian(destination, value);
         }
         else {
@@ -32,7 +32,7 @@ public partial class Monocycle {
     }
 
     private void Int16ToBytes(short value, Span<byte> destination) {
-        if (endianess == Endianess.LittleEndian) {
+        if (endianness == Endianness.LittleEndian) {
             BinaryPrimitives.WriteInt16LittleEndian(destination, value);
         }
         else {
