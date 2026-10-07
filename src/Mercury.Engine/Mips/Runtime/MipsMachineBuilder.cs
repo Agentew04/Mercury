@@ -1,4 +1,4 @@
-﻿using Mercury.Engine.Common;
+using Mercury.Engine.Common;
 using Mercury.Engine.Common.Builders;
 using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Runtime.OS;
@@ -18,14 +18,16 @@ public class MipsMachineBuilder : MachineBuilder {
     }
 
     public MipsMachineBuilder WithMipsMonocycle() {
-        cpu = new Monocycle();
-        Modules.Add(new Monocycle());
-        return this;
+        return WithCpu(new Monocycle());
     }
 
     public MipsMachineBuilder WithCpu(ICpuModule cpu) {
         this.cpu = cpu;
         Modules.Add(cpu);
+        if (cpu is Monocycle monocycle) {
+            // the FPU is a separate module that shares registers/flags with the CPU
+            Modules.Add(new Fpu(monocycle, monocycle.Flags));
+        }
         return this;
     }
 

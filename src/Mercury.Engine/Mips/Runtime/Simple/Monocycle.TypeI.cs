@@ -1,4 +1,4 @@
-﻿using Mercury.Engine.Mips.Instructions;
+using Mercury.Engine.Mips.Instructions;
 using Mercury.Engine.Common;
 using Mercury.Engine.Mips.Runtime.Events;
 
@@ -101,6 +101,41 @@ public partial class Monocycle {
                 ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(lb.Base) + lb.Offset);
                 ReadMemory(address, memoryBuffer[..1]);
                 Registers.Set<MipsGprRegisters>(lb.Rt, (sbyte)memoryBuffer.Span[0]);
+                break;
+            }
+            case Lui lui: {
+                Registers.Set<MipsGprRegisters>(lui.Rt, (int)((uint)(ushort)lui.Immediate << 16));
+                break;
+            }
+            case Lh lh: {
+                ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(lh.Base) + lh.Offset);
+                if (address % 2 != 0) {
+                    eventBus.Publish(new UnalignedMemoryAccessEvent {
+                        InstructionWord = lh.ConvertToInt(),
+                        AccessSize = 2,
+                        InstructionAddress = (ulong)Registers.Get(MipsGprRegisters.Pc),
+                        MemoryAddress = address
+                    });
+                    break;
+                }
+                ReadMemory(address, memoryBuffer[..2]);
+                short value = BytesToInt16(memoryBuffer.Span[..2]);
+                Registers.Set<MipsGprRegisters>(lh.Rt, value);
+                break;
+            }
+            case Sh sh: {
+                ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(sh.Base) + sh.Offset);
+                if (address % 2 != 0) {
+                    eventBus.Publish(new UnalignedMemoryAccessEvent {
+                        InstructionWord = sh.ConvertToInt(),
+                        AccessSize = 2,
+                        InstructionAddress = (ulong)Registers.Get(MipsGprRegisters.Pc),
+                        MemoryAddress = address
+                    });
+                    break;
+                }
+                Int16ToBytes((short)(Registers.Get<MipsGprRegisters>(sh.Rt) & 0xFFFF), memoryBuffer.Span[..2]);
+                WriteMemory(address, memoryBuffer[..2]);
                 break;
             }
             case Lbu lbu: {

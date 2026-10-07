@@ -6,8 +6,58 @@ using Mercury.Engine.Mips.Runtime.Events;
 
 namespace Mercury.Engine.Mips.Runtime.Simple;
 
-public partial class Monocycle {
-    private async ValueTask<bool> ExecuteTypeF(IInstruction instruction) {
+/// <summary>
+/// Floating Point Unit (coprocessor 1) of the MIPS machine. Runs as a module
+/// separated from the CPU. It listens to <see cref="UnhandledInstructionEvent"/>,
+/// published by the CPU when it does not recognize an instruction, and executes
+/// the ones that belong to the FPU. Any other instruction is ignored.
+/// </summary>
+public sealed class Fpu : IModule {
+
+    private readonly ICpuModule cpu;
+    private readonly bool[] flags;
+    private readonly List<IDisposable> subscriptions = [];
+    private EventBus eventBus = null!;
+    private uint currentWord;
+    private ulong currentAddress;
+
+    /// <param name="cpu">The CPU that owns the (shared) register file.</param>
+    /// <param name="flags">The FPU condition flags (<c>cc</c>).</param>
+    public Fpu(ICpuModule cpu, bool[] flags) {
+        this.cpu = cpu;
+        this.flags = flags;
+    }
+
+    private RegisterCollection Registers => cpu.Registers;
+    private bool[] Flags => flags;
+
+    public void SubscribeToEvents(EventBus bus) {
+        eventBus = bus;
+        subscriptions.Add(bus.Subscribe<UnhandledInstructionEvent>(OnUnhandledInstruction));
+    }
+
+    public void UnsubscribeFromEvents() {
+        foreach (IDisposable subscription in subscriptions) {
+            subscription.Dispose();
+        }
+        subscriptions.Clear();
+    }
+
+    private void OnUnhandledInstruction(UnhandledInstructionEvent e) {
+        if (e.Handled) {
+            return;
+        }
+        currentWord = e.Word;
+        currentAddress = e.Address;
+        if (ExecuteTypeF(e.Instruction)) {
+            e.Handled = true;
+        }
+    }
+
+    public void Dispose() {
+        UnsubscribeFromEvents();
+    }
+    private bool ExecuteTypeF(IInstruction instruction) {
         switch (instruction) {
             case Abs abs: {
                 switch (abs.Format) {
@@ -41,13 +91,13 @@ public partial class Monocycle {
             }
             case Bc1F bc1F: {
                 if (!Flags[bc1F.Cc]) {
-                    BranchTo(bc1F.Offset);
+                    eventBus.Publish(new BranchRequestEvent { Offset = bc1F.Offset });
                 }
                 break;
             }
             case Bc1T bc1T: {
                 if (Flags[bc1T.Cc]) {
-                    BranchTo(bc1T.Offset);
+                    eventBus.Publish(new BranchRequestEvent { Offset = bc1T.Offset });
                 }
                 break;
             }
@@ -55,11 +105,11 @@ public partial class Monocycle {
                 switch (c.Format) {
                     case TypeFInstruction.SinglePrecisionFormat:
                         Flags[c.Cc] = Compare(Read<float>(c.Fs), Read<float>(c.Ft), c.Cond);
-                        OnFlagUpdate?.Invoke();
+                        eventBus.Publish(new FpuFlagsChangedEvent());
                         break;
                     case TypeFInstruction.DoublePrecisionFormat:
                         Flags[c.Cc] = Compare(Read<double>(c.Fs), Read<double>(c.Ft), c.Cond);
-                        OnFlagUpdate?.Invoke();
+                        eventBus.Publish(new FpuFlagsChangedEvent());
                         break;
                     case TypeFInstruction.WordFixedPrecisionFormat:
                     case TypeFInstruction.LongFixedPrecisionFormat:
@@ -85,8 +135,12 @@ public partial class Monocycle {
                         InvalidOp();
                         break;
                     case TypeFInstruction.WordFixedPrecisionFormat:
+                        // cvt.d.w - convert 32-bit integer to double
+                        Write<double>(cvtd.Fd, (double)ReadInt32(cvtd.Fs));
+                        break;
                     case TypeFInstruction.LongFixedPrecisionFormat:
-                        eventBus.Publish(new UnsupportedFormatEvent());
+                        // cvt.d.l - convert 64-bit integer to double
+                        Write<double>(cvtd.Fd, (double)ReadInt64(cvtd.Fs));
                         break;
                 }
                 break;
@@ -100,8 +154,12 @@ public partial class Monocycle {
                         Write(cvts.Fd, (float)Read<double>(cvts.Fs));
                         break;
                     case TypeFInstruction.WordFixedPrecisionFormat:
+                        // cvt.s.w - convert 32-bit integer to float
+                        Write<float>(cvts.Fd, (float)ReadInt32(cvts.Fs));
+                        break;
                     case TypeFInstruction.LongFixedPrecisionFormat:
-                        eventBus.Publish(new UnsupportedFormatEvent());
+                        // cvt.s.l - convert 64-bit integer to float
+                        Write<float>(cvts.Fd, (float)ReadInt64(cvts.Fs));
                         break;
                 }
                 break;
@@ -214,8 +272,8 @@ public partial class Monocycle {
        
         void InvalidOp() {
             eventBus.Publish(new InvalidOperationEvent {
-                Address = (ulong)Registers.Get(MipsGprRegisters.Pc),
-                Word = (uint)BytesToInt32(instructionBuffer.Span)
+                Address = currentAddress,
+                Word = currentWord
             });
         }
         
@@ -276,6 +334,19 @@ public partial class Monocycle {
             T b = Read<T>(ft);
             T r = op(a, b);
             Write(fd, r);
+        }
+
+        int ReadInt32(int reg) {
+            // 32-bit integer in a single FPU register
+            return Registers.Get<MipsFpuRegisters>(reg);
+        }
+
+        long ReadInt64(int reg) {
+            // 64-bit integer in two FPU registers (reg and reg+1)
+            // High 32 bits in reg, low 32 bits in reg+1 (big-endian style like double)
+            long high = (long)(uint)Registers.Get<MipsFpuRegisters>(reg);
+            long low = (long)(uint)Registers.Get<MipsFpuRegisters>(reg + 1);
+            return (high << 32) | low;
         }
         
         bool Compare<T>(T a, T b, byte cond) where T : IEquatable<T>, IFloatingPoint<T> {
@@ -374,7 +445,5 @@ public partial class Monocycle {
             }
         }
     }
-    
-    
-        
 }
+

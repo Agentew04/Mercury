@@ -1,4 +1,4 @@
-﻿using Mercury.Engine.Common;
+using Mercury.Engine.Common;
 using Mercury.Engine.Common.Events;
 using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Instructions;
@@ -51,6 +51,8 @@ public sealed partial class Monocycle : ICpuModule {
         this.eventBus = bus;
         subscriptions.Add(bus.Subscribe<ClockEvent>(async _ => await ClockAsync()));
         subscriptions.Add(bus.Subscribe<HaltEvent>(e => Halt(e.ExitCode, publish: false)));
+        subscriptions.Add(bus.Subscribe<BranchRequestEvent>(e => BranchTo(e.Offset)));
+        subscriptions.Add(bus.Subscribe<FpuFlagsChangedEvent>(_ => OnFlagUpdate?.Invoke()));
     }
 
     public void UnsubscribeFromEvents() {

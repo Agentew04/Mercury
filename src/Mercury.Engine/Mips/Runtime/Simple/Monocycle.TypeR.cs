@@ -1,4 +1,4 @@
-﻿using Mercury.Engine.Common;
+using Mercury.Engine.Common;
 using Mercury.Engine.Mips.Instructions;
 using Mercury.Engine.Mips.Runtime.Events;
 
@@ -53,6 +53,14 @@ public partial class Monocycle {
             }
             case Mtlo mtlo: {
                 Registers.Set<MipsGprRegisters>(mtlo.Rs, Registers.Get(MipsGprRegisters.Lo));
+                break;
+            }
+            case Mthi mthi: {
+                Registers.Set(MipsGprRegisters.Hi, Registers.Get<MipsGprRegisters>(mthi.Rs));
+                break;
+            }
+            case Mfhi mfhi: {
+                Registers.Set<MipsGprRegisters>(mfhi.Rd, Registers.Get(MipsGprRegisters.Hi));
                 break;
             }
             case Mflo mflo: {

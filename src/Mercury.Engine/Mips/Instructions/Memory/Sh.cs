@@ -1,0 +1,24 @@
+﻿using Mercury.Engine.Common;
+using Mercury.Engine.Generators.Instruction;
+
+namespace Mercury.Engine.Mips.Instructions;
+
+/// <summary>
+/// Store halfword. Format: I, opcode 0x29.
+/// </summary>
+[Instruction]
+[FormatExact(31,26,41)] // opcode
+public partial class Sh : IInstruction {
+
+    [Field(25,21)]
+    public byte Base { get; set; }
+    
+    [Field(20,16)]
+    public byte Rt { get; set; }
+    
+    [Field(15,0)]
+    public short Offset { get; set; }
+    
+    public override string ToString() => $"sh ${Instruction.TranslateRegisterName(Rt)}, {Offset}(${Instruction.TranslateRegisterName(Base)})";
+}
+

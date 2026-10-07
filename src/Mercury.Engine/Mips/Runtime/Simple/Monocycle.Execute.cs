@@ -1,4 +1,4 @@
-﻿using Mercury.Engine.Common;
+using Mercury.Engine.Common;
 using Mercury.Engine.Mips.Instructions;
 using Mercury.Engine.Mips.Runtime.Events;
 
@@ -18,11 +18,18 @@ public partial class Monocycle {
             return;
         }
 
-        if (await ExecuteTypeF(instruction)) {
+        if (instruction is Nop) {
             return;
         }
 
-        if (instruction is Nop) {
+        // CPU does not know this instruction: let other modules (e.g. FPU) try
+        UnhandledInstructionEvent unhandled = new() {
+            Instruction = instruction,
+            Word = (uint)BytesToInt32(instructionBuffer.Span),
+            Address = (ulong)Registers.Get(MipsGprRegisters.Pc)
+        };
+        eventBus.Publish(unhandled);
+        if (unhandled.Handled) {
             return;
         }
         
