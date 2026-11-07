@@ -16,6 +16,8 @@ public partial class Bc1T : IInstruction {
     [Field(15,0)]
     public short Offset { get; set; }
 
+    public int OffsetShifted => Offset << 2;
+
     public override string ToString() => $"bc1f {Offset<<2:X4}";
 
 }

@@ -6,6 +6,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [Instruction]
 [FormatExact(31,26,0)]
 [FormatExact(10,0,11)] // funct
+[AssemblyFormat("movn ${Rd:reg}, ${Rs:reg}, ${Rt:reg}")]
 public partial class Movn : IInstruction {
 
     [Field(25,21)]
@@ -16,6 +17,4 @@ public partial class Movn : IInstruction {
     
     [Field(15,11)]
     public byte Rd { get; set; }
-    
-    public override string ToString() => $"movn ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rs)}, ${Instruction.TranslateRegisterName(Rt)}";
 }

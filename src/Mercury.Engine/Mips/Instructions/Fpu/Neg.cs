@@ -8,6 +8,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(20,16,0)]
 [FormatExact(25,21,[16,17,20])]
 [FormatExact(5,0,7)]
+[AssemblyFormat("neg.{Fmt:fmt} ${Fd:fpreg}, ${Fs:fpreg}")]
 public partial class Neg : IInstruction {
 
     [Field(25,21)]
@@ -20,6 +21,4 @@ public partial class Neg : IInstruction {
     public byte Fd { get; set; }
 
     public bool IsDouble => Fmt == Instruction.DoublePrecisionFormat;
-
-    public override string ToString() => $"neg.{Instruction.FpuFormatFmt(Fmt)} ${Instruction.FpuTranslateRegisterName(Fd)}, ${Instruction.FpuTranslateRegisterName(Fs)}";
 }

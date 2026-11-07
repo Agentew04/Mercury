@@ -5,6 +5,7 @@ namespace Mercury.Engine.Mips.Instructions;
 
 [Instruction]
 [FormatExact(31,26,9)]
+[AssemblyFormat("addiu ${Rt:reg}, ${Rs:reg}, {Immediate}")]
 public partial class Addiu : IInstruction {
 
     [Field(25,21)]
@@ -15,7 +16,4 @@ public partial class Addiu : IInstruction {
     
     [Field(15,0)]
     public short Immediate { get; set; }
-
-    public override string ToString() =>
-        $"addiu ${Instruction.TranslateRegisterName(Rt)}, ${Instruction.TranslateRegisterName(Rs)}, {Immediate}";
 }

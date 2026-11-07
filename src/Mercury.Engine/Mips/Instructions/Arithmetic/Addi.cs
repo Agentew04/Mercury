@@ -16,7 +16,4 @@ public partial class Addi : IInstruction {
     
     [Field(15,0)]
     public short Immediate { get; set; }
-
-    // public override string ToString() =>
-    //     $"addi ${Instruction.TranslateRegisterName(Rt)}, ${Instruction.TranslateRegisterName(Rs)}, {Immediate}";
 }

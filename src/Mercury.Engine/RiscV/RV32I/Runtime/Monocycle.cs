@@ -19,6 +19,7 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
 
     public void SubscribeToEvents(EventBus bus) {
         eventBus = bus;
+        byteSource = new MemoryByteSource(bus, endianness);
         subscriptions.Add(bus.Subscribe<ClockEvent>(async _ => await ClockAsync()));
         subscriptions.Add(bus.Subscribe<HaltEvent>(e => Halt(e.ExitCode, publish: false)));
     }
@@ -37,7 +38,7 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
 
     private bool isHalted;
     private Endianness endianness = Endianness.LittleEndian;
-    private MemoryInstructionSource instructionSource = null!;
+    private MemoryByteSource byteSource = null!;
     private readonly List<IInstructionExtension> instructionExtensions = [];
     private readonly Memory<byte> instructionBuffer = new byte[4];
     private readonly InstructionPool instructionPool = new();
@@ -57,29 +58,30 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
     
         // read instruction from PC
         ulong pc = (ulong)Registers.Get(Rv32Gpr.Pc);
-        ReadMemory(pc,instructionBuffer);
-        uint instructionBinary = (uint)BytesToInt32(instructionBuffer.Span);
-        IInstruction? instruction = Decode(instructionBinary);
+        byteSource.StartAt(pc);
+        IInstruction? instruction = Decode(byteSource);
         if (instruction is null) {
             eventBus.Publish(new UnknownInstructionEvent { // TODO: this event is from mips runtime
                 Address = pc,
-                InstructionWord = instructionBinary
+                InstructionWord = ReadFetchedWord(byteSource, 4)
             });
             Halt(-1);
             return;
         }
+        FillInstructionBuffer(byteSource, instruction.Size);
         // execute
         await Execute(instruction);
         
         // next
-        Registers.Set(Rv32Gpr.Pc, (int)(pc + 4));
+        Registers.Set(Rv32Gpr.Pc, (int)(pc + (uint)instruction.Size));
     }
 
-    private IInstruction? Decode(uint instructionBinary) {
+    private IInstruction? Decode(IInstructionByteSource source) {
         // check if it's a base ISA instruction
-        IInstruction? instruction = Disassembler.Disassemble(instructionBinary, instructionPool);
+        IInstruction? instruction = Disassembler.Disassemble(source, instructionPool);
         if(instruction is null) {
             // try to check if any extensions recognize this instruction
+            uint instructionBinary = ReadFetchedWord(source, 4);
             foreach (var extension in instructionExtensions) {
                 instruction = extension.Decode(instructionBinary);
                 if (instruction is not null) {

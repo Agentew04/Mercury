@@ -5,6 +5,7 @@ namespace Mercury.Engine.Mips.Instructions;
 
 [Instruction]
 [FormatExact(31,28,4)]
+[AssemblyFormat("cop{Coprocessor} {Function:X7}")]
 public partial class Copz : IInstruction{
     
     [Field(27,26)]
@@ -12,6 +13,4 @@ public partial class Copz : IInstruction{
     
     [Field(25,0)]
     public int Function { get; set; }
-
-    public override string ToString() => $"cop{Coprocessor} {Function:X7}";
 }

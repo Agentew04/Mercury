@@ -7,6 +7,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(31,26,0)] // opcode
 [FormatExact(25,21,0)] // rs
 [FormatExact(5,0,3)] // funct
+[AssemblyFormat("sra ${Rd:reg}, ${Rt:reg}, {ShiftAmount}")]
 public partial class Sra : IInstruction {
     
     [Field(20,16)]
@@ -17,6 +18,4 @@ public partial class Sra : IInstruction {
     
     [Field(10,6)]
     public short ShiftAmount { get; set; }
-
-    public override string ToString() => $"sra ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rt)}, {ShiftAmount}";
 }

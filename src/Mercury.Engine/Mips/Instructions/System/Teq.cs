@@ -9,6 +9,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [Instruction]
 [FormatExact(31,26,0)]
 [FormatExact(5,0,52)]
+[AssemblyFormat("teq ${Rs:reg}, ${Rt:reg}")]
 public partial class Teq : IInstruction {
 
     [Field(25,21)]
@@ -19,6 +20,4 @@ public partial class Teq : IInstruction {
     
     [Field(15,6)]
     public short Code { get; set; }
-    
-    public override string ToString() => $"teq ${Instruction.TranslateRegisterName(Rs)}, ${Instruction.TranslateRegisterName(Rt)}";
 }

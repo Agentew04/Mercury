@@ -50,10 +50,6 @@ public class MemoryBuilder : IBuilder<Memory>
         return this;
     }
 
-    public MemoryBuilder WithEndianess(Endianess endianess) {
-        return endianess switch {
-            Endianess.BigEndian => WithBigEndian(),
-            Endianess.LittleEndian => WithLittleEndian(),
     public MemoryBuilder WithEndianess(Endianness endianness) {
         return endianness switch {
             Endianness.BigEndian => WithBigEndian(),

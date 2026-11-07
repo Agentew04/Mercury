@@ -5,6 +5,7 @@ namespace Mercury.Engine.Mips.Instructions;
 
 [Instruction]
 [FormatExact(31,26,35)]
+[AssemblyFormat("lw ${Rt:reg}, {Offset}(${Base:reg})")]
 public partial class Lw : IInstruction {
 
     [Field(25,21)]
@@ -15,6 +16,4 @@ public partial class Lw : IInstruction {
     
     [Field(15,0)]
     public short Offset { get; set; }
-    
-    public override string ToString() => $"lw ${Instruction.TranslateRegisterName(Rt)}, {Offset}(${Instruction.TranslateRegisterName(Base)})";
 }

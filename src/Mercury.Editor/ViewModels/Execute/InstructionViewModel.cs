@@ -125,6 +125,8 @@ public sealed partial class InstructionViewModel : BaseViewModel<InstructionView
         bool hasSymbols = lineEnumerator.MoveNext();
         (Symbol nextSymbol, int nextLine) = lineEnumerator.Current;
 
+        Int32ByteSource byteSource = new(Endianness.BigEndian); // TODO: generalizar pro modo da cpu atual
+        
         while (address < endAddress) {
             // pega instrucao atual
             // se eh invalida:
@@ -135,7 +137,8 @@ public sealed partial class InstructionViewModel : BaseViewModel<InstructionView
             //     emite instrucao com link para linha
 
             uint instructionBinary = (uint)memory.ReadWord(address);
-            IInstruction? instruction = Disassembler.Disassemble(instructionBinary, pool);
+            byteSource.SetInstruction(instructionBinary);
+            IInstruction? instruction = Disassembler.Disassemble(byteSource, pool);
             List<string> labels;
             if (instruction is null) {
                 labels = symbols.Where(x => x.Address == address).Select(x => x.Name).ToList();
@@ -175,8 +178,9 @@ public sealed partial class InstructionViewModel : BaseViewModel<InstructionView
                 });
                 address += 4;
                 instructionBinary = (uint)memory.ReadWord(address);
+                byteSource.SetInstruction(instructionBinary);
                 try {
-                    instruction = Disassembler.Disassemble(instructionBinary, pool);
+                    instruction = Disassembler.Disassemble(byteSource, pool);
                 }
                 catch (Exception) {
                     instruction = null;

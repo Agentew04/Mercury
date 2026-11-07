@@ -107,6 +107,8 @@ internal class InstructionGenerator : IIncrementalGenerator{
                          "global::Mercury.Engine.Generators.Instruction.AssemblyFormatAttribute")
             ?.ConstructorArguments.FirstOrDefault().Value as string;
 
+        int widthBits = GetWidthBits(symbolInfo);
+
         bool hasCustomToString = symbolInfo.GetMembers("ToString")
             .Any(m => m is IMethodSymbol method && method.Parameters.Length == 0 && !method.IsImplicitlyDeclared);
 
@@ -114,8 +116,22 @@ internal class InstructionGenerator : IIncrementalGenerator{
             namespaceSymbol.ToDisplayString(), 
             symbolInfo.Name, 
             formats, fields,
+            widthBits,
             assemblyFormat,
             hasCustomToString);
+    }
+
+    private static int GetWidthBits(INamedTypeSymbol symbolInfo) {
+        AttributeData? instructionAttr = symbolInfo.GetAttributes()
+            .FirstOrDefault(attr => attr.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == 
+                         "global::Mercury.Engine.Generators.Instruction.InstructionAttribute");
+        if (instructionAttr is null || instructionAttr.ConstructorArguments.Length == 0) {
+            return 32;
+        }
+        if (instructionAttr.ConstructorArguments[0].Value is int widthBits && widthBits > 0) {
+            return widthBits;
+        }
+        return 32;
     }
 
     private static EquatableArray<FormatInfo> GetFormats(INamedTypeSymbol symbol) {

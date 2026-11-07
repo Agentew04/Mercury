@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+using System;
+using System.Buffers.Binary;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
@@ -9,53 +10,120 @@ namespace Mercury.Generators.Instruction;
 
 internal static class ImplementationEmitter {
     public static void Emit(SourceProductionContext spc, InstructionInfo instruction, ImmutableArray<FormatterMethodInfo> formatters) {
-        StringBuilder fromIntSb = new();
-        foreach (FieldInfo field in instruction.Fields) {
-            if (field.IsSigned) {
-                fromIntSb.AppendLine(string.Format(InstructionTemplates.PartialInstructionSignedFieldExtract,
-                    field.FieldName,
-                    field.FieldType,
-                    field.BitStart,
-                    "0b" + new string('1', field.BitEnd - field.BitStart + 1),
-                    field.BitEnd - field.BitStart + 1));
-            }
-            else {
-                // default case
-                fromIntSb.AppendLine(string.Format(InstructionTemplates.PartialInstructionFieldExtract,
-                    field.FieldName,
-                    field.FieldType,
-                    field.BitStart,
-                    "0b" + new string('1', field.BitEnd - field.BitStart + 1)));
-            }
+        if (instruction.WidthBits <= 0 || instruction.WidthBits % 8 != 0) {
+            spc.ReportDiagnostic(Diagnostic.Create(
+                InstructionDiagnostics.InvalidInstructionWidth,
+                Location.None,
+                instruction.WidthBits));
         }
 
-        string toIntCode = GenerateToIntCode(instruction);
+        string fromBytesCode = GenerateFromBytesBody(instruction);
+        
+        string toBytesCode = GenerateToBytesBody(instruction);
 
-        string additionalMembers = "";
+        StringBuilder sbAdditionalMembers = new();
         if (!instruction.HasCustomToString && instruction.AssemblyFormat is not null) {
-            string? toStringExpr = ConvertFormatToInterpolatedString(spc, instruction, formatters);
+            string? toStringExpr = ConvertFormatToInterpolatedString(instruction, formatters);
             if (toStringExpr is not null) {
-                additionalMembers = $@"
-        public override string ToString() => {toStringExpr};
-";
+                sbAdditionalMembers.AppendLine($"    public override string ToString() => {toStringExpr};");
             }
         }
+
+        sbAdditionalMembers.AppendLine(
+            """
+                public uint ConvertToInt(global::Mercury.Engine.Memory.Endianness endianness) {
+                    Span<byte> buffer = stackalloc byte[4];
+                    ToBytes(buffer, endianness);
+                    if(endianness == global::Mercury.Engine.Memory.Endianness.BigEndian){
+                        return global::System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(buffer);
+                    }else{
+                        return global::System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(buffer);
+                    }
+                }
+
+            """
+        );
 
         string code = string.Format(InstructionTemplates.PartialInstruction,
             instruction.Namespace,
             instruction.ClassName,
-            fromIntSb,
-            toIntCode,
-            additionalMembers
+            instruction.Size,
+            fromBytesCode,
+            toBytesCode,
+            sbAdditionalMembers
         );
-        spc.AddSource($"{instruction.Namespace}.{instruction.ClassName}.g.cs", SourceText.From(code, Encoding.UTF8));
+        spc.AddSource($"Mercury.Generators/Instructions/{instruction.Namespace}/{instruction.ClassName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
 
-    private static string? ConvertFormatToInterpolatedString(
-        SourceProductionContext spc,
-        InstructionInfo instruction,
-        ImmutableArray<FormatterMethodInfo> formatters) {
+    private static string GenerateFromBytesBody(InstructionInfo instruction) {
+        StringBuilder sb = new();
+        foreach (FieldInfo field in instruction.Fields) {
+            if (field.IsSigned) {
+                sb.AppendLine(string.Format(InstructionTemplates.PartialInstructionSignedFieldExtract,
+                    field.FieldName,
+                    field.FieldType,
+                    field.BitStart,
+                    field.BitEnd,
+                    field.BitEnd - field.BitStart + 1));
+            }
+            else {
+                sb.AppendLine(string.Format(InstructionTemplates.PartialInstructionFieldExtract,
+                    field.FieldName,
+                    field.FieldType,
+                    field.BitStart,
+                    field.BitEnd));
+            }
+        }
 
+        return sb.ToString();
+    }
+    
+    /// <summary>
+    /// Builds the <c>ToBytes</c> body: clears the destination and writes every format literal and
+    /// field through <see cref="InstructionBits.WriteBits"/>. Works for instructions of any width.
+    /// </summary>
+    private static string GenerateToBytesBody(InstructionInfo instruction) {
+        StringBuilder sb = new();
+        sb.AppendLine("        bytes.Clear();");
+
+        // format literals
+        foreach (FormatInfo format in instruction.Formats) {
+            if (format.InfoType != FormatInfoType.Exact) {
+                continue;
+            }
+            if (format.Values.Count != 1) {
+                continue;
+            }
+            if (format.Values[0] == 0) {
+                continue;
+            }
+            sb.AppendLine(string.Format(
+                "        global::Mercury.Engine.Common.InstructionBits.WriteBitsFast(bytes, Size, {0}, {1}, {2}UL, endianness);",
+                format.BitStart,
+                format.BitEnd,
+                (uint)format.Values[0]));
+        }
+
+        // fields
+        foreach (FieldInfo field in instruction.Fields) {
+            sb.AppendLine(string.Format(
+                "        global::Mercury.Engine.Common.InstructionBits.WriteBitsFast(bytes, Size, {0}, {1}, (global::System.UInt64)({2}), endianness);",
+                field.BitStart,
+                field.BitEnd,
+                field.FieldName));
+        }
+
+        return sb.ToString();
+    }
+
+    private static string? ConvertFormatToInterpolatedString(InstructionInfo instruction, ImmutableArray<FormatterMethodInfo> formatters) {
+
+        /*
+         * Formato esperado:
+         *
+         * (.|{PROP(:FMT)?})+
+         */
+        
         string format = instruction.AssemblyFormat!;
         StringBuilder sb = new();
         sb.Append("$\"");
@@ -164,86 +232,4 @@ internal static class ImplementationEmitter {
         }
         return false;
     }
-
-    private static string GenerateToIntCode(InstructionInfo instruction) {
-        List<Part> parts = [];
-        
-        // process formats
-        foreach (FormatInfo format in instruction.Formats) {
-            if (format.InfoType != FormatInfoType.Exact) {
-                continue;
-            }
-
-            if (format.Values.Count != 1) {
-                continue;
-            }
-
-            if (format.Values[0] == 0) {
-                continue;
-            }
-
-            Part p = new Part() {
-                Offset = format.BitStart,
-                Size = format.BitEnd - format.BitStart + 1,
-                IsLiteral = true,
-                LiteralValue = format.Values[0]
-            };
-            parts.Add(p);
-        }
-        
-        // process fields
-        foreach (FieldInfo field in instruction.Fields) {
-            Part p = new() {
-                Offset = field.BitStart,
-                Size = field.BitEnd - field.BitStart + 1,
-                IsLiteral = false,
-                VariableValue = field.FieldName
-            };
-            parts.Add(p);
-        }
-
-        if (parts.Count == 0) {
-            return "        return 0;";
-        }
-
-        StringBuilder sb = new();
-        sb.AppendLine("        return (uint)(");
-        for (int i = 0; i < parts.Count; i++) {
-            Part p = parts[i];
-            sb.Append("            ");
-            if (i != 0) {
-                sb.Append("| ");
-            }
-            sb.Append('(');
-            if (p.IsLiteral) {
-                // calculate at compile time
-                int value = (p.LiteralValue & ((1 << p.Size)-1)) << p.Offset;
-                sb.Append(value.ToString());
-            }
-            else {
-                sb.Append('(');
-                sb.Append(p.VariableValue);
-                sb.Append(" & 0b");
-                sb.Append(new string('1', p.Size));
-                sb.Append(')');
-                if (p.Offset > 0) {
-                    sb.Append(" << ");
-                    sb.Append(p.Offset);
-                }
-            }
-            sb.AppendLine(")");
-        }
-
-        sb.Append("        );");
-
-        return sb.ToString();
-    }
-
-    private struct Part {
-        public int Offset;
-        public int Size;
-        public bool IsLiteral;
-        public int LiteralValue;
-        public string VariableValue;
-    } 
 }

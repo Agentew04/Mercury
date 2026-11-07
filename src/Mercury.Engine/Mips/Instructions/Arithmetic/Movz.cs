@@ -6,6 +6,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [Instruction]
 [FormatExact(31,26,0)]
 [FormatExact(10,0,10)]
+[AssemblyFormat("movz ${Rd:reg}, ${Rs:reg}, ${Rt:reg}")]
 public partial class Movz : IInstruction {
 
     [Field(25,21)]
@@ -16,6 +17,4 @@ public partial class Movz : IInstruction {
     
     [Field(15,11)]
     public byte Rd { get; set; }
-    
-    public override string ToString() => $"movz ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rs)}, ${Instruction.TranslateRegisterName(Rt)}";
 }

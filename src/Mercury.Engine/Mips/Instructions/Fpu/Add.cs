@@ -7,6 +7,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(31,26,17)]
 [FormatExact(25,21,[16,17,20])]
 [FormatExact(5,0,0)]
+[AssemblyFormat("add.{Format:fmt} ${Fd:fpreg}, ${Fs:fpreg}, ${Ft:fpreg}")]
 public partial class AddFloat : IInstruction {
     
     [Field(25,21)]
@@ -22,7 +23,5 @@ public partial class AddFloat : IInstruction {
     public byte Fd { get; private set; }
     
     public bool IsDouble => Format == Instruction.DoublePrecisionFormat;
-
-    public override string ToString() => $"add.{Instruction.FpuFormatFmt(Format)} ${Instruction.FpuTranslateRegisterName(Fd)}, ${Instruction.FpuTranslateRegisterName(Fs)}, ${Instruction.FpuTranslateRegisterName(Ft)}";
 
 }

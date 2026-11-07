@@ -7,6 +7,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(31,26,0)]
 [FormatExact(10,6,0)]
 [FormatExact(5,0,4)]
+[AssemblyFormat("sllv ${Rd:reg}, ${Rt:reg}, ${Rs:reg}")]
 public partial class Sllv : IInstruction {
 
     [Field(25,21)]
@@ -17,6 +18,4 @@ public partial class Sllv : IInstruction {
     
     [Field(15,11)]
     public byte Rd { get; set; }
-    
-    public override string ToString() => $"sllv ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rt)}, ${Instruction.TranslateRegisterName(Rs)}";
 }

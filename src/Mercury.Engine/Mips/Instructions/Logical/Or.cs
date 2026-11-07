@@ -7,6 +7,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(31,26,0)] // opcode
 [FormatExact(10,6,0)] // shift
 [FormatExact(5,0,37)] // funct
+[AssemblyFormat("or ${Rd:reg}, ${Rs:reg}, ${Rt:reg}")]
 public partial class Or : IInstruction {
 
     [Field(25,21)]
@@ -18,6 +19,4 @@ public partial class Or : IInstruction {
     [Field(15,11)]
     public byte Rd { get; set; }
     
-    
-    public override string ToString() => $"or ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rs)}, ${Instruction.TranslateRegisterName(Rt)}";
 }

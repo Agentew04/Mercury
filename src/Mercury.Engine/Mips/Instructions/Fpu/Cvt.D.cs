@@ -8,6 +8,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(20,16,0)] // rt
 [FormatExact(25,21,[16,17,20])] // rs
 [FormatExact(5,0,33)] // funct
+[AssemblyFormat("cvt.d.{Format:fmt} ${Fd:fpreg}, ${Fs:fpreg}")]
 public partial class CvtD : IInstruction {
     
     [Field(25,21)]
@@ -20,7 +21,4 @@ public partial class CvtD : IInstruction {
     public byte Fd { get; private set; }
 
     public bool IsDouble => Format == Instruction.DoublePrecisionFormat;
-    
-    public override string ToString() => $"cvt.d.{Instruction.FpuFormatFmt(Format)} ${Instruction.FpuTranslateRegisterName(Fd)}, ${Instruction.FpuTranslateRegisterName(Fs)}";
-
 }

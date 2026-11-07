@@ -40,7 +40,7 @@ public static class InstructionDiagnostics {
     public static readonly DiagnosticDescriptor FormattingAmbiguity = new(
         id: "MRCY0005",
         title: "Instruction format is ambiguous",
-        messageFormat: "Fields and Formats must cover all 32 bits space of the binary representation: coverage hex {0}",
+        messageFormat: "Fields and Formats must cover the whole binary representation of the instruction. Expected mask {0}, got {1}.",
         category: "Usage",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
@@ -65,6 +65,14 @@ public static class InstructionDiagnostics {
         id: "MRCY0008",
         title: "Unknown assembly format placeholder",
         messageFormat: "Assembly format placeholder '{0}' does not refer to a property or field decorated with [Field]",
+        category: "Usage",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    public static readonly DiagnosticDescriptor InvalidInstructionWidth = new(
+        id: "MRCY0009",
+        title: "Invalid instruction width",
+        messageFormat: "Instruction width must be a positive multiple of 8 bits. Declared width: {0} bits.",
         category: "Usage",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true);

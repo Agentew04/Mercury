@@ -14,7 +14,7 @@ public partial class Monocycle {
                 if (IsOverflowed(a,b,result)) {
                     await InvokeSignal(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
-                        Instruction = (int)add.ConvertToInt(),
+                        Instruction = (int)FetchedWord,
                         ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                     break;
@@ -107,7 +107,7 @@ public partial class Monocycle {
                     // dont change rd, trap
                     await InvokeSignal(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
-                        Instruction = (int)sub.ConvertToInt(),
+                        Instruction = (int)FetchedWord,
                         ProgramCounter = Registers.Get(MipsGprRegisters.Pc),
                     });
                 } else {
@@ -169,7 +169,7 @@ public partial class Monocycle {
             case Break @break: {
                 await InvokeSignal(new SignalExceptionEventArgs() {
                     Signal = SignalExceptionEventArgs.SignalType.Breakpoint,
-                    Instruction = (int)@break.ConvertToInt(),
+                    Instruction = (int)FetchedWord,
                     ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                 });
                 break;
@@ -183,7 +183,7 @@ public partial class Monocycle {
                     A3 = (uint)Registers.Get(MipsGprRegisters.A3),
                     F12 = (uint)Registers.Get(MipsFpuRegisters.F12),
                     F13 = (uint)Registers.Get(MipsFpuRegisters.F13),
-                    Instruction = syscall.ConvertToInt(),
+                    Instruction = FetchedWord,
                     RespondV0 = v => Registers.Set(MipsGprRegisters.V0, v),
                     RespondA0 = v => Registers.Set(MipsGprRegisters.A0, v),
                     RespondA1 = v => Registers.Set(MipsGprRegisters.A1, v),
@@ -196,7 +196,7 @@ public partial class Monocycle {
                 if (Registers.Get<MipsGprRegisters>(teq.Rs) == Registers.Get<MipsGprRegisters>(teq.Rt)) {
                     await InvokeSignal(new SignalExceptionEventArgs {
                         Signal = SignalExceptionEventArgs.SignalType.Trap,
-                        Instruction = (int)teq.ConvertToInt(),
+                        Instruction = (int)FetchedWord,
                         ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                 }

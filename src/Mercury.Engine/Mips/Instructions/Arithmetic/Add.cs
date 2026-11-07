@@ -7,6 +7,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(31,26,0)]
 [FormatExact(10,6,0)]
 [FormatExact(5,0,32)]
+[AssemblyFormat("add ${Rd:reg}, ${Rs:reg}, ${Rt:reg}")]
 public partial class Add : IInstruction {
 
     [Field(25,21)]
@@ -17,8 +18,4 @@ public partial class Add : IInstruction {
     
     [Field(15,11)]
     public byte Rd { get; set; }
-
-    public override string ToString() =>
-        $"add ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rs)}, " +
-        $"${Instruction.TranslateRegisterName(Rt)}";
 }

@@ -5,6 +5,7 @@ namespace Mercury.Engine.Mips.Instructions;
 
 [Instruction]
 [FormatExact(31,28,12)]
+[AssemblyFormat("lwc{Coprocessor} ${Ft:fpreg}, {Offset:X4}(${Base:fpreg})")]
 public partial class Lwcz : IInstruction {
     
     [Field(27,26)]
@@ -18,6 +19,4 @@ public partial class Lwcz : IInstruction {
     
     [Field(15,0)]
     public short Offset { get; set; }
-    
-    public override string ToString() => $"lwc{Coprocessor} ${Instruction.FpuTranslateRegisterName(Ft)}, {Offset:X4}(${Instruction.FpuTranslateRegisterName(Base)})";
 }

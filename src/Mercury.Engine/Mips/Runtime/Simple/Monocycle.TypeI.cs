@@ -15,7 +15,7 @@ public partial class Monocycle {
                 if (IsOverflowed(Registers.Get<MipsGprRegisters>(addi.Rs), addi.Immediate, result)) {
                     await InvokeSignal(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.IntegerOverflow,
-                        Instruction = (int)addi.ConvertToInt(),
+                        Instruction = (int)FetchedWord,
                         ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                     break;
@@ -113,7 +113,7 @@ public partial class Monocycle {
                 ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(lh.Base) + lh.Offset);
                 if (address % 2 != 0) {
                     eventBus.Publish(new UnalignedMemoryAccessEvent {
-                        InstructionWord = lh.ConvertToInt(),
+                        InstructionWord = FetchedWord,
                         AccessSize = 2,
                         InstructionAddress = (ulong)Registers.Get(MipsGprRegisters.Pc),
                         MemoryAddress = address
@@ -129,7 +129,7 @@ public partial class Monocycle {
                 ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(lhu.Base) + lhu.Offset);
                 if (address % 2 != 0) {
                     eventBus.Publish(new UnalignedMemoryAccessEvent {
-                        InstructionWord = lhu.ConvertToInt(),
+                        InstructionWord = FetchedWord,
                         AccessSize = 2,
                         InstructionAddress = (ulong)Registers.Get(MipsGprRegisters.Pc),
                         MemoryAddress = address
@@ -149,7 +149,7 @@ public partial class Monocycle {
                 ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(lw.Base) + lw.Offset);
                 if((address & 0b11) != 0) {
                     eventBus.Publish(new UnalignedMemoryAccessEvent {
-                        InstructionWord =  lw.ConvertToInt(),
+                        InstructionWord = FetchedWord,
                         AccessSize = 4,
                         InstructionAddress = (ulong)Registers.Get(MipsGprRegisters.Pc),
                         MemoryAddress = address
@@ -172,7 +172,7 @@ public partial class Monocycle {
                 ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(sh.Base) + sh.Offset);
                 if((address & 0b1) != 0) {
                     eventBus.Publish(new UnalignedMemoryAccessEvent {
-                        InstructionWord = sh.ConvertToInt(),
+                        InstructionWord = FetchedWord,
                         AccessSize = 2,
                         InstructionAddress = (ulong)Registers.Get(MipsGprRegisters.Pc),
                         MemoryAddress = address
@@ -189,7 +189,7 @@ public partial class Monocycle {
                 ulong address = (ulong)((uint)Registers.Get<MipsGprRegisters>(sw.Base) + sw.Offset);
                 if ((address & 0b11) != 0) {
                     eventBus.Publish(new UnalignedMemoryAccessEvent {
-                        InstructionWord = sw.ConvertToInt(),
+                        InstructionWord = FetchedWord,
                         AccessSize = 2,
                         InstructionAddress = (ulong)Registers.Get(MipsGprRegisters.Pc),
                         MemoryAddress = address
@@ -205,7 +205,7 @@ public partial class Monocycle {
                 if (Registers.Get<MipsGprRegisters>(teqi.Rs) == teqi.Immediate) {
                     await InvokeSignal(new SignalExceptionEventArgs() {
                         Signal = SignalExceptionEventArgs.SignalType.Trap,
-                        Instruction = (int)teqi.ConvertToInt(),
+                        Instruction = (int)FetchedWord,
                         ProgramCounter = Registers.Get(MipsGprRegisters.Pc)
                     });
                 }
@@ -222,7 +222,7 @@ public partial class Monocycle {
                 }else {
                     eventBus.Publish(new UnsupportedCoprocessorEvent() {
                         Address = (uint)Registers.Get(MipsGprRegisters.Pc),
-                        Instruction = lwcz.ConvertToInt(),
+                        Instruction = FetchedWord,
                         Value = lwcz.Coprocessor
                     });
                 }
@@ -238,7 +238,7 @@ public partial class Monocycle {
                 }else {
                     eventBus.Publish(new UnsupportedCoprocessorEvent() {
                         Address = (uint)Registers.Get(MipsGprRegisters.Pc),
-                        Instruction = swcz.ConvertToInt(),
+                        Instruction = FetchedWord,
                         Value = swcz.Coprocessor
                     });
                     break;

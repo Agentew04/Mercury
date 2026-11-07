@@ -7,6 +7,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(31,26,17)]
 [FormatExact(25,21,2)]
 [FormatExact(10,0,0)]
+[AssemblyFormat("cfc1 ${Rt:reg}, ${Fs:fpreg}")]
 public partial class Cfc1 : IInstruction {
     
     [Field(20,16)]
@@ -14,6 +15,4 @@ public partial class Cfc1 : IInstruction {
     
     [Field(15,11)]
     public byte Fs { get; set; }
-
-    public override string ToString() => $"cfc1 ${Instruction.TranslateRegisterName(Rt)}, ${Instruction.FpuTranslateRegisterName(Fs)}";
 }

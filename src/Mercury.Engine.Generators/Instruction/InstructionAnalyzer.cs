@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -194,7 +195,11 @@ internal class InstructionAnalyzer : DiagnosticAnalyzer {
             return;
         }
 
-        uint coverage = 0;
+        int widthBits = GetInstructionWidth(symbol);
+        BigInteger expected = BigInteger.One << widthBits;
+        expected -= BigInteger.One;
+
+        BigInteger coverage = 0;
         
         // process formatting
         foreach (AttributeData? attribute in symbol.GetAttributes()) {
@@ -210,8 +215,7 @@ internal class InstructionAnalyzer : DiagnosticAnalyzer {
             if (min > max) {
                 (min, max) = (max, min);
             }
-            uint mask = (uint)((((long)1 << (max - min + 1)) - 1) << min);
-            coverage |= mask;
+            coverage |= BitSpanMask(min, max);
         }
 
         // process fields
@@ -230,17 +234,41 @@ internal class InstructionAnalyzer : DiagnosticAnalyzer {
             if (min > max) {
                 (min, max) = (max, min);
             }
-            uint mask = (uint)(((1 << (max - min + 1)) - 1) << min);
-            coverage |= mask;
+            coverage |= BitSpanMask(min, max);
         }
-        if (coverage != uint.MaxValue) {
+        if (coverage != expected) {
             var diagnostic = Diagnostic.Create(
                 InstructionDiagnostics.FormattingAmbiguity,
                 symbol.Locations[0],
-                coverage.ToString("X8")
+                expected.ToString("X"),
+                coverage.ToString("X")
             );
             context.ReportDiagnostic(diagnostic);
         }
+    }
+
+    /// <summary>
+    /// Returns the instruction width in bits, read from the <c>[Instruction(widthBits)]</c> attribute.
+    /// </summary>
+    private static int GetInstructionWidth(INamedTypeSymbol symbol) {
+        AttributeData? instructionAttr = symbol.GetAttributes()
+            .FirstOrDefault(attr => attr.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
+                         "global::Mercury.Engine.Generators.Instruction.InstructionAttribute");
+        if (instructionAttr is not null
+            && instructionAttr.ConstructorArguments.Length > 0
+            && instructionAttr.ConstructorArguments[0].Value is int widthBits
+            && widthBits > 0) {
+            return widthBits;
+        }
+        return 32;
+    }
+
+    /// <summary>
+    /// Builds a bit mask covering the inclusive span <c>[min, max]</c>.
+    /// </summary>
+    private static BigInteger BitSpanMask(int min, int max) {
+        int span = max - min + 1;
+        return ((BigInteger.One << span) - 1) << min;
     }
     
     private static int GetBitWidth(ITypeSymbol type) {

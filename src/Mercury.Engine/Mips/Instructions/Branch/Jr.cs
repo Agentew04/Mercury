@@ -10,10 +10,9 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(31,26,0)]
 [FormatExact(20,6,0)]
 [FormatExact(5,0,8)]
+[AssemblyFormat("jr ${Rs:reg}")]
 public partial class Jr : IInstruction {
 
     [Field(25,21)]
     public byte Rs { get; set; }
-    
-    public override string ToString() => $"jr ${Instruction.TranslateRegisterName(Rs)}";
 }

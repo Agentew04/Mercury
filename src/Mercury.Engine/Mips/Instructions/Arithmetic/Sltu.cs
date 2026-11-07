@@ -7,6 +7,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(31,26,0)] // opcode
 [FormatExact(5,0,43)] // funct
 [FormatExact(10,6,0)] // shamt
+[AssemblyFormat("sltu ${Rd:reg}, ${Rt:reg}")]
 public partial class Sltu : IInstruction {
 
     [Field(25,21)]
@@ -17,6 +18,4 @@ public partial class Sltu : IInstruction {
     
     [Field(15,11)]
     public byte Rd { get; set; }
-    
-    public override string ToString() => $"sltu ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rt)}";
 }

@@ -162,6 +162,7 @@ public class ResxGenerator : IIncrementalGenerator {
 
             updates.AppendLine(
                 $"""
+                        
                          OnPropertyChanged(new("{entry.Name}"));
                          _{entry.Name}.OnNext({entry.Name});
                  """);

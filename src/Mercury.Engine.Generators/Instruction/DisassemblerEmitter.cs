@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Buffers.Binary;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -34,39 +35,99 @@ internal static class DisassemblerEmitter {
     }
 
     private static string CreateDisassembler(ImmutableArray<InstructionInfo> instructions) {
+        
+        /*
+         * Faz disassemble das menores instrucoes ateh as maiores.
+         */
+            
+        
+        int[] sizes = instructions
+            .Where(i => i.Formats.Count > 0)
+            .Select(i => i.Size)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToArray();
+
+        int minWidth;
+        int maxWidth;
+        int widthStep;
+        if (sizes.Length == 0) {
+            minWidth = 4;
+            maxWidth = 4;
+            widthStep = 4;
+        }
+        else {
+            minWidth = sizes[0];
+            maxWidth = sizes[sizes.Length - 1];
+            widthStep = sizes.Aggregate(0, Mdc); // maximo step entre os tamanhos (MDC)
+        }
+
         StringBuilder sb = new();
-
-        foreach (InstructionInfo instruction in instructions) {
-            if (instruction.Formats.Count == 0) {
-                continue;
-            }
-
-            WriteDocumentation(sb,instruction);
-            WriteCondition(sb,instruction); // writes: "if(...) {"
-            sb.AppendLine($"            pool.{instruction.ClassName} ??= new();");
-            sb.AppendLine($"            return pool.{instruction.ClassName};");
-            sb.AppendLine("        }");
-            sb.AppendLine();
+        foreach (int size in sizes) {
+            ImmutableArray<InstructionInfo> group = instructions
+                .Where(i => i.Size == size && i.Formats.Count > 0)
+                .ToImmutableArray();
+            WriteSizeBracket(sb, size, group);
         }
 
         /*
          * 0: namespace
-         * 1: return type
-         * 2: method body
-         * 3: return type
-         * 4: return type
+         * 1: instruction count
+         * 2: min width (bytes)
+         * 3: max width (bytes)
+         * 4: width step (bytes)
+         * 5: GetType body
          */
         string text = string.Format(InstructionTemplates.DisassemblerFormat,
             instructions[0].Namespace,
             instructions.Length,
+            minWidth,
+            maxWidth,
+            widthStep,
             sb);
         return text;
     }
 
+    /// <summary>
+    /// Calcula o maximo divisor comum de dois numeros.
+    /// </summary>
+    private static int Mdc(int a, int b) {
+        while (b != 0) {
+            (a, b) = (b, a % b);
+        }
+        return a;
+    }
+
+    private static void WriteSizeBracket(StringBuilder sb, int size, ImmutableArray<InstructionInfo> instructions) {
+        if (instructions.Length == 0) {
+            return;
+        }
+
+        sb.AppendLine($"        if (widthBytes == {size}) {{");
+
+        // add uint32 instruction if it fits  
+        if (size <= 4) {
+            sb.AppendLine("            uint instruction = endianness == global::Mercury.Engine.Memory.Endianness.LittleEndian ? ");
+            sb.AppendLine("                global::System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(bytes) : ");
+            sb.AppendLine("                global::System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(bytes);");
+            sb.AppendLine();
+        }
+        foreach (InstructionInfo instruction in instructions) {
+            WriteDocumentation(sb, instruction);
+            WriteCondition(sb, instruction); // writes: "if(...) {"
+            sb.AppendLine($"                pool.{instruction.ClassName} ??= new();");
+            sb.AppendLine($"                return pool.{instruction.ClassName};");
+            sb.AppendLine("            }");
+            sb.AppendLine();
+        }
+        sb.AppendLine("        }");
+        sb.AppendLine();
+    }
+    
     private static void WriteDocumentation(StringBuilder sb, InstructionInfo instruction) {
-        sb.Append("        // Instruction: ");
+        sb.Append("            // Instruction: ");
         sb.AppendLine(instruction.ClassName);
-        sb.Append("        // constraints: ");
+        sb.Append("            // constraints: ");
         bool firstFormat = true;
         foreach (FormatInfo format in instruction.Formats) {
             if (!firstFormat) {
@@ -96,7 +157,7 @@ internal static class DisassemblerEmitter {
     }
 
     private static void WriteCondition(StringBuilder sb, InstructionInfo instruction) {
-        sb.Append("        if(");
+        sb.Append("            if(");
         for (int i = 0; i < instruction.Formats.Count; i++) {
             FormatInfo formatInfo = instruction.Formats[i];
 
@@ -113,11 +174,39 @@ internal static class DisassemblerEmitter {
                     sb.Append(" || ");
                 }
 
+                bool notEquals = formatInfo.InfoType == FormatInfoType.Different && formatInfo.Values.Count == 1;
+                // troca do antigo bitwise para esse helper.
+                // bitwise seria mt complicado para instrucoes maiores que 64 bits (ulong).
+                // o helper 
+                
+                // get bits
                 sb.Append('(');
-                sb.Append(formatInfo.BitStart != 0 ? $"(instruction >> {formatInfo.BitStart}) " : "instruction ");
-                sb.Append($"& 0b{new string('1', formatInfo.BitEnd-formatInfo.BitStart+1)}) {(
-                    formatInfo.InfoType == FormatInfoType.Different && formatInfo.Values.Count == 1 ? '!' : '='
-                )}= 0x{value:X}");
+                if (instruction.Size == 4) {
+                    // 32 bit bitwise fast path
+                    int bitCount = formatInfo.BitEnd - formatInfo.BitStart + 1;
+                    uint mask = bitCount == 32 ? uint.MaxValue : (1u << bitCount) - 1;
+                    sb.Append("((instruction >> ");
+                    sb.Append(formatInfo.BitStart);
+                    sb.Append(") & 0x");
+                    sb.Append(mask.ToString("X"));
+                    sb.Append("U)");
+                }
+                else {
+                    // generic
+                    sb.Append("global::Mercury.Engine.Common.InstructionBits.ReadBitsFast(bytes, widthBytes, ");
+                    sb.Append(formatInfo.BitStart);
+                    sb.Append(", ");
+                    sb.Append(formatInfo.BitEnd);
+                    sb.Append(", endianness) ");
+                }
+                
+                // compare
+                sb.Append(notEquals ? "!=" : "==");
+                
+                // value
+                sb.Append(" 0x");
+                sb.Append(value.ToString("X"));
+                sb.Append(')');
             }
                 
             if (formatInfo.Values.Count > 1) {
@@ -125,7 +214,7 @@ internal static class DisassemblerEmitter {
             }
                 
             if(i < instruction.Formats.Count - 1) {
-                sb.Append("\n            && ");
+                sb.Append("\n                && ");
             }
         }
             

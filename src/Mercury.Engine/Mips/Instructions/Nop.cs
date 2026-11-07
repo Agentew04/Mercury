@@ -5,6 +5,6 @@ namespace Mercury.Engine.Mips.Instructions;
 
 [Instruction]
 [FormatExact(31,0,0)]
+[AssemblyFormat("nop")]
 public partial class Nop : IInstruction {
-    public override string ToString() => "nop";
 }

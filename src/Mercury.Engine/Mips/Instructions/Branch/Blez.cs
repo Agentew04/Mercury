@@ -6,6 +6,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [Instruction]
 [FormatExact(31,26,6)]
 [FormatExact(20,16,0)]
+[AssemblyFormat("blez ${Rs:reg}, 0x{Offset:X4}")]
 public partial class Blez : IInstruction {
 
     [Field(25,21)]
@@ -13,6 +14,4 @@ public partial class Blez : IInstruction {
     
     [Field(15,0)]
     public short Offset { get; set; }
-    
-    public override string ToString() => $"blez ${Instruction.TranslateRegisterName(Rs)}, 0x{Offset:X4}";
 }

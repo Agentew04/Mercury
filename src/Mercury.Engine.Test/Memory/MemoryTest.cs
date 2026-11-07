@@ -262,7 +262,7 @@ public class MemoryTest {
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512,
-            Endianess = Endianess.BigEndian
+            Endianness = Endianness.BigEndian
         };
         using Engine.Memory.Memory memory = new(config);
         const int expectedData = 0x01020304;
@@ -288,7 +288,7 @@ public class MemoryTest {
             MaxLoadedPages = 2,
             PageSize = 64,
             Size = 512,
-            Endianess = Endianess.LittleEndian
+            Endianness = Endianness.LittleEndian
         };
         using Engine.Memory.Memory memory = new(config);
         const int expectedData = 0x01020304;

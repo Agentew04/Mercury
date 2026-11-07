@@ -6,6 +6,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [Instruction]
 [FormatExact(31,26,15)]
 [FormatExact(25,21,0)]
+[AssemblyFormat("lui ${Rt:reg}, {Immediate}")]
 public partial class Lui : IInstruction {
 
     [Field(20,16)]
@@ -13,6 +14,4 @@ public partial class Lui : IInstruction {
     
     [Field(15,0)]
     public short Immediate { get; set; }
-    
-    public override string ToString() => $"lui ${Instruction.TranslateRegisterName(Rt)}, {Immediate}";
 }

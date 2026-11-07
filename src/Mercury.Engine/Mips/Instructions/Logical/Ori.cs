@@ -5,6 +5,7 @@ namespace Mercury.Engine.Mips.Instructions;
 
 [Instruction]
 [FormatExact(31,26,13)] // opcode
+[AssemblyFormat("ori ${Rt:reg}, ${Rs:reg}, {Immediate}")]
 public partial class Ori : IInstruction {
 
     [Field(25,21)]
@@ -15,6 +16,4 @@ public partial class Ori : IInstruction {
     
     [Field(15,0)]
     public short Immediate { get; set; }
-    
-    public override string ToString() => $"ori ${Instruction.TranslateRegisterName(Rt)}, ${Instruction.TranslateRegisterName(Rs)}, {Immediate}";
 }

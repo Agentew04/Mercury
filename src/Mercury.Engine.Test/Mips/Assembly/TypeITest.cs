@@ -1,4 +1,5 @@
 ﻿using Mercury.Engine.Common;
+using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Instructions;
 
 namespace Mercury.Engine.Test.Mips;
@@ -6,6 +7,8 @@ namespace Mercury.Engine.Test.Mips;
 [TestClass]
 public class TypeITest {
 
+    public const Endianness BigEndian = Endianness.BigEndian;
+    
     [TestCategory("Addi")]
     [DataRow(8, 0, 0xF, 0x2008000FU)]
     [DataRow(0, 10, 0x8F, 0x2140008FU)]
@@ -17,7 +20,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Immediate = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Addi")]
@@ -26,10 +29,10 @@ public class TypeITest {
     [DataRow(0x23B7FFE4U)]
     [TestMethod]
     public void AddiDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Addi>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Addiu")]
@@ -43,7 +46,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Immediate = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Addiu")]
@@ -52,10 +55,10 @@ public class TypeITest {
     [DataRow(0x27B77FE4U)]
     [TestMethod]
     public void AddiuDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Addiu>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Slti")]
@@ -69,7 +72,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Immediate = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Slti")]
@@ -78,10 +81,10 @@ public class TypeITest {
     [DataRow(0x2BB7FFE4U)]
     [TestMethod]
     public void SltiDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Slti>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Sltiu")]
@@ -95,7 +98,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Immediate = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Sltiu")]
@@ -104,10 +107,10 @@ public class TypeITest {
     [DataRow(0x2FB7FFE4U)]
     [TestMethod]
     public void SltiuDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Sltiu>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Andi")]
@@ -120,7 +123,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Immediate = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Andi")]
@@ -128,10 +131,10 @@ public class TypeITest {
     [DataRow(0x3140008FU)]
     [TestMethod]
     public void AndiDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Andi>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Ori")]
@@ -144,7 +147,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Immediate = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Ori")]
@@ -152,10 +155,10 @@ public class TypeITest {
     [DataRow(0x3540008FU)]
     [TestMethod]
     public void OriDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Ori>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Xori")]
@@ -168,7 +171,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Immediate = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Xori")]
@@ -176,10 +179,10 @@ public class TypeITest {
     [DataRow(0x3940008FU)]
     [TestMethod]
     public void XoriDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Xori>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Lb")]
@@ -193,7 +196,7 @@ public class TypeITest {
             Base = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Lb")]
@@ -202,10 +205,10 @@ public class TypeITest {
     [DataRow(0x82FF0001U)]
     [TestMethod]
     public void LbDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Lb>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Lbu")]
@@ -219,7 +222,7 @@ public class TypeITest {
             Base = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Lbu")]
@@ -228,10 +231,10 @@ public class TypeITest {
     [DataRow(0x92FF0001U)]
     [TestMethod]
     public void LbuDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Lbu>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Lh")]
@@ -245,7 +248,7 @@ public class TypeITest {
             Base = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Lh")]
@@ -254,10 +257,10 @@ public class TypeITest {
     [DataRow(0x86FF0001U)]
     [TestMethod]
     public void LhDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Lh>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Lhu")]
@@ -271,7 +274,7 @@ public class TypeITest {
             Base = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Lhu")]
@@ -280,10 +283,10 @@ public class TypeITest {
     [DataRow(0x96FF0001U)]
     [TestMethod]
     public void LhuDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Lhu>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Lui")]
@@ -296,7 +299,7 @@ public class TypeITest {
             Rt = (byte)rt,
             Immediate = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Lui")]
@@ -305,10 +308,10 @@ public class TypeITest {
     [DataRow(0x3C1F00FAU)]
     [TestMethod]
     public void LuiDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Lui>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Lw")]
@@ -322,7 +325,7 @@ public class TypeITest {
             Base = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Lw")]
@@ -331,10 +334,10 @@ public class TypeITest {
     [DataRow(0x8EFF0001U)]
     [TestMethod]
     public void LwDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Lw>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Sb")]
@@ -348,7 +351,7 @@ public class TypeITest {
             Base = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Sb")]
@@ -357,10 +360,10 @@ public class TypeITest {
     [DataRow(0xA2FF0001U)]
     [TestMethod]
     public void SbDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Sb>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Sh")]
@@ -374,7 +377,7 @@ public class TypeITest {
             Base = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Sh")]
@@ -383,10 +386,10 @@ public class TypeITest {
     [DataRow(0xA6FF0001U)]
     [TestMethod]
     public void ShDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Sh>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Sw")]
@@ -400,7 +403,7 @@ public class TypeITest {
             Base = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Sw")]
@@ -409,10 +412,10 @@ public class TypeITest {
     [DataRow(0xAEFF0001U)]
     [TestMethod]
     public void SwDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Sw>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Beq")]
@@ -427,7 +430,7 @@ public class TypeITest {
             Rt = (byte)rt,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Bgez")]
@@ -440,7 +443,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Bgez")]
@@ -449,10 +452,10 @@ public class TypeITest {
     [DataRow(0x04013FFDU)]
     [TestMethod]
     public void BgezDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Bgez>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Bgtz")]
@@ -465,7 +468,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Immediate = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Bgtz")]
@@ -474,10 +477,10 @@ public class TypeITest {
     [DataRow(0x1C003FFDU)]
     [TestMethod]
     public void BgtzDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Bgtz>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Blez")]
@@ -490,7 +493,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Blez")]
@@ -499,10 +502,10 @@ public class TypeITest {
     [DataRow(0x18003FFDU)]
     [TestMethod]
     public void BlezDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Blez>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Bltz")]
@@ -515,7 +518,7 @@ public class TypeITest {
             Rs = (byte)rs,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Bltz")]
@@ -524,10 +527,10 @@ public class TypeITest {
     [DataRow(0x04003FFDU)]
     [TestMethod]
     public void BltzDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Bltz>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Bne")]
@@ -541,7 +544,7 @@ public class TypeITest {
             Rt = (byte)rt,
             Offset = (short)immediate
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Bne")]
@@ -550,10 +553,10 @@ public class TypeITest {
     [DataRow(0x14033FFDU)]
     [TestMethod]
     public void BneDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Bne>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 
     [TestCategory("Lwcz")]
@@ -568,7 +571,7 @@ public class TypeITest {
             Ft = (byte)rt,
             Offset = (short)offset
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Lwcz")]
@@ -577,10 +580,10 @@ public class TypeITest {
     [TestMethod]
     public void LwczDisassembly(uint instruction)
     {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Lwcz>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Swcz")]
@@ -595,7 +598,7 @@ public class TypeITest {
             Rt = (byte)rt,
             Offset = (short)offset
         };
-        Assert.AreEqual(expected, instruction.ConvertToInt());
+        Assert.AreEqual(expected, instruction.ConvertToInt(Endianness.BigEndian));
     }
     
     [TestCategory("Swcz")]
@@ -603,9 +606,10 @@ public class TypeITest {
     [DataRow(0xE940_0005U)]
     [TestMethod]
     public void SwczDisassembly(uint instruction) {
-        IInstruction? disassembled = Disassembler.Disassemble(instruction, new InstructionPool());
+        
+        IInstruction? disassembled = Disassembler.Disassemble(new Int32ByteSource(instruction, BigEndian), new InstructionPool());
         Assert.IsNotNull(disassembled);
         Assert.IsInstanceOfType<Swcz>(disassembled);
-        Assert.AreEqual(instruction, disassembled.ConvertToInt());
+        Assert.AreEqual(instruction, disassembled.ConvertToInt(Endianness.BigEndian));
     }
 }

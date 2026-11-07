@@ -8,6 +8,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(20,16,0)]
 [FormatExact(10,6,0)]
 [FormatExact(5,0,33)]
+[AssemblyFormat("clo ${Rd:reg}, ${Rs:reg}")]
 public partial class Clo : IInstruction {
 
     [Field(25,21)]
@@ -15,6 +16,4 @@ public partial class Clo : IInstruction {
     
     [Field(15,11)]
     public byte Rd { get; set; }
-    
-    public override string ToString() => $"clo ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rs)}";
 }

@@ -8,6 +8,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [FormatExact(25,21,0)]
 [FormatExact(5,0,0)]
 [FormatDifferent(10,6,0)]
+[AssemblyFormat("sll ${Rd:reg}, ${Rt:reg}, {ShiftAmount}")]
 public partial class Sll : IInstruction {
 
     [Field(20,16)]
@@ -18,6 +19,4 @@ public partial class Sll : IInstruction {
     
     [Field(10,6)]
     public byte ShiftAmount { get; set; }
-    
-    public override string ToString() => $"sll ${Instruction.TranslateRegisterName(Rd)}, ${Instruction.TranslateRegisterName(Rt)}, {ShiftAmount}";
 }

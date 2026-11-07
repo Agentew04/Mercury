@@ -40,6 +40,7 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
     private uint branchAddress;
     private bool isHalted;
     private EventBus eventBus = null!;
+    private MemoryByteSource byteSource = null!;
     private readonly Memory<byte> instructionBuffer = new byte[4];
     private readonly InstructionPool pool = new();
     private readonly List<IDisposable> subscriptions = [];
@@ -47,6 +48,7 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
     
     public void SubscribeToEvents(EventBus bus) {
         eventBus = bus;
+        byteSource = new MemoryByteSource(bus, endianness);
         subscriptions.Add(bus.Subscribe<ClockEvent>(async _ => await ClockAsync()));
         subscriptions.Add(bus.Subscribe<HaltEvent>(e => Halt(e.ExitCode, publish: false)));
     }
@@ -69,19 +71,19 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
         }
         // read instruction from PC
         ulong pc = (ulong)Registers.Get(MipsGprRegisters.Pc);
-        ReadMemory(pc, instructionBuffer);
-        uint instructionBinary = (uint)BytesToInt32(instructionBuffer.Span);
+        byteSource.StartAt(pc);
 
-        // decode
-        IInstruction? instruction = Disassembler.Disassemble(instructionBinary, pool);
+        // decode (pulls bytes from memory on demand)
+        IInstruction? instruction = Disassembler.Disassemble(byteSource, pool);
         if(instruction is null) {
             eventBus.Publish(new UnknownInstructionEvent {
                 Address = pc,
-                InstructionWord = instructionBinary
+                InstructionWord = ReadFetchedWord(byteSource, 4)
             });
             Halt(-1);
             return;
         }
+        FillInstructionBuffer(byteSource, instruction.Size);
 
         // execute
         int pcBefore = Registers.Get(MipsGprRegisters.Pc);
@@ -97,10 +99,10 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
             // estamos no cliclo do branch. 
             isNextCycleBranch = true;
             // pc+4
-            Registers.Set(MipsGprRegisters.Pc, pcBefore + 4);
+            Registers.Set(MipsGprRegisters.Pc, pcBefore + instruction.Size);
         }else {
             // instrucao sem branch
-            Registers.Set(MipsGprRegisters.Pc, Registers.Get(MipsGprRegisters.Pc) + 4);
+            Registers.Set(MipsGprRegisters.Pc, Registers.Get(MipsGprRegisters.Pc) + instruction.Size);
         }
     }
 

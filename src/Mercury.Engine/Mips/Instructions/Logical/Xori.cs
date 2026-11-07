@@ -5,6 +5,7 @@ namespace Mercury.Engine.Mips.Instructions;
 
 [Instruction]
 [FormatExact(31,26,14)] // opcode
+[AssemblyFormat("xori ${Rt:reg}, ${Rs:reg}, {Immediate}")]
 public partial class Xori : IInstruction {
 
     [Field(25,21)]
@@ -15,6 +16,4 @@ public partial class Xori : IInstruction {
     
     [Field(15,0)]
     public short Immediate { get; set; }
-    
-    public override string ToString() => $"xori ${Instruction.TranslateRegisterName(Rt)}, ${Instruction.TranslateRegisterName(Rs)}, {Immediate}";
 }

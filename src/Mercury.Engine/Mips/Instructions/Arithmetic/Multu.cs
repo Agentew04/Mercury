@@ -6,6 +6,7 @@ namespace Mercury.Engine.Mips.Instructions;
 [Instruction]
 [FormatExact(31,26,0)]
 [FormatExact(15,0,25)]
+[AssemblyFormat("multu ${Rs:reg}, ${Rt:reg}")]
 public partial class Multu : IInstruction {
 
     [Field(25,21)]
@@ -13,6 +14,4 @@ public partial class Multu : IInstruction {
     
     [Field(20,16)]
     public byte Rt { get; set; }
-    
-    public override string ToString() => $"multu ${Instruction.TranslateRegisterName(Rs)}, ${Instruction.TranslateRegisterName(Rt)}";
 }
