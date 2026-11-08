@@ -131,8 +131,23 @@ public static class Extensions {
     /// <typeparam name="T">The type of the number to sign extend</typeparam>
     /// <returns>The value sign extended.</returns>
     public static T SignExtend<T>(this T value, int bitCount) where T: IBinaryInteger<T> {
-        int size = Unsafe.SizeOf<T>();
-        int shift = size - bitCount;
-        return (value << shift) >> shift;
+        int size = Unsafe.SizeOf<T>() * 8;
+        
+        if (bitCount < 1 || bitCount > size) {
+            throw new ArgumentOutOfRangeException(nameof(bitCount));
+        }
+        
+        if (bitCount == size) {
+            return value;
+        }
+        
+        T mask = (T.One << bitCount) - T.One;
+        T signBit = T.One << (bitCount - 1);
+
+        value &= mask;
+
+        return (value ^ signBit) - signBit;
+        // int shift = size - bitCount;
+        // return (value << shift) >>> shift;
     }
 }

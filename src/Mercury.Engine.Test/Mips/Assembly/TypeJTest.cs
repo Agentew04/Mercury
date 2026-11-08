@@ -1,9 +1,8 @@
-﻿using System.Text.RegularExpressions;
-using Mercury.Engine.Common;
+﻿using Mercury.Engine.Common;
 using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Instructions;
 
-namespace Mercury.Engine.Test.Mips;
+namespace Mercury.Engine.Test.Mips.Assembly;
 
 [TestClass]
 public class TypeJTest {

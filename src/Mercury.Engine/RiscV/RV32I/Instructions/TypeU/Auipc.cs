@@ -11,6 +11,7 @@ public partial class Auipc : IInstruction
     [Field(11,7)]
     public byte Rd { get; set; }
     
+    [Signed]
     [Field(31,12)]
     public int Immediate { get; set; }
 

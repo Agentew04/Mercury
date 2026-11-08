@@ -10,7 +10,7 @@ namespace Mercury.Engine.RiscV.RV32I.Instructions;
 public partial class Sltiu : IInstruction
 {
     [Field(11,7)]
-    public byte Byte { get; set; }
+    public byte Rd { get; set; }
     
     [Field(19,15)]
     public byte Rs1 { get; set; }
