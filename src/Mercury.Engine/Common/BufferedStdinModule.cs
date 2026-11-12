@@ -15,7 +15,7 @@ public class BufferedStdinModule : IModule {
     }
     
     public void SubscribeToEvents(EventBus bus) {
-        subscriptions.Add(bus.Subscribe<StdInReadEvent>(Handle));
+        subscriptions.Add(bus.Subscribe<BufferedStdinModule,StdInReadEvent>(this, Handle));
     }
 
     public void UnsubscribeFromEvents() {
@@ -25,8 +25,11 @@ public class BufferedStdinModule : IModule {
         subscriptions.Clear();
     }
 
-    private async ValueTask Handle(StdInReadEvent evt) {
-        ChannelReader<char> reader = channel.Reader;
+    public void Serialize(Stream s) { }
+    public void Deserialize(Stream s) { }
+
+    private static async ValueTask Handle(BufferedStdinModule state, StdInReadEvent evt) {
+        ChannelReader<char> reader = state.channel.Reader;
 
         int i = 0;
         int max = evt.Buffer.Length;

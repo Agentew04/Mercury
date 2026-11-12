@@ -1,4 +1,6 @@
-﻿using Mercury.Engine.Common;
+﻿using System.IO.Compression;
+using System.Text;
+using Mercury.Engine.Common;
 using Mercury.Engine.Common.Events;
 using Mercury.Engine.Memory;
 using Mercury.Engine.Modules.Gpu.Configs;
@@ -64,12 +66,6 @@ public class FramebufferGpu : IConfigurableModule<FramebufferGpuConfig>, IDispos
         for (ulong i = e.Address, j = 0; i < max; i++, j++) {
             framebuffer[i] = e.Buffer.Span[(int)j];
         }
-
-        Console.Write("First row: ");
-        foreach (byte b in framebuffer.AsMemory(0, (int)Width * 4).Span) {
-            Console.Write($"{b} ");
-        }
-        Console.WriteLine();
     }
 
     /// <summary>
@@ -78,4 +74,45 @@ public class FramebufferGpu : IConfigurableModule<FramebufferGpuConfig>, IDispos
     public ReadOnlyMemory<byte> GetFramebufferReference() {
         return framebuffer.AsMemory(0, (int)FramebufferSize);
     }
+
+    #region Serialization
+
+    public void Serialize(Stream s) {
+        // untested :)
+        using MemoryStream ms = new();
+        using (BinaryWriter bw = new(s, Encoding.UTF8, leaveOpen: true)) {
+            using (GZipStream gzip = new(ms, CompressionMode.Compress, leaveOpen: true)) {
+                gzip.Write(framebuffer);
+
+            }
+            ms.Seek(0, SeekOrigin.Begin);
+            bw.Write(FramebufferSize);
+            bw.Write(ms.Length);
+        }
+        ms.CopyTo(s); // pass buffer
+    }
+    
+    public void Deserialize(Stream s) {
+        // untested :)
+        
+        // fb size
+        long payloadSize;
+        using (BinaryReader br = new(s, Encoding.UTF8, leaveOpen: true)) {
+            FramebufferSize = br.ReadUInt64();
+            payloadSize = br.ReadInt64();
+        }
+
+        byte[] gzipBuffer = new byte[payloadSize];
+        s.ReadExactly(gzipBuffer);
+
+        using MemoryStream ms = new(gzipBuffer);
+        using GZipStream gzip = new(ms, CompressionMode.Decompress);
+        byte[] newFramebuffer = new byte[FramebufferSize];
+        using MemoryStream outMs = new(newFramebuffer);
+        gzip.CopyTo(outMs);
+        framebuffer = newFramebuffer;
+    }
+
+    #endregion
 }
+

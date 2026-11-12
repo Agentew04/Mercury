@@ -24,8 +24,8 @@ public class AddressDecoderModule : IModule, IDisposable {
 
     public void SubscribeToEvents(EventBus bus) {
         eventBus = bus;
-        subscriptions.Add(bus.Subscribe<MemoryWriteEvent>(HandleWrite));
-        subscriptions.Add(bus.Subscribe<MemoryReadEvent>(HandleRead));
+        subscriptions.Add(bus.Subscribe<AddressDecoderModule, MemoryWriteEvent>(this, HandleWrite));
+        subscriptions.Add(bus.Subscribe<AddressDecoderModule, MemoryReadEvent>(this, HandleRead));
     }
 
     public void UnsubscribeFromEvents() {
@@ -34,6 +34,13 @@ public class AddressDecoderModule : IModule, IDisposable {
         }
 
         subscriptions.Clear();
+    }
+
+    public void Serialize(Stream s) {
+        throw new NotImplementedException();
+    }
+    public void Deserialize(Stream s) {
+        throw new NotImplementedException();
     }
 
     public void Dispose() {
@@ -95,9 +102,9 @@ public class AddressDecoderModule : IModule, IDisposable {
         }
     }
 
-    private void HandleWrite(MemoryWriteEvent e) {
+    private static void HandleWrite(AddressDecoderModule state, MemoryWriteEvent e) {
         MemoryRange? correctRange = null;
-        foreach (MemoryRange range in ranges) {
+        foreach (MemoryRange range in state.ranges) {
             if (range.Contains(e.Address)) {
                 correctRange = range;
                 break;
@@ -105,7 +112,7 @@ public class AddressDecoderModule : IModule, IDisposable {
         }
 
         if (correctRange == null) {
-            eventBus.Publish(new RamWriteEvent() {
+            state.eventBus.Publish(new RamWriteEvent() {
                 Address = e.Address,
                 Size = e.Size,
                 Buffer = e.Buffer,
@@ -113,13 +120,13 @@ public class AddressDecoderModule : IModule, IDisposable {
             return;
         }
 
-        (_, Action<EventBus, MemoryWriteEvent,ulong>? write) = events[correctRange.Value];
-        write?.Invoke(eventBus, e, lowestAddress[correctRange.Value]);
+        (_, Action<EventBus, MemoryWriteEvent,ulong>? write) = state.events[correctRange.Value];
+        write?.Invoke(state.eventBus, e, state.lowestAddress[correctRange.Value]);
     }
 
-    private void HandleRead(MemoryReadEvent e) {
+    private static void HandleRead(AddressDecoderModule state, MemoryReadEvent e) {
         MemoryRange? correctRange = null;
-        foreach (MemoryRange range in ranges) {
+        foreach (MemoryRange range in state.ranges) {
             if (range.Contains(e.Address)) {
                 correctRange = range;
                 break;
@@ -127,7 +134,7 @@ public class AddressDecoderModule : IModule, IDisposable {
         }
 
         if (correctRange == null) {
-            eventBus.Publish(new RamReadEvent() {
+            state.eventBus.Publish(new RamReadEvent() {
                 Address = e.Address,
                 Size = e.Size,
                 Buffer = e.Buffer,
@@ -135,8 +142,8 @@ public class AddressDecoderModule : IModule, IDisposable {
             return;
         }
 
-        (Action<EventBus, MemoryReadEvent,ulong>? read, _) = events[correctRange.Value];
-        read?.Invoke(eventBus, e,lowestAddress[correctRange.Value]);
+        (Action<EventBus, MemoryReadEvent,ulong>? read, _) = state.events[correctRange.Value];
+        read?.Invoke(state.eventBus, e,state.lowestAddress[correctRange.Value]);
     }
 }
 

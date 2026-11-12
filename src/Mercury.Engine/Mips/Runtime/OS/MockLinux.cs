@@ -40,6 +40,13 @@ public sealed class MockLinux : MipsSyscallModule {
         return ValueTask.CompletedTask;
     }
 
+    public override void Serialize(Stream s) {
+        throw new NotImplementedException();
+    }
+    public override void Deserialize(Stream s) {
+        throw new NotImplementedException();
+    }
+
     public override void Dispose() {
         
     }

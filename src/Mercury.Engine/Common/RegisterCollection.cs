@@ -89,4 +89,27 @@ public class RegisterCollection {
         dirty.Clear();
         return lastArray;
     }
+    
+    public void DeserializeBank<T>(BinaryReader br) where T : struct, Enum {
+        if (banks.All(x => x.Key != typeof(T))) {
+            throw new InvalidOperationException("Tried deserializing bank that wasn't registered");
+        }
+        
+        T[] regs = Enum.GetValues<T>();
+        foreach(T reg in regs) {
+            int value = br.ReadInt32();
+            Set(reg, value);
+        }
+    }
+    
+    public void SerializeBank<T>(BinaryWriter bw) where T : struct, Enum {
+        if (banks.All(x => x.Key != typeof(T))) {
+            throw new InvalidOperationException("Tried serializing bank that wasn't registered");
+        }
+        
+        T[] regs = Enum.GetValues<T>();
+        foreach(T reg in regs) {
+            bw.Write(Get(reg));
+        }
+    }
 }

@@ -95,30 +95,16 @@ public abstract class Machine : IAsyncClockable, IDisposable {
             if (segment.Type != SegmentType.Load) {
                 continue;
             }
-            MemoryModule.Write(segment.Address, segment.GetMemoryContents());
+            MemoryModule.Write(segment.Address, segment.GetMemoryContents().AsSpan());
         }
     }
     
-    protected uint Load(Span<byte> data, uint address) {
+    public uint Load(Span<byte> data, uint address) {
         for(ulong i=0;i<(ulong)data.Length; i++) {
             MemoryModule.WriteByte(address + i, data[(int)i]);
         }
         return address + (uint)data.Length;
     }
-    
-    protected uint Load(Span<int> bytes, uint address) {
-        for (ulong i = 0; i < (ulong)bytes.Length; i++) {
-            MemoryModule.WriteWord(address + i*4, bytes[(int)i]);
-        }
-        return address + (uint)bytes.Length * 4;
-    }
-
-    /// <summary>
-    /// Loads a program based on a list of words. Separates between instructions and data. 
-    /// </summary>
-    /// <param name="text"></param>
-    /// <param name="data"></param>
-    public abstract void LoadProgram(Span<int> text, Span<int> data);
     
     /// <summary>
     /// Disposes all resources used by this machine.

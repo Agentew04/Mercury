@@ -1,4 +1,5 @@
-﻿using Mercury.Engine.Common;
+﻿using System.Text;
+using Mercury.Engine.Common;
 using Mercury.Engine.Common.Events;
 using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Runtime.Events;
@@ -20,8 +21,8 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
     public void SubscribeToEvents(EventBus bus) {
         eventBus = bus;
         byteSource = new MemoryByteSource(bus, endianness);
-        subscriptions.Add(bus.Subscribe<ClockEvent>(async _ => await ClockAsync()));
-        subscriptions.Add(bus.Subscribe<HaltEvent>(e => Halt(e.ExitCode, publish: false)));
+        subscriptions.Add(bus.Subscribe<Monocycle,ClockEvent>(this, static async (s,_) => await s.ClockAsync()));
+        subscriptions.Add(bus.Subscribe<Monocycle,HaltEvent>(this, static (s,e) => s.Halt(e.ExitCode, publish: false)));
     }
 
     public void UnsubscribeFromEvents() {
@@ -37,19 +38,18 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
     #region State
 
     private bool isHalted;
-    private Endianness endianness = Endianness.LittleEndian;
+    private readonly Endianness endianness = Endianness.LittleEndian;
     private MemoryByteSource byteSource = null!;
     private readonly List<IInstructionExtension> instructionExtensions = [];
     private readonly Memory<byte> instructionBuffer = new byte[4];
+    private readonly Memory<byte> memoryBuffer = new byte[4];
     private readonly InstructionPool instructionPool = new();
 
     #endregion
 
-
     public uint ProgramEnd { get; set; }
     public int ExitCode { get; private set; }
     public RegisterCollection Registers { get; } = new(new RiscVRegisterHelper());
-    
     
     public async Task ClockAsync() {
         if (isHalted) {
@@ -137,4 +137,30 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
     public void Dispose() {
         UnsubscribeFromEvents();
     }
+
+    #region Serialization
+
+    public void Serialize(Stream s) {
+        using BinaryWriter bw = new(s, Encoding.UTF8, leaveOpen: true);
+        
+        bw.Write(isHalted);
+        bw.Write(ProgramEnd);
+        bw.Write(ExitCode);
+        
+        // registers
+        Registers.SerializeBank<Rv32Gpr>(bw);
+    }
+    
+    public void Deserialize(Stream s) {
+        using BinaryReader br = new(s, Encoding.UTF8, leaveOpen: true);
+
+        isHalted = br.ReadBoolean();
+        ProgramEnd = br.ReadUInt32();
+        ExitCode = br.ReadInt32();
+        
+        // registers
+        Registers.DeserializeBank<Rv32Gpr>(br);
+    }
+
+    #endregion
 }

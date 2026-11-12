@@ -53,6 +53,9 @@ public abstract class MipsSyscallModule : ISyscallModule {
         subscriptions.Clear();
     }
 
+    public abstract void Serialize(Stream s);
+    public abstract void Deserialize(Stream s);
+
     public virtual void Dispose() {
         UnsubscribeFromEvents();
     }

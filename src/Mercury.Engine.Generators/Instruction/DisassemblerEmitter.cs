@@ -1,7 +1,7 @@
-﻿using System.Buffers.Binary;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Mercury.Generators.Instruction.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 

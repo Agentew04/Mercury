@@ -19,6 +19,23 @@ public interface IModule {
     public void UnsubscribeFromEvents();
 
     public void Map(AddressDecoderModule decoder) {}
+
+    /// <summary>
+    /// Serializes all data from this module in a way that when <see cref="Deserialize"/> is called,
+    /// it continues execution from the same past point.
+    /// </summary>
+    /// <remarks>
+    /// Any serialization method may be used, but binary (with <see cref="BinaryWriter"/>) is recommended
+    /// to ensure maximum space efficiency.
+    /// </remarks>
+    /// <param name="s">An empty stream that implementer must fill with data</param>
+    public void Serialize(Stream s);
+
+    /// <summary>
+    /// Deserializes custom state data for this module from a stream.
+    /// </summary>
+    /// <param name="s">A stream with data</param>
+    public void Deserialize(Stream s);
 }
 
 public interface IConfigurableModule<in TConfig> : IModule {

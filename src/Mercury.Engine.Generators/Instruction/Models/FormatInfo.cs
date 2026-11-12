@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Mercury.Generators;
+namespace Mercury.Generators.Instruction.Models;
 
 internal enum FormatInfoType {
     Unknown,

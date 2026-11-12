@@ -459,6 +459,7 @@ public sealed class Mars : MipsSyscallModule {
     #region File
 
     private readonly Dictionary<int, Stream> fileDescriptors = [];
+    private readonly Dictionary<int, (string path, FileMode mode)> fileDescriptorInfo = [];
     
     /// <summary>
     /// Opens a handle to a file in the host's physical filesystem.
@@ -501,12 +502,14 @@ public sealed class Mars : MipsSyscallModule {
         }
         
         int newDescriptor = fileDescriptors.Count;
-        fileDescriptors[newDescriptor] = new FileStream(path, flags switch {
+        FileMode fileMode = flags switch {
             0 => FileMode.Open,
             1 => FileMode.Create,
             9 => FileMode.Append,
             _ => throw new ArgumentOutOfRangeException(nameof(flags), "Invalid file open flag")
-        });
+        };
+        fileDescriptors[newDescriptor] = new FileStream(path, fileMode);
+        fileDescriptorInfo[newDescriptor] = (path,fileMode);
         Context.RespondV0(newDescriptor);
     }
 
@@ -588,9 +591,11 @@ public sealed class Mars : MipsSyscallModule {
 
         if (!fileDescriptors.TryGetValue(fileDescriptor, out Stream? stream)) {
             return;
-        } 
+        }
+
         stream.Dispose();
         fileDescriptors.Remove(fileDescriptor);
+        fileDescriptorInfo.Remove(fileDescriptor);
     }
 
     #endregion
@@ -673,7 +678,50 @@ public sealed class Mars : MipsSyscallModule {
     }
 
     #endregion
-    
+
+    public override void Serialize(Stream s) {
+        using BinaryWriter bw = new(s, Encoding.UTF8, leaveOpen: true);
+        
+        // serialize all open file descriptors
+        bw.Write(fileDescriptors.Count);
+        foreach (KeyValuePair<int, Stream> kvp in fileDescriptors) {
+            bw.Write(kvp.Key); // descriptor
+            if (kvp.Key <= 2) {
+                continue; // std in,out,err
+            }
+            bw.Write(fileDescriptorInfo[kvp.Key].path); // path
+            bw.Write((int)fileDescriptorInfo[kvp.Key].mode);
+            bw.Write((ulong)kvp.Value.Position); // stream position
+        }
+    }
+    public override void Deserialize(Stream s) {
+        using BinaryReader br = new(s, Encoding.UTF8, leaveOpen: true);
+        
+        // read open file descriptors
+        int openDescriptorsCount = br.ReadInt32();
+        for (int i = 0; i < openDescriptorsCount; i++) {
+            int descriptor = br.ReadInt32();
+
+            if (descriptor <= 2) {
+                continue; // standard in, out, err
+            }
+            string path = br.ReadString();
+            FileMode mode = (FileMode)br.ReadInt32();
+            ulong position = br.ReadUInt64();
+
+            if (mode is FileMode.Create or FileMode.Truncate) {
+                // file was already created on last run, we only open it now.
+                // or was opened with 0 size.
+                mode = FileMode.Open; 
+            }
+
+            Stream fs = new FileStream(path, mode);
+            fs.Seek((long)position, SeekOrigin.Begin);
+            fileDescriptors[descriptor] = fs;
+            fileDescriptorInfo[descriptor] = (path, mode);
+        }
+    }
+
     public override void Dispose() {
         foreach ((int descriptor, Stream stream) in fileDescriptors) {
             if (descriptor <= 2) {
@@ -701,12 +749,17 @@ public sealed class Mars : MipsSyscallModule {
     }
     
     private void EnsureStdioDescriptors() {
-        if (fileDescriptors.Count != 0) {
-            return;
+        if (!fileDescriptors.ContainsKey(0)) {
+            fileDescriptors[0] = new ChannelStream(stdin);
         }
-        fileDescriptors[0] = new ChannelStream(stdin);
-        fileDescriptors[1] = new ChannelStream(stdout);
-        fileDescriptors[2] = new ChannelStream(stderr);
+
+        if (!fileDescriptors.ContainsKey(1)) {
+            fileDescriptors[1] = new ChannelStream(stdout);
+        }
+
+        if (!fileDescriptors.ContainsKey(2)) {
+            fileDescriptors[2] = new ChannelStream(stderr);
+        }
     }
 
     private readonly Memory<byte> wordBuffer = new byte[4]; 

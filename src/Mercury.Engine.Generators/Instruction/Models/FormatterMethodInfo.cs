@@ -1,4 +1,4 @@
-namespace Mercury.Generators.Instruction;
+namespace Mercury.Generators.Instruction.Models;
 
 internal readonly record struct FormatterMethodInfo(
     string Specifier,

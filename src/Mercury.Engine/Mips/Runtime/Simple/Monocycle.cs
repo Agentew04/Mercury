@@ -1,4 +1,5 @@
-﻿using Mercury.Engine.Common;
+﻿using System.Text;
+using Mercury.Engine.Common;
 using Mercury.Engine.Common.Events;
 using Mercury.Engine.Memory;
 using Mercury.Engine.Mips.Instructions;
@@ -59,6 +60,8 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
         }
         subscriptions.Clear();
     }
+
+    
 
     /// <summary>
     /// Gets the exit code of the program.
@@ -132,6 +135,53 @@ public sealed partial class Monocycle : ICpuModule, IDisposable {
         return Registers.Get(MipsGprRegisters.Pc) >= ProgramEnd
             || isHalted;
     }
+    
+    #region Serialization
+
+    public void Serialize(Stream s) {
+        using BinaryWriter bw = new(s, Encoding.UTF8, leaveOpen: true);
+        bw.Write(isHalted);
+        bw.Write(ExitCode);
+        bw.Write(branchAddress);
+        bw.Write(isNextCycleBranch);
+        bw.Write(isExecutingBranch);
+        bw.Write(ProgramEnd);
+        bw.Write(UseBranchDelaySlot);
+        
+        // flags
+        foreach (bool t in Flags) {
+            bw.Write(t);
+        }
+        
+        // registers
+        Registers.SerializeBank<MipsGprRegisters>(bw);
+        Registers.SerializeBank<MipsFpuRegisters>(bw);
+        Registers.SerializeBank<MipsFpuControlRegisters>(bw);
+        Registers.SerializeBank<MipsSpecialRegisters>(bw);
+    }
+    public void Deserialize(Stream s) {
+        using BinaryReader br = new(s, Encoding.UTF8, leaveOpen: true);
+        isHalted = br.ReadBoolean();
+        ExitCode = br.ReadInt32();
+        branchAddress = br.ReadUInt32();
+        isNextCycleBranch = br.ReadBoolean();
+        isExecutingBranch = br.ReadBoolean();
+        ProgramEnd = br.ReadUInt32();
+        UseBranchDelaySlot = br.ReadBoolean();
+        
+        // flags
+        for (int i = 0; i < Flags.Length; i++) {
+            Flags[i] = br.ReadBoolean();
+        }
+
+        // registers
+        Registers.DeserializeBank<MipsGprRegisters>(br);
+        Registers.DeserializeBank<MipsFpuRegisters>(br);
+        Registers.DeserializeBank<MipsFpuControlRegisters>(br);
+        Registers.DeserializeBank<MipsSpecialRegisters>(br);
+    }
+
+    #endregion
     
     public void Dispose() {
         UnsubscribeFromEvents();

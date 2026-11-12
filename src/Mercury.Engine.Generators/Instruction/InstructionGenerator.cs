@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 using System.Collections.Immutable;
+using Mercury.Generators.Instruction.Models;
 
 namespace Mercury.Generators.Instruction;
 
@@ -25,6 +26,10 @@ internal class InstructionGenerator : IIncrementalGenerator{
             ctx.AddSource("AssemblyFormatAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.AssemblyFormatAttribute, Encoding.UTF8));
             ctx.AddSource("AssemblyFormatterAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.AssemblyFormatterAttribute, Encoding.UTF8));
             ctx.AddSource("AssemblyParserAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.AssemblyParserAttribute, Encoding.UTF8));
+            // x86 attributes
+            ctx.AddSource("AfterAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.AfterAttribute, Encoding.UTF8));
+            ctx.AddSource("WhenAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.WhenAttribute, Encoding.UTF8));
+            ctx.AddSource("SizeAttribute.g.cs", SourceText.From(InstructionTemplates.Attributes.SizeAttribute, Encoding.UTF8));
         });
 
         IncrementalValuesProvider<InstructionInfo> instructions = context.SyntaxProvider
@@ -192,26 +197,64 @@ internal class InstructionGenerator : IIncrementalGenerator{
             if (member is not IFieldSymbol && member is not IPropertySymbol) {
                 continue;
             }
+
+            ImmutableArray<AttributeData> attributes = member.GetAttributes();
             
-            AttributeData? fieldAttribute = member
-                .GetAttributes()
+            AttributeData? fieldAttribute = attributes
                 .FirstOrDefault(x => x.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-                                     == "global::Mercury.Engine.Generators.Instruction.FieldAttribute");
+                    == "global::Mercury.Engine.Generators.Instruction.FieldAttribute");
             
             if (fieldAttribute is null) {
                 continue;
             }
 
-            bool isSigned = member
-                .GetAttributes()
-                .FirstOrDefault(x => x.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-                                     == "global::Mercury.Engine.Generators.Instruction.SignedAttribute") != null;
-                
+            List<FieldAttributeInfo> attribs = [];
+            
+            // field is treated separately
+            
 
-            int bitStart = (int)fieldAttribute.ConstructorArguments[0].Value!;
-            int bitEnd = (int)fieldAttribute.ConstructorArguments[1].Value!;
-            if (bitStart > bitEnd) {
-                (bitStart, bitEnd) = (bitEnd, bitStart);
+            foreach (AttributeData attribute in attributes) {
+                string name = attribute.AttributeClass!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+                if (name == "global::Mercury.Engine.Generators.Instruction.SignedAttribute") {
+                    attribs.Add(new FieldAttributeInfo(FieldAttributeType.Signed));
+                    continue;
+                }
+
+                if (name == "global::Mercury.Engine.Generators.Instruction.FieldAttribute") {
+                    // defined
+                    if (attribute.ConstructorArguments.Length > 0) {
+                        int bitStart = (int)fieldAttribute.ConstructorArguments[0].Value!;
+                        int bitEnd = (int)fieldAttribute.ConstructorArguments[1].Value!;
+                        if (bitStart > bitEnd) {
+                            (bitStart, bitEnd) = (bitEnd, bitStart);
+                        }
+                        attribs.Add(new FieldAttributeInfo(FieldAttributeType.Field, bitStart, bitEnd));
+                    }
+                    else {
+                        attribs.Add(new FieldAttributeInfo(FieldAttributeType.Field));
+                    }
+                }
+
+                if (name == "global::Mercury.Engine.Generators.Instruction.AfterAttribute") {
+                    string fieldName = (string)attribute.ConstructorArguments[0].Value!;
+                    attribs.Add(new FieldAttributeInfo(FieldAttributeType.After, fieldName));
+                }
+                
+                if (name == "global::Mercury.Engine.Generators.Instruction.WhenAttribute") {
+                    string methodName = (string)attribute.ConstructorArguments[0].Value!;
+                    attribs.Add(new FieldAttributeInfo(FieldAttributeType.When, methodName));
+                }
+                
+                if (name == "global::Mercury.Engine.Generators.Instruction.SizeAttribute") {
+                    object argument = attribute.ConstructorArguments[0].Value!;
+                    if (argument is string methodName) {
+                        attribs.Add(new FieldAttributeInfo(FieldAttributeType.Size, methodName));
+                    }
+                    else if(argument is int size) {
+                        attribs.Add(new FieldAttributeInfo(FieldAttributeType.Size, size));
+                    }
+                }
             }
 
             string fieldtype;
@@ -219,10 +262,10 @@ internal class InstructionGenerator : IIncrementalGenerator{
                 fieldtype = field.Type.Name;
             }
             else {
-                var prop = (IPropertySymbol)member;
+                IPropertySymbol prop = (IPropertySymbol)member;
                 fieldtype = prop.Type.Name;
             }
-            fields.Add(new FieldInfo(bitStart, bitEnd, fieldtype, member.Name, isSigned));
+            fields.Add(new FieldInfo(fieldtype, member.Name, new EquatableArray<FieldAttributeInfo>(attribs.ToArray())));
         }
         return new EquatableArray<FieldInfo>(fields.ToArray());
     }

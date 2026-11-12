@@ -18,10 +18,4 @@ public sealed class MipsMachine : Common.Machine {
 
     private const uint TextSegmentAddress = 0x0040_0000;
     private const uint DataSegmentAddress = 0x1001_0000;
-
-    public override void LoadProgram(Span<int> text, Span<int> data) {
-        uint lastText = Load(text, TextSegmentAddress);
-        CpuModule.ProgramEnd = lastText + 1;
-        _ = Load(data, DataSegmentAddress);
-    }
 }

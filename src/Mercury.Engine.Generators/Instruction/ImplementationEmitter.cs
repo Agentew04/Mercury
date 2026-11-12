@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Mercury.Generators.Instruction.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
@@ -57,21 +58,25 @@ internal static class ImplementationEmitter {
 
     private static string GenerateFromBytesBody(InstructionInfo instruction) {
         StringBuilder sb = new();
+        
         foreach (FieldInfo field in instruction.Fields) {
+            FieldAttributeInfo fieldAttr = field.Attributes.First(x => x.IsWellDefined);
+            int bitStart = fieldAttr.BitStart;
+            int bitEnd = fieldAttr.BitEnd;
             if (field.IsSigned) {
                 sb.AppendLine(string.Format(InstructionTemplates.PartialInstructionSignedFieldExtract,
                     field.FieldName,
                     field.FieldType,
-                    field.BitStart,
-                    field.BitEnd,
-                    field.BitEnd - field.BitStart + 1));
+                    bitStart,
+                    bitEnd,
+                    bitEnd - bitStart + 1));
             }
             else {
                 sb.AppendLine(string.Format(InstructionTemplates.PartialInstructionFieldExtract,
                     field.FieldName,
                     field.FieldType,
-                    field.BitStart,
-                    field.BitEnd));
+                    bitStart,
+                    bitEnd));
             }
         }
 
@@ -106,10 +111,13 @@ internal static class ImplementationEmitter {
 
         // fields
         foreach (FieldInfo field in instruction.Fields) {
+            FieldAttributeInfo fieldAttr = field.Attributes.First(x => x.IsWellDefined);
+            int bitStart = fieldAttr.BitStart;
+            int bitEnd = fieldAttr.BitEnd;
             sb.AppendLine(string.Format(
                 "        global::Mercury.Engine.Common.InstructionBits.WriteBitsFast(bytes, Size, {0}, {1}, (global::System.UInt64)({2}), endianness);",
-                field.BitStart,
-                field.BitEnd,
+                bitStart,
+                bitEnd,
                 field.FieldName));
         }
 

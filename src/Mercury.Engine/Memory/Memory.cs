@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using Mercury.Engine.Common;
-using Mercury.Engine.Common.Events;
 using Mercury.Engine.Memory.Events;
 
 namespace Mercury.Engine.Memory;
@@ -125,6 +124,7 @@ public sealed class Memory : IDisposable, IMemory, IModule
     }
 
     public int ReadWord(ulong address) {
+        throw new NotImplementedException();
         // sanitizar input
         if (address >= Size) {
             throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{Size}[. Got: {address}");
@@ -150,6 +150,7 @@ public sealed class Memory : IDisposable, IMemory, IModule
     }
 
     public void WriteWord(ulong address, int value) {
+        throw new NotImplementedException();
         if (address >= Size) {
             throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{Size}[. Got: {address}");
         }
@@ -180,6 +181,7 @@ public sealed class Memory : IDisposable, IMemory, IModule
     }
     
     public byte[] Read(ulong address, int length) {
+         throw new NotImplementedException();
         if (address >= Size) {
             throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{Size}[. Got: {address}");
         }
@@ -196,6 +198,8 @@ public sealed class Memory : IDisposable, IMemory, IModule
     }
 
     public void Write(ulong address, byte[] data) {
+        Write(address, data.AsSpan());
+        return;
         if (address >= Size) {
             throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{Size}[. Got: {address}");
         }
@@ -240,32 +244,10 @@ public sealed class Memory : IDisposable, IMemory, IModule
     }
 
     public void Read(ulong address, Span<int> words) {
-        if (address >= Size) {
-            throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{Size}[. Got: {address}");
-        }
-
-        if (address + (ulong)(words.Length * 4) >= Size) {
-            throw new InvalidAddressException($"Data out of bounds. Expected Range: [0,{Size}[. Got: {address + (ulong)(words.Length * 4)}");
-        }
-        
-        for (int i = 0; i < words.Length; i++) {
-            words[i] = ReadWord(address + (ulong)(i * 4));
-        }
+        throw new NotImplementedException();
     }
-
     public void Write(ulong address, ReadOnlySpan<int> words) {
-        if (address >= Size) {
-            throw new InvalidAddressException($"Address out of bounds. Expected Range: [0,{Size}[. Got: {address}");
-        }
-
-        if (address + (ulong)(words.Length * 4) >= Size) {
-            throw new InvalidAddressException($"Data out of bounds. Expected Range: [0,{Size}[. Got: {address + (ulong)(words.Length * 4)}");
-        }
-        
-        // vai ser lento, mas faz parte
-        for (int i = 0; i < words.Length; i++) {
-            WriteWord(address + (ulong)(i * 4), words[i]);
-        }
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -362,9 +344,9 @@ public sealed class Memory : IDisposable, IMemory, IModule
     private List<IDisposable> subscriptions = [];
 
     public void SubscribeToEvents(EventBus bus) {
-        this.eventBus = bus;
-        subscriptions.Add(bus.Subscribe<RamReadEvent>(HandleRead));
-        subscriptions.Add(bus.Subscribe<RamWriteEvent>(HandleWrite));
+        eventBus = bus;
+        subscriptions.Add(bus.Subscribe<Memory,RamReadEvent>(this,HandleRead));
+        subscriptions.Add(bus.Subscribe<Memory,RamWriteEvent>(this,HandleWrite));
     }
 
     public void UnsubscribeFromEvents() {
@@ -374,11 +356,18 @@ public sealed class Memory : IDisposable, IMemory, IModule
         subscriptions.Clear();
     }
 
-    private void HandleRead(RamReadEvent memoryReadEvent) {
-        Read(memoryReadEvent.Address, memoryReadEvent.Buffer.Span[..(int)memoryReadEvent.Size]);
+    public void Serialize(Stream s) {
+        throw new NotImplementedException();
+    }
+    public void Deserialize(Stream s) {
+        throw new NotImplementedException();
     }
 
-    private void HandleWrite(RamWriteEvent memoryWriteEvent) {
-        Write(memoryWriteEvent.Address, memoryWriteEvent.Buffer.Span[..(int)memoryWriteEvent.Size]);
+    private static void HandleRead(Memory state, RamReadEvent memoryReadEvent) {
+        state.Read(memoryReadEvent.Address, memoryReadEvent.Buffer.Span[..(int)memoryReadEvent.Size]);
+    }
+
+    private static void HandleWrite(Memory state, RamWriteEvent memoryWriteEvent) {
+        state.Write(memoryWriteEvent.Address, memoryWriteEvent.Buffer.Span[..(int)memoryWriteEvent.Size]);
     }
 }
