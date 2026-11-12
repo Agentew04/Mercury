@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:design="clr-namespace:Mercury.Editor.Views.Design"
              xmlns:vm="clr-namespace:Mercury.Editor.ViewModels.Design"
-             xmlns:nodify="https://miroiu.github.io/nodify"
+             xmlns:nodify="clr-namespace:Nodify.Avalonia;assembly=Nodify.Avalonia"
+             xmlns:nodes="clr-namespace:Nodify.Avalonia.Nodes;assembly=Nodify.Avalonia"
+             xmlns:connections="clr-namespace:Nodify.Avalonia.Connections;assembly=Nodify.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Mercury.Editor.Views.Design.DesignView">
     <UserControl.Styles>
@@ -58,11 +60,11 @@
                              x:Name="Editor">
             <nodify:NodifyEditor.ItemTemplate>
                 <DataTemplate DataType="{x:Type vm:NodeViewModel}">
-                    <nodify:Node Input="{Binding Input}"
+                    <nodes:Node Input="{Binding Input}"
                                  Header="{Binding .}"
                                  Footer="{Binding NodeTypeLocalized}"
                                  Output="{Binding Output}">
-                        <nodify:Node.HeaderTemplate>
+                        <nodes:Node.HeaderTemplate>
                             <DataTemplate DataType="vm:NodeViewModel">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <TextBlock Grid.Column="0" Text="{Binding Name}"
@@ -79,28 +81,28 @@
                                             FontFamily="{StaticResource PhosphorFont}"/>
                                 </Grid>
                             </DataTemplate>
-                        </nodify:Node.HeaderTemplate>
-                        <nodify:Node.FooterTemplate>
+                        </nodes:Node.HeaderTemplate>
+                        <nodes:Node.FooterTemplate>
                             <DataTemplate DataType="x:String">
                                 <TextBlock Text="{Binding .}"></TextBlock>
                             </DataTemplate>
-                        </nodify:Node.FooterTemplate>
-                        <nodify:Node.InputConnectorTemplate>
+                        </nodes:Node.FooterTemplate>
+                        <nodes:Node.InputConnectorTemplate>
                             <DataTemplate DataType="vm:ConnectorViewModel">
-                                <nodify:NodeInput Header="{Binding Title}"
+                                <nodes:NodeInput Header="{Binding Title}"
                                                   IsConnected="{Binding IsConnected}"
                                                   
                                                   Anchor="{Binding Anchor, Mode=OneWayToSource}"/>
                             </DataTemplate>
-                        </nodify:Node.InputConnectorTemplate>
-                        <nodify:Node.OutputConnectorTemplate>
+                        </nodes:Node.InputConnectorTemplate>
+                        <nodes:Node.OutputConnectorTemplate>
                             <DataTemplate DataType="vm:ConnectorViewModel">
-                                <nodify:NodeOutput Header="{Binding Title}"
+                                <nodes:NodeOutput Header="{Binding Title}"
                                                    IsConnected="{Binding IsConnected}"
                                                    Anchor="{Binding Anchor, Mode=OneWayToSource}"/>
                             </DataTemplate>
-                        </nodify:Node.OutputConnectorTemplate>
-                    </nodify:Node>
+                        </nodes:Node.OutputConnectorTemplate>
+                    </nodes:Node>
                 </DataTemplate>
             </nodify:NodifyEditor.ItemTemplate>
             <nodify:NodifyEditor.ItemContainerTheme>
@@ -111,7 +113,7 @@
             </nodify:NodifyEditor.ItemContainerTheme>
             <nodify:NodifyEditor.ConnectionTemplate>
                 <DataTemplate DataType="vm:ConnectionViewModel">
-                    <nodify:CircuitConnection Source="{Binding Source.Anchor}"
+                    <connections:CircuitConnection Source="{Binding Source.Anchor}"
                                               Target="{Binding Target.Anchor}"
                                               Angle="45"
                                               Direction="Forward"/>
@@ -119,7 +121,7 @@
             </nodify:NodifyEditor.ConnectionTemplate>
             <nodify:NodifyEditor.PendingConnectionTemplate>
                 <DataTemplate DataType="vm:PendingConnectionViewModel">
-                    <nodify:PendingConnection StartedCommand="{Binding StartCommand}"
+                    <connections:PendingConnection StartedCommand="{Binding StartCommand}"
                                               CompletedCommand="{Binding FinishCommand}"
                                               AllowOnlyConnectors="True"
                                               EnableSnapping="True"/>

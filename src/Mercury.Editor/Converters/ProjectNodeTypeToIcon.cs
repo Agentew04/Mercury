@@ -2,6 +2,7 @@
 using System.Globalization;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
+using Avalonia.Metadata;
 using Mercury.Editor.Models;
 
 namespace Mercury.Editor.Converters;

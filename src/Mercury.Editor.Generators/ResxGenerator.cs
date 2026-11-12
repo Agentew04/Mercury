@@ -236,6 +236,7 @@ public class ResxGenerator : IIncrementalGenerator {
               using Avalonia;
               using Avalonia.Data;
               using Avalonia.Markup.Xaml;
+              using Avalonia.Metadata;
               
               namespace Mercury.Editor.Localization;
               
@@ -249,7 +250,7 @@ public class ResxGenerator : IIncrementalGenerator {
                   
                   public {{module}}Extension({{module}}Enum resource) => Resource = resource;
                   
-                  public IBinding ProvideValue() {
+                  public BindingBase ProvideValue() {
                       switch (Resource) {
               {{switchCaseEntries}}
                       }

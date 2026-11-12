@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyClsCompliant>false</AssemblyClsCompliant>
-    <IsAotCompatible>true</IsAotCompatible>
+<!--    <IsAotCompatible>true</IsAotCompatible>-->
     <RootNamespace>Mercury.Engine</RootNamespace>
     <LangVersion>14</LangVersion>
   </PropertyGroup>
@@ -37,7 +37,7 @@
 
   <ItemGroup>
     <PackageReference Include="ELFSharp" Version="2.17.3" />
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+    <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
   </ItemGroup>
 
 </Project>

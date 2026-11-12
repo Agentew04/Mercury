@@ -8,7 +8,7 @@
         d:DesignWidth="480" d:DesignHeight="250"
         Width="480" Height="250"
         WindowStartupLocation="CenterScreen"
-        SystemDecorations="None"
+        WindowDecorations="None"
         Topmost="True"
         x:Class="Mercury.Editor.Views.SplashScreen"
         x:DataType="vm:SplashScreenViewModel"

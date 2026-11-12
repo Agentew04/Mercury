@@ -10,14 +10,12 @@
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
         <StyleInclude Source="/Controls/ChapterControl.axaml"/>
         <StyleInclude Source="/Assets/Styles/DefaultStyles.axaml"/>
+        <StyleInclude Source="avares://Nodify.Avalonia/Themes/Controls.xaml" />
     </Application.Styles>
   <Application.Resources>
       <ResourceDictionary>
           <ResourceDictionary.MergedDictionaries>
               <ResourceInclude Source="Controls/GuideMenu.axaml"/>
-              <!-- nodify themes -->
-              <ResourceInclude Source="avares://Nodify/Theme.axaml" />
-              <ResourceInclude Source="avares://Nodify/Themes/Dark.xaml"/>
           </ResourceDictionary.MergedDictionaries>
       </ResourceDictionary>
       

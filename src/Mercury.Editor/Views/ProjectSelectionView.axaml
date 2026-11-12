@@ -16,9 +16,8 @@
         x:DataType="vm:ProjectSelectionViewModel"
         Icon="avares://Mercury.Editor/Assets/Images/icon-noborder-64.png"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="-1"
-        SystemDecorations="BorderOnly"
+        WindowDecorations="BorderOnly"
         Title="Mercury"
         Closing="Window_OnClosing">
     <Window.Styles>
@@ -44,7 +43,7 @@
                        Text="{loc:ProjectResources OpenProject}" Classes="minorheader"/>
             
             <StackPanel Grid.Row="1" Margin="15,0">
-                <TextBox x:Name="SearchBox" Watermark="{loc:ProjectResources RecentProjectsWatermark}"
+                <TextBox x:Name="SearchBox" PlaceholderText="{loc:ProjectResources RecentProjectsWatermark}"
                          Text="{Binding SearchQuery, Mode=TwoWay}"/>
             </StackPanel>
             <ListBox Grid.Row="2"

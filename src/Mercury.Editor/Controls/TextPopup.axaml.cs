@@ -23,7 +23,7 @@ public partial class TextPopup : UserControl, IPopup<RequestTextPopupMessage, Te
         PopupTitle.Text = request.Title ?? string.Empty;
         PopupTitle.IsVisible = request.Title is not null;
         TextBox.Text = string.Empty;
-        TextBox.Watermark = request.Watermark;
+        TextBox.PlaceholderText = request.Watermark;
         TextBox.Focus();
         CancelButton.IsVisible = isCancellable;
         tcs = new TaskCompletionSource<TextPopupResult>();

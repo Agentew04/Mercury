@@ -12,9 +12,8 @@
         Title="Mercury"
         Icon="avares://Mercury.Editor/Assets/Images/icon-noborder-64.png"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="-1"
-        SystemDecorations="BorderOnly"
+        WindowDecorations="BorderOnly"
         CanResize="True">
   <Window.Styles>
     <Style Selector="MenuItem">

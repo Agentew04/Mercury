@@ -1,13 +1,15 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:Mercury.Editor.ViewModels.Design"
-        xmlns:nodify="https://miroiu.github.io/nodify">
+        xmlns:nodify="clr-namespace:Nodify.Avalonia;assembly=Nodify.Avalonia"
+        xmlns:nodes="clr-namespace:Nodify.Avalonia.Nodes;assembly=Nodify.Avalonia"
+        xmlns:connections="clr-namespace:Nodify.Avalonia.Connections;assembly=Nodify.Avalonia">
     <Design.PreviewWith>
         <Border Padding="20">
-            <nodify:Node Header="ALU" Width="150">
-                <nodify:Node.Input>
-                </nodify:Node.Input>
-                <nodify:Node.HeaderTemplate>
+            <nodes:Node Header="ALU" Width="150">
+                <nodes:Node.Input>
+                </nodes:Node.Input>
+                <nodes:Node.HeaderTemplate>
                     <DataTemplate DataType="x:String">
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Grid.Column="0" Text="{Binding .}"
@@ -29,8 +31,8 @@
                             <!-- pencil icon &#xE3B4; -->
                         </Grid>
                     </DataTemplate>
-                </nodify:Node.HeaderTemplate>
-            </nodify:Node>
+                </nodes:Node.HeaderTemplate>
+            </nodes:Node>
         </Border>
     </Design.PreviewWith>
 
@@ -46,10 +48,10 @@
         <Setter Property="Margin" Value="-1"></Setter>
         <Setter Property="BorderBrush" Value="Orange"></Setter>
     </Style>
-    <Style Selector="nodify|Node > Border">
+    <Style Selector="nodes|Node > Border">
         <Setter Property="ClipToBounds" Value="True"></Setter>
     </Style>
-    <Style Selector="nodify|Node Border#PART_Header TextBox">
+    <Style Selector="nodes|Node Border#PART_Header TextBox">
     </Style>
     <!-- Add Styles Here -->
 </Styles>
